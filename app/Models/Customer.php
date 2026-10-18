@@ -22,6 +22,16 @@ class Customer extends Model
         return $this->hasMany(CustomerAddress::class);
     }
 
+    public function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function telegramSession(): HasOne
     {
         return $this->hasOne(TelegramSession::class);
