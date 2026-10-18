@@ -57,8 +57,8 @@ These are **delivery phases**, not calendar commitments. Each can be split into 
 - No scope change without a documented MVP decision.
 
 ## Current implementation versus planning
-- **Implemented and verified by CI:** Laravel 13 scaffold/packages, base RBAC role seeder/admin provision command, shipping calculator, and **Phase 1** Fortify staff login, guarded catalog/settings admin routes, catalog/schema/media collection code, Persian Livewire/Mary UI components, PHPUnit/Pint and Vite build.
-- **Partially prepared:** Spatie package migrations and Phase 1 catalog/settings migrations exist in Git; actual deployment MySQL migration/admin provisioning and runtime configuration still require environment access. Nutgram customer flows and remaining domains are not completed.
+- **Implemented and verified by CI:** Laravel 13 scaffold/packages, base RBAC role seeder/admin provision command, shipping calculator, and **Phase 1** Fortify staff login, guarded catalog/settings admin routes, catalog/schema/media collection code, Persian Livewire/Mary UI components, and **Phase 2** Telegram customer/addresses, verified webhook/update ledger, private bot catalog/search/media/support flows; PHPUnit/Pint and Vite build.
+- **Partially prepared:** Spatie package migrations and Phase 1 catalog/settings migrations exist in Git; actual deployment MySQL migration/admin provisioning and runtime configuration still require environment access. Live Nutgram webhook setup and its runtime access, MySQL migration and remaining business domains are not completed.
 - **Not claimed:** production deployment, working external Telegram webhook or database migration on the deployment MySQL, receipt review UI, checkout/order features or end-to-end ordering.
 
 ## Acceptance policy
