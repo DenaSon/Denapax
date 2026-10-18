@@ -127,11 +127,10 @@ class CartCheckoutMessages
 
         $session = $this->conversation->session($customer);
         $context = $session->context ?? [];
-        if (
-            $session->state !== 'checkout:confirm'
-            || $session->expires_at?->isPast()
-            || ($context['checkout_key'] ?? '') !== $key
-        ) {
+        $invalidState = $session->state !== 'checkout:confirm';
+        $expired = $session->expires_at?->isPast() ?? true;
+        $wrongKey = ($context['checkout_key'] ?? '') !== $key;
+        if ($invalidState || $expired || $wrongKey) {
             $bot->sendMessage('پیش‌نمایش سفارش منقضی شده یا تغییر کرده است؛ دوباره از سبد خرید بررسی کنید.');
 
             return;
@@ -152,7 +151,7 @@ class CartCheckoutMessages
         $payment = $order->payment_instructions_snapshot;
         $bot->sendMessage(
             "✅ سفارش ثبت شد\nشماره: ".$order->order_number
-            ."\nمبلغ: ".$this->toman($order->total_irr)." تومان"
+            ."\nمبلغ: ".$this->toman($order->total_irr).' تومان'
             ."\n\nپرداخت کارت‌به‌کارت:"
             ."\nشماره کارت: ".$payment['card_number']
             ."\nبه نام: ".$payment['card_holder_name']
