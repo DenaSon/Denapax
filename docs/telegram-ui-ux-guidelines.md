@@ -169,6 +169,8 @@ Keep each important standalone action on a single full-width row if its label or
 
 **Acceptance:** understandable browsing without excessive message flooding, working pagination/prev/next, price and quantities accurate, no broken unavailable-item/ownership boundaries, lean targeted tests + CI green; real Telegram page volume and RTL checks in Phase 6.
 
+**UX-3 implementation reference:** [UX-3 handoff](19-ux-3-handoff.md) and [PR #45](https://github.com/DenaSon/Denapax/pull/45) contain one-message catalog listings, focused details/galleries and five-line paginated cart. Verify actual PR merge/CI; user-device message volume/RTL is still a Phase 6 Gate B requirement.
+
 **Handoff to UX-4:** a readable cart reliably feeds the existing financial checkout.
 
 ### UX-4 — Checkout, manual receipt, orders, notifications and end-to-end UX ([Issue #41](https://github.com/DenaSon/Denapax/issues/41))
