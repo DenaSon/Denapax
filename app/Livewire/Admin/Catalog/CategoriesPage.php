@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Catalog;
 use App\Models\Category;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class CategoriesPage extends Component
@@ -28,6 +29,18 @@ class CategoriesPage extends Component
         $this->slug = $category->slug;
         $this->isActive = $category->is_active;
         $this->sortOrder = $category->sort_order;
+    }
+
+    public function remove(int $id): void
+    {
+        Gate::authorize('catalog.manage');
+        $category = Category::findOrFail($id);
+        if ($category->products()->withTrashed()->exists()) {
+            throw ValidationException::withMessages(['category' => 'ابتدا محصولات این دسته را به دسته دیگری منتقل کنید.']);
+        }
+
+        activity()->causedBy(auth()->user())->performedOn($category)->log('category.removed');
+        $category->delete();
     }
 
     public function resetForm(): void
