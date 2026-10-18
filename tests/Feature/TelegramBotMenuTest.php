@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SergiX44\Nutgram\Nutgram;
-use SergiX44\Nutgram\Testing\FakeNutgram;
 use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use SergiX44\Nutgram\Telegram\Types\User\User;
+use SergiX44\Nutgram\Testing\FakeNutgram;
 use Tests\TestCase;
 
 class TelegramBotMenuTest extends TestCase
