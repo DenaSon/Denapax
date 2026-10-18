@@ -16,6 +16,7 @@ class ReviewPaymentReceipt
     public function execute(User $reviewer, int $receiptId, string $decision, ?string $reason = null): PaymentReceipt
     {
         Gate::forUser($reviewer)->authorize('payments.review');
+        abort_unless($reviewer->is_active, 403);
 
         if (! in_array($decision, ['approved', 'rejected'], true)) {
             throw ValidationException::withMessages(['decision' => 'تصمیم بررسی معتبر نیست.']);
