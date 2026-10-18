@@ -1,7 +1,8 @@
-# Denapax — Order, Payment & Notification Workflows v1.0
+# Denapax — Order, Payment & Notification Workflows v1.1
 
 **Scope reference:** [MVP v1.1](01-mvp-scope.md)  
-**Data model:** [ERD & Dictionary](03-database-design.md)
+**Data model:** [ERD & Dictionary](03-database-design.md)  
+**Packages and bootstrap:** [Stack & Windows setup](05-stack-and-windows-setup.md)
 
 ## Telegram customer journey
 1. `/start` creates/updates Telegram customer identity and shows main menu: browse, search, cart, my orders, support.
@@ -39,7 +40,7 @@ stateDiagram-v2
 Only `under_review` receipt can be approved/rejected; only latest currently pending receipt is actionable. Approval moves order from `awaiting_payment` to `confirmed` within same transaction. Order cannot advance to packing or shipping otherwise. Cancellation in MVP is for unpaid orders only.
 
 ## Receipt review — invariants
-- Verify current user is admin; present private receipt media through authenticated access only.
+- Verify current staff user is authenticated via Fortify and authorized via Spatie Permission (`payments.review`); present private receipt media through authenticated access only.
 - New upload validates ownership, order payment eligibility, MIME, file size and prevents simultaneous pending attempts.
 - Store the receipt in private storage (Telegram file reference can also be saved). Do not expose storage paths publicly.
 - On rejection, require nonempty reason; set receipt to rejected, order payment status to rejected and notify user with resubmit action.
@@ -78,7 +79,7 @@ Tests must also verify total product weight + packaging: 900g goods + 150g packa
 - Per-user order lookup by authenticated Telegram identity; never authorize solely by guessed order number.
 - Validate Telegram callback context against customer and current state; checkout key prevents repeat orders.
 - Rate-limit search and risky actions to avoid spam and abuse.
-- Log relevant status changes and receipt decisions, without leaking personal details or bot token.
+- Log relevant status changes and receipt decisions to Spatie `activity_log`, without leaking personal details, full card information or bot token. Persist domain transitions separately in `order_status_histories`.
 - Store a backup of private receipt media and database; define retention and legal/privacy policies before launch.
 
 ## Acceptance scenarios
