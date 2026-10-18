@@ -26,10 +26,10 @@
 
 | Phase | Primary focus and stories | Exit gate |
 | --- | --- | --- |
-| 1 · Admin & Catalog | #2, #3, #12 | Staff sign-in, RBAC, product/variant/media CRUD validated |
+| 1 · Admin & Catalog | #2, #3, #12, #27 | Staff sign-in, RBAC, store/card/support settings and product/variant/media CRUD validated |
 | 2 · Telegram & Customers | #4, #13, #14, #26 | Bot browsing/search, saved addresses and support work securely |
 | 3 · Cart & Checkout | #15, #16, #17 | Multi-item checkout, gram-based postage and immutable snapshot |
-| 4 · Card-to-Card Payment | #27, #18, #19, #20 | Card settings and private receipt upload/review/resubmission verified |
+| 4 · Card-to-Card Payment | #18, #19, #20 | Card instructions from preconfigured settings plus private receipt upload/review/resubmission verified |
 | 5 · Fulfillment & Notifications | #28, #21, #22, #23 | Admin queue, states, tracking and outbox notifications work |
 | 6 · Production Readiness | #24, #25 | E2E/security/operations gates met and release test passed |
 
