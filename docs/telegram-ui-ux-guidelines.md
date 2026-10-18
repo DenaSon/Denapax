@@ -57,7 +57,7 @@ Only this copy is explicitly approved as **final customer-facing wording**. Othe
 
 Keep each important standalone action on a single full-width row if its label or mobile readability requires it. Do not switch to persistent ReplyKeyboard or Mini App without explicit product approval.
 
-**Existing implementation note (as of guide authoring):** product/cart/address/orders and support menu exist in `master`; help + `/help` are implemented **on the draft Phase 6 PR #36**, not yet merged to `master`. The direct Telegram support chat link and new greeting copy are **not yet implemented**. Never confuse this approved guide with deployed software.
+**UX-1 implementation note (2026-10-19):** [PR #43](https://github.com/DenaSon/Denapax/pull/43) implements the exact welcome message, help/menu integration, Telegram support URL button with safe fallback and key home/back paths; see [UX-1 handoff](17-ux-1-handoff.md). This reuses, rather than duplicates, help code from draft Phase 6 PR #36; that later PR **must be reconciled** to prevent stale overwrites. Read current PR/CI before claiming merge; real Telegram/mobile smoke and release acceptance are still unverified.
 
 ## 3. Interaction and copy patterns
 

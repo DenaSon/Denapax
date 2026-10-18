@@ -16,7 +16,13 @@ class CustomerOrdersBot
             ->paginate(perPage: 5, page: min(max(1, $page), 500));
 
         if ($orders->isEmpty()) {
-            $bot->sendMessage('سفارشی در این صفحه پیدا نشد.');
+            $bot->sendMessage(
+                text: 'سفارشی در این صفحه پیدا نشد.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('🌰 مشاهده محصولات', callback_data: 'menu:catalog'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -38,6 +44,8 @@ class CustomerOrdersBot
         if ($nav) {
             $keyboard->addRow(...$nav);
         }
+
+        $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(text: '📦 سفارش‌های من', reply_markup: $keyboard);
     }
@@ -68,7 +76,10 @@ class CustomerOrdersBot
 
         $bot->sendMessage(
             text: mb_substr($text, 0, 3900),
-            reply_markup: Keyboard::make()->addRow(Button::make('بازگشت به سفارش‌ها', callback_data: 'myorders:1')),
+            reply_markup: Keyboard::make()->addRow(
+                Button::make('⬅️ سفارش‌های من', callback_data: 'myorders:1'),
+                Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+            ),
         );
     }
 

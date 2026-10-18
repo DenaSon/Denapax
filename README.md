@@ -17,6 +17,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
 - **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
 - **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
+- [UX-1 handoff — welcome, help, direct Telegram support and navigation (PR #43)](docs/17-ux-1-handoff.md)
 - [MVP Scope v1.1](docs/01-mvp-scope.md)
 - [Architecture and boundaries](docs/02-architecture.md)
 - [Database ERD and Data Dictionary](docs/03-database-design.md)

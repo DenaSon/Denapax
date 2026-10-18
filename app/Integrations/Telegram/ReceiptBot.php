@@ -36,7 +36,13 @@ class ReceiptBot
             ->get();
 
         if ($orders->isEmpty()) {
-            $bot->sendMessage('سفارش پرداخت‌نشده‌ای برای ارسال رسید ندارید.');
+            $bot->sendMessage(
+                text: 'سفارش پرداخت‌نشده‌ای برای ارسال رسید ندارید.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -46,6 +52,8 @@ class ReceiptBot
             $label = $order->order_number.' — '.$this->paymentLabel($order->payment_status);
             $keyboard->addRow(Button::make($label, callback_data: 'receipt:order:'.$order->id));
         }
+
+        $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(
             text: '🧾 برای مشاهده وضعیت و ارسال رسید، سفارش خود را انتخاب کنید.',
@@ -80,7 +88,10 @@ class ReceiptBot
             $keyboard->addRow(Button::make('📎 ارسال رسید', callback_data: 'receipt:upload:'.$order->id));
         }
 
-        $keyboard->addRow(Button::make('سفارش‌های پرداخت‌نشده', callback_data: 'menu:receipt'));
+        $keyboard->addRow(
+            Button::make('⬅️ سفارش‌های پرداخت‌نشده', callback_data: 'menu:receipt'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
         $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
     }
 
