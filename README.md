@@ -3,9 +3,9 @@
 Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
-**GitHub status checked 2026-10-19 (UX-3 kickoff):** **31 actual Issues** = 27 original MVP and four UX #38–#41; **26 closed, 5 open** (#11, #24, #25, #40, #41); **11 merged PRs** through [UX-2 #44](https://github.com/DenaSon/Denapax/pull/44). UX-3 implementation [PR #45](https://github.com/DenaSon/Denapax/pull/45) is pending verification/merge at this snapshot; re-check GitHub for latest status.
+**GitHub status checked 2026-10-19 (UX-4 PR review):** 31 actual Issues = 27 original MVP and 4 UX issues #38–#41. UX-1/#38, UX-2/#39, and UX-3/#40 are closed. UX-4 [PR #46](https://github.com/DenaSon/Denapax/pull/46) passed CI and is awaiting merge/issue closure at this snapshot. Phase 6 launch issues #11/#24/#25 remain open. Re-check GitHub for actual current status.
 
-**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1 and UX-2 were merged, UX-3 is underway, UX-4 is upcoming. This does not replace Phase 6. No live Telegram, real MySQL/Redis or banking trial has been claimed.
+**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1, UX-2 and UX-3 were merged; UX-4 is implemented in [PR #46](https://github.com/DenaSon/Denapax/pull/46), pending its own merge decision. This does not replace Phase 6. No live Telegram, real MySQL/Redis or banking trial has been claimed.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -20,6 +20,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 - [UX-1 handoff — welcome, help, direct Telegram support and navigation (merged PR #43)](docs/17-ux-1-handoff.md)
 - [UX-2 handoff — native Telegram button styles and plain emoji fallback](docs/18-ux-2-handoff.md)
 - [UX-3 handoff — compact catalog, gallery and multi-page cart](docs/19-ux-3-handoff.md)
+- [UX-4 handoff — checkout, receipts, payment states, shipping and notifications](docs/20-ux-4-handoff.md)
 - [MVP Scope v1.1](docs/01-mvp-scope.md)
 - [Architecture and boundaries](docs/02-architecture.md)
 - [Database ERD and Data Dictionary](docs/03-database-design.md)

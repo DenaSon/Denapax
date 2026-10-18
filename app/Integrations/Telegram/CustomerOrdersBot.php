@@ -30,7 +30,7 @@ class CustomerOrdersBot
         $keyboard = Keyboard::make();
         foreach ($orders as $order) {
             $keyboard->addRow(Button::make(
-                $order->order_number.' — '.$this->label($order->order_status),
+                $order->order_number.' · '.OrderStateLabels::order($order->order_status),
                 callback_data: 'myorder:'.$order->id,
             ));
         }
@@ -54,15 +54,23 @@ class CustomerOrdersBot
     {
         $order = $customer->orders()->with(['items', 'shipment'])->find($orderId);
         if (! $order) {
-            $bot->sendMessage('سفارش در حساب شما پیدا نشد.');
+            $bot->sendMessage(
+                text: 'این سفارش در حساب شما پیدا نشد.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('⬅️ سفارش‌های من', callback_data: 'menu:orders'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
 
         $text = '📦 شماره سفارش: '.$order->order_number
-            ."\nوضعیت: ".$this->label($order->order_status)
-            ."\nپرداخت: ".$this->paymentLabel($order->payment_status)
-            ."\nمبلغ کل: ".number_format(intdiv($order->total_irr, 10)).' تومان';
+            ."\nوضعیت سفارش: ".OrderStateLabels::order($order->order_status)
+            ."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status)
+            ."\n\n🛒 جمع کالا: ".number_format(intdiv($order->goods_subtotal_irr, 10)).' تومان'
+            ."\n🚚 هزینه ارسال: ".number_format(intdiv($order->shipping_fee_irr, 10)).' تومان'
+            ."\n💳 مبلغ کل: ".number_format(intdiv($order->total_irr, 10)).' تومان';
 
         foreach ($order->items as $item) {
             $text .= "\n• ".$item->product_title_snapshot.' / '.$item->variant_title_snapshot
@@ -70,40 +78,25 @@ class CustomerOrdersBot
         }
 
         if ($order->shipment) {
-            $text .= "\nشرکت حمل: ".$order->shipment->carrier
-                ."\nکد رهگیری: ".($order->shipment->tracking_code ?: 'ثبت نشده');
+            $text .= "\n\n🚚 شرکت حمل: ".$order->shipment->carrier
+                ."\nکد رهگیری: ".($order->shipment->tracking_code ?: 'هنوز ثبت نشده');
         }
 
-        $bot->sendMessage(
-            text: mb_substr($text, 0, 3900),
-            reply_markup: Keyboard::make()->addRow(
-                Button::make('⬅️ سفارش‌های من', callback_data: 'myorders:1'),
-                Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
-            ),
+        $keyboard = Keyboard::make();
+        if ($order->order_status === 'awaiting_payment') {
+            if (in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
+                $keyboard->addRow(StorefrontButtons::primary('🧾 ارسال رسید پرداخت', 'receipt:order:'.$order->id));
+            } elseif ($order->payment_status === 'under_review') {
+                $text .= "\n\nرسید در حال بررسی است. تا اعلام نتیجه، نیازی به پرداخت یا ارسال دوباره نیست.";
+                $keyboard->addRow(Button::make('🧾 وضعیت رسید', callback_data: 'receipt:order:'.$order->id));
+            }
+        }
+
+        $keyboard->addRow(
+            Button::make('⬅️ سفارش‌های من', callback_data: 'myorders:1'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
-    }
 
-    private function label(string $state): string
-    {
-        return match ($state) {
-            'awaiting_payment' => 'در انتظار پرداخت',
-            'confirmed' => 'تأییدشده',
-            'preparing' => 'در حال آماده‌سازی',
-            'shipped' => 'ارسال‌شده',
-            'delivered' => 'تحویل‌شده',
-            'canceled' => 'لغوشده',
-            default => 'نامشخص',
-        };
-    }
-
-    private function paymentLabel(string $state): string
-    {
-        return match ($state) {
-            'awaiting_receipt' => 'در انتظار رسید',
-            'under_review' => 'در حال بررسی رسید',
-            'rejected' => 'نیازمند ارسال مجدد رسید',
-            'approved' => 'تأییدشده',
-            default => 'نامشخص',
-        };
+        $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
     }
 }
