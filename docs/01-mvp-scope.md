@@ -29,7 +29,7 @@ Launch a Telegram-message-and-button storefront for Dena souvenirs/dried fruits,
 - Search/filter orders; inspect customer snapshot, line items and receipts; approve/reject receipts with reason.
 - Change permissible order states and record postal tracking code.
 - Configure nationwide shipping parameters, shared packaging weight, card-payment display details and support contact.
-- Restricted admin login and audit of sensitive order/payment actions.
+- Restricted admin login using Fortify and Spatie Permission RBAC (seeded staff roles, no public registration); audit of sensitive order/payment actions via Spatie Activitylog.
 
 ## Shipping (one national rate)
 Every sellable variant has a strictly positive `shipping_weight_grams`. All weights are in **integer grams**, regardless of selling unit.
@@ -60,6 +60,8 @@ Settings are editable by the admin. Suggested initial tier sizes: base 1000g; ea
 - Authenticate customer via Telegram identity; an order lookup must verify ownership.
 - Process Telegram webhook updates idempotently; queue notifications with event deduplication and retry handling.
 - Keep receipts in private storage, not public URLs; require admin authorization for viewing.
+
+**Package and migration baseline:** [Stack & Windows bootstrap](05-stack-and-windows-setup.md) and [Database Design](03-database-design.md). RBAC authorization exists from MVP, while a visual role-management interface is out of scope.
 
 ## Out of scope
 Web storefront, Telegram Mini App, online gateway, automatic bank/payment checks, stock quantities/warehousing, coupons, loyalty points, automatic shipping carrier pricing, destination-zone pricing, postal API/status syncing, marketing broadcast, SMS, returns/refunds automation, multi-vendor, advanced accounting, and elaborate RBAC.
