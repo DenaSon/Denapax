@@ -5,6 +5,8 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\AddressConversation;
 use App\Application\Actions\IdentifyTelegramCustomer;
 use App\Application\Actions\SaveCustomerAddress;
+use App\Application\Actions\ManageCart;
+use Illuminate\Validation\ValidationException;
 use App\Models\Customer;
 use App\Models\StoreSetting;
 use SergiX44\Nutgram\Nutgram;
@@ -18,6 +20,8 @@ class StorefrontBot
         private readonly AddressConversation $addresses,
         private readonly SaveCustomerAddress $saveAddress,
         private readonly CatalogMessages $catalog,
+        private readonly ManageCart $carts,
+        private readonly CartCheckoutMessages $cartCheckout,
     ) {}
 
     public function onMessage(Nutgram $bot): void
@@ -53,6 +57,18 @@ class StorefrontBot
 
         if ($text === '/search') {
             $this->startSearch($bot, $customer);
+
+            return;
+        }
+
+        if ($text === '/cart') {
+            $this->cartCheckout->show($bot, $customer);
+
+            return;
+        }
+
+        if ($text === '/checkout') {
+            $this->cartCheckout->chooseAddress($bot, $customer);
 
             return;
         }
@@ -120,7 +136,8 @@ class StorefrontBot
         $bot->answerCallbackQuery();
         $data = (string) ($callback->data ?? '');
 
-        if ($data === 'menu:catalog') {
+        try {
+            if ($data === 'menu:catalog') {
             $this->catalog->categories($bot);
         } elseif ($data === 'menu:search') {
             $this->startSearch($bot, $customer);
@@ -129,11 +146,30 @@ class StorefrontBot
         } elseif ($data === 'menu:support') {
             $this->support($bot);
         } elseif ($data === 'menu:cart') {
-            $bot->sendMessage('سبد خرید در فاز ۳ فعال می‌شود.');
+            $this->cartCheckout->show($bot, $customer);
         } elseif ($data === 'menu:orders') {
             $bot->sendMessage('پیگیری سفارش‌ها پس از پیاده‌سازی ثبت سفارش و ارسال فعال می‌شود.');
         } elseif ($data === 'menu:home') {
             $this->menu($bot);
+        } elseif ($data === 'checkout:start') {
+            $this->cartCheckout->chooseAddress($bot, $customer);
+        } elseif (preg_match('/^checkout:address:([1-9][0-9]*)$/', $data, $m)) {
+            $this->cartCheckout->preview($bot, $customer, (int) $m[1]);
+        } elseif (preg_match('/^checkout:confirm:([a-f0-9-]{36})$/', $data, $m)) {
+            $this->cartCheckout->confirm($bot, $customer, $m[1]);
+        } elseif (preg_match('/^cart:add:([1-9][0-9]*)$/', $data, $m)) {
+            $this->carts->add($customer, (int) $m[1]);
+            $this->cartCheckout->show($bot, $customer);
+        } elseif (preg_match('/^cart:plus:([1-9][0-9]*)$/', $data, $m)) {
+            $this->carts->add($customer, (int) $m[1]);
+            $this->cartCheckout->show($bot, $customer);
+        } elseif (preg_match('/^cart:(minus|remove):([1-9][0-9]*)$/', $data, $m)) {
+            $line = $this->carts->cart($customer)->items()->where('product_variant_id', (int) $m[2])->first();
+            if ($line) {
+                $quantity = $m[1] === 'remove' ? 0 : max(0, $line->quantity - 1);
+                $this->carts->setQuantity($customer, (int) $m[2], $quantity);
+            }
+            $this->cartCheckout->show($bot, $customer);
         } elseif (preg_match('/^all:([1-9][0-9]{0,3})$/', $data, $m)) {
             $this->catalog->products($bot, null, null, (int) $m[1]);
         } elseif (preg_match('/^cat:([1-9][0-9]*):([1-9][0-9]{0,3})$/', $data, $m)) {
@@ -178,6 +214,9 @@ class StorefrontBot
             $this->listAddresses($bot, $customer, (int) $m[1]);
         } else {
             $bot->sendMessage('این گزینه معتبر نیست. از منوی اصلی ادامه دهید.');
+        }
+        } catch (ValidationException $exception) {
+            $bot->sendMessage(collect($exception->errors())->flatten()->first() ?? 'لطفاً سبد یا اطلاعات سفارش را بازبینی کنید.');
         }
     }
 
