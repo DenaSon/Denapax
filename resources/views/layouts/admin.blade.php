@@ -26,6 +26,9 @@
                     <li><a href="{{ route('admin.categories') }}">دسته‌بندی‌ها</a></li>
                     <li><a href="{{ route('admin.products') }}">محصولات</a></li>
                 @endcan
+                @can('payments.view')
+                    <li><a href="{{ route('admin.payments') }}">رسیدهای پرداخت</a></li>
+                @endcan
                 @can('shipping.manage')
                     <li><a href="{{ route('admin.shipping') }}">هزینه ارسال</a></li>
                 @endcan

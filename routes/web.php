@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\EnsureActiveStaff;
+use App\Http\Controllers\PrivatePaymentReceiptController;
+use App\Livewire\Admin\PaymentReviewPage;
 use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;
 use App\Livewire\Admin\Catalog\ProductsPage;
@@ -17,6 +19,9 @@ Route::middleware(['auth', EnsureActiveStaff::class])->prefix('admin')->name('ad
     Route::get('/products', ProductsPage::class)->middleware('can:catalog.manage')->name('products');
     Route::get('/products/new', ProductEditor::class)->middleware('can:catalog.manage')->name('products.create');
     Route::get('/products/{product}', ProductEditor::class)->middleware('can:catalog.manage')->name('products.edit');
+    Route::get('/payments', PaymentReviewPage::class)->middleware('can:payments.view')->name('payments');
+    Route::get('/payments/receipts/{receipt}/image', PrivatePaymentReceiptController::class)
+        ->middleware('can:payments.view')->name('payments.receipt.image');
     Route::get('/shipping', ShippingSettingsPage::class)->middleware('can:shipping.manage')->name('shipping');
     Route::get('/settings', SettingsPage::class)->middleware('can:settings.manage')->name('settings');
 });

@@ -27,6 +27,11 @@ class Order extends Model
         ];
     }
 
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(PaymentReceipt::class);
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

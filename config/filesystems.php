@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        // Financial evidence: not publicly served, never linked via storage:link.
+        'receipts' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/receipts'),
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
