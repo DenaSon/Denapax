@@ -85,7 +85,7 @@ class ReceiptBot
             $payment = $order->payment_instructions_snapshot;
             $text .= "\nشماره کارت: ".$payment['card_number']."\nبه نام: ".$payment['card_holder_name'];
             $text .= "\nفقط پس از انتقال وجه، عکس یا فایل تصویری رسید را ارسال کنید.";
-            $keyboard->addRow(Button::make('📎 ارسال رسید', callback_data: 'receipt:upload:'.$order->id));
+            $keyboard->addRow(StorefrontButtons::primary('📎 ارسال رسید', 'receipt:upload:'.$order->id));
         }
 
         $keyboard->addRow(
