@@ -185,6 +185,8 @@ Keep each important standalone action on a single full-width row if its label or
 
 **Acceptance:** no false "paid" messaging on receipt upload; accurate state machine and safe recovery; critical authorization/privacy/idempotence/financial snapshot regressions pass with lean automated CI; real Telegram staging evidence remains mandatory for launch and for declaring full customer-flow acceptance.
 
+**UX-4 implementation reference:** [Handoff](20-ux-4-handoff.md) and [PR #46](https://github.com/DenaSon/Denapax/pull/46). The implementation CI is green, but the actual PR merge/Issue #41 closure should be checked live in GitHub. Full real Telegram/bank/queue/mobile acceptance remains part of Phase 6.
+
 ### Cross-phase decision rules
 
 - **Each UX issue contains the executable checklist**; this guide is the overarching specification. On implementation, link branch/PR, essential checks, screenshots/evidence (scrub PII), merge SHA and outstanding risks in its issue.
