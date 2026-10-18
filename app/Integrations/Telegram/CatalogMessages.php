@@ -29,59 +29,54 @@ class CatalogMessages
 
     public function products(Nutgram $bot, ?int $categoryId, ?string $term, int $page): void
     {
-        $page = min(1000, max(1, $page));
-        $items = $this->catalog->products($categoryId, $term, $page);
-        $title = $term !== null ? 'نتایج جستجو: '.$term : 'محصولات فروشگاه';
+        $items = $this->catalog->products($categoryId, $term, min(1000, max(1, $page)));
+        $keyboard = Keyboard::make();
 
         if ($items->total() === 0) {
-            $bot->sendMessage('محصول فعالی پیدا نشد. عبارت دیگری جستجو کنید.');
+            $keyboard->addRow(
+                Button::make('🔎 جستجوی دوباره', callback_data: 'menu:search'),
+                StorefrontButtons::primary('🌰 محصولات', 'all:1'),
+            );
+            $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
+            $bot->sendMessage(
+                text: 'محصولی پیدا نشد. عبارت دیگری جستجو کنید یا محصولات را ببینید.',
+                reply_markup: $keyboard,
+            );
 
             return;
         }
 
         if ($items->isEmpty()) {
-            $bot->sendMessage('صفحه‌ای با این شماره وجود ندارد.');
+            $keyboard->addRow(
+                Button::make('⬅️ صفحه اول', callback_data: $term !== null ? 'search:1' : ($categoryId === null ? 'all:1' : 'cat:'.$categoryId.':1')),
+                Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+            );
+            $bot->sendMessage(text: 'این صفحه در دسترس نیست؛ به صفحه اول برگردید.', reply_markup: $keyboard);
 
             return;
         }
 
-        $keyboard = Keyboard::make();
+        // Exactly one list message per page; product media is shown on demand
+        // in details(), not sent in a batch for every catalog page.
         foreach ($items as $product) {
-            $keyboard->addRow(Button::make($product->title, callback_data: 'item:'.$product->id));
-
-            $summary = '🌰 '.$product->title."\nدسته: ".$product->category->name."\n".$product->summary;
-            foreach ($product->features->take(5) as $feature) {
-                $summary .= "\n• ".$feature->name.': '.$feature->value;
+            $minimum = $product->variants->min('price_irr');
+            $label = mb_substr($product->title, 0, 36);
+            if ($minimum !== null) {
+                $label .= ' · از '.$this->toman((int) $minimum).' تومان';
             }
-            $detailsButton = Keyboard::make()->addRow(
-                StorefrontButtons::primary('مشاهده تنوع‌ها و مشخصات', 'item:'.$product->id),
-            );
-
-            $cover = $product->getFirstMedia('gallery');
-            if ($cover) {
-                $bot->sendPhoto(
-                    photo: $cover->getFullUrl(),
-                    caption: mb_substr($summary, 0, 900),
-                    reply_markup: $detailsButton,
-                );
-            } else {
-                $bot->sendMessage(
-                    text: mb_substr($summary, 0, 3900),
-                    reply_markup: $detailsButton,
-                );
-            }
+            $keyboard->addRow(Button::make('🌰 '.$label, callback_data: 'item:'.$product->id));
         }
 
         $prefix = $term !== null ? 'search:' : ($categoryId === null ? 'all:' : 'cat:'.$categoryId.':');
-        $buttons = [];
+        $pager = [];
         if ($items->currentPage() > 1) {
-            $buttons[] = Button::make('⬅️ قبلی', callback_data: $prefix.($items->currentPage() - 1));
+            $pager[] = Button::make('⬅️ قبلی', callback_data: $prefix.($items->currentPage() - 1));
         }
         if ($items->hasMorePages()) {
-            $buttons[] = Button::make('بعدی ➡️', callback_data: $prefix.($items->currentPage() + 1));
+            $pager[] = Button::make('بعدی ➡️', callback_data: $prefix.($items->currentPage() + 1));
         }
-        if ($buttons !== []) {
-            $keyboard->addRow(...$buttons);
+        if ($pager !== []) {
+            $keyboard->addRow(...$pager);
         }
 
         $keyboard->addRow(
@@ -89,8 +84,9 @@ class CatalogMessages
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
 
+        $title = $term !== null ? '🔎 نتایج جستجو: '.mb_substr($term, 0, 80) : '🌰 محصولات فروشگاه';
         $bot->sendMessage(
-            text: $title."\nصفحه ".$items->currentPage().' از '.$items->lastPage(),
+            text: $title."\nصفحه ".$items->currentPage().' از '.$items->lastPage()."\n\nبرای دیدن تصویر، مشخصات و تنوع‌ها، محصول را انتخاب کنید.",
             reply_markup: $keyboard,
         );
     }
@@ -98,50 +94,62 @@ class CatalogMessages
     public function details(Nutgram $bot, int $productId): void
     {
         $product = $this->catalog->product($productId);
-
         if (! $product) {
-            $bot->sendMessage('این محصول اکنون قابل سفارش نیست.');
+            $bot->sendMessage(
+                text: 'این محصول اکنون قابل سفارش نیست. محصول دیگری انتخاب کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    StorefrontButtons::primary('🌰 محصولات', 'all:1'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
 
-        $text = '🌿 '.$product->title."\n".$product->summary;
+        $text = '🌰 '.$product->title."\n".$product->summary;
         if ($product->description) {
-            $text .= "\n".$product->description;
+            $text .= "\n".mb_substr($product->description, 0, 550);
         }
         if ($product->features->isNotEmpty()) {
             $text .= "\n\nویژگی‌ها:";
-            foreach ($product->features as $feature) {
+            foreach ($product->features->take(5) as $feature) {
                 $text .= "\n• ".$feature->name.': '.$feature->value;
             }
         }
 
-        $text .= "\n\nتنوع‌ها و قیمت‌ها:";
+        $text .= "\n\nتنوع‌های قابل سفارش:";
         foreach ($product->variants as $variant) {
             $text .= "\n• ".$variant->title.' ('.$variant->sale_quantity.' '.$variant->sale_unit.') — '
                 .$this->toman($variant->price_irr).' تومان';
         }
+        $text .= "\n\nبرای افزودن به سبد، تنوع موردنظر را انتخاب کنید.";
 
-        $text .= "\n\nبرای افزودن هر تنوع به سبد روی دکمه آن بزنید.";
         $keyboard = Keyboard::make();
         if ($product->getMedia('gallery')->count() > 1) {
-            $keyboard->addRow(Button::make('📷 تصاویر بیشتر', callback_data: 'gallery:'.$product->id.':1'));
+            $keyboard->addRow(Button::make('📷 گالری تصاویر', callback_data: 'gallery:'.$product->id.':0'));
         }
         foreach ($product->variants as $variant) {
             $keyboard->addRow(StorefrontButtons::success('🛒 افزودن '.$variant->title, 'cart:add:'.$variant->id));
             if ($variant->getFirstMedia('variant-image')) {
-                $keyboard->addRow(Button::make('تصویر '.$variant->title, callback_data: 'variant:'.$variant->id));
+                $keyboard->addRow(Button::make('📷 تصویر '.$variant->title, callback_data: 'variant:'.$variant->id));
             }
         }
-        $keyboard->addRow(Button::make('مشاهده سبد خرید', callback_data: 'menu:cart'));
+        $keyboard->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'));
         $keyboard->addRow(
-            Button::make('⬅️ بازگشت به محصولات', callback_data: 'all:1'),
+            Button::make('⬅️ محصولات', callback_data: 'all:1'),
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
 
         $media = $product->getFirstMedia('gallery');
+        if ($media && mb_strlen($text) <= 900) {
+            $bot->sendPhoto(photo: $media->getFullUrl(), caption: $text, reply_markup: $keyboard);
+
+            return;
+        }
+
         if ($media) {
-            // Telegram photo captions are short; send full details separately.
+            // Preserve complete selectable variants in the text message when
+            // Telegram's photo caption limit cannot fit the full details.
             $bot->sendPhoto(
                 photo: $media->getFullUrl(),
                 caption: mb_substr($product->title."\n".$product->summary, 0, 900),
@@ -156,7 +164,13 @@ class CatalogMessages
         $images = $product?->getMedia('gallery');
 
         if (! $images || ! isset($images[$index])) {
-            $bot->sendMessage('تصویر مورد نظر در دسترس نیست.');
+            $bot->sendMessage(
+                text: 'این تصویر در دسترس نیست. از فهرست محصولات ادامه دهید.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('⬅️ محصولات', callback_data: 'all:1'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -193,7 +207,13 @@ class CatalogMessages
         $media = $variant?->getFirstMedia('variant-image');
 
         if (! $media) {
-            $bot->sendMessage('تصویر این تنوع موجود نیست.');
+            $bot->sendMessage(
+                text: 'تصویر این تنوع در دسترس نیست.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('⬅️ محصولات', callback_data: 'all:1'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -203,6 +223,7 @@ class CatalogMessages
             caption: mb_substr($variant->product->title.' — '.$variant->title, 0, 900),
             reply_markup: Keyboard::make()->addRow(
                 Button::make('⬅️ بازگشت به محصول', callback_data: 'item:'.$variant->product_id),
+                Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
             ),
         );
     }

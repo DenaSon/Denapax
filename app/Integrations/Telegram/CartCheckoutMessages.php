@@ -22,33 +22,66 @@ class CartCheckoutMessages
         private readonly AddressConversation $conversation,
     ) {}
 
-    public function show(Nutgram $bot, Customer $customer): void
+    public function show(Nutgram $bot, Customer $customer, int $page = 1): void
     {
-        $items = $this->carts->cart($customer)->items()->with('variant.product')->get();
+        $items = $this->carts->cart($customer)->items()->with('variant.product')->orderBy('id')->get();
         if ($items->isEmpty()) {
-            $bot->sendMessage('🛒 سبد خرید خالی است. از فهرست محصولات کالا انتخاب کنید.');
+            $bot->sendMessage(
+                text: '🛒 سبد خرید شما خالی است. برای شروع، یک محصول انتخاب کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    StorefrontButtons::primary('🌰 مشاهده محصولات', 'menu:catalog'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
 
-        $message = '🛒 سبد خرید شما';
+        $perPage = 5;
+        $pages = (int) ceil($items->count() / $perPage);
+        $page = min($pages, max(1, $page));
+        $subtotal = $items->sum(fn ($item) => ($item->variant?->price_irr ?? 0) * $item->quantity);
+
+        $message = '🛒 سبد خرید شما'."\nصفحه ".$page.' از '.$pages;
         $keyboard = Keyboard::make();
-        foreach ($items as $item) {
+
+        foreach ($items->forPage($page, $perPage) as $index => $item) {
+            $number = $index + 1;
             $variant = $item->variant;
             $title = $variant?->product?->title ?? 'محصول غیرفعال';
             $unit = $variant?->price_irr ?? 0;
-            $message .= "\n• ".$title.' / '.($variant?->title ?? 'تنوع غیرفعال')
-                .' × '.$item->quantity.' — '.$this->toman($unit * $item->quantity).' تومان';
+            $message .= "\n\n".$number.'. '.mb_substr($title, 0, 90).' / '.mb_substr($variant?->title ?? 'تنوع غیرفعال', 0, 70)
+                ."\n".$this->toman($unit).' تومان × '.$item->quantity.' = '
+                .$this->toman($unit * $item->quantity).' تومان';
 
             $keyboard->addRow(
-                Button::make('➕ افزایش', callback_data: 'cart:plus:'.$item->product_variant_id),
-                Button::make('➖ کاهش', callback_data: 'cart:minus:'.$item->product_variant_id),
-                StorefrontButtons::danger('🗑️ حذف', 'cart:remove:'.$item->product_variant_id),
+                Button::make('➕ #'.$number, callback_data: 'cart:plus:'.$item->product_variant_id),
+                Button::make('➖ #'.$number, callback_data: 'cart:minus:'.$item->product_variant_id),
             );
+            $keyboard->addRow(StorefrontButtons::danger('🗑️ حذف #'.$number, 'cart:remove:'.$item->product_variant_id));
+        }
+
+        $message .= "\n\nتعداد اقلام: ".$items->sum('quantity')
+            ."\nجمع کالا: ".$this->toman((int) $subtotal).' تومان'
+            ."\nهزینه ارسال در مرحله بعد محاسبه می‌شود.";
+
+        $pager = [];
+        if ($page > 1) {
+            $pager[] = Button::make('⬅️ قبلی', callback_data: 'cart:page:'.($page - 1));
+        }
+        if ($page < $pages) {
+            $pager[] = Button::make('بعدی ➡️', callback_data: 'cart:page:'.($page + 1));
+        }
+        if ($pager !== []) {
+            $keyboard->addRow(...$pager);
         }
 
         $keyboard->addRow(StorefrontButtons::success('✅ ادامه و ثبت سفارش', 'checkout:start'));
-        $keyboard->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'));
+        $keyboard->addRow(
+            StorefrontButtons::primary('🌰 ادامه خرید', 'menu:catalog'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
+
         $bot->sendMessage(text: mb_substr($message, 0, 3900), reply_markup: $keyboard);
     }
 
