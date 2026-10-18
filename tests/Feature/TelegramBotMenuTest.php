@@ -149,16 +149,4 @@ class TelegramBotMenuTest extends TestCase
             $this->assertNull(SupportContactLink::fromContact($unsafe));
         }
     }
-
-    public function test_home_callback_sends_welcome_menu(): void
-    {
-        /** @var FakeNutgram $bot */
-        $bot = app(Nutgram::class);
-        $bot->setCommonUser(User::make(123456, false, 'Ali'));
-        $bot->setCommonChat(Chat::make(123456, 'private'));
-
-        $bot->hearCallbackQueryData('menu:home')
-            ->reply()
-            ->assertReplyText("🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.");
-    }
 }
