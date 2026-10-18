@@ -207,11 +207,7 @@ class CartCheckoutMessages
             $payment = $order->payment_instructions_snapshot;
             $text = "✅ سفارش ثبت شد\nشماره سفارش: ".$order->order_number
                 ."\nوضعیت سفارش: در انتظار پرداخت"
-                ."\nوضعیت رسید: ".match ($order->payment_status) {
-                    'under_review' => 'در انتظار بررسی پرداخت',
-                    'rejected' => 'نیازمند ارسال مجدد رسید',
-                    default => 'در انتظار ارسال رسید',
-                }
+                ."\nوضعیت رسید: ".OrderStateLabels::payment($order->payment_status)
                 ."\n\n🛒 جمع کالا: ".$this->toman($order->goods_subtotal_irr).' تومان'
                 ."\n🚚 هزینه ارسال: ".$this->toman($order->shipping_fee_irr).' تومان'
                 ."\n💳 مبلغ قابل پرداخت: ".$this->toman($order->total_irr).' تومان';
