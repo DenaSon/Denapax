@@ -27,6 +27,11 @@ class Order extends Model
         ];
     }
 
+    public function shipment(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Shipment::class);
+    }
+
     public function receipts(): HasMany
     {
         return $this->hasMany(PaymentReceipt::class);
