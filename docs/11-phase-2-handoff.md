@@ -8,7 +8,7 @@
 - Customer persistence keyed by **trusted Telegram user ID** (separate from admin staff `users`) with chat ID and contact profile.
 - Multiple customer addresses with recipient name/mobile, province/city, full address and 10-digit postal code. Add, edit (re-enter fields), delete, choose default; all operations scoped to the caller. Default mutation serializes on owning customer row.
 - Persistent Telegram conversation state and context, 30-minute form TTL, reset on `/cancel` or `/start`.
-- Regular **Nutgram 4** bot with private-chat buttons, category browse, active-product paginated list, product details, gallery primary image, features, variant/price in toman, title/description search, and Support contact from store settings.
+- Regular **Nutgram 4** bot with private-chat buttons, category browse, active-product paginated list, product details, gallery navigation (all images), optional per-variant image, features, variant/price in toman, title/description search, and Support contact from store settings.
 - `POST /api/telegram/webhook` with required `X-Telegram-Bot-Api-Secret-Token` and durable unique update-ID ledger; failed runs can be retried, fresh in-progress duplicates are acknowledged but not reprocessed.
 - The button callbacks are treated as untrusted: resource IDs are always filtered by visibility or owning customer. Telegram ID is derived from the received update and **not** callback data.
 - Menu slots for cart and own-orders are **non-functional placeholders by design** until phases 3 and 5. No premature order/payment processing is implemented.
