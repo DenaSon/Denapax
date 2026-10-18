@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\PaymentReceipt;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -107,7 +108,7 @@ class ManualPaymentTest extends TestCase
         $this->actingAs($operator)->get('/admin/payments')->assertOk();
         $this->actingAs($operator)->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertOk();
 
-        $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
+        $this->expectException(AuthorizationException::class);
         app(ReviewPaymentReceipt::class)->execute($operator, $receipt->id, 'approved');
     }
 

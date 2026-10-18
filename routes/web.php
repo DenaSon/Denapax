@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Middleware\EnsureActiveStaff;
 use App\Http\Controllers\PrivatePaymentReceiptController;
-use App\Livewire\Admin\PaymentReviewPage;
+use App\Http\Middleware\EnsureActiveStaff;
 use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;
 use App\Livewire\Admin\Catalog\ProductsPage;
 use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\PaymentReviewPage;
 use App\Livewire\Admin\SettingsPage;
 use App\Livewire\Admin\ShippingSettingsPage;
 use Illuminate\Support\Facades\Route;
