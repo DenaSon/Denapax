@@ -38,7 +38,7 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 ## 3. Source-of-truth reading order
 
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).
-2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md).
+2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md); **[Telegram UI/UX & Brand Guidelines](docs/telegram-ui-ux-guidelines.md)** (owner-approved greeting and three UX polish sub-phases).
 3. [Product Backlog: 7 Epics/20 Stories/6 Phases](docs/07-product-backlog.md); [Traceability](docs/08-mvp-traceability.md); [Execution Agreement](docs/09-execution-agreement.md).
 4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md).
 5. Actual current `master` files, PRs/Issues, and the latest **successful** CI run. Documentation is not proof of runtime behavior.
