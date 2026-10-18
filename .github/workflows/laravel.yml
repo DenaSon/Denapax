@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,6 +23,11 @@ jobs:
           tools: composer:v2
           coverage: none
           extensions: mbstring, pdo_sqlite, fileinfo, exif, gd, zip
+
+      - name: Configure GitHub archive authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: composer config --global github-oauth.github.com "$GH_TOKEN"
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
