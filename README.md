@@ -3,7 +3,7 @@
 Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
-**Phase:** Phases 1 and 2 merged with passing CI (Admin/Catalog and Telegram Storefront/Customers). Phase 3 Cart, Shipping & Checkout is next. Live Telegram/MySQL and complete end-to-end tests remain for phase 6.
+**Phase:** Phases 1–3 merged to `master` with passing CI (Admin/Catalog, Telegram Storefront/Customers, Cart/Shipping/Checkout). Phase 4 Manual Payments is next. Live Telegram/MySQL and complete end-to-end tests remain Phase 6.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -21,6 +21,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 - [MVP epics, user stories and six delivery phases](docs/07-product-backlog.md)
 - [MVP requirements-to-stories traceability matrix](docs/08-mvp-traceability.md)
 - [Phase 2 Telegram and Customers handoff](docs/11-phase-2-handoff.md)
+- [Phase 3 Cart, Shipping and Checkout handoff](docs/12-phase-3-handoff.md)
 - [Project execution agreement (phase merges, lean tests and short reports)](docs/09-execution-agreement.md)
 
 ## Key decisions
@@ -35,6 +36,6 @@ Telegram-first store for Dena souvenirs and dried fruits.
 
 > **Security:** Do not commit `.env`, bot tokens, cardholder secrets, customer PII, or payment receipt images.
 
-**Next action:** Implement Phase 3 multi-item cart, persisted national weight tariff and one-time checkout with immutable order snapshots. The bot cart and own-orders buttons intentionally remain placeholders until their respective phases. See [Phase 2 handoff](docs/11-phase-2-handoff.md) for webhook/environment setup.
+**Next action:** Implement Phase 4 private photo/document receipt upload, staff manual acceptance/rejection with reason, and customer resubmission. Orders and cart are implemented; the bot 'my orders' view and shipping notifications remain Phase 5. See [Phase 3 handoff](docs/12-phase-3-handoff.md).
 
 For authoritative scope, data rules and acceptance criteria, see the documentation links above.
