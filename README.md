@@ -3,9 +3,9 @@
 Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
-**GitHub status checked 2026-10-18:** **27 actual Issues = 20 Stories + 7 Epics** (24 closed, 3 open: [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25)); **7 merged PRs** including Phases 1–5 [#30–#34](https://github.com/DenaSon/Denapax/pulls?q=is%3Apr+is%3Amerged). PRs are not counted as Issues in this total. Re-check GitHub for new status.
+**GitHub status checked 2026-10-19:** **31 actual Issues**: 27 baseline MVP Issues (20 Stories + 7 Epics) and 4 new UI/UX execution Issues [#38–#41](https://github.com/DenaSon/Denapax/issues?q=is%3Aissue+is%3Aopen+UX); **24 closed, 7 open** (#11, #24, #25 and #38–#41). **8 merged PRs**, including Phases 1–5 [#30–#34](https://github.com/DenaSon/Denapax/pulls?q=is%3Apr+is%3Amerged) and the UX specification [#37](https://github.com/DenaSon/Denapax/pull/37). PRs are not counted as Issues. Re-check GitHub for new status.
 
-**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — is next. No live Telegram, real MySQL/Redis or banking trial has been claimed.
+**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is separately **planned in four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); these tasks are not completed and do not replace Phase 6. No live Telegram, real MySQL/Redis or banking trial has been claimed.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -16,7 +16,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 ## Documentation
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
 - **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
-- **[Telegram UI/UX & brand guidelines — approved greeting and three polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
+- **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
 - [MVP Scope v1.1](docs/01-mvp-scope.md)
 - [Architecture and boundaries](docs/02-architecture.md)
 - [Database ERD and Data Dictionary](docs/03-database-design.md)
