@@ -62,4 +62,4 @@ These are **delivery phases**, not calendar commitments. Each can be split into 
 - **Not claimed:** production deployment, working external Telegram webhook or database migration on the deployment MySQL, receipt review UI, checkout/order features or end-to-end ordering.
 
 ## Acceptance policy
-A Story is not Done when code merely compiles. It is Done only after its UI/API flow, server validation/permissions, migrations, tests and CI are verified; release phases also require their explicit phase acceptance gate.
+A Story is not Done when code merely compiles. It is Done when its own UI/API behavior (where applicable), critical validation/authorization, migrations and **focused essential tests** are verified, and the phase exit gate passes. Do **not** multiply tests without business value. The full real integrated Telegram-to-delivery exercise is held for phase 6; phase-specific smoke checks are not postponed. Each completed phase is merged into `master` after green core CI and followed by a concise Persian report with the actual merge commit. See [Execution Agreement](09-execution-agreement.md).
