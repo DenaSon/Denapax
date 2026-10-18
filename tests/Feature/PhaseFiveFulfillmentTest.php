@@ -92,6 +92,7 @@ class PhaseFiveFulfillmentTest extends TestCase
     {
         $this->actingAs($this->staff)->get('/admin/orders')->assertOk();
         $this->actingAs($this->staff)->get('/admin/orders/'.$this->order->id)->assertOk();
+        $this->actingAs($this->staff)->get('/admin/notifications')->assertOk();
 
         try {
             app(TransitionOrder::class)->execute($this->staff, $this->order->id, 'cancel');
@@ -107,5 +108,6 @@ class PhaseFiveFulfillmentTest extends TestCase
 
         $unprivileged = User::factory()->create();
         $this->actingAs($unprivileged)->get('/admin/orders')->assertForbidden();
+        $this->actingAs($unprivileged)->get('/admin/notifications')->assertForbidden();
     }
 }
