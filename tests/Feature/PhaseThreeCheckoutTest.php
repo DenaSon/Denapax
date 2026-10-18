@@ -8,7 +8,6 @@ use App\Application\Actions\PrepareCheckout;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingSetting;
