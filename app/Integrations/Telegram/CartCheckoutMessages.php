@@ -24,7 +24,7 @@ class CartCheckoutMessages
 
     public function show(Nutgram $bot, Customer $customer, int $page = 1): void
     {
-        $items = $this->carts->cart($customer)->items()->with('variant.product')->get();
+        $items = $this->carts->cart($customer)->items()->with('variant.product')->orderBy('id')->get();
         if ($items->isEmpty()) {
             $bot->sendMessage(
                 text: '🛒 سبد خرید شما خالی است. برای شروع، یک محصول انتخاب کنید.',
