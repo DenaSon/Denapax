@@ -5,6 +5,7 @@
         <form wire:submit="save" class="space-y-4">
             <x-input label="نام فروشگاه" wire:model="storeName" />
             <x-input label="ارتباط با پشتیبانی" wire:model="supportContact" />
+            <p class="text-sm opacity-70">برای دکمه گفت‌وگوی مستقیم تلگرام، آیدی مانند @DenaSupport یا لینک https://t.me/DenaSupport وارد کنید. شماره تلفن و متن معمولی فقط به‌صورت اطلاعات تماس نمایش داده می‌شوند.</p>
             <x-input label="شماره کارت (۱۶ رقم)" wire:model="cardNumber" />
             <x-input label="نام دارنده کارت" wire:model="cardHolderName" />
             <x-button type="submit" label="ذخیره تنظیمات" class="btn-primary" />
