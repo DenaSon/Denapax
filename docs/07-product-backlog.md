@@ -7,7 +7,9 @@
 - 7 epics and 20 user stories are tracked as GitHub Issues with explicit acceptance criteria.
 - Priority `P0` = required for MVP launch; story estimates are intentionally **not assigned** before implementation refinement.
 - One Laravel Modular Monolith with a Telegram Bot customer interface and Livewire/Mary admin. No Mini App / web customer storefront.
-- Work in short **vertical slices** with test coverage; use GitHub branches/PRs per story or closely coupled technical slice.
+- Build each phase in short **vertical slices** on its dedicated phase branch (or feature branches merged into it). Run core CI checks and merge the **completed phase** to `master` only after its acceptance gate passes.
+- Add **focused essential tests**, not exhaustive low-value cases; defer **real end-to-end integrated tests** until phase 6 while still smoke-testing each phase's own deliverable.
+- Finish **every phase** with a short Persian delivery report, including implementation, CI results, actual master merge commit, blockers and next phase. See [Execution Agreement](09-execution-agreement.md).
 - Existing foundation [PR #1](https://github.com/DenaSon/Denapax/pull/1) is **merged**. It is enabling engineering work, not a complete authentication or shipping feature.
 
 ## Epics and stories
@@ -45,10 +47,10 @@ The scope-to-story checklist and **six delivery phases with explicit acceptance 
 - Technical dependencies and security obligations are understood. No unresolved scope change is silently included.
 
 ## Definition of Done (for each story)
-- Acceptance criteria are tested at the appropriate unit/feature/integration level.
+- Core acceptance criteria and critical errors are checked by **focused** unit/feature tests (only when meaningful); no unnecessary test proliferation. Real complete end-to-end testing is reserved for phase 6.
 - Changes use server-side authorization and validation; sensitive data remains private.
 - No duplicate business operations under repeated callbacks/requests; state changes are transactional when necessary.
-- Migrations are reviewed, necessary docs updated, Pint + tests pass in CI, and PR is reviewed/merged.
+- Migrations are reviewed, necessary docs updated, Pint + **essential** tests pass in CI, and work is reviewed on its phase branch. The **phase PR** is merged into `master` once the phase exit gate succeeds.
 - UI/chat content has understandable Persian labels and error states where relevant.
 - No production secrets or customer media are committed.
 
@@ -59,7 +61,7 @@ The scope-to-story checklist and **six delivery phases with explicit acceptance 
 ## Story naming
 - Epics: `[EPIC E01]` ... `[EPIC E07]`.
 - Stories: `[US E01-S01]` ... with parent epic link and testable acceptance criteria.
-- Implementation PRs should reference a story number and use `Closes #N` only when all acceptance criteria are satisfied.
+- Implementation PRs should reference a story number. Use `Closes #N` only when all acceptance criteria are satisfied. Phase-to-master PRs close verified complete stories.
 
 ## Architectural references
 - [Architecture](02-architecture.md)
@@ -68,3 +70,4 @@ The scope-to-story checklist and **six delivery phases with explicit acceptance 
 - [Packages & Windows bootstrap](05-stack-and-windows-setup.md)
 - [Foundation handoff](06-foundation-handoff.md)
 - [Requirements traceability and 6-phase delivery gates](08-mvp-traceability.md)
+- [Project execution agreement: phases, testing, merges and reporting](09-execution-agreement.md)
