@@ -33,10 +33,10 @@
 
 | Phase | Main stories | Gate for proceeding |
 | --- | --- | --- |
-| 1 · Admin/Auth & Catalog | #2, #3, #12 | Secure admin login; catalog/variant/media CRUD; schema and CI green |
+| 1 · Admin/Auth, Settings & Catalog | #2, #3, #12, #27 | Secure admin login; store/card/support settings; catalog/variant/media CRUD; CI green |
 | 2 · Telegram Storefront & Customers | #4, #13, #14, #26 | Authenticated Telegram identity, browsing/search, saved addresses and support work |
 | 3 · Cart, Shipping & Checkout | #15, #16, #17 | Idempotent order created with shipping/card/recipient/item snapshots |
-| 4 · Manual Payments & Store Settings | #27, #18, #19, #20 | Protected receipt workflow, manual approval/rejection/resubmission |
+| 4 · Manual Payments | #18, #19, #20 | Protected receipt workflow with already configured card details, manual approval/rejection/resubmission |
 | 5 · Fulfillment & Notifications | #28, #21, #22, #23 | Admin order queue, status transitions, tracking, all transactional notices |
 | 6 · Quality & Launch | #24, #25 | CI/E2E/security checks, production-like order, backups/restore and operations pass |
 
