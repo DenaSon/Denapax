@@ -118,6 +118,17 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertSame(6, $customer->cart->items()->sum('quantity'));
     }
 
+    public function test_empty_cart_has_direct_catalog_recovery(): void
+    {
+        $bot = $this->bot();
+        $bot->hearText('/cart')->reply();
+
+        $messages = $this->messages($bot);
+        $this->assertCount(1, $messages);
+        $this->assertStringContainsString('سبد خرید شما خالی است', $messages[0]['text']);
+        $this->assertSame('menu:catalog', $messages[0]['reply_markup']['inline_keyboard'][0][0]['callback_data']);
+    }
+
     private function bot(): FakeNutgram
     {
         /** @var FakeNutgram $bot */
