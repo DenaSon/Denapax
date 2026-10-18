@@ -140,6 +140,10 @@ class StorefrontBot
             $this->catalog->products($bot, (int) $m[1], null, (int) $m[2]);
         } elseif (preg_match('/^item:([1-9][0-9]*)$/', $data, $m)) {
             $this->catalog->details($bot, (int) $m[1]);
+        } elseif (preg_match('/^gallery:([1-9][0-9]*):([0-9]{1,3})$/', $data, $m)) {
+            $this->catalog->gallery($bot, (int) $m[1], (int) $m[2]);
+        } elseif (preg_match('/^variant:([1-9][0-9]*)$/', $data, $m)) {
+            $this->catalog->variantImage($bot, (int) $m[1]);
         } elseif (preg_match('/^search:([1-9][0-9]{0,3})$/', $data, $m)) {
             $session = $this->addresses->session($customer);
             $term = $session->context['search'] ?? null;
