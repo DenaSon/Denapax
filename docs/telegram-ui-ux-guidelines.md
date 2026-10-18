@@ -153,6 +153,8 @@ Keep each important standalone action on a single full-width row if its label or
 
 **Acceptance:** button styles serialize correctly with Nutgram, callbacks/URLs remain intact, neutral actions remain neutral, standard emoji fallback works without Premium, essential automated checks and CI green. Device/theme acceptance is recorded during Phase 6, not inferred from CI.
 
+**UX-2 implementation record:** [UX-2 Handoff](18-ux-2-handoff.md) defines and applies shared native `StorefrontButtons::primary/success/danger` emphasis to selected customer actions; neutral navigation/utility buttons remain default. Plain Unicode emoji fallback is mandatory and optional custom emoji remains disabled pending actual account eligibility. This code-level implementation still needs live device/theme review under Phase 6 Gate B.
+
 **Handoff to UX-3:** reusable styles/icons used consistently, so shopping screens can focus on layout and flow.
 
 ### UX-3 — Catalog, product discovery, gallery and cart ([Issue #40](https://github.com/DenaSon/Denapax/issues/40))

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Integrations\Telegram\StorefrontButtons;
 use App\Integrations\Telegram\SupportContactLink;
 use App\Models\StoreSetting;
 use GuzzleHttp\Psr7\Request;
@@ -30,7 +31,7 @@ class TelegramBotMenuTest extends TestCase
             ->assertReplyMessage([
                 'text' => "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.",
                 'reply_markup' => Keyboard::make()
-                    ->addRow(Button::make('🌰 محصولات', callback_data: 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
+                    ->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
                     ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
                     ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
                     ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))

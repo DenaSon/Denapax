@@ -266,7 +266,7 @@ class StorefrontBot
     private function menu(Nutgram $bot): void
     {
         $keyboard = Keyboard::make()
-            ->addRow(Button::make('🌰 محصولات', callback_data: 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
+            ->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
             ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
             ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
             ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))
@@ -372,7 +372,7 @@ class StorefrontBot
             }
         }
 
-        $keyboard->addRow(Button::make('افزودن نشانی', callback_data: 'addr:new'));
+        $keyboard->addRow(StorefrontButtons::primary('📍 افزودن نشانی', 'addr:new'));
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(

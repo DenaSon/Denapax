@@ -41,14 +41,14 @@ class CartCheckoutMessages
                 .' × '.$item->quantity.' — '.$this->toman($unit * $item->quantity).' تومان';
 
             $keyboard->addRow(
-                Button::make('➕', callback_data: 'cart:plus:'.$item->product_variant_id),
-                Button::make('➖', callback_data: 'cart:minus:'.$item->product_variant_id),
-                Button::make('حذف', callback_data: 'cart:remove:'.$item->product_variant_id),
+                Button::make('➕ افزایش', callback_data: 'cart:plus:'.$item->product_variant_id),
+                Button::make('➖ کاهش', callback_data: 'cart:minus:'.$item->product_variant_id),
+                StorefrontButtons::danger('🗑️ حذف', 'cart:remove:'.$item->product_variant_id),
             );
         }
 
-        $keyboard->addRow(Button::make('بررسی هزینه و ثبت سفارش', callback_data: 'checkout:start'));
-        $keyboard->addRow(Button::make('محصولات', callback_data: 'menu:catalog'));
+        $keyboard->addRow(StorefrontButtons::success('✅ ادامه و ثبت سفارش', 'checkout:start'));
+        $keyboard->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'));
         $bot->sendMessage(text: mb_substr($message, 0, 3900), reply_markup: $keyboard);
     }
 
@@ -109,7 +109,7 @@ class CartCheckoutMessages
         $text .= "\n\n".'با تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.';
 
         $keyboard = Keyboard::make()
-            ->addRow(Button::make('✅ تأیید و ثبت سفارش', callback_data: 'checkout:confirm:'.$key))
+            ->addRow(StorefrontButtons::success('✅ تأیید و ثبت سفارش', 'checkout:confirm:'.$key))
             ->addRow(Button::make('تغییر نشانی', callback_data: 'checkout:start'))
             ->addRow(Button::make('بازگشت به سبد', callback_data: 'menu:cart'));
 
@@ -157,7 +157,7 @@ class CartCheckoutMessages
             ."\nبه نام: ".$payment['card_holder_name']
             ."\n\nپس از انتقال وجه، رسید را از دکمه زیر بارگذاری کنید.",
             reply_markup: Keyboard::make()->addRow(
-                Button::make('🧾 ارسال رسید سفارش', callback_data: 'receipt:order:'.$order->id),
+                StorefrontButtons::primary('🧾 ارسال رسید سفارش', 'receipt:order:'.$order->id),
             ),
         );
     }
