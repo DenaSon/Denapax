@@ -27,7 +27,7 @@ class BrowseCatalog
                         ->orWhere('description', 'like', '%'.$term.'%');
                 });
             })
-            ->with(['category', 'media'])
+            ->with(['category', 'media', 'features'])
             ->orderBy('id')
             ->paginate(perPage: 5, page: max(1, $page));
     }
