@@ -99,6 +99,12 @@ class StorefrontBot
             return;
         }
 
+        if ($text === '/help') {
+            $this->help($bot);
+
+            return;
+        }
+
         $session = $this->addresses->session($customer);
 
         if ($session->state === 'receipt:upload') {
@@ -165,6 +171,8 @@ class StorefrontBot
                 $this->listAddresses($bot, $customer);
             } elseif ($data === 'menu:support') {
                 $this->support($bot);
+            } elseif ($data === 'menu:help') {
+                $this->help($bot);
             } elseif ($data === 'menu:cart') {
                 $this->cartCheckout->show($bot, $customer);
             } elseif ($data === 'menu:receipt') {
@@ -243,7 +251,12 @@ class StorefrontBot
             } elseif (preg_match('/^addr:page:([1-9][0-9]{0,3})$/', $data, $m)) {
                 $this->listAddresses($bot, $customer, (int) $m[1]);
             } else {
-                $bot->sendMessage('این گزینه معتبر نیست. از منوی اصلی ادامه دهید.');
+                $bot->sendMessage(
+                    text: 'این گزینه معتبر نیست یا منقضی شده است. از منوی اصلی ادامه دهید.',
+                    reply_markup: Keyboard::make()->addRow(
+                        Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                    ),
+                );
             }
         } catch (ValidationException $exception) {
             $bot->sendMessage(collect($exception->errors())->flatten()->first() ?? 'لطفاً سبد یا اطلاعات سفارش را بازبینی کنید.');
@@ -257,9 +270,12 @@ class StorefrontBot
             ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
             ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
             ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))
-            ->addRow(Button::make('☎️ پشتیبانی', callback_data: 'menu:support'));
+            ->addRow(
+                Button::make('📖 راهنما', callback_data: 'menu:help'),
+                Button::make('☎️ پشتیبانی', callback_data: 'menu:support'),
+            );
 
-        $bot->sendMessage(text: 'به فروشگاه سوغات و خشکبار دنا خوش آمدید 🌿', reply_markup: $keyboard);
+        $bot->sendMessage(text: "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.", reply_markup: $keyboard);
     }
 
     private function startSearch(Nutgram $bot, Customer $customer): void
@@ -278,9 +294,48 @@ class StorefrontBot
     {
         $contact = trim((string) (StoreSetting::find(1)?->support_contact ?? ''));
 
-        $bot->sendMessage($contact === ''
+        $url = SupportContactLink::fromContact($contact);
+        $keyboard = Keyboard::make();
+        if ($url !== null) {
+            $keyboard->addRow(Button::make('💬 گفت‌وگو با پشتیبانی', url: $url));
+        }
+        $keyboard->addRow(
+            Button::make('📖 راهنما', callback_data: 'menu:help'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
+
+        $message = $contact === ''
             ? 'اطلاعات تماس پشتیبانی هنوز ثبت نشده است.'
-            : "برای ارتباط با پشتیبانی دنا:\n".$contact);
+            : ($url === null
+                ? "برای ارتباط با پشتیبانی دنا:\n".$contact
+                : 'برای گفت‌وگوی مستقیم با پشتیبانی دنا، روی دکمه زیر بزنید.');
+
+        $bot->sendMessage(text: $message, reply_markup: $keyboard);
+    }
+
+    private function help(Nutgram $bot): void
+    {
+        $text = "📖 راهنمای خرید از فروشگاه دنا\n\n"
+            ."۱. از «محصولات» یا «جستجو» کالای موردنظر و تنوع آن را انتخاب کنید.\n"
+            ."۲. سبد خرید را بررسی کنید و نشانی تحویل را ثبت یا انتخاب کنید.\n"
+            ."۳. پس از بررسی مبلغ کالا و هزینه ارسال، سفارش را تأیید کنید.\n"
+            ."۴. مبلغ را کارت‌به‌کارت کنید؛ سپس از «ارسال رسید» ابتدا سفارش مربوط را انتخاب و تصویر رسید را ارسال کنید.\n"
+            ."۵. رسید توسط فروشگاه بررسی می‌شود. بارگذاری رسید به‌معنی تأیید پرداخت نیست؛ در صورت رد، می‌توانید دوباره رسید بفرستید.\n"
+            ."۶. پس از تأیید پرداخت، وضعیت آماده‌سازی و ارسال و کد رهگیری را از «سفارش‌های من» دنبال کنید.\n\n"
+            .'برای سؤال‌های بیشتر، «پشتیبانی» را انتخاب کنید.';
+
+        $keyboard = Keyboard::make()
+            ->addRow(
+                Button::make('🌰 محصولات', callback_data: 'menu:catalog'),
+                Button::make('🛒 سبد خرید', callback_data: 'menu:cart'),
+            )
+            ->addRow(
+                Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'),
+                Button::make('☎️ پشتیبانی', callback_data: 'menu:support'),
+            )
+            ->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
+
+        $bot->sendMessage(text: $text, reply_markup: $keyboard);
     }
 
     private function listAddresses(Nutgram $bot, Customer $customer, int $page = 1): void
@@ -318,7 +373,7 @@ class StorefrontBot
         }
 
         $keyboard->addRow(Button::make('افزودن نشانی', callback_data: 'addr:new'));
-        $keyboard->addRow(Button::make('منوی اصلی', callback_data: 'menu:home'));
+        $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(
             text: isset($text) ? mb_substr($text, 0, 3900) : 'نشانی‌های من',
