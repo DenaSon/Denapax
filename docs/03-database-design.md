@@ -181,7 +181,7 @@ Laravel-authenticated web staff users: `id`, `name`, `email UNIQUE`, `password` 
 Use **published package migrations** for `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`. Do not create parallel RBAC tables.
 
 - Guard: `web`; staff `User` uses `HasRoles`.
-- Seed `super-admin` and `operator` roles with `catalog.manage`, `orders.view`, `orders.update`, `payments.review`, `shipping.manage`, `settings.manage`, `staff.manage` permissions.
+- Seed `super-admin` and `operator` roles with `catalog.manage`, `orders.view`, `orders.update`, `payments.view`, `payments.review`, `shipping.manage`, `settings.manage`, `staff.manage` permissions.
 - Enforce Gates/Policies on every protected server action, including Livewire mutations and receipt downloads. Role-management UI is out of MVP.
 
 ## Shipping and settings
