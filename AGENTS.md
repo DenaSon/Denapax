@@ -10,7 +10,7 @@
 - **Business:** Dena souvenirs and dried fruit sold through a **regular Telegram Bot** (messages + inline buttons), not a Telegram Mini App or public customer website.
 - **Backend:** PHP 8.4, Laravel 13 **modular monolith**, Nutgram Laravel 1.7 / Nutgram 4.
 - **Staff admin:** Laravel Fortify login, Livewire 4, Mary UI 2, Tailwind CSS 4 / daisyUI 5; Spatie Permission 8, Media Library 11, Activitylog 5.
-- **Intended production services:** MySQL + Redis queue/worker + scheduler, HTTPS Telegram webhook.
+- **Current owner-approved deployment direction:** MySQL + Laravel **database queue** worker (including `notifications`) + scheduler + HTTPS Telegram webhook. **Redis and Horizon deferred; do not install/configure them.**
 - **Developer environment (historical):** PowerShell on Windows, `D:\dena\Projects\Denapax`. Do not assume the assistant can run commands on this computer.
 
 ## 2. Current milestone — where to resume
@@ -29,18 +29,18 @@ The **six-phase delivery plan is approved**. Phases **1–5 are code-implemented
 Other merged PRs: foundation [#1](https://github.com/DenaSon/Denapax/pull/1), process agreement [#29](https://github.com/DenaSon/Denapax/pull/29).
 Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `master` commit may differ due to documentation updates.
 
-**Issue ledger checked 2026-10-19 (UX-4 review):** 27 original + 4 UX = **31 actual Issues** excluding PRs; UX-1/#38, UX-2/#39, UX-3/#40 closed after merged PRs #43–#45; **27 closed, 4 open** (#11, #24, #25 and UX-4 #41) before UX-4 merge. UX-4 [PR #46](https://github.com/DenaSon/Denapax/pull/46) passed its head CI; verify merge/closure from GitHub before reporting final totals.
+**Issue ledger note (2026-10-19):** UX-1..4 code PRs #43–#46 merged; UX Issues #38–#41 closed. Setup [Issue #47](https://github.com/DenaSon/Denapax/issues/47) / [PR #48](https://github.com/DenaSon/Denapax/pull/48) add baseline and opt-in demo seeders. Phase 6 #11/#24/#25 remains open. Re-query GitHub before quoting issue/PR totals.
 
 **CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build passed on the merged phase code. **Not evidence of a running/live store.** No confirmed live Telegram Bot API test, MySQL/Redis production-equivalent run, real bank transfer validation, full browser QA or successful E2E order/dispatch; do not imply these have passed.
 
-**Next release milestone remains Phase 6**; additionally, owner-approved Telegram UI/UX improvements are tracked as **four UX sub-phases** [UX-1 #38](https://github.com/DenaSon/Denapax/issues/38), [UX-2 #39](https://github.com/DenaSon/Denapax/issues/39), [UX-3 #40](https://github.com/DenaSon/Denapax/issues/40), [UX-4 #41](https://github.com/DenaSon/Denapax/issues/41). They add no extra core MVP delivery phase. UX-1/UX-2 implementations are merged and Issues #38/#39 closed; **UX-3 catalog and cart polish** was merged in [PR #45](https://github.com/DenaSon/Denapax/pull/45), Issue #40 closed. **UX-4 checkout/payment/order notification polish** is under [PR #46](https://github.com/DenaSon/Denapax/pull/46) / Issue #41, with CI green pending merge at this handoff. After UX-4 merge, the next release milestone is real Phase 6 acceptance rather than additional UX implementation. Coordinate any overlap on draft Phase 6 PR #36 and do not overwrite newer bot or tests. Real Telegram/device checks remain pending under Phase 6; don't conflate implementation CI with launch approval. **Do not reimplement earlier phases.** See [Phase 6 Runbook](docs/15-phase-6-readiness-plan.md). Track [#24 — E2E/security](https://github.com/DenaSon/Denapax/issues/24) and [#25 — deployment/backup/rollback](https://github.com/DenaSon/Denapax/issues/25), closing [#11](https://github.com/DenaSon/Denapax/issues/11) only when both and their release gates truly pass.
+**Next milestone:** Phase 6 remains OPEN under #11/#24/#25. UX-1..4 implementations are merged to `master`; this does **not** prove real-device E2E. Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Draft Phase 6 PR #36 requires reconciliation against UX-1..4 before merging.
 
 ## 3. Source-of-truth reading order
 
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).
 2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md); **[Telegram UI/UX & Brand Guidelines](docs/telegram-ui-ux-guidelines.md)** (owner-approved greeting and **four** UX polish sub-phases, including native Telegram button styles/icons; issues #38–#41).
 3. [Product Backlog: 7 Epics/20 Stories/6 Phases](docs/07-product-backlog.md); [Traceability](docs/08-mvp-traceability.md); [Execution Agreement](docs/09-execution-agreement.md).
-4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md); [UX-1 brand/navigation handoff](docs/17-ux-1-handoff.md) (merged PR #43), [UX-2 styles/icons handoff](docs/18-ux-2-handoff.md) (merged PR #44), [UX-3 catalog/cart handoff](docs/19-ux-3-handoff.md) (merged PR #45), [UX-4 checkout/payment/notification handoff](docs/20-ux-4-handoff.md) (PR #46; real Telegram/mobile proof and full E2E still pending).
+4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md); [UX-1 brand/navigation handoff](docs/17-ux-1-handoff.md) (merged PR #43), [UX-2 styles/icons handoff](docs/18-ux-2-handoff.md) (merged PR #44), [UX-3 catalog/cart handoff](docs/19-ux-3-handoff.md) (merged PR #45), [UX-4 checkout/payment/notification handoff](docs/20-ux-4-handoff.md) (merged PR #46; real Telegram/mobile proof and full E2E still pending). [Initial seeders and database queue runbook](docs/21-initial-seeders-handoff.md).
 5. Actual current `master` files, PRs/Issues, and the latest **successful** CI run. Documentation is not proof of runtime behavior.
 
 ## 4. Non-negotiable MVP rules
@@ -59,10 +59,10 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 - Work on a scoped branch and reviewable PR; **merge each completed phase into `master` only after green essential CI** and verifying the actual merge SHA. Never force push `master`.
 - Focus tests on meaningful business paths and high-risk failures; avoid excessive repetitive tests.
 - Finish each phase with a short **Persian** summary: delivered, tests/CI, merged PR+SHA, untested/risks, next step.
-- Treat external access (live bot token, MySQL, Redis, bank, server) as **not provisioned unless explicitly verified**. If absent, prepare reproducible runbooks and local/mock verification without claiming production tests.
+- Treat external access (live bot token, MySQL, actual database queue worker, bank, server) as **not provisioned unless explicitly verified**. Never claim production tests from mocked CI.
 - Keep permissions, isolation, privacy, financial consistency and retries in scope for Phase 6; do not waive security or a release blocker just to close Issues.
 - For code changes consult existing Laravel domain Actions, Nutgram adapters, Livewire components, models, migrations and Spatie package migrations first; avoid duplicating models/services.
-- **UX-1/UX-2 source overlap:** [PR #43](https://github.com/DenaSon/Denapax/pull/43) is merged; UX-2 updates native Telegram button styles on top. Before draft Phase 6 [PR #36](https://github.com/DenaSon/Denapax/pull/36) merges, reconcile its stale `StorefrontBot.php` / `TelegramBotMenuTest.php` edits with latest `master`; never undo UX-1/UX-2. See [UX-1](docs/17-ux-1-handoff.md) and [UX-2](docs/18-ux-2-handoff.md) handoffs.
+- **Draft PR #36 overlap:** Reconcile stale Telegram bot/checkout/receipt/order/test changes in Phase 6 [PR #36](https://github.com/DenaSon/Denapax/pull/36) against merged UX-1..4 before any merge. Do not overwrite the approved greeting, button styles, catalog, cart, payment and notification UX.
 
 ### Baseline verification (in a configured local/CI checkout)
 
@@ -82,7 +82,7 @@ The above is a **verification reference**, not a claim it ran on the owner's Win
 ### Release-specific operating processes (only in configured test/prod environment)
 
 - Verify real MySQL migrations/published Spatie tables, restricted staff creation via `php artisan denapax:admin`, storage privacy and backups.
-- Set `QUEUE_CONNECTION=redis` and run supervised queue worker for `notifications`; separately run Laravel scheduler (`schedule:run` every minute or managed equivalent). See [Phase 5 handoff](docs/14-phase-5-handoff.md) for timeouts and retry semantics.
+- Set `QUEUE_CONNECTION=database`; run a supervised worker (`php artisan queue:work database --queue=notifications,default --tries=1 --timeout=60`) and scheduler (`schedule:run` every minute or managed equivalent). **No Redis/Horizon installation is required.** See [seeder/queue runbook](docs/21-initial-seeders-handoff.md).
 - Set Telegram webhook with HTTPS and matching configured secret-token header; do not paste bot token into GitHub Issues or chat output.
 - Run end-to-end test order with approval, rejection/resubmission, dispatch/tracking and delivery; perform rollback/restore rehearsal before launch approval.
 
@@ -90,6 +90,6 @@ The above is a **verification reference**, not a claim it ran on the owner's Win
 
 In a **new conversation**, ask the assistant:
 
-> Read `AGENTS.md`, `docs/15-phase-6-readiness-plan.md`, `docs/01-mvp-scope.md`, the open GitHub Issues #11/#24/#25 and current `master` CI. Continue **Denapax Phase 6** from the existing implementation; do not restart phases 1–5. Prioritize actual reproducible E2E testing, security checks, MySQL/Redis/Telegram infrastructure readiness, backup/recovery and release gates. Keep GitHub and docs synchronized; use a branch/PR, essential tests and short Persian delivery reports. Do not claim live tests or launch without evidence.
+> Read `AGENTS.md`, `docs/15-phase-6-readiness-plan.md`, [seeder handoff](docs/21-initial-seeders-handoff.md) and open GitHub Issues #11/#24/#25. Continue Phase 6 using **MySQL + database queue/worker + scheduler**; Redis/Horizon are deferred. Run real Telegram, checkout, receipt, shipping, security, backup/restore and RTL acceptance before go/no-go; keep GitHub/CI/PR status accurate.
 
 **Status note:** At time of handoff, the project's ChatGPT Memory is unavailable; **GitHub docs + Issues + code are the durable project memory**. Keep this guide current after real Phase 6 progress.

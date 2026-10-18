@@ -27,11 +27,11 @@
 ### Gate A — Environment and integration preparation (Issue #25)
 
 - [ ] Identify a **non-production or production-like** domain/HTTPS environment, hosting OS, deployment credentials and responsible operator. No assumption that GitHub CI equals a deployed service.
-- [ ] Verify PHP 8.4/Laravel 13, MySQL, Redis, Node/Vite build artifacts, required PHP extensions and working secrets injection. Audit dependencies using a trusted advisory endpoint.
-- [ ] Inspect and review all existing first-party and Spatie migrations, set up a **backed-up** MySQL database, then migrate and seed RBAC in authorized target environment. Verify administrator creation (no public registration or default credentials).
+- [ ] Verify PHP 8.4/Laravel 13, MySQL, **database-backed queue tables + supervised worker**, Node/Vite build artifacts, required PHP extensions and working secrets injection. **Redis and Horizon are intentionally deferred**. Audit dependencies using a trusted advisory endpoint.
+- [ ] Inspect and review all existing first-party and Spatie migrations, set up a **backed-up** MySQL database, then migrate and run safe RBAC + baseline settings seeders in authorized target environment; **do not run demo products seeder in production**, and configure real bank/card/shipping prices in admin before checkout. Verify administrator creation (no public registration or default credentials).
 - [ ] Configure private receipts directory with correct ACLs/backup and public product-only media symlink; prove receipt images cannot be downloaded anonymously.
 - [ ] Configure Telegram token/`TELEGRAM_WEBHOOK_SECRET` privately; set and inspect HTTPS webhook, confirm trusted update processing and retry/deduplication on real inbound updates.
-- [ ] Configure Redis worker on `notifications` with supervision and Laravel scheduler; demonstrate notification logs and retry behavior.
+- [ ] Configure a **database queue worker** for `notifications,default` with supervision and Laravel scheduler; demonstrate notification logs and retry behavior. Redis and Horizon are not required by the current owner decision.
 
 ### Gate B — Critical end-to-end and abuse-path tests (Issue #24)
 
@@ -54,7 +54,7 @@
 
 ## What is *not* done as of this handoff
 
-No access-backed proof of running MySQL/Redis, BotFather webhook configuration, actual Telegram updates/sent notifications, real manual bank reconciliation, full mobile/browser UI acceptance, backup/restore rehearsal or production release exists in the project record. Mark these **unverified**, never **passed**.
+No access-backed proof of running MySQL/database queue worker, BotFather webhook configuration, actual Telegram updates/sent notifications, real manual bank reconciliation, full mobile/browser UI acceptance, backup/restore rehearsal or production release exists in the project record. Mark these **unverified**, never **passed**.
 
 ## Initial actions for the next agent
 
