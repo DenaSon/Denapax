@@ -45,3 +45,9 @@ jobs:
 
       - name: Check formatting
         run: vendor/bin/pint --test
+
+      - name: Install frontend dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Compile admin assets
+        run: npm run build
