@@ -52,6 +52,7 @@ class PhaseOneFoundationTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole('super-admin');
 
+        $this->assertTrue($admin->can('settings.manage'));
         $this->actingAs($admin)->get('/admin/settings')->assertOk();
         Livewire::test(\App\Livewire\Admin\SettingsPage::class)
             ->set('storeName', 'Dena')
