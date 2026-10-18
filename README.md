@@ -3,7 +3,7 @@
 Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
-**Phase:** Laravel 13 scaffolded, core packages installed, first foundation PR merged; admin authentication and domain migrations still in progress.
+**Phase:** MVP Phase 1 (Admin, Settings & Catalog) merged with CI passing; Phase 2 Telegram Storefront & Customers is next. Production MySQL/Telegram end-to-end tests have not run.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -34,6 +34,6 @@ Telegram-first store for Dena souvenirs and dried fruits.
 
 > **Security:** Do not commit `.env`, bot tokens, cardholder secrets, customer PII, or payment receipt images.
 
-**Next action:** Sync local `master`, configure Fortify/admin views and Nutgram, review/publish remaining vendor configuration, and plan MySQL migrations. Shipping calculation and RBAC role provisioning foundation are already committed with CI tests.
+**Next action:** Implement Phase 2 on a dedicated branch: Nutgram webhook, Telegram customer/address model, catalogue browsing/search and support. Plan real integrations for final Phase 6. See [Phase 1 handoff](docs/10-phase-1-handoff.md) for environment-specific migration/admin setup.
 
 For authoritative scope, data rules and acceptance criteria, see the documentation links above.
