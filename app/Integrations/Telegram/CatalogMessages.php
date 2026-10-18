@@ -3,6 +3,7 @@
 namespace App\Integrations\Telegram;
 
 use App\Application\Actions\BrowseCatalog;
+use App\Models\ProductVariant;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
@@ -95,18 +96,83 @@ class CatalogMessages
                 .$this->toman($variant->price_irr).' تومان';
         }
 
-        $text .= "\n\nافزودن به سبد خرید در فاز بعد فعال می‌شود.";
-        $keyboard = Keyboard::make()->addRow(Button::make('بازگشت به محصولات', callback_data: 'all:1'));
-
-        // The first gallery item is the cover. Other images can be opened through
-        // the dedicated gallery navigation (no arbitrary external media URLs).
-        $media = $product->getMedia('gallery')->first();
-        if ($media) {
-            $bot->sendPhoto(photo: $media->getFullUrl(), caption: mb_substr($text, 0, 950), reply_markup: $keyboard);
-        } else {
-            $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
+        $text .= "\\n\\nافزودن به سبد خرید در فاز بعد فعال می‌شود.";
+        $keyboard = Keyboard::make();
+        if ($product->getMedia('gallery')->count() > 1) {
+            $keyboard->addRow(Button::make('📷 تصاویر بیشتر', callback_data: 'gallery:'.$product->id.':1'));
         }
+        foreach ($product->variants as $variant) {
+            if ($variant->getFirstMedia('variant-image')) {
+                $keyboard->addRow(Button::make('تصویر '.$variant->title, callback_data: 'variant:'.$variant->id));
+            }
+        }
+        $keyboard->addRow(Button::make('بازگشت به محصولات', callback_data: 'all:1'));
+
+        $media = $product->getFirstMedia('gallery');
+        if ($media) {
+            // Telegram photo captions are short; send full details separately.
+            $bot->sendPhoto(
+                photo: $media->getFullUrl(),
+                caption: mb_substr($product->title."\\n".$product->summary, 0, 900),
+            );
+        }
+        $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
     }
+
+    public function gallery(Nutgram $bot, int $productId, int $index): void
+    {
+        $product = $this->catalog->product($productId);
+        $images = $product?->getMedia('gallery');
+
+        if (! $images || ! isset($images[$index])) {
+            $bot->sendMessage('تصویر مورد نظر در دسترس نیست.');
+
+            return;
+        }
+
+        $keyboard = Keyboard::make();
+        $pager = [];
+        if ($index > 0) {
+            $pager[] = Button::make('قبلی', callback_data: 'gallery:'.$productId.':'.($index - 1));
+        }
+        if ($index + 1 < $images->count()) {
+            $pager[] = Button::make('بعدی', callback_data: 'gallery:'.$productId.':'.($index + 1));
+        }
+        if ($pager !== []) {
+            $keyboard->addRow(...$pager);
+        }
+        $keyboard->addRow(Button::make('مشخصات محصول', callback_data: 'item:'.$productId));
+
+        $bot->sendPhoto(
+            photo: $images[$index]->getFullUrl(),
+            caption: mb_substr($product->title.' — تصویر '.($index + 1).' از '.$images->count(), 0, 900),
+            reply_markup: $keyboard,
+        );
+    }
+
+    public function variantImage(Nutgram $bot, int $variantId): void
+    {
+        $variant = \\App\\Models\\ProductVariant::query()
+            ->where('is_available', true)
+            ->whereHas('product', fn ($q) => $q->published())
+            ->find($variantId);
+        $media = $variant?->getFirstMedia('variant-image');
+
+        if (! $media) {
+            $bot->sendMessage('تصویر این تنوع موجود نیست.');
+
+            return;
+        }
+
+        $bot->sendPhoto(
+            photo: $media->getFullUrl(),
+            caption: mb_substr($variant->product->title.' — '.$variant->title, 0, 900),
+            reply_markup: Keyboard::make()->addRow(
+                Button::make('بازگشت به محصول', callback_data: 'item:'.$variant->product_id),
+            ),
+        );
+    }
+}
 
     private function toman(int $irr): string
     {
