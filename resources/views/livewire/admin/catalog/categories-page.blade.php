@@ -15,6 +15,7 @@
             </div>
         </form>
     </x-card>
+    @error('category') <div role="alert" class="alert alert-error">{{ $message }}</div> @enderror
     <x-card title="فهرست دسته‌بندی‌ها">
         <div class="overflow-x-auto">
             <table class="table">
@@ -25,7 +26,11 @@
                         <td>{{ $category->name }}</td>
                         <td dir="ltr">{{ $category->slug }}</td>
                         <td>{{ $category->is_active ? 'فعال' : 'غیرفعال' }}</td>
-                        <td><x-button label="ویرایش" class="btn-sm" wire:click="edit({{ $category->id }})" /></td>
+                        <td class="flex gap-2"><x-button label="ویرایش" class="btn-sm" wire:click="edit({{ $category->id }})" />
+                            @if(! $category->products()->withTrashed()->exists())
+                                <x-button label="حذف" class="btn-sm btn-error btn-outline" wire:confirm="دسته‌بندی حذف شود؟" wire:click="remove({{ $category->id }})" />
+                            @endif
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="4">هنوز دسته‌بندی ثبت نشده است.</td></tr>
