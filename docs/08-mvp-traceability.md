@@ -57,8 +57,8 @@ These are **delivery phases**, not calendar commitments. Each can be split into 
 - No scope change without a documented MVP decision.
 
 ## Current implementation versus planning
-- **Implemented and verified by CI:** base Laravel scaffold, key framework packages, base RBAC role seeder/admin provision command, pure shipping calculator and boundary unit tests, PHPUnit/Pint GitHub Actions.
-- **Partially prepared:** package migrations/config for Spatie RBAC/media/activity; MySQL schema/config, Fortify login UI, Nutgram routing and remaining domain implementations are not completed.
+- **Implemented and verified by CI:** Laravel 13 scaffold/packages, base RBAC role seeder/admin provision command, shipping calculator, and **Phase 1** Fortify staff login, guarded catalog/settings admin routes, catalog/schema/media collection code, Persian Livewire/Mary UI components, PHPUnit/Pint and Vite build.
+- **Partially prepared:** Spatie package migrations and Phase 1 catalog/settings migrations exist in Git; actual deployment MySQL migration/admin provisioning and runtime configuration still require environment access. Nutgram customer flows and remaining domains are not completed.
 - **Not claimed:** production deployment, working external Telegram webhook or database migration on the deployment MySQL, receipt review UI, checkout/order features or end-to-end ordering.
 
 ## Acceptance policy
