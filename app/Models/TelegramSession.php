@@ -13,7 +13,7 @@ class TelegramSession extends Model
 
     public $incrementing = false;
 
-    protected $fillable = ['customer_id', 'state', 'context', 'expires_at'];
+    protected $fillable = ['customer_id', 'state', 'context', 'expires_at', 'updated_at'];
 
     protected function casts(): array
     {
