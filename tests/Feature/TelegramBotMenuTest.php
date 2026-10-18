@@ -138,8 +138,14 @@ class TelegramBotMenuTest extends TestCase
         $this->assertSame('https://t.me/DenaSupport', SupportContactLink::fromContact(' @DenaSupport '));
         $this->assertSame('https://t.me/DenaSupport', SupportContactLink::fromContact('https://t.me/DenaSupport/'));
         $this->assertSame('https://t.me/DenaSupport', SupportContactLink::fromContact('t.me/DenaSupport'));
-        foreach (['09123456789', 'https://t.me.evil.example/DenaSupport', 'https://t.me/+Abc123',
-            'https://t.me/DenaSupport?start=spoof', '@short', 'https://evil.example'] as $unsafe) {
+        foreach ([
+            '09123456789',
+            'https://t.me.evil.example/DenaSupport',
+            'https://t.me/+Abc123',
+            'https://t.me/DenaSupport?start=spoof',
+            '@ab',
+            'https://evil.example',
+        ] as $unsafe) {
             $this->assertNull(SupportContactLink::fromContact($unsafe));
         }
     }
