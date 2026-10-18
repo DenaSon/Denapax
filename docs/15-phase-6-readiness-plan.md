@@ -57,6 +57,7 @@
 - Scoped branch: `phase/6-e2e-security-launch` (do not merge until acceptance and essential CI).
 - First security/test slice: Telegram webhook exceptions logged by **type only**, private receipt URL/authorization regression assertions, CI audit of production dependencies from lockfile.
 - Operator procedure and evidence matrix: [Phase 6 Operator Runbook](16-phase-6-operator-runbook.md). All its integration and recovery evidence rows start **UNVERIFIED**.
+- User-requested MVP bot UX improvement: add a **📖 Help** button immediately next to **☎️ Support** on the main Telegram menu; `/help` and `menu:help` explain browse → cart → address → checkout → select order → submit receipt → manual payment review → tracking, with navigation back to shopping, support and home. Include focused fake-bot checks. This change still needs live Telegram smoke verification.
 - The work above does **not** satisfy Gates A/B/C or any launch acceptance. #24, #25 and #11 must remain open.
 
 ## What is *not* done as of this handoff
