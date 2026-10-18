@@ -61,7 +61,7 @@ class PhaseOneFoundationTest extends TestCase
         $this->assertTrue($admin->is_active);
         $this->assertTrue($admin->can('settings.manage'));
         $this->actingAs($admin)->get('/admin/settings')->assertOk();
-        Livewire::test(\App\Livewire\Admin\SettingsPage::class)
+        Livewire::test(SettingsPage::class)
             ->set('storeName', 'Dena')
             ->set('supportContact', '@dena_support')
             ->set('cardNumber', '6037991234567890')
@@ -80,7 +80,7 @@ class PhaseOneFoundationTest extends TestCase
         $admin->assignRole('super-admin');
         $this->actingAs($admin);
 
-        Livewire::test(\App\Livewire\Admin\Catalog\ProductEditor::class)
+        Livewire::test(ProductEditor::class)
             ->set('categoryId', $category->id)
             ->set('title', 'Dena figs')
             ->set('slug', 'dena-figs')
