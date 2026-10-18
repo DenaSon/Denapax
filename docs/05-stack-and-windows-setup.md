@@ -1,6 +1,6 @@
 # Denapax — Stack, Packages & Windows/PowerShell Bootstrap v1.0
 
-**Status:** Approved technical choices; install only after Laravel scaffold exists. **Date:** 2026-10-18.
+**Status:** Approved technical choices; PowerShell constraints reviewed after an installation attempt on PHP 8.4.15 / Laravel 13.37.0. **Date:** 2026-10-18.
 
 ## Baseline
 - **Windows + PowerShell** development; PHP **8.4** (x64) target, Composer 2, Node.js LTS, npm, Git.
@@ -80,14 +80,22 @@ git status --short
 Do **not** run the database migrations yet; package migration choices and `.env` database settings are checked after package installation. The `Denapax-scaffold` temp directory can be deleted after verification.
 
 ### Follow-up package installation (after scaffold/version check)
+**PowerShell on Windows:** Composer's `^a.b` syntax can be consumed by Windows command processing and end up as an **exact version** `a.b` when Composer is launched through its Windows wrapper. Composer itself documents escaping with `^^^^`, but a simpler equivalent for these **nonzero major versions** is `~a.b` (e.g. `~4.0` allows `>=4.0.0 <5.0.0`). Do not change advisories policy or force insecure old releases. An attempted install with `^4.0` selected the vulnerable exact `4.0.0` of Livewire and `11.0.0` of Media Library and the Laravel-13-incompatible exact `2.0.0` of Mary; Composer restored the files.
+
 ```powershell
-composer require "nutgram/laravel:^1.7" "livewire/livewire:^4.0" "robsontenorio/mary:^2.0" "spatie/laravel-permission:^8.0" "spatie/laravel-medialibrary:^11.0" "spatie/laravel-activitylog:^5.0" laravel/fortify
+composer require "nutgram/laravel:~1.7" `
+  "livewire/livewire:~4.0" `
+  "robsontenorio/mary:~2.0" `
+  "spatie/laravel-permission:~8.0" `
+  "spatie/laravel-medialibrary:~11.0" `
+  "spatie/laravel-activitylog:~5.0" `
+  laravel/fortify -W
 
 # Test tools: inspect the Laravel skeleton's PHPUnit constraint first.
-composer require --dev "larastan/larastan:^3.0"
+composer require --dev "larastan/larastan:~3.0"
 composer show phpunit/phpunit
 # Install Pest 5 and its plugin with suitable PHPUnit 13 in the same update:
-composer require --dev "pestphp/pest:^5.0" "pestphp/pest-plugin-laravel:^5.0" "phpunit/phpunit:^13.0" -W
+composer require --dev "pestphp/pest:~5.0" "pestphp/pest-plugin-laravel:~5.0" "phpunit/phpunit:~13.0" -W
 
 php artisan mary:install
 # Install/publish other package resources after reviewing their configs/migrations.
@@ -97,7 +105,7 @@ composer audit
 git status --short
 ```
 
-Composer can still report platform-specific extension/config conflicts: solve those based on the actual diagnostic. In particular check `ext-fileinfo`, `ext-exif`, PHP CLI version and enabled extensions. If `pestphp/pest-plugin-laravel:^5.0` requires a newer 13.x patch, upgrade Laravel within ^13 before retrying.
+Composer can still report platform-specific extension/config conflicts: solve those based on the actual diagnostic. After package installation run `composer audit`, `composer show --direct` and `php artisan about`; do not migrate or push before reviewing package migrations and configs. In particular check `ext-fileinfo`, `ext-exif`, PHP CLI version and enabled extensions. If `pestphp/pest-plugin-laravel:^5.0` requires a newer 13.x patch, upgrade Laravel within ^13 before retrying.
 
 ### First scaffold commit/push (after smoke tests)
 ```powershell
@@ -125,3 +133,6 @@ git push origin master
 - Spatie Activitylog: https://spatie.be/docs/laravel-activitylog/v5/introduction
 - Fortify: https://laravel.com/docs/13.x/fortify
 - Pest 5: https://pestphp.com/docs/upgrade-guide
+
+### Diagnosing constraint parsing
+Check `composer.json` after a failed command. If Composer warned that a requested package was an exact `2.0` or `4.0` despite your use of `^2.0`/`^4.0`, use the above `~` syntax instead. Official Composer documentation: https://getcomposer.org/doc/articles/versions.md#caret-version-range- . In PowerShell, do not paste Unix shell continuations (`\\`); use backticks on the line ends as illustrated.
