@@ -106,7 +106,7 @@ class CartCheckoutMessages
         $text .= "\nمجموع کالا: ".$this->toman($quote['goods_subtotal_irr']).' تومان';
         $text .= "\nهزینه ارسال: ".$this->toman($quote['shipping_fee_irr']).' تومان';
         $text .= "\nمبلغ نهایی: ".$this->toman($quote['total_irr']).' تومان';
-        $text .= '\n\nبا تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.';
+        $text .= "\n\n".'با تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.';
 
         $keyboard = Keyboard::make()
             ->addRow(Button::make('✅ تأیید و ثبت سفارش', callback_data: 'checkout:confirm:'.$key))
