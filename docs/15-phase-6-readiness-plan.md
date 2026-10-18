@@ -52,6 +52,13 @@
 - [ ] Resolve or log severity of each finding and document release blockers. Do **not** close #24 or #25 until their acceptance criteria have evidence; do **not** close #11 until both stories and full release gate pass.
 - [ ] Make an explicit **go/no-go** decision with the operator/owner before public traffic. Merge fixes only after PR + essential CI.
 
+## Phase 6 kickoff (2026-10-18; verification ongoing)
+
+- Scoped branch: `phase/6-e2e-security-launch` (do not merge until acceptance and essential CI).
+- First security/test slice: Telegram webhook exceptions logged by **type only**, private receipt URL/authorization regression assertions, CI audit of production dependencies from lockfile.
+- Operator procedure and evidence matrix: [Phase 6 Operator Runbook](16-phase-6-operator-runbook.md). All its integration and recovery evidence rows start **UNVERIFIED**.
+- The work above does **not** satisfy Gates A/B/C or any launch acceptance. #24, #25 and #11 must remain open.
+
 ## What is *not* done as of this handoff
 
 No access-backed proof of running MySQL/Redis, BotFather webhook configuration, actual Telegram updates/sent notifications, real manual bank reconciliation, full mobile/browser UI acceptance, backup/restore rehearsal or production release exists in the project record. Mark these **unverified**, never **passed**.
