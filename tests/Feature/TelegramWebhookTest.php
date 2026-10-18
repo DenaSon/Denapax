@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\TelegramUpdate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Mockery;
 use SergiX44\Nutgram\Nutgram;
 use Tests\TestCase;
@@ -46,14 +47,20 @@ class TelegramWebhookTest extends TestCase
     public function test_failed_telegram_update_can_be_retried(): void
     {
         config(['services.telegram.webhook_secret' => 'phase-2-test-secret']);
+        Log::spy();
         $bot = Mockery::mock(Nutgram::class);
-        $bot->shouldReceive('run')->once()->andThrow(new \RuntimeException('temporary'));
+        $bot->shouldReceive('run')->once()->andThrow(new \RuntimeException('https://api.telegram.org/botFAKE_SECRET/sendMessage'));
         $bot->shouldReceive('run')->once();
         $this->app->instance(Nutgram::class, $bot);
         $headers = ['X-Telegram-Bot-Api-Secret-Token' => 'phase-2-test-secret'];
 
         $this->postJson('/api/telegram/webhook', ['update_id' => 235], $headers)->assertStatus(503);
         $this->assertSame('failed', TelegramUpdate::findOrFail(235)->status);
+        $this->assertSame(\RuntimeException::class, TelegramUpdate::findOrFail(235)->error_summary);
+        Log::shouldHaveReceived('warning')->once()->with('Telegram webhook processing failed', [
+            'exception_type' => \RuntimeException::class,
+            'update_id' => 235,
+        ]);
 
         $this->postJson('/api/telegram/webhook', ['update_id' => 235], $headers)->assertOk();
         $this->assertSame('done', TelegramUpdate::findOrFail(235)->status);
