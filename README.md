@@ -5,7 +5,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 ## Project status
 **GitHub status checked 2026-10-18:** **27 actual Issues = 20 Stories + 7 Epics** (24 closed, 3 open: [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25)); **7 merged PRs** including Phases 1–5 [#30–#34](https://github.com/DenaSon/Denapax/pulls?q=is%3Apr+is%3Amerged). PRs are not counted as Issues in this total. Re-check GitHub for new status.
 
-**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — is next. No live Telegram, real MySQL/Redis or banking trial has been claimed.
+**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — is in progress on a dedicated branch, but remains unverified and unreleased. No live Telegram, real MySQL/Redis or banking trial has been claimed.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -16,6 +16,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 ## Documentation
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
 - **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
+- **[Phase 6 operator runbook — staging, E2E evidence and restore gates](docs/16-phase-6-operator-runbook.md)**
 - [MVP Scope v1.1](docs/01-mvp-scope.md)
 - [Architecture and boundaries](docs/02-architecture.md)
 - [Database ERD and Data Dictionary](docs/03-database-design.md)
