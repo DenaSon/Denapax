@@ -1,6 +1,6 @@
 # Denapax — MVP Product Backlog v1.0
 
-**Status:** Baseline backlog approved for implementation planning · **Scope:** [MVP Scope v1.1](01-mvp-scope.md) · **Last reviewed:** 2026-10-18
+**Status:** Proposed execution backlog, ready for owner review · **Scope:** [MVP Scope v1.1](01-mvp-scope.md) · **Last reviewed:** 2026-10-18
 
 ## Operating principles
 - This is an **MVP execution backlog**, not an expansion of MVP Scope v1.1.
