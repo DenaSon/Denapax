@@ -175,6 +175,8 @@ class StorefrontBot
                 $this->help($bot);
             } elseif ($data === 'menu:cart') {
                 $this->cartCheckout->show($bot, $customer);
+            } elseif (preg_match('/^cart:page:([1-9][0-9]{0,2})$/', $data, $m)) {
+                $this->cartCheckout->show($bot, $customer, (int) $m[1]);
             } elseif ($data === 'menu:receipt') {
                 $this->receipts->orders($bot, $customer);
             } elseif (preg_match('/^receipt:order:([1-9][0-9]*)$/', $data, $m)) {
