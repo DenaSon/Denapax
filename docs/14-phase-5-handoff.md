@@ -17,10 +17,10 @@
 Business events and receipt/order transitions are transactionally deduplicated. Telegram message delivery is **at least once** across an ambiguous network timeout: if Telegram accepts a message but the network drops the response, retry may duplicate the visible chat message. This cannot be guaranteed exactly once via the Telegram API. Notification logs expose attempts and status. Exhausted failures stay visible for operators rather than silently claiming delivery.
 
 ## Release integration requirements (Phase 6)
-- Configure production MySQL and Redis; `QUEUE_CONNECTION=redis`, working Telegram token/HTTPS webhook. Use a managed scheduler and `php artisan queue:work redis --queue=notifications,default --tries=1 --timeout=60`; set `REDIS_QUEUE_RETRY_AFTER=120` and actual worker supervision/restart.
+- **Updated owner decision (2026-10-19):** Use backed-up MySQL and **database queue** (`QUEUE_CONNECTION=database`), not Redis or Horizon. Configure a working Telegram token/HTTPS webhook, managed scheduler and supervised `php artisan queue:work database --queue=notifications,default --tries=1 --timeout=60`. Tune DB queue retry/timeouts, demonstrate retry and verify process supervision/restart.
 - Ensure `schedule:run` runs every minute and receipt directory/database are backed up. Never put bot tokens, card data or receipt images in git.
 - Do a true Telegram-to-order-to-receipt-to-approval-to-dispatch/tracking-to-delivery journey, and test rejection/resubmission and notification failures.
-- CI uses temporary SQLite, mocked Telegram and rendered Livewire screens; no real MySQL/Redis/webhook or carrier delivery was verified yet.
+- CI uses temporary SQLite, mocked Telegram and rendered Livewire screens; no real MySQL/database worker/webhook or carrier delivery was verified yet.
 - Full GUI/RTL visual review and production-like environment tests remain Phase 6.
 
 ## Next
@@ -30,5 +30,5 @@ Phase 6 — real integrated validation, security hardening, operational rehearsa
 - **Delivered:** Admin order search/detail and role-separated receipt links, shipment/tracking and status FSM; caller-owned Telegram order view; all eight notification types, outbox poller, queued job, bounded retries and admin notification log dashboard.
 - **Verification:** Focused PHPUnit tests covering fulfillment transitions, unpaid cancellation boundaries, staff access, delivery retries and deduplication; Pint, Composer and Vite CI passed. Phase 5 post-merge and documentation updates passed [master CI run 39153631505](https://github.com/DenaSon/Denapax/actions/runs/39153631505); this is automated verification only, not a live release gate.
 - **Merged:** [PR #34](https://github.com/DenaSon/Denapax/pull/34), SHA `bf6ef852f6f95e3bc494874c5a8795a00c995d75`.
-- **Remaining:** Production MySQL/Redis deployment and supervision, real Telegram outbox send, visual QA, privacy/security checks, backup and restore, and complete live checkout/payment/dispatch trials are phase 6.
+- **Remaining:** Production-like MySQL/database queue worker/scheduler supervision, real Telegram outbox send, visual QA, privacy/security checks, backup and restore, and complete live checkout/payment/dispatch trials are phase 6. No Redis/Horizon requirement.
 - **Next:** Phase 6 — real integrated test and launch readiness.
