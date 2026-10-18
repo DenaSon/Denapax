@@ -17,6 +17,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
+    // Match the DB default before the first save/refresh (also in fresh sessions).
+    protected $attributes = ['is_active' => true];
+
     protected function casts(): array
     {
         return [
