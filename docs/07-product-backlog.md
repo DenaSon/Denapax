@@ -22,31 +22,18 @@
 | [E06 · Fulfillment + Notifications](https://github.com/DenaSon/Denapax/issues/10) | Shipping states, tracking, transactional bot alerts | [#21](https://github.com/DenaSon/Denapax/issues/21), [#22](https://github.com/DenaSon/Denapax/issues/22), [#23](https://github.com/DenaSon/Denapax/issues/23), [#28](https://github.com/DenaSon/Denapax/issues/28) | E05 + E03 |
 | [E07 · Quality + Launch](https://github.com/DenaSon/Denapax/issues/11) | E2E regression, secure ops, backups and release | [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) | E01–E06 |
 
-## Suggested implementation order (not fixed-duration sprints)
+## Delivery plan — six phases (not fixed-duration sprints)
 
-### Milestone A — Admin and Catalog Foundation
-- [#2](https://github.com/DenaSon/Denapax/issues/2): Fortify staff login and restricted web admin.
-- [#3](https://github.com/DenaSon/Denapax/issues/3): catalog database and Eloquent relationships.
-- [#12](https://github.com/DenaSon/Denapax/issues/12): product/category/variant/feature/media admin CRUD.
+| Phase | Primary focus and stories | Exit gate |
+| --- | --- | --- |
+| 1 · Admin & Catalog | #2, #3, #12 | Staff sign-in, RBAC, product/variant/media CRUD validated |
+| 2 · Telegram & Customers | #4, #13, #14, #26 | Bot browsing/search, saved addresses and support work securely |
+| 3 · Cart & Checkout | #15, #16, #17 | Multi-item checkout, gram-based postage and immutable snapshot |
+| 4 · Card-to-Card Payment | #27, #18, #19, #20 | Card settings and private receipt upload/review/resubmission verified |
+| 5 · Fulfillment & Notifications | #28, #21, #22, #23 | Admin queue, states, tracking and outbox notifications work |
+| 6 · Production Readiness | #24, #25 | E2E/security/operations gates met and release test passed |
 
-**Acceptance gate:** a permitted admin can create/publish products with correct variants and media.
-
-### Milestone B — Telegram-to-Order
-- [#4](https://github.com/DenaSon/Denapax/issues/4), [#13](https://github.com/DenaSon/Denapax/issues/13), [#14](https://github.com/DenaSon/Denapax/issues/14), [#26](https://github.com/DenaSon/Denapax/issues/26): bot plumbing, identity, address book, catalog search and support contact.
-- [#15](https://github.com/DenaSon/Denapax/issues/15), [#16](https://github.com/DenaSon/Denapax/issues/16), [#17](https://github.com/DenaSon/Denapax/issues/17): cart, persisted nationwide shipping settings, checkout.
-
-**Acceptance gate:** a customer can search/browse, add multiple variants, select an address and register an order once. Shipping uses grams, including shared packaging, and IRR totals are snapshotted.
-
-### Milestone C — Payment-to-Delivery
-- [#27](https://github.com/DenaSon/Denapax/issues/27), [#18](https://github.com/DenaSon/Denapax/issues/18), [#19](https://github.com/DenaSon/Denapax/issues/19), [#20](https://github.com/DenaSon/Denapax/issues/20): editable store/card settings, card-to-card receipt, private staff review, reject/resubmit.
-- [#28](https://github.com/DenaSon/Denapax/issues/28), [#21](https://github.com/DenaSon/Denapax/issues/21), [#22](https://github.com/DenaSon/Denapax/issues/22), [#23](https://github.com/DenaSon/Denapax/issues/23): admin order queue/filters, fulfillment, manual tracking, outbox notifications and my orders.
-
-**Acceptance gate:** no receipt upload can auto-approve payment; staff approve after bank check, and customer sees status/tracking through bot.
-
-### Milestone D — Public MVP Launch
-- [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25): E2E + security and operational runbook.
-
-**Acceptance gate:** representative end-to-end orders and negative cases pass automated tests; encrypted/private receipts, HTTPS, backup-and-restore, queues and webhook verification are operational.
+Existing foundation PR #1 is already merged; it supplies reusable shipping calculation, base RBAC and CI, but it **does not** satisfy all of phases 1 or 3. Engineering quality, security, testing and data integrity apply to every phase.
 
 ## Requirements traceability and execution phases
 
