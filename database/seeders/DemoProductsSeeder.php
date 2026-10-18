@@ -12,7 +12,8 @@ class DemoProductsSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing', 'staging'])) {
+        if (! app()->environment(['local', 'testing', 'staging'])
+            || ! in_array(config('app.env'), ['local', 'testing', 'staging'], true)) {
             throw new RuntimeException('DemoProductsSeeder is restricted to local, testing and staging environments.');
         }
 
