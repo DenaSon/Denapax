@@ -1,6 +1,14 @@
 # Denapax — MVP Product Backlog v1.1
 
-**Status:** Proposed execution backlog, ready for owner review · **Scope:** [MVP Scope v1.1](01-mvp-scope.md) · **Last reviewed:** 2026-10-18
+**Status:** Approved delivery backlog; Phases 1–5 code-merged; Phase 6 pending real acceptance · **Scope:** [MVP Scope v1.1](01-mvp-scope.md) · **Last reviewed:** 2026-10-18
+
+## Verified delivery ledger (2026-10-18)
+
+- **6 phases**, mapped to **7 Epics (E01–E07)** and **20 User Stories**; GitHub has **27 actual Issues** excluding PRs.
+- **Closed: 24 Issues** = 6 completed Epics (E01–E06) + 18 completed Stories. **Open: 3 Issues** = [Epic E07 #11](https://github.com/DenaSon/Denapax/issues/11), [E2E/security #24](https://github.com/DenaSon/Denapax/issues/24), [deployment/recovery #25](https://github.com/DenaSon/Denapax/issues/25).
+- **Merged PRs: 7** = foundation #1, process #29, Phases 1–5 [#30](https://github.com/DenaSon/Denapax/pull/30), [#31](https://github.com/DenaSon/Denapax/pull/31), [#32](https://github.com/DenaSon/Denapax/pull/32), [#33](https://github.com/DenaSon/Denapax/pull/33), [#34](https://github.com/DenaSon/Denapax/pull/34). This is **code/CI completion**, not live runtime launch.
+- **Phase 6 release gate remains open** until real Telegram, MySQL/Redis, payment/receipt, worker notifications, security and backup/restore evidence passes. See [Phase 6 readiness plan](15-phase-6-readiness-plan.md), [AGENTS.md](../AGENTS.md).
+- Issue and PR counts are an **as-of-date snapshot**, not an automatically synchronized live count.
 
 ## Operating principles
 - This is an **MVP execution backlog**, not an expansion of MVP Scope v1.1.
@@ -28,12 +36,12 @@
 
 | Phase | Primary focus and stories | Exit gate |
 | --- | --- | --- |
-| 1 · Admin & Catalog | #2, #3, #12, #27 | Staff sign-in, RBAC, store/card/support settings and product/variant/media CRUD validated |
-| 2 · Telegram & Customers | #4, #13, #14, #26 | Bot browsing/search, saved addresses and support work securely |
-| 3 · Cart & Checkout | #15, #16, #17 | Multi-item checkout, gram-based postage and immutable snapshot |
-| 4 · Card-to-Card Payment | #18, #19, #20 | Card instructions from preconfigured settings plus private receipt upload/review/resubmission verified |
-| 5 · Fulfillment & Notifications | #28, #21, #22, #23 | Admin queue, states, tracking and outbox notifications work |
-| 6 · Production Readiness | #24, #25 | E2E/security/operations gates met and release test passed |
+| 1 · Admin & Catalog | #2, #3, #12, #27 | ✅ Code delivered/merged [PR #30](https://github.com/DenaSon/Denapax/pull/30); core CI passed; live validation in Phase 6 |
+| 2 · Telegram & Customers | #4, #13, #14, #26 | ✅ Code delivered/merged [PR #31](https://github.com/DenaSon/Denapax/pull/31); core CI passed; live validation in Phase 6 |
+| 3 · Cart & Checkout | #15, #16, #17 | ✅ Code delivered/merged [PR #32](https://github.com/DenaSon/Denapax/pull/32); core CI passed; live validation in Phase 6 |
+| 4 · Card-to-Card Payment | #18, #19, #20 | ✅ Code delivered/merged [PR #33](https://github.com/DenaSon/Denapax/pull/33); core CI passed; live validation in Phase 6 |
+| 5 · Fulfillment & Notifications | #28, #21, #22, #23 | ✅ Code delivered/merged [PR #34](https://github.com/DenaSon/Denapax/pull/34); core CI passed; live validation in Phase 6 |
+| 6 · Production Readiness | #24, #25 | ⏳ **Not complete** — evidence-backed E2E/security/deployment/recovery and owner go/no-go required |
 
 Existing foundation PR #1 is already merged; it supplies reusable shipping calculation, base RBAC and CI, but it **does not** satisfy all of phases 1 or 3. Engineering quality, security, testing and data integrity apply to every phase.
 
