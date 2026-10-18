@@ -23,6 +23,7 @@ class StorefrontBot
         private readonly ManageCart $carts,
         private readonly CartCheckoutMessages $cartCheckout,
         private readonly ReceiptBot $receipts,
+        private readonly CustomerOrdersBot $customerOrders,
     ) {}
 
     public function onMessage(Nutgram $bot): void
@@ -70,6 +71,12 @@ class StorefrontBot
 
         if ($text === '/checkout') {
             $this->cartCheckout->chooseAddress($bot, $customer);
+
+            return;
+        }
+
+        if ($text === '/orders') {
+            $this->customerOrders->list($bot, $customer);
 
             return;
         }
@@ -167,7 +174,11 @@ class StorefrontBot
             } elseif (preg_match('/^receipt:upload:([1-9][0-9]*)$/', $data, $m)) {
                 $this->receipts->start($bot, $customer, (int) $m[1]);
             } elseif ($data === 'menu:orders') {
-                $bot->sendMessage('پیگیری سفارش‌ها پس از پیاده‌سازی ثبت سفارش و ارسال فعال می‌شود.');
+                $this->customerOrders->list($bot, $customer);
+            } elseif (preg_match('/^myorders:([1-9][0-9]{0,2})$/', $data, $m)) {
+                $this->customerOrders->list($bot, $customer, (int) $m[1]);
+            } elseif (preg_match('/^myorder:([1-9][0-9]*)$/', $data, $m)) {
+                $this->customerOrders->details($bot, $customer, (int) $m[1]);
             } elseif ($data === 'menu:home') {
                 $this->menu($bot);
             } elseif ($data === 'checkout:start') {
