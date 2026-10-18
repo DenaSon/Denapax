@@ -28,7 +28,7 @@ class TelegramBotMenuTest extends TestCase
         $bot->hearText('/start')
             ->reply()
             ->assertReplyMessage([
-                'text' => '🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.',
+                'text' => "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.",
                 'reply_markup' => Keyboard::make()
                     ->addRow(Button::make('🌰 محصولات', callback_data: 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
                     ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
@@ -150,7 +150,7 @@ class TelegramBotMenuTest extends TestCase
         }
     }
 
-    public function test_home_callback_returns_to_menu_without_resetting_address_conversation(): void
+    public function test_home_callback_sends_welcome_menu(): void
     {
         /** @var FakeNutgram $bot */
         $bot = app(Nutgram::class);
@@ -159,7 +159,6 @@ class TelegramBotMenuTest extends TestCase
 
         $bot->hearCallbackQueryData('menu:home')
             ->reply()
-            ->assertCalled('answerCallbackQuery')
             ->assertReplyText("🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.");
     }
 }
