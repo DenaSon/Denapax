@@ -2,7 +2,7 @@
 
 **Scope:** MVP v1.1, stories #21, #22, #23 and #28  
 **Development branch:** `phase/5-fulfillment-notifications`  
-**Merge gate:** essential PHPUnit, Pint, Composer and Vite checks, then squash merge to `master`.
+**Status:** Completed and squash-merged into `master` via [PR #34](https://github.com/DenaSon/Denapax/pull/34) at commit [`bf6ef852f6f9`](https://github.com/DenaSon/Denapax/commit/bf6ef852f6f95e3bc494874c5a8795a00c995d75), following successful essential CI.
 
 ## Delivered business flows
 - Admin orders queue with pagination; filter by number, order/payment states and date; details show immutable line, recipient, amount, shipping and fee snapshots.
@@ -25,3 +25,10 @@ Business events and receipt/order transitions are transactionally deduplicated. 
 
 ## Next
 Phase 6 — real integrated validation, security hardening, operational rehearsal and launch readiness.
+
+## Phase 5 closure
+- **Delivered:** Admin order search/detail and role-separated receipt links, shipment/tracking and status FSM; caller-owned Telegram order view; all eight notification types, outbox poller, queued job, bounded retries and admin notification log dashboard.
+- **Verification:** Focused PHPUnit tests covering fulfillment transitions, unpaid cancellation boundaries, staff access, delivery retries and deduplication; Pint, Composer and Vite CI passed. Master CI result should be checked against the latest commit before release claims.
+- **Merged:** [PR #34](https://github.com/DenaSon/Denapax/pull/34), SHA `bf6ef852f6f95e3bc494874c5a8795a00c995d75`.
+- **Remaining:** Production MySQL/Redis deployment and supervision, real Telegram outbox send, visual QA, privacy/security checks, backup and restore, and complete live checkout/payment/dispatch trials are phase 6.
+- **Next:** Phase 6 — real integrated test and launch readiness.
