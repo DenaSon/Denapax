@@ -6,6 +6,7 @@ use App\Models\TelegramUpdate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use SergiX44\Nutgram\Nutgram;
 use Throwable;
 
@@ -73,7 +74,12 @@ class TelegramWebhookController
                 'error_summary' => mb_substr($e::class, 0, 240),
             ]);
 
-            report($e);
+            // Provider exceptions may contain bot-token URLs or customer data.
+            // Do not send the exception object/message to application logs.
+            Log::warning('Telegram webhook processing failed', [
+                'exception_type' => $e::class,
+                'update_id' => $updateId,
+            ]);
 
             return response()->json(['error' => 'Temporary failure'], 503);
         }
