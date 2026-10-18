@@ -172,7 +172,6 @@ class CatalogMessages
             ),
         );
     }
-}
 
     private function toman(int $irr): string
     {
