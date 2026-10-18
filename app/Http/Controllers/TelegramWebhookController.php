@@ -11,7 +11,7 @@ use Throwable;
 
 class TelegramWebhookController
 {
-    public function __invoke(Request $request, Nutgram $bot): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
         $secret = (string) config('services.telegram.webhook_secret');
         if ($secret === '') {
@@ -61,7 +61,7 @@ class TelegramWebhookController
         }
 
         try {
-            $bot->run();
+            app(Nutgram::class)->run();
             TelegramUpdate::query()->whereKey($updateId)->update([
                 'status' => 'done',
                 'processed_at' => now(),
