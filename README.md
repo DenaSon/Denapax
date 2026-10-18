@@ -20,6 +20,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 - [Foundation implementation & handoff](docs/06-foundation-handoff.md)
 - [MVP epics, user stories and six delivery phases](docs/07-product-backlog.md)
 - [MVP requirements-to-stories traceability matrix](docs/08-mvp-traceability.md)
+- [Project execution agreement (phase merges, lean tests and short reports)](docs/09-execution-agreement.md)
 
 ## Key decisions
 - Product variants have predefined sale quantities, units and independent prices.
