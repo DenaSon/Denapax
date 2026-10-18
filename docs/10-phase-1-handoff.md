@@ -1,6 +1,6 @@
 # Phase 1 — Admin & Catalog: implementation handoff
 
-**Branch:** `phase/1-admin-catalog` (merge only after green CI).  
+**Branch:** `phase/1-admin-catalog` · **Result:** [PR #30](https://github.com/DenaSon/Denapax/pull/30) merged into `master` as [`21adb0e`](https://github.com/DenaSon/Denapax/commit/21adb0e1d55d8d301c752d5c02878a58b08f376c) after passing CI.  
 **Issues:** #2, #3, #12, #27 · **Execution policy:** [Agreement](09-execution-agreement.md).
 
 ## Implemented
@@ -36,3 +36,9 @@ For local development only, it is safe to run the baseline test suite on ephemer
 - No public staff registration or visual RBAC administration UI.
 - Cart price rechecks and immutable financial snapshots belong to phase 3.
 - Live DB migration/production access must be verified separately; CI uses SQLite.
+
+## Phase 1 completion note
+- **Delivered:** Fortify/RBAC staff login, store/card/support settings, catalog schema and RTL Mary UI manager for categories, products, features, variants, images and soft archive.
+- **Automated verification:** CI on PR head succeeded: PHPUnit, Pint, Composer validation, npm install and Vite build. PHPUnit covers staff registration/inactive access, authorization, store settings and variant weight/prices plus prior shipping calculator tests.
+- **Outside the verified scope:** real MySQL migration, persistent admin provisioning on target environment, browser/visual QA, Telegram bot, and end-to-end shopping. The user requested real integrated testing in phase 6.
+- **Next:** Phase 2 Telegram Storefront & Customer Identity; do not use production bot token in git.
