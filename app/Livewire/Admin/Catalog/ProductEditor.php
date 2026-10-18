@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Catalog;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
