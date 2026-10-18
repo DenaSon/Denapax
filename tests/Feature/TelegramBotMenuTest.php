@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
-use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use SergiX44\Nutgram\Telegram\Types\User\User;
 use SergiX44\Nutgram\Testing\FakeNutgram;
 use Tests\TestCase;
@@ -42,6 +43,7 @@ class TelegramBotMenuTest extends TestCase
             'telegram_chat_id' => 123456,
         ]);
     }
+
     public function test_help_command_explains_order_payment_and_tracking_with_navigation(): void
     {
         /** @var FakeNutgram $bot */
@@ -51,7 +53,7 @@ class TelegramBotMenuTest extends TestCase
 
         $bot->hearText('/help')
             ->reply()
-            ->assertRaw(function (\GuzzleHttp\Psr7\Request $request): bool {
+            ->assertRaw(function (Request $request): bool {
                 $payload = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);
                 $text = (string) ($payload['text'] ?? '');
                 $buttons = $payload['reply_markup']['inline_keyboard'] ?? [];
@@ -76,5 +78,4 @@ class TelegramBotMenuTest extends TestCase
             ->assertCalled('answerCallbackQuery')
             ->assertCalled('sendMessage');
     }
-
 }
