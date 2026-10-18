@@ -19,7 +19,7 @@ class CustomerOrdersBot
             $bot->sendMessage(
                 text: 'سفارشی در این صفحه پیدا نشد.',
                 reply_markup: Keyboard::make()->addRow(
-                    Button::make('🌰 مشاهده محصولات', callback_data: 'menu:catalog'),
+                    StorefrontButtons::primary('🌰 مشاهده محصولات', 'menu:catalog'),
                     Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
                 ),
             );
