@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\Notifications\TelegramNotificationText;
 use App\Jobs\DeliverOutboxNotification;
 use App\Models\Customer;
 use App\Models\NotificationLog;
@@ -27,8 +28,8 @@ class PhaseFiveNotificationsTest extends TestCase
         $this->app->instance(Nutgram::class, $bot);
 
         $job = new DeliverOutboxNotification($eventId);
-        $job->handle($bot, app(\App\Application\Notifications\TelegramNotificationText::class));
-        $job->handle($bot, app(\App\Application\Notifications\TelegramNotificationText::class));
+        $job->handle($bot, app(TelegramNotificationText::class));
+        $job->handle($bot, app(TelegramNotificationText::class));
 
         $log = NotificationLog::query()->sole();
         $this->assertSame('sent', $log->status);
@@ -47,7 +48,7 @@ class PhaseFiveNotificationsTest extends TestCase
         $this->app->instance(Nutgram::class, $bot);
 
         $job = new DeliverOutboxNotification($eventId);
-        $job->handle($bot, app(\App\Application\Notifications\TelegramNotificationText::class));
+        $job->handle($bot, app(TelegramNotificationText::class));
 
         $log = NotificationLog::query()->sole();
         $this->assertSame('failed', $log->status);
@@ -55,7 +56,7 @@ class PhaseFiveNotificationsTest extends TestCase
         $this->assertSame(1, $log->attempts);
 
         $this->travel(3)->minutes();
-        $job->handle($bot, app(\App\Application\Notifications\TelegramNotificationText::class));
+        $job->handle($bot, app(TelegramNotificationText::class));
         $this->assertSame('sent', $log->fresh()->status);
         $this->assertSame(2, $log->fresh()->attempts);
         $this->travelBack();
