@@ -96,8 +96,8 @@ class InitialSeedersTest extends TestCase
 
     public function test_demo_seeder_rejects_production_before_writing_data(): void
     {
-        $previous = app()->environment();
-        app()->detectEnvironment(fn () => 'production');
+        $previous = config('app.env');
+        config()->set('app.env', 'production');
 
         try {
             $this->seed(DemoProductsSeeder::class);
