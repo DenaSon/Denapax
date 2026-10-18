@@ -7,7 +7,7 @@ return [
     'safe_mode' => false,
     'config' => [],
     'routes' => true,
-    'mixins' => false,
+    'mixins' => true,
     'namespace' => app_path('Telegram'),
     'log_channel' => env('TELEGRAM_LOG_CHANNEL', 'null'),
 ];

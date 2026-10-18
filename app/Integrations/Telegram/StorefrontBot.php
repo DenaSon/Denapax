@@ -22,6 +22,7 @@ class StorefrontBot
         private readonly CatalogMessages $catalog,
         private readonly ManageCart $carts,
         private readonly CartCheckoutMessages $cartCheckout,
+        private readonly ReceiptBot $receipts,
     ) {}
 
     public function onMessage(Nutgram $bot): void
@@ -73,6 +74,12 @@ class StorefrontBot
             return;
         }
 
+        if ($text === '/receipt') {
+            $this->receipts->orders($bot, $customer);
+
+            return;
+        }
+
         if ($text === '/addresses') {
             $this->listAddresses($bot, $customer);
 
@@ -86,6 +93,12 @@ class StorefrontBot
         }
 
         $session = $this->addresses->session($customer);
+
+        if ($session->state === 'receipt:upload') {
+            $this->receipts->handle($bot, $customer);
+
+            return;
+        }
 
         if ($this->addresses->isCollecting($session)) {
             $bot->sendMessage($this->addresses->accept($customer, $text, $this->saveAddress));
@@ -147,6 +160,12 @@ class StorefrontBot
                 $this->support($bot);
             } elseif ($data === 'menu:cart') {
                 $this->cartCheckout->show($bot, $customer);
+            } elseif ($data === 'menu:receipt') {
+                $this->receipts->orders($bot, $customer);
+            } elseif (preg_match('/^receipt:order:([1-9][0-9]*)$/', $data, $m)) {
+                $this->receipts->order($bot, $customer, (int) $m[1]);
+            } elseif (preg_match('/^receipt:upload:([1-9][0-9]*)$/', $data, $m)) {
+                $this->receipts->start($bot, $customer, (int) $m[1]);
             } elseif ($data === 'menu:orders') {
                 $bot->sendMessage('پیگیری سفارش‌ها پس از پیاده‌سازی ثبت سفارش و ارسال فعال می‌شود.');
             } elseif ($data === 'menu:home') {
@@ -225,6 +244,7 @@ class StorefrontBot
         $keyboard = Keyboard::make()
             ->addRow(Button::make('🌰 محصولات', callback_data: 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
             ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
+            ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
             ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))
             ->addRow(Button::make('☎️ پشتیبانی', callback_data: 'menu:support'));
 

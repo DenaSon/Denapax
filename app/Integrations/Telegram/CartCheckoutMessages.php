@@ -155,7 +155,10 @@ class CartCheckoutMessages
             ."\n\nپرداخت کارت‌به‌کارت:"
             ."\nشماره کارت: ".$payment['card_number']
             ."\nبه نام: ".$payment['card_holder_name']
-            ."\n\nپس از انتقال وجه، امکان ارسال رسید در مرحله بعدی فعال می‌شود.",
+            ."\n\nپس از انتقال وجه، رسید را از دکمه زیر بارگذاری کنید.",
+            reply_markup: Keyboard::make()->addRow(
+                Button::make('🧾 ارسال رسید سفارش', callback_data: 'receipt:order:'.$order->id),
+            ),
         );
     }
 
