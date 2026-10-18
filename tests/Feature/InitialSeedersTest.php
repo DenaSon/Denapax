@@ -100,12 +100,13 @@ class InitialSeedersTest extends TestCase
         app()->detectEnvironment(fn () => 'production');
 
         try {
-            $this->expectException(RuntimeException::class);
             $this->seed(DemoProductsSeeder::class);
+            $this->fail('Demo seeding must be blocked in production.');
+        } catch (RuntimeException $exception) {
+            $this->assertStringContainsString('restricted', $exception->getMessage());
+            $this->assertDatabaseCount('products', 0);
         } finally {
             app()->detectEnvironment(fn () => $previous);
         }
-
-        $this->assertDatabaseCount('products', 0);
     }
 }
