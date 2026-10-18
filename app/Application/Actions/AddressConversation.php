@@ -70,7 +70,7 @@ class AddressConversation
 
         $field = substr($session->state, strlen('address:'));
         $spec = self::FIELDS[$field] ?? null;
-        if (! $spec) {
+        if ($spec === null) {
             $this->reset($customer);
 
             return 'فرآیند ثبت نشانی بسته شد.';
@@ -80,7 +80,7 @@ class AddressConversation
         $rules = [$field => $spec['rules']];
         $validation = Validator::make([$field => $value], $rules);
         if ($validation->fails()) {
-            return 'مقدار «'.$spec['label']."» معتبر نیست. دوباره وارد کنید.";
+            return 'مقدار «'.$spec['label'].'» معتبر نیست. دوباره وارد کنید.';
         }
 
         $context = $session->context ?? [];
@@ -108,7 +108,7 @@ class AddressConversation
             return 'اطلاعات نشانی معتبر نبود. لطفاً دوباره از منوی نشانی‌ها شروع کنید.';
         }
 
-        if (! $customer->full_name && ! $customer->mobile) {
+        if ($customer->full_name === null && $customer->mobile === null) {
             $customer->update([
                 'full_name' => $address->recipient_name,
                 'mobile' => $address->recipient_mobile,
