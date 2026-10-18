@@ -1,0 +1,166 @@
+<?php
+
+namespace App\Integrations\Telegram;
+
+use App\Application\Actions\AddressConversation;
+use App\Application\Actions\CreateOrder;
+use App\Application\Actions\ManageCart;
+use App\Application\Actions\PrepareCheckout;
+use App\Models\Customer;
+use App\Models\Order;
+use Illuminate\Support\Str;
+use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
+
+class CartCheckoutMessages
+{
+    public function __construct(
+        private readonly ManageCart $carts,
+        private readonly PrepareCheckout $checkout,
+        private readonly CreateOrder $orders,
+        private readonly AddressConversation $conversation,
+    ) {}
+
+    public function show(Nutgram $bot, Customer $customer): void
+    {
+        $items = $this->carts->cart($customer)->items()->with('variant.product')->get();
+        if ($items->isEmpty()) {
+            $bot->sendMessage('🛒 سبد خرید خالی است. از فهرست محصولات کالا انتخاب کنید.');
+
+            return;
+        }
+
+        $message = '🛒 سبد خرید شما';
+        $keyboard = Keyboard::make();
+        foreach ($items as $item) {
+            $variant = $item->variant;
+            $title = $variant?->product?->title ?? 'محصول غیرفعال';
+            $unit = $variant?->price_irr ?? 0;
+            $message .= "\n• ".$title.' / '.($variant?->title ?? 'تنوع غیرفعال')
+                .' × '.$item->quantity.' — '.$this->toman($unit * $item->quantity).' تومان';
+
+            $keyboard->addRow(
+                Button::make('➕', callback_data: 'cart:plus:'.$item->product_variant_id),
+                Button::make('➖', callback_data: 'cart:minus:'.$item->product_variant_id),
+                Button::make('حذف', callback_data: 'cart:remove:'.$item->product_variant_id),
+            );
+        }
+
+        $keyboard->addRow(Button::make('بررسی هزینه و ثبت سفارش', callback_data: 'checkout:start'));
+        $keyboard->addRow(Button::make('محصولات', callback_data: 'menu:catalog'));
+        $bot->sendMessage(text: mb_substr($message, 0, 3900), reply_markup: $keyboard);
+    }
+
+    public function chooseAddress(Nutgram $bot, Customer $customer): void
+    {
+        if ($this->carts->cart($customer)->items()->doesntExist()) {
+            $bot->sendMessage('سبد خرید خالی است.');
+
+            return;
+        }
+
+        $addresses = $customer->addresses()->orderByDesc('is_default')->orderBy('id')->get();
+        $keyboard = Keyboard::make();
+        foreach ($addresses as $address) {
+            $keyboard->addRow(Button::make(
+                ($address->is_default ? '⭐ ' : '').$address->recipient_name.'، '.$address->city.' #'.$address->id,
+                callback_data: 'checkout:address:'.$address->id,
+            ));
+        }
+        $keyboard->addRow(Button::make('ثبت نشانی جدید', callback_data: 'addr:new'));
+        $keyboard->addRow(Button::make('بازگشت به سبد', callback_data: 'menu:cart'));
+
+        $bot->sendMessage(
+            text: $addresses->isEmpty()
+                ? 'ابتدا نشانی گیرنده را ثبت کنید و سپس از سبد خرید سفارش را بررسی کنید.'
+                : 'نشانی دریافت سفارش را انتخاب کنید:',
+            reply_markup: $keyboard,
+        );
+    }
+
+    public function preview(Nutgram $bot, Customer $customer, int $addressId): void
+    {
+        $quote = $this->checkout->execute($customer, $addressId);
+        $key = (string) Str::uuid();
+        $session = $this->conversation->session($customer);
+        $session->update([
+            'state' => 'checkout:confirm',
+            'context' => [
+                'checkout_key' => $key,
+                'address_id' => $addressId,
+                'fingerprint' => $this->checkout->fingerprint($quote),
+            ],
+            'expires_at' => now()->addMinutes(20),
+            'updated_at' => now(),
+        ]);
+
+        $text = "🧾 پیش‌نمایش نهایی سفارش\n";
+        foreach ($quote['items'] as $line) {
+            $text .= "\n• ".$line['product_title_snapshot'].' / '.$line['variant_title_snapshot']
+                .' × '.$line['quantity'].' : '.$this->toman($line['line_total_irr']).' تومان';
+        }
+        $text .= "\n\nگیرنده: ".$quote['address']['recipient_name'];
+        $text .= "\nنشانی: ".$quote['address']['province'].'، '.$quote['address']['city'].'، '.$quote['address']['address_line'];
+        $text .= "\nوزن مرسوله: ".$quote['shipping_weight_grams'].' گرم';
+        $text .= "\nمجموع کالا: ".$this->toman($quote['goods_subtotal_irr']).' تومان';
+        $text .= "\nهزینه ارسال: ".$this->toman($quote['shipping_fee_irr']).' تومان';
+        $text .= "\nمبلغ نهایی: ".$this->toman($quote['total_irr']).' تومان';
+        $text .= "\n\nبا تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.";
+
+        $keyboard = Keyboard::make()
+            ->addRow(Button::make('✅ تأیید و ثبت سفارش', callback_data: 'checkout:confirm:'.$key))
+            ->addRow(Button::make('تغییر نشانی', callback_data: 'checkout:start'))
+            ->addRow(Button::make('بازگشت به سبد', callback_data: 'menu:cart'));
+
+        $bot->sendMessage(text: mb_substr($text, 0, 3950), reply_markup: $keyboard);
+    }
+
+    public function confirm(Nutgram $bot, Customer $customer, string $key): void
+    {
+        $existing = $customer->orders()->where('checkout_key', $key)->first();
+        if ($existing) {
+            $this->orderDetails($bot, $existing);
+
+            return;
+        }
+
+        $session = $this->conversation->session($customer);
+        $context = $session->context ?? [];
+        if ($session->state !== 'checkout:confirm' || $session->expires_at?->isPast()
+            || ($context['checkout_key'] ?? '') !== $key) {
+            $bot->sendMessage('پیش‌نمایش سفارش منقضی شده یا تغییر کرده است؛ دوباره از سبد خرید بررسی کنید.');
+
+            return;
+        }
+
+        $order = $this->orders->execute(
+            $customer,
+            (int) $context['address_id'],
+            $key,
+            (string) $context['fingerprint'],
+        );
+        $this->conversation->reset($customer);
+        $this->orderDetails($bot, $order);
+    }
+
+    private function orderDetails(Nutgram $bot, Order $order): void
+    {
+        $payment = $order->payment_instructions_snapshot;
+        $bot->sendMessage(
+            "✅ سفارش ثبت شد\nشماره: ".$order->order_number
+            ."\nمبلغ: ".$this->toman($order->total_irr)." تومان"
+            ."\n\nپرداخت کارت‌به‌کارت:"
+            ."\nشماره کارت: ".$payment['card_number']
+            ."\nبه نام: ".$payment['card_holder_name']
+            ."\n\nپس از انتقال وجه، امکان ارسال رسید در مرحله بعدی فعال می‌شود.",
+        );
+    }
+
+    private function toman(int $irr): string
+    {
+        return $irr % 10 === 0
+            ? number_format(intdiv($irr, 10))
+            : number_format($irr / 10, 1);
+    }
+}
