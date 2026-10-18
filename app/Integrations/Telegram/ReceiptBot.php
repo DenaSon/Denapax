@@ -49,14 +49,15 @@ class ReceiptBot
 
         $keyboard = Keyboard::make();
         foreach ($orders as $order) {
-            $label = $order->order_number.' — '.$this->paymentLabel($order->payment_status);
+            $label = $order->order_number.' · '.number_format(intdiv($order->total_irr, 10)).' تومان · '
+                .OrderStateLabels::payment($order->payment_status);
             $keyboard->addRow(Button::make($label, callback_data: 'receipt:order:'.$order->id));
         }
 
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(
-            text: '🧾 برای مشاهده وضعیت و ارسال رسید، سفارش خود را انتخاب کنید.',
+            text: '🧾 ابتدا سفارش موردنظر را انتخاب کنید. ارسال رسید فقط برای همان سفارش ثبت می‌شود.',
             reply_markup: $keyboard,
         );
     }
@@ -66,17 +67,24 @@ class ReceiptBot
         $order = $customer->orders()->find($orderId);
 
         if (! $order) {
-            $bot->sendMessage('سفارش متعلق به شما نیست.');
+            $bot->sendMessage(
+                text: 'این سفارش در حساب شما پیدا نشد.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('⬅️ انتخاب سفارش', callback_data: 'menu:receipt'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
 
         $latest = $order->receipts()->latest('attempt_number')->first();
-        $text = '🧾 سفارش '.$order->order_number."\nوضعیت پرداخت: ".$this->paymentLabel($order->payment_status);
-        $text .= "\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان';
+        $text = '🧾 سفارش '.$order->order_number."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status);
+        $text .= "\nمبلغ قابل پرداخت: ".number_format(intdiv($order->total_irr, 10)).' تومان';
 
         if ($latest?->status === 'rejected') {
-            $text .= "\nدلیل رد رسید قبلی: ".$latest->rejection_reason;
+            $text .= "\n\n❌ دلیل رد رسید قبلی: ".$latest->rejection_reason
+                ."\nمی‌توانید برای همین سفارش رسید جدید ارسال کنید.";
         }
 
         $keyboard = Keyboard::make();
@@ -85,11 +93,19 @@ class ReceiptBot
             $payment = $order->payment_instructions_snapshot;
             $text .= "\nشماره کارت: ".$payment['card_number']."\nبه نام: ".$payment['card_holder_name'];
             $text .= "\nفقط پس از انتقال وجه، عکس یا فایل تصویری رسید را ارسال کنید.";
-            $keyboard->addRow(StorefrontButtons::primary('📎 ارسال رسید', 'receipt:upload:'.$order->id));
+            $keyboard->addRow(StorefrontButtons::primary(
+                $order->payment_status === 'rejected' ? '📎 ارسال مجدد رسید' : '📎 ارسال رسید پرداخت',
+                'receipt:upload:'.$order->id,
+            ));
         }
 
+        if ($order->payment_status === 'under_review') {
+            $text .= "\n\nرسید دریافت شده است و در انتظار بررسی فروشگاه قرار دارد. نیازی به ارسال مجدد نیست.";
+        }
+
+        $keyboard->addRow(Button::make('📦 وضعیت سفارش', callback_data: 'myorder:'.$order->id));
         $keyboard->addRow(
-            Button::make('⬅️ سفارش‌های پرداخت‌نشده', callback_data: 'menu:receipt'),
+            Button::make('⬅️ انتخاب سفارش', callback_data: 'menu:receipt'),
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
         $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
@@ -101,7 +117,13 @@ class ReceiptBot
 
         if (! $order || $order->order_status !== 'awaiting_payment'
             || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
-            $bot->sendMessage('این سفارش در حال حاضر امکان دریافت رسید ندارد.');
+            $bot->sendMessage(
+                text: 'برای این سفارش اکنون امکان ارسال رسید وجود ندارد. وضعیت سفارش را بررسی کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -113,7 +135,12 @@ class ReceiptBot
             'updated_at' => now(),
         ]);
 
-        $bot->sendMessage('📷 تصویر رسید را به‌صورت عکس یا فایل JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت). /cancel برای لغو.');
+        $bot->sendMessage(
+            '📷 ارسال رسید برای سفارش '.$order->order_number
+            ."\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان'
+            ."\n\nعکس یا فایل تصویری JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت)."
+            ."\n/cancel برای لغو. تا تأیید فروشگاه، پرداخت در انتظار بررسی است.",
+        );
     }
 
     public function handle(Nutgram $bot, Customer $customer): void
@@ -121,7 +148,13 @@ class ReceiptBot
         $session = $this->conversation->session($customer);
         if ($session->state !== 'receipt:upload' || ! $session->expires_at || $session->expires_at->isPast()) {
             $this->conversation->reset($customer);
-            $bot->sendMessage('مهلت ارسال رسید تمام شده؛ دوباره سفارش را انتخاب کنید.');
+            $bot->sendMessage(
+                text: 'مهلت ارسال رسید تمام شده است. دوباره سفارش را انتخاب کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    StorefrontButtons::primary('🧾 انتخاب سفارش', 'menu:receipt'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -167,9 +200,17 @@ class ReceiptBot
                 throw ValidationException::withMessages(['receipt' => 'فایل دریافتی تصویر معتبر یا مجاز نیست.']);
             }
 
-            $this->submit->execute($customer, (int) $session->context['order_id'], $path, $fileId);
+            $orderId = (int) $session->context['order_id'];
+            $this->submit->execute($customer, $orderId, $path, $fileId);
             $this->conversation->reset($customer);
-            $bot->sendMessage('✅ رسید شما ثبت شد و در انتظار بررسی دستی واریز توسط فروشگاه است. این پیام به‌معنای تأیید پرداخت نیست.');
+            $bot->sendMessage(
+                text: '🧾 رسید شما ثبت شد و در انتظار بررسی پرداخت توسط فروشگاه است.'
+                    ."\nارسال رسید به‌معنای تأیید پرداخت نیست؛ نتیجه اعلام می‌شود.",
+                reply_markup: Keyboard::make()->addRow(
+                    Button::make('📦 مشاهده وضعیت سفارش', callback_data: 'myorder:'.$orderId),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
         } catch (ValidationException $exception) {
             $disk->delete($path);
             $bot->sendMessage(collect($exception->errors())->flatten()->first() ?? 'رسید پذیرفته نشد.');
@@ -180,14 +221,4 @@ class ReceiptBot
         }
     }
 
-    private function paymentLabel(string $status): string
-    {
-        return match ($status) {
-            'awaiting_receipt' => 'در انتظار رسید',
-            'under_review' => 'در حال بررسی',
-            'rejected' => 'ردشده، نیاز به ارسال مجدد',
-            'approved' => 'تأییدشده',
-            default => 'نامشخص',
-        };
-    }
 }
