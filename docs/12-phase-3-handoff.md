@@ -1,6 +1,6 @@
 # Phase 3 — Cart, Shipping & Checkout
 
-**Branch:** `phase/3-cart-shipping-checkout`; merge only after focused CI and acceptance.
+**Status:** Completed and merged to `master` via [PR #32](https://github.com/DenaSon/Denapax/pull/32); merge commit [`b90bb2a`](https://github.com/DenaSon/Denapax/commit/b90bb2acd49d4d421f5602b26a74e4f41909f836). Essential PR and master CI are green.
 **Issues:** #15, #16, #17. Reference: MVP Scope v1.1, Database Design v1.1 and Workflows v1.1.
 
 ## Delivered
@@ -19,4 +19,11 @@
 - `outbox_events` records `order.created` transactionally; Phase 5 will implement dependable Telegram delivery, bounded retries and notification logs.
 
 ## Exit gate
-Working Telegram cart/checkout routing + essential CI checks passed + reviewed schema and snapshot behavior. Then squash-merge to master and report verified SHA.
+Working Telegram cart/checkout routing + essential CI checks passed + reviewed schema and snapshot behavior. **Passed:** PHPUnit, Pint, Composer validation and Vite build on PR and `master`. [Verified master CI](https://github.com/DenaSon/Denapax/actions/runs/39148387532). Merge SHA: `b90bb2acd49d4d421f5602b26a74e4f41909f836`.
+
+## Phase 3 completion report
+- **Delivered:** Telegram multi-item cart, integer quantities, national configurable shipping tariff and protected admin screen; customer-owned address selection; confirmed order and item/card/address/shipping snapshots; idempotent UUID confirmation and transactional cart clearing, history and `order.created` outbox event.
+- **Tests:** Essential PHPUnit (shipping boundaries, checkout totals, duplicate confirmation, historical snapshot stability, stale-price refusal, customer ownership and admin tariff authorization), Pint, Composer validate, Vite build passed on `master`. No live Telegram/MySQL/Redis exercise was performed.
+- **Merge:** [PR #32](https://github.com/DenaSon/Denapax/pull/32) merged at [`b90bb2a`](https://github.com/DenaSon/Denapax/commit/b90bb2acd49d4d421f5602b26a74e4f41909f836).
+- **Remaining:** Manual bank receipt upload/review/resubmission remains Phase 4; outbox delivery/notifications Phase 5; production-like live tests Phase 6. Set bank instructions and shipping rates on the target environment before accepting actual orders.
+- **Next:** Phase 4 — manual card-to-card payments with private receipt attempts and staff review.
