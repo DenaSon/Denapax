@@ -235,7 +235,7 @@ class ProductEditor extends Component
         Gate::authorize('catalog.manage');
 
         return view('livewire.admin.catalog.product-editor', [
-            'categories' => \App\Models\Category::where('is_active', true)->orderBy('sort_order')->get(),
+            'categories' => Category::where('is_active', true)->orderBy('sort_order')->get(),
             'product' => $this->productId ? Product::with('media', 'variants.media')->findOrFail($this->productId) : null,
         ])->layout('layouts.admin');
     }
