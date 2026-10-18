@@ -47,6 +47,28 @@ class CatalogMessages
         $keyboard = Keyboard::make();
         foreach ($items as $product) {
             $keyboard->addRow(Button::make($product->title, callback_data: 'item:'.$product->id));
+
+            $summary = '🌰 '.$product->title."\nدسته: ".$product->category->name."\n".$product->summary;
+            foreach ($product->features->take(5) as $feature) {
+                $summary .= "\n• ".$feature->name.': '.$feature->value;
+            }
+            $detailsButton = Keyboard::make()->addRow(
+                Button::make('مشاهده تنوع‌ها و مشخصات', callback_data: 'item:'.$product->id),
+            );
+
+            $cover = $product->getFirstMedia('gallery');
+            if ($cover) {
+                $bot->sendPhoto(
+                    photo: $cover->getFullUrl(),
+                    caption: mb_substr($summary, 0, 900),
+                    reply_markup: $detailsButton,
+                );
+            } else {
+                $bot->sendMessage(
+                    text: mb_substr($summary, 0, 3900),
+                    reply_markup: $detailsButton,
+                );
+            }
         }
 
         $prefix = $term !== null ? 'search:' : ($categoryId === null ? 'all:' : 'cat:'.$categoryId.':');
