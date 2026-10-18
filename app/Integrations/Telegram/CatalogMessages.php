@@ -96,7 +96,7 @@ class CatalogMessages
                 .$this->toman($variant->price_irr).' تومان';
         }
 
-        $text .= "\\n\\nافزودن به سبد خرید در فاز بعد فعال می‌شود.";
+        $text .= "\n\nافزودن به سبد خرید در فاز بعد فعال می‌شود.";
         $keyboard = Keyboard::make();
         if ($product->getMedia('gallery')->count() > 1) {
             $keyboard->addRow(Button::make('📷 تصاویر بیشتر', callback_data: 'gallery:'.$product->id.':1'));
@@ -113,7 +113,7 @@ class CatalogMessages
             // Telegram photo captions are short; send full details separately.
             $bot->sendPhoto(
                 photo: $media->getFullUrl(),
-                caption: mb_substr($product->title."\\n".$product->summary, 0, 900),
+                caption: mb_substr($product->title."\n".$product->summary, 0, 900),
             );
         }
         $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
@@ -152,7 +152,7 @@ class CatalogMessages
 
     public function variantImage(Nutgram $bot, int $variantId): void
     {
-        $variant = \\App\\Models\\ProductVariant::query()
+        $variant = ProductVariant::query()
             ->where('is_available', true)
             ->whereHas('product', fn ($q) => $q->published())
             ->find($variantId);
