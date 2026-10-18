@@ -18,6 +18,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 - [Order, payment, and notification flows](docs/04-workflows.md)
 - [Packages, version policy and PowerShell bootstrap](docs/05-stack-and-windows-setup.md)
 - [Foundation implementation & handoff](docs/06-foundation-handoff.md)
+- [MVP epics, user stories and release milestones](docs/07-product-backlog.md)
 
 ## Key decisions
 - Product variants have predefined sale quantities, units and independent prices.
