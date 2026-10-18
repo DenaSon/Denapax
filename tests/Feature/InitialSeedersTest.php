@@ -106,7 +106,7 @@ class InitialSeedersTest extends TestCase
             $this->assertStringContainsString('restricted', $exception->getMessage());
             $this->assertDatabaseCount('products', 0);
         } finally {
-            app()->detectEnvironment(fn () => $previous);
+            config()->set('app.env', $previous);
         }
     }
 }
