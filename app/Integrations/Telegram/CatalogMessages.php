@@ -20,7 +20,7 @@ class CatalogMessages
             $keyboard->addRow(Button::make($category->name, callback_data: 'cat:'.$category->id.':1'));
         }
 
-        $keyboard->addRow(Button::make('همه محصولات', callback_data: 'all:1'));
+        $keyboard->addRow(StorefrontButtons::primary('🌰 همه محصولات', 'all:1'));
         $keyboard->addRow(Button::make('🔎 جستجو', callback_data: 'menu:search'));
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
@@ -54,7 +54,7 @@ class CatalogMessages
                 $summary .= "\n• ".$feature->name.': '.$feature->value;
             }
             $detailsButton = Keyboard::make()->addRow(
-                Button::make('مشاهده تنوع‌ها و مشخصات', callback_data: 'item:'.$product->id),
+                StorefrontButtons::primary('مشاهده تنوع‌ها و مشخصات', 'item:'.$product->id),
             );
 
             $cover = $product->getFirstMedia('gallery');
@@ -128,7 +128,7 @@ class CatalogMessages
             $keyboard->addRow(Button::make('📷 تصاویر بیشتر', callback_data: 'gallery:'.$product->id.':1'));
         }
         foreach ($product->variants as $variant) {
-            $keyboard->addRow(Button::make('🛒 افزودن '.$variant->title, callback_data: 'cart:add:'.$variant->id));
+            $keyboard->addRow(StorefrontButtons::success('🛒 افزودن '.$variant->title, 'cart:add:'.$variant->id));
             if ($variant->getFirstMedia('variant-image')) {
                 $keyboard->addRow(Button::make('تصویر '.$variant->title, callback_data: 'variant:'.$variant->id));
             }
