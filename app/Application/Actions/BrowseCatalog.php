@@ -27,7 +27,7 @@ class BrowseCatalog
                         ->orWhere('description', 'like', '%'.$term.'%');
                 });
             })
-            ->with(['category', 'media', 'features'])
+            ->with(['category', 'variants' => fn ($q) => $q->where('is_available', true)->orderBy('price_irr')])
             ->orderBy('id')
             ->paginate(perPage: 5, page: max(1, $page));
     }
