@@ -148,7 +148,7 @@ class StorefrontBot
             $session = $this->addresses->session($customer);
             $term = $session->context['search'] ?? null;
 
-            if (is_string($term) && $term !== '') {
+            if (is_string($term) && $term !== '' && ! $session->expires_at?->isPast()) {
                 $this->catalog->products($bot, null, $term, (int) $m[1]);
             } else {
                 $this->startSearch($bot, $customer);
