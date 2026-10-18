@@ -33,7 +33,7 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 
 **CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build passed on the merged phase code. **Not evidence of a running/live store.** No confirmed live Telegram Bot API test, MySQL/Redis production-equivalent run, real bank transfer validation, full browser QA or successful E2E order/dispatch; do not imply these have passed.
 
-**Next work begins at Phase 6**, not reimplementing earlier phases. See [Phase 6 Runbook](docs/15-phase-6-readiness-plan.md). Track [#24 — E2E/security](https://github.com/DenaSon/Denapax/issues/24) and [#25 — deployment/backup/rollback](https://github.com/DenaSon/Denapax/issues/25), closing [#11](https://github.com/DenaSon/Denapax/issues/11) only when both and their release gates truly pass.
+**Phase 6 started (2026-10-18):** working branch `phase/6-e2e-security-launch` has initial webhook failure-log sanitization, receipt access regression assertions, locked-dependency audit in CI and [Phase 6 operator runbook](docs/16-phase-6-operator-runbook.md). These are **preparation**, not staging/prod E2E acceptance. PR/CI status must be re-queried; all #11/#24/#25 remain open pending Gates A/B/C.\n\n**Next work begins at Phase 6**, not reimplementing earlier phases. See [Phase 6 Runbook](docs/15-phase-6-readiness-plan.md). Track [#24 — E2E/security](https://github.com/DenaSon/Denapax/issues/24) and [#25 — deployment/backup/rollback](https://github.com/DenaSon/Denapax/issues/25), closing [#11](https://github.com/DenaSon/Denapax/issues/11) only when both and their release gates truly pass.
 
 ## 3. Source-of-truth reading order
 
