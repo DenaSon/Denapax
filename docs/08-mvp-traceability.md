@@ -1,8 +1,12 @@
-# Denapax — MVP v1.1 Requirements Traceability (planning audit)
+# Denapax — MVP v1.1 Requirements Traceability & Delivery Status
 
 **Date:** 2026-10-18  
 **Source of truth:** [MVP Scope v1.1](01-mvp-scope.md), [Architecture v1.1](02-architecture.md), [Database Design v1.1](03-database-design.md) and [Workflows v1.1](04-workflows.md).  
-**Audit status:** Requirements mapped to [Backlog v1.1](07-product-backlog.md); **mapping is not proof of completed implementation**.
+**Audit status:** Requirements mapped to [Backlog v1.1](07-product-backlog.md); Phases 1–5 delivered with essential CI, **not yet proven by live production-like E2E**. Actual open tasks are #11/#24/#25.
+
+## Current issue/phase ledger (2026-10-18)
+
+**20 Stories and 7 Epics** = **27 tracked Issues** (24 closed / 3 open). E01–E06 and 18 Stories are closed on GitHub; E07 [#11](https://github.com/DenaSon/Denapax/issues/11), security/E2E [#24](https://github.com/DenaSon/Denapax/issues/24), and deployment/recovery [#25](https://github.com/DenaSon/Denapax/issues/25) are open. All **seven** PRs (#1, #29, #30–#34) have been merged. See [AGENTS.md](../AGENTS.md) and [Phase 6 plan](15-phase-6-readiness-plan.md). Real Telegram/MySQL/Redis/bank/backup/restore checks are **unverified**.
 
 ## Coverage matrix
 
@@ -58,7 +62,7 @@ These are **delivery phases**, not calendar commitments. Each can be split into 
 
 ## Current implementation versus planning
 - **Implemented and verified by CI:** Laravel 13 scaffold/packages, base RBAC role seeder/admin provision command, shipping calculator, and **Phase 1** Fortify staff login, guarded catalog/settings admin routes, catalog/schema/media collection code, Persian Livewire/Mary UI components, and **Phase 2** Telegram customer/addresses, verified webhook/update ledger, private bot catalog/search/media/support flows, and **Phase 3** multi-item cart, national shipping admin settings, authoritative checkout and immutable order/item/address/card/shipping snapshots, and **Phase 4** private Telegram receipt image flow, manual staff review/rejection/resubmission with protected image serving, audit and per-attempt outbox events; and **Phase 5** protected admin order queue, fulfillment status transitions, tracking, customer order lookups and durable Telegram outbox job/retry/notification log code; PHPUnit/Pint and Vite build.
-- **Partially prepared:** Spatie package migrations and Phase 1 catalog/settings migrations exist in Git; actual deployment MySQL migration/admin provisioning and runtime configuration still require environment access. Live Nutgram webhook setup and its runtime access, MySQL migration and remaining business domains are not completed.
+- **Partially prepared:** Spatie package migrations and Phase 1 catalog/settings migrations exist in Git; actual deployment MySQL migration/admin provisioning and runtime configuration still require environment access. Live Nutgram webhook setup, target MySQL migration, Redis worker supervision, real Telegram and bank test, backup/restore and release gates are **not verified**.
 - **Not claimed:** production deployment, working external Telegram webhook or database migration on the deployment MySQL, live physical bank reconciliation, real Telegram notification delivery or end-to-end ordering.
 
 ## Acceptance policy

@@ -28,7 +28,7 @@ Phase 6 — real integrated validation, security hardening, operational rehearsa
 
 ## Phase 5 closure
 - **Delivered:** Admin order search/detail and role-separated receipt links, shipment/tracking and status FSM; caller-owned Telegram order view; all eight notification types, outbox poller, queued job, bounded retries and admin notification log dashboard.
-- **Verification:** Focused PHPUnit tests covering fulfillment transitions, unpaid cancellation boundaries, staff access, delivery retries and deduplication; Pint, Composer and Vite CI passed. Master CI result should be checked against the latest commit before release claims.
+- **Verification:** Focused PHPUnit tests covering fulfillment transitions, unpaid cancellation boundaries, staff access, delivery retries and deduplication; Pint, Composer and Vite CI passed. Phase 5 post-merge and documentation updates passed [master CI run 39153631505](https://github.com/DenaSon/Denapax/actions/runs/39153631505); this is automated verification only, not a live release gate.
 - **Merged:** [PR #34](https://github.com/DenaSon/Denapax/pull/34), SHA `bf6ef852f6f95e3bc494874c5a8795a00c995d75`.
 - **Remaining:** Production MySQL/Redis deployment and supervision, real Telegram outbox send, visual QA, privacy/security checks, backup and restore, and complete live checkout/payment/dispatch trials are phase 6.
 - **Next:** Phase 6 — real integrated test and launch readiness.
