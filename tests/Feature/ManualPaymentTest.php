@@ -107,6 +107,8 @@ class ManualPaymentTest extends TestCase
         $this->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertRedirect('/login');
         $this->actingAs($operator)->get('/admin/payments')->assertOk();
         $this->actingAs($operator)->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertOk();
+        // Render the reviewer-only approval controls as well.
+        $this->actingAs($this->reviewer)->get('/admin/payments')->assertOk();
 
         $this->expectException(AuthorizationException::class);
         app(ReviewPaymentReceipt::class)->execute($operator, $receipt->id, 'approved');
