@@ -48,10 +48,14 @@ class PhaseOneFoundationTest extends TestCase
         $operator->assignRole('operator');
 
         $this->actingAs($operator)->get('/admin/settings')->assertForbidden();
+    }
 
+    public function test_authorized_admin_can_edit_store_payment_settings(): void
+    {
         $admin = User::factory()->create();
         $admin->assignRole('super-admin');
 
+        $this->assertTrue($admin->is_active);
         $this->assertTrue($admin->can('settings.manage'));
         $this->actingAs($admin)->get('/admin/settings')->assertOk();
         Livewire::test(\App\Livewire\Admin\SettingsPage::class)
