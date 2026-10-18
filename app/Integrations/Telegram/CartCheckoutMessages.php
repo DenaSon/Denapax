@@ -88,7 +88,13 @@ class CartCheckoutMessages
     public function chooseAddress(Nutgram $bot, Customer $customer): void
     {
         if ($this->carts->cart($customer)->items()->doesntExist()) {
-            $bot->sendMessage('سبد خرید خالی است.');
+            $bot->sendMessage(
+                text: 'سبد خرید شما خالی است. ابتدا یک محصول انتخاب کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -101,13 +107,16 @@ class CartCheckoutMessages
                 callback_data: 'checkout:address:'.$address->id,
             ));
         }
-        $keyboard->addRow(Button::make('ثبت نشانی جدید', callback_data: 'addr:new'));
-        $keyboard->addRow(Button::make('بازگشت به سبد', callback_data: 'menu:cart'));
+        $keyboard->addRow(StorefrontButtons::primary('📍 نشانی جدید', 'addr:new'));
+        $keyboard->addRow(
+            Button::make('⬅️ سبد خرید', callback_data: 'menu:cart'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
 
         $bot->sendMessage(
             text: $addresses->isEmpty()
-                ? 'ابتدا نشانی گیرنده را ثبت کنید و سپس از سبد خرید سفارش را بررسی کنید.'
-                : 'نشانی دریافت سفارش را انتخاب کنید:',
+                ? '📍 هنوز نشانی تحویل ندارید. ابتدا نشانی گیرنده را ثبت کنید.'
+                : '📍 نشانی تحویل سفارش را انتخاب کنید:',
             reply_markup: $keyboard,
         );
     }
@@ -133,18 +142,23 @@ class CartCheckoutMessages
             $text .= "\n• ".$line['product_title_snapshot'].' / '.$line['variant_title_snapshot']
                 .' × '.$line['quantity'].' : '.$this->toman($line['line_total_irr']).' تومان';
         }
-        $text .= "\n\nگیرنده: ".$quote['address']['recipient_name'];
-        $text .= "\nنشانی: ".$quote['address']['province'].'، '.$quote['address']['city'].'، '.$quote['address']['address_line'];
-        $text .= "\nوزن مرسوله: ".$quote['shipping_weight_grams'].' گرم';
-        $text .= "\nمجموع کالا: ".$this->toman($quote['goods_subtotal_irr']).' تومان';
-        $text .= "\nهزینه ارسال: ".$this->toman($quote['shipping_fee_irr']).' تومان';
-        $text .= "\nمبلغ نهایی: ".$this->toman($quote['total_irr']).' تومان';
+        $text .= "\n\n👤 گیرنده: ".$quote['address']['recipient_name']
+            ."\nتلفن گیرنده: ".$quote['address']['recipient_mobile'];
+        $text .= "\n📍 نشانی: ".$quote['address']['province'].'، '.$quote['address']['city'].'، '.$quote['address']['address_line']
+            ."\nکد پستی: ".$quote['address']['postal_code'];
+        $text .= "\n\nوزن مرسوله: ".$quote['shipping_weight_grams'].' گرم';
+        $text .= "\n🛒 جمع کالا: ".$this->toman($quote['goods_subtotal_irr']).' تومان';
+        $text .= "\n🚚 هزینه ارسال: ".$this->toman($quote['shipping_fee_irr']).' تومان';
+        $text .= "\n💳 مبلغ قابل پرداخت: ".$this->toman($quote['total_irr']).' تومان';
         $text .= "\n\n".'با تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.';
 
         $keyboard = Keyboard::make()
             ->addRow(StorefrontButtons::success('✅ تأیید و ثبت سفارش', 'checkout:confirm:'.$key))
-            ->addRow(Button::make('تغییر نشانی', callback_data: 'checkout:start'))
-            ->addRow(Button::make('بازگشت به سبد', callback_data: 'menu:cart'));
+            ->addRow(Button::make('📍 تغییر نشانی', callback_data: 'checkout:start'))
+            ->addRow(
+                Button::make('⬅️ سبد خرید', callback_data: 'menu:cart'),
+                Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+            );
 
         $bot->sendMessage(text: mb_substr($text, 0, 3950), reply_markup: $keyboard);
     }
@@ -164,7 +178,13 @@ class CartCheckoutMessages
         $expired = $session->expires_at?->isPast() ?? true;
         $wrongKey = ($context['checkout_key'] ?? '') !== $key;
         if ($invalidState || $expired || $wrongKey) {
-            $bot->sendMessage('پیش‌نمایش سفارش منقضی شده یا تغییر کرده است؛ دوباره از سبد خرید بررسی کنید.');
+            $bot->sendMessage(
+                text: 'مهلت پیش‌نمایش سفارش تمام شده یا سبد تغییر کرده است. مبلغ و نشانی را دوباره بررسی کنید.',
+                reply_markup: Keyboard::make()->addRow(
+                    StorefrontButtons::primary('🛒 بررسی دوباره', 'checkout:start'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            );
 
             return;
         }
@@ -181,18 +201,43 @@ class CartCheckoutMessages
 
     private function orderDetails(Nutgram $bot, Order $order): void
     {
-        $payment = $order->payment_instructions_snapshot;
-        $bot->sendMessage(
-            "✅ سفارش ثبت شد\nشماره: ".$order->order_number
-            ."\nمبلغ: ".$this->toman($order->total_irr).' تومان'
-            ."\n\nپرداخت کارت‌به‌کارت:"
-            ."\nشماره کارت: ".$payment['card_number']
-            ."\nبه نام: ".$payment['card_holder_name']
-            ."\n\nپس از انتقال وجه، رسید را از دکمه زیر بارگذاری کنید.",
-            reply_markup: Keyboard::make()->addRow(
-                StorefrontButtons::primary('🧾 ارسال رسید سفارش', 'receipt:order:'.$order->id),
-            ),
-        );
+        $keyboard = Keyboard::make();
+
+        if ($order->order_status === 'awaiting_payment') {
+            $payment = $order->payment_instructions_snapshot;
+            $text = "✅ سفارش ثبت شد\nشماره سفارش: ".$order->order_number
+                ."\nوضعیت سفارش: در انتظار پرداخت"
+                ."\nوضعیت رسید: ".match ($order->payment_status) {
+                    'under_review' => 'در انتظار بررسی پرداخت',
+                    'rejected' => 'نیازمند ارسال مجدد رسید',
+                    default => 'در انتظار ارسال رسید',
+                }
+                ."\n\n🛒 جمع کالا: ".$this->toman($order->goods_subtotal_irr).' تومان'
+                ."\n🚚 هزینه ارسال: ".$this->toman($order->shipping_fee_irr).' تومان'
+                ."\n💳 مبلغ قابل پرداخت: ".$this->toman($order->total_irr).' تومان';
+
+            if (in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
+                $text .= "\n\nپرداخت کارت‌به‌کارت:"
+                    ."\nشماره کارت: ".$payment['card_number']
+                    ."\nبه نام: ".$payment['card_holder_name']
+                    ."\n\nپس از واریز، رسید این سفارش را ارسال کنید. ارسال رسید به‌معنای تأیید پرداخت نیست.";
+                $keyboard->addRow(StorefrontButtons::primary('🧾 ارسال رسید پرداخت', 'receipt:order:'.$order->id));
+            } else {
+                $text .= "\n\nرسید دریافت شده است؛ پس از بررسی فروشگاه نتیجه اعلام می‌شود.";
+            }
+        } else {
+            // Replayed checkout callbacks must never ask a paid or canceled
+            // customer to send another transfer or receipt.
+            $text = '📦 سفارش '.$order->order_number
+                ."\nوضعیت سفارش: ".OrderStateLabels::order($order->order_status)
+                ."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status)
+                ."\nمبلغ سفارش: ".$this->toman($order->total_irr).' تومان';
+        }
+
+        $keyboard->addRow(Button::make('📦 مشاهده وضعیت سفارش', callback_data: 'myorder:'.$order->id));
+        $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
+
+        $bot->sendMessage(text: $text, reply_markup: $keyboard);
     }
 
     private function toman(int $irr): string
