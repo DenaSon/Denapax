@@ -220,7 +220,7 @@ Read current configuration only at checkout, snapshot into `orders`, and never r
 `id char(36)` (UUID PK), `aggregate_type varchar(80)`, `aggregate_id bigint unsigned`, `event_type varchar(120)`, `payload json`, `occurred_at timestamp`, `processed_at timestamp nullable`. Created in the same transaction as the business change.
 
 ### `notification_logs`
-`id` (PK), `outbox_event_id char(36)` (FK), `customer_id` (FK), `channel varchar(20)` (=telegram), `status varchar(20)` (`queued`, `sent`, `failed`), `attempts unsigned int`, `telegram_message_id bigint nullable`, `last_error text nullable`, `sent_at timestamp nullable`, timestamps.
+`id` (PK), `outbox_event_id char(36)` (FK), `customer_id` (FK), `channel varchar(20)` (=telegram), `status varchar(20)` (`queued`, `sending`, `sent`, `failed`), `attempts unsigned int`, `telegram_message_id bigint nullable`, `last_error varchar(200) nullable`, `claimed_at timestamp nullable`, `next_attempt_at timestamp nullable`, `sent_at timestamp nullable`, timestamps.
 
 Unique `(outbox_event_id, customer_id, channel)`. Network-timeout edge cases mean true exactly-once message delivery cannot be guaranteed by Telegram; prevent duplicate business events and perform bounded retries.
 
