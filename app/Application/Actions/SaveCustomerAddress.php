@@ -6,7 +6,6 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class SaveCustomerAddress
 {
@@ -30,8 +29,8 @@ class SaveCustomerAddress
                 ? new CustomerAddress(['customer_id' => $customer->id])
                 : $customer->addresses()->findOrFail($addressId);
 
-            if (! $address->exists) {
-                $address->is_default = ! $customer->addresses()->exists();
+            if ($address->exists === false) {
+                $address->is_default = $customer->addresses()->doesntExist();
             }
 
             $address->fill($data)->save();
