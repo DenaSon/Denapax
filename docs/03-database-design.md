@@ -1,4 +1,4 @@
-# Denapax — Database ERD & Data Dictionary v1.0
+# Denapax — Database ERD & Data Dictionary v1.1
 
 **Status:** Technical baseline for migration design; no migrations have been run yet.  
 **Database:** MySQL 8+ (actual supported version verified at scaffold).  
@@ -9,8 +9,8 @@
 erDiagram
     CATEGORIES ||--o{ PRODUCTS : classifies
     PRODUCTS ||--o{ PRODUCT_VARIANTS : has
-    PRODUCTS ||--o{ PRODUCT_IMAGES : gallery
-    PRODUCT_VARIANTS o|--o| PRODUCT_IMAGES : optional-image
+    PRODUCTS ||--o{ MEDIA : gallery_polymorphic
+    PRODUCT_VARIANTS ||--o{ MEDIA : variant_image_polymorphic
     PRODUCTS ||--o{ PRODUCT_FEATURES : attributes
     CUSTOMERS ||--o{ CUSTOMER_ADDRESSES : saves
     CUSTOMERS ||--|| CARTS : active-cart
@@ -21,6 +21,10 @@ erDiagram
     PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : source
     ORDERS ||--o{ PAYMENT_RECEIPTS : receives
     USERS o|--o{ PAYMENT_RECEIPTS : reviews
+    USERS ||--o{ MODEL_HAS_ROLES : assigned
+    ROLES ||--o{ MODEL_HAS_ROLES : grants
+    ROLES ||--o{ ROLE_HAS_PERMISSIONS : binds
+    PERMISSIONS ||--o{ ROLE_HAS_PERMISSIONS : defines
     ORDERS ||--o| SHIPMENTS : sends
     ORDERS ||--o{ ORDER_STATUS_HISTORIES : tracks
     CUSTOMERS ||--o| TELEGRAM_SESSIONS : dialog
@@ -28,7 +32,7 @@ erDiagram
     OUTBOX_EVENTS ||--o{ NOTIFICATION_LOGS : delivers
 ```
 
-Notes: `telegram_updates`, singleton settings and the general admin audit log are infrastructure tables not shown to keep the ERD readable. A customer's active cart is one persistent row, and its items are cleared after successful checkout. `shipment` is optional until dispatch.
+Notes: `media` is Spatie Media Library's **polymorphic** table; product/variant relations above are conceptual rather than foreign keys. RBAC pivots are also conceptual. `telegram_updates`, settings and `activity_log` are omitted for readability. A customer has one active cart, cleared after checkout; shipment is optional.
 
 ## Catalog
 
@@ -77,14 +81,14 @@ Indexes: `(category_id, is_active)`, optional targeted text search index after b
 
 Indexes: `(product_id, is_available, sort_order)`. No numeric stock. Cart item quantity is number of units of this variant (positive integer), not arbitrary grams.
 
-### `product_images`
-`id` (PK), `product_id` (FK), `product_variant_id` (FK nullable), `storage_path varchar(500)`, `alt_text varchar(250) nullable`, `sort_order unsigned int`, `created_at`, `updated_at`.
+### `media` (Spatie Media Library, package-owned)
+**Replaces custom `product_images`.** Install and publish the package migration; do not create parallel image records.
 
-Rules:
-- `product_variant_id IS NULL` => product gallery image; sort_order determines gallery order/cover.
-- Non-null => optional dedicated image for that variant, unique `product_variant_id` (max one per variant in MVP).
-- Assert `product_images.product_id = product_variants.product_id` when variant is assigned (application validation; can be strengthened with composite FK).
-- Photos live in image storage, **not** MySQL BLOBs.
+- `Product`: polymorphic `gallery` collection (multiple images; order via package `order_column`; first image as cover).
+- `ProductVariant`: polymorphic `variant-image` collection configured with `singleFile()` (optional one image per variant).
+- Package fields include `model_type`, `model_id`, `collection_name`, `file_name`, `disk`, `order_column` and metadata. The installed package migration is canonical.
+- File storage contains the actual images; **not MySQL BLOBs**. Public catalog media disk may be used only for non-sensitive product assets. Payment receipts remain private.
+- Media may be attached only to an authorized Product/Variant; never trust a customer-provided model morph target.
 
 ## Customer & cart
 
@@ -159,7 +163,7 @@ Keep referenced products/variants archived, not hard deleted. Snapshot fields al
 | id | bigint unsigned | PK |
 | order_id | bigint unsigned | FK orders.id |
 | attempt_number | unsigned int | unique with order_id, starts at 1 |
-| telegram_file_id | varchar(512) | received file handle, optional backup reference |
+| telegram_file_id | varchar(512) nullable | received file handle, optional backup reference |
 | storage_path | varchar(500) | PRIVATE storage |
 | status | varchar(20) | `pending`, `approved`, `rejected` |
 | rejection_reason | text | only when rejected |
@@ -171,7 +175,14 @@ Keep referenced products/variants archived, not hard deleted. Snapshot fields al
 Indexes: `(order_id, attempt_number)` UNIQUE, `(status, submitted_at)`. One pending attempt per order at a time enforced using transaction + lock (not via a non-existent MySQL partial unique index). Receipt must not be approved more than once.
 
 ### `users`
-Laravel-authenticated admin users: `id`, `name`, `email UNIQUE`, `password_hash` (Laravel convention `password`), `is_active`, remember/session fields, timestamps. MVP has one admin role/capability tier (no complex RBAC).
+Laravel-authenticated web staff users: `id`, `name`, `email UNIQUE`, `password` (hashed), `is_active`, remember/session fields and timestamps. `customers` represent Telegram buyers, not Laravel auth users.
+
+### RBAC tables (Spatie Permission, package-owned)
+Use **published package migrations** for `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`. Do not create parallel RBAC tables.
+
+- Guard: `web`; staff `User` uses `HasRoles`.
+- Seed `super-admin` and `operator` roles with `catalog.manage`, `orders.view`, `orders.update`, `payments.review`, `shipping.manage`, `settings.manage`, `staff.manage` permissions.
+- Enforce Gates/Policies on every protected server action, including Livewire mutations and receipt downloads. Role-management UI is out of MVP.
 
 ## Shipping and settings
 
@@ -213,27 +224,33 @@ Read current configuration only at checkout, snapshot into `orders`, and never r
 
 Unique `(outbox_event_id, customer_id, channel)`. Network-timeout edge cases mean true exactly-once message delivery cannot be guaranteed by Telegram; prevent duplicate business events and perform bounded retries.
 
-### `admin_audit_logs`
-`id` (PK), `admin_user_id` (FK), `action varchar(120)`, `entity_type varchar(100)`, `entity_id bigint unsigned`, `metadata json nullable`, `created_at`. Store changes to receipt decisions and order/shipping status.
+### `activity_log` (Spatie Activitylog, package-owned)
+**Replaces `admin_audit_logs`.** Publish the Activitylog v5 migration. Log staff receipt decisions, order and shipment edits and settings changes with actor and entity. Do not store tokens, full addresses, card numbers or private media URLs in audit metadata.
+
+Keep `order_status_histories` separately as a domain-specific transition history.
 
 ## Enumerations and integrity rules
 - Order: `awaiting_payment` → `confirmed` → `preparing` → `shipped` → `delivered`; `awaiting_payment` → `canceled` by admin.
 - Payment: `awaiting_receipt` → `under_review` → `approved` OR `rejected` → `under_review` on new receipt.
 - `approved` must be terminal for MVP. Keep payment and order statuses synchronized inside transactions.
 - Product must be active, category active, and variant available before checkout.
-- Product image linked to variant must reference **the same product**.
+- Product images are attached to their own Product or ProductVariant via separate polymorphic media collections.
 - Store snapshots immutably even if customer changes addresses, product prices, sale units or shipping settings.
 - Create order and clearing cart must be one transaction; use checkout key to avoid duplicates from repeat callbacks.
 - Validate positive gram weights and quantities, proper national phone/postal-code formats at application boundary; choose database CHECKs supported by deployed MySQL.
 
 ## Migration build order
-1. users, categories, products, product_variants, product_images, product_features
-2. customers, customer_addresses, carts, cart_items
-3. shipping_settings, store_settings
-4. orders, order_items, payment_receipts, shipments, order_status_histories
-5. telegram_updates, telegram_sessions, outbox_events, notification_logs, admin_audit_logs
+1. Laravel users, Spatie Permission package migrations; categories, products, product_variants, product_features, Spatie Media Library `media` migration.
+2. customers, customer_addresses, carts, cart_items.
+3. shipping_settings, store_settings.
+4. orders, order_items, payment_receipts, shipments, order_status_histories.
+5. telegram_updates, telegram_sessions, outbox_events, notification_logs; Spatie Activitylog `activity_log` migration.
+
+Review ordering and contents of all published vendor migrations **before** running `php artisan migrate`.
 
 ## Open implementation details (not MVP scope changes)
 - Select numeric price column limits, string collations, maximum message/photo sizes and storage provider during migrations.
 - Choose exact checkout key lifecycle and bot session expiration when implementing flows.
 - Pin MySQL/Laravel minor versions at scaffold and preserve tests and migration compatibility.
+
+**Package baseline:** [Stack & PowerShell Bootstrap](05-stack-and-windows-setup.md). Review package migrations against this ERD before applying them.
