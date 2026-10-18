@@ -40,7 +40,7 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).
 2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md); **[Telegram UI/UX & Brand Guidelines](docs/telegram-ui-ux-guidelines.md)** (owner-approved greeting and **four** UX polish sub-phases, including native Telegram button styles/icons; issues #38–#41).
 3. [Product Backlog: 7 Epics/20 Stories/6 Phases](docs/07-product-backlog.md); [Traceability](docs/08-mvp-traceability.md); [Execution Agreement](docs/09-execution-agreement.md).
-4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md).
+4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md); [UX-1 brand/navigation handoff](docs/17-ux-1-handoff.md) (PR #43; real Telegram/mobile proof still pending).
 5. Actual current `master` files, PRs/Issues, and the latest **successful** CI run. Documentation is not proof of runtime behavior.
 
 ## 4. Non-negotiable MVP rules
@@ -62,6 +62,7 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 - Treat external access (live bot token, MySQL, Redis, bank, server) as **not provisioned unless explicitly verified**. If absent, prepare reproducible runbooks and local/mock verification without claiming production tests.
 - Keep permissions, isolation, privacy, financial consistency and retries in scope for Phase 6; do not waive security or a release blocker just to close Issues.
 - For code changes consult existing Laravel domain Actions, Nutgram adapters, Livewire components, models, migrations and Spatie package migrations first; avoid duplicating models/services.
+- **UX-1 source overlap:** [PR #43](https://github.com/DenaSon/Denapax/pull/43) ports the help menu from draft Phase 6 [PR #36](https://github.com/DenaSon/Denapax/pull/36) and adds the approved greeting/direct support URL. Before PR #36 merges, reconcile its stale `StorefrontBot.php` / `TelegramBotMenuTest.php` edits with the latest `master`; do not undo UX-1. See [UX-1 handoff](docs/17-ux-1-handoff.md).
 
 ### Baseline verification (in a configured local/CI checkout)
 
