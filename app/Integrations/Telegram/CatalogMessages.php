@@ -21,7 +21,8 @@ class CatalogMessages
         }
 
         $keyboard->addRow(Button::make('همه محصولات', callback_data: 'all:1'));
-        $keyboard->addRow(Button::make('جستجو', callback_data: 'menu:search'));
+        $keyboard->addRow(Button::make('🔎 جستجو', callback_data: 'menu:search'));
+        $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
         $bot->sendMessage(text: '🌰 دسته‌بندی‌های فروشگاه دنا', reply_markup: $keyboard);
     }
@@ -83,7 +84,10 @@ class CatalogMessages
             $keyboard->addRow(...$buttons);
         }
 
-        $keyboard->addRow(Button::make('دسته‌بندی‌ها', callback_data: 'menu:catalog'));
+        $keyboard->addRow(
+            Button::make('⬅️ دسته‌بندی‌ها', callback_data: 'menu:catalog'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
 
         $bot->sendMessage(
             text: $title."\nصفحه ".$items->currentPage().' از '.$items->lastPage(),
@@ -130,7 +134,10 @@ class CatalogMessages
             }
         }
         $keyboard->addRow(Button::make('مشاهده سبد خرید', callback_data: 'menu:cart'));
-        $keyboard->addRow(Button::make('بازگشت به محصولات', callback_data: 'all:1'));
+        $keyboard->addRow(
+            Button::make('⬅️ بازگشت به محصولات', callback_data: 'all:1'),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
 
         $media = $product->getFirstMedia('gallery');
         if ($media) {
@@ -165,7 +172,10 @@ class CatalogMessages
         if ($pager !== []) {
             $keyboard->addRow(...$pager);
         }
-        $keyboard->addRow(Button::make('مشخصات محصول', callback_data: 'item:'.$productId));
+        $keyboard->addRow(
+            Button::make('⬅️ مشخصات محصول', callback_data: 'item:'.$productId),
+            Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+        );
 
         $bot->sendPhoto(
             photo: $images[$index]->getFullUrl(),
@@ -192,7 +202,7 @@ class CatalogMessages
             photo: $media->getFullUrl(),
             caption: mb_substr($variant->product->title.' — '.$variant->title, 0, 900),
             reply_markup: Keyboard::make()->addRow(
-                Button::make('بازگشت به محصول', callback_data: 'item:'.$variant->product_id),
+                Button::make('⬅️ بازگشت به محصول', callback_data: 'item:'.$variant->product_id),
             ),
         );
     }
