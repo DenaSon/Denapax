@@ -1,7 +1,7 @@
 # Denapax — Foundation implementation handoff
 
-**Branch:** `feat/foundation-shipping-rbac`  
-**Status:** Draft code; requires package installation commit and local verification before merging.
+**Originating branch:** `feat/foundation-shipping-rbac`  
+**Status:** Merged via PR #1 after green GitHub Actions (Composer install, PHPUnit, composer validate, Pint). Local MySQL and application-specific integration are **not** validated.
 
 ## Implemented on this branch
 - `App\Domain\Shipping\ShippingRate`: validated, immutable nationwide price/weight settings (IRR and grams).
@@ -13,19 +13,21 @@
 - `denapax:admin` artisan command: creates a unique admin account interactively (secret prompt, no default hardcoded password).
 - `DatabaseSeeder`: removes the insecure scaffold demo user and seeds role definitions.
 
-## Important merge dependency
-The `master` branch currently may not contain the locally installed Composer dependencies. Before merging this PR, push the user's local Composer changes (Nutgram, Livewire, Mary UI, Spatie and Fortify). Otherwise `Spatie\Permission\Traits\HasRoles` will not autoload.
+## Completed integration work
+- Core Composer packages are now on `master`.
+- The locked dependencies no longer use the unreachable runflare Composer mirror; `dist` URLs target GitHub and advisory notifications use Packagist.
+- The PR was synchronized with the Spatie Permission / Media Library / Activitylog migrations pushed to `master`.
+- CI has verified the code on PHP 8.4. Local integration, MySQL connection and admin login still require configuration.
 
-## Windows / PowerShell — after merging and publishing vendor migrations
+## Windows / PowerShell — next local setup
 
-1. Install package configuration and migration stubs locally, based on [package setup guide](05-stack-and-windows-setup.md):
+1. Update your local checkout, then install **only missing** package config/migration stubs. Spatie migrations and Permission config were already committed on `master`: avoid publishing duplicates. Check the file list and refer to [package setup guide](05-stack-and-windows-setup.md):
 
 ```powershell
+git pull --ff-only origin master
 php artisan mary:install
 php artisan fortify:install
-php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
-php artisan vendor:publish --provider="Spatie\MediaLibrary\MediaLibraryServiceProvider" --tag="medialibrary-migrations"
-php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"
+# Spatie RBAC/Media/Activity migrations already exist on master.
 php artisan vendor:publish --provider="Nutgram\Laravel\NutgramServiceProvider" --tag="nutgram"
 ```
 
@@ -49,7 +51,7 @@ php artisan test
 php artisan route:list
 ```
 
-## Not implemented in this PR
+## Not yet implemented
 - Fortify login view and admin dashboard; server-side authorization must be applied to admin actions before launch.
 - Vendor package migration publication and MySQL migrations; do these only after actual package files have been installed and inspected.
 - Nutgram webhook, customer model, checkout/order creation and telegram notifications.
