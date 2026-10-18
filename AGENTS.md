@@ -2,7 +2,7 @@
 
 > **Read this first in every new ChatGPT/Codex/AI development conversation about Denapax.**
 > This is a versioned repository handoff, not a substitute for inspecting GitHub's current code, issues or CI before taking actions.
-> Snapshot date: **2026-10-18**. Update this file when project status materially changes.
+> Snapshot date: **2026-10-19**. Update this file when project status materially changes.
 
 ## 1. Project identity and mission
 
@@ -29,16 +29,16 @@ The **six-phase delivery plan is approved**. Phases **1–5 are code-implemented
 Other merged PRs: foundation [#1](https://github.com/DenaSon/Denapax/pull/1), process agreement [#29](https://github.com/DenaSon/Denapax/pull/29).
 Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `master` commit may differ due to documentation updates.
 
-**Issue ledger at handoff:** **7 Epics + 20 User Stories = 27 actual Issues (excluding PRs)**; **24 closed (6 Epics + 18 Stories)**, **3 open**: [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25). **Seven PRs merged.** Re-query GitHub before reporting these totals later.
+**Issue ledger checked 2026-10-19:** original MVP baseline **7 Epics + 20 User Stories = 27 Issues**; plus **4 separate UX polish tracking Issues #38–#41 = 31 actual Issues (excluding PRs)**; **24 closed, 7 open** (#11, #24, #25, #38, #39, #40, #41). **Eight PRs merged**, including UX documentation [#37](https://github.com/DenaSon/Denapax/pull/37). Re-query GitHub before reporting totals later.
 
 **CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build passed on the merged phase code. **Not evidence of a running/live store.** No confirmed live Telegram Bot API test, MySQL/Redis production-equivalent run, real bank transfer validation, full browser QA or successful E2E order/dispatch; do not imply these have passed.
 
-**Next work begins at Phase 6**, not reimplementing earlier phases. See [Phase 6 Runbook](docs/15-phase-6-readiness-plan.md). Track [#24 — E2E/security](https://github.com/DenaSon/Denapax/issues/24) and [#25 — deployment/backup/rollback](https://github.com/DenaSon/Denapax/issues/25), closing [#11](https://github.com/DenaSon/Denapax/issues/11) only when both and their release gates truly pass.
+**Next release milestone remains Phase 6**; additionally, owner-approved Telegram UI/UX improvements are tracked as **four UX sub-phases** [UX-1 #38](https://github.com/DenaSon/Denapax/issues/38), [UX-2 #39](https://github.com/DenaSon/Denapax/issues/39), [UX-3 #40](https://github.com/DenaSon/Denapax/issues/40), [UX-4 #41](https://github.com/DenaSon/Denapax/issues/41). They add no extra core MVP delivery phase. Start with UX-1 and coordinate existing help code on draft Phase 6 PR #36; after each accepted UX phase merge its PR to `master`. These planning issues are **OPEN**, not delivered. **Do not reimplement earlier phases.** See [Phase 6 Runbook](docs/15-phase-6-readiness-plan.md). Track [#24 — E2E/security](https://github.com/DenaSon/Denapax/issues/24) and [#25 — deployment/backup/rollback](https://github.com/DenaSon/Denapax/issues/25), closing [#11](https://github.com/DenaSon/Denapax/issues/11) only when both and their release gates truly pass.
 
 ## 3. Source-of-truth reading order
 
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).
-2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md); **[Telegram UI/UX & Brand Guidelines](docs/telegram-ui-ux-guidelines.md)** (owner-approved greeting and three UX polish sub-phases).
+2. [Approved MVP Scope v1.1](docs/01-mvp-scope.md); [Architecture](docs/02-architecture.md); [Data dictionary](docs/03-database-design.md); [Workflows](docs/04-workflows.md); **[Telegram UI/UX & Brand Guidelines](docs/telegram-ui-ux-guidelines.md)** (owner-approved greeting and **four** UX polish sub-phases, including native Telegram button styles/icons; issues #38–#41).
 3. [Product Backlog: 7 Epics/20 Stories/6 Phases](docs/07-product-backlog.md); [Traceability](docs/08-mvp-traceability.md); [Execution Agreement](docs/09-execution-agreement.md).
 4. Phase handoffs [1](docs/10-phase-1-handoff.md), [2](docs/11-phase-2-handoff.md), [3](docs/12-phase-3-handoff.md), [4](docs/13-phase-4-handoff.md), [5](docs/14-phase-5-handoff.md).
 5. Actual current `master` files, PRs/Issues, and the latest **successful** CI run. Documentation is not proof of runtime behavior.
