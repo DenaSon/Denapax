@@ -1,0 +1,47 @@
+name: Laravel foundation
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+          extensions: mbstring, pdo_sqlite, fileinfo, exif, gd, zip
+
+      - name: Configure GitHub archive authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: composer config --global github-oauth.github.com "$GH_TOKEN"
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run tests
+        run: php artisan test
+
+      - name: Validate Composer manifest
+        run: composer validate --no-check-publish
+
+      - name: Check formatting
+        run: vendor/bin/pint --test
