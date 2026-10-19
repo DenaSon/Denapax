@@ -11,6 +11,7 @@ use App\Models\StoreSetting;
 use Illuminate\Validation\ValidationException;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ChatType;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -53,7 +54,7 @@ class StorefrontBot
             $text = $shortcut;
         }
 
-        if ($text === '/start' || str_starts_with($text, '/start@') || $text === '/cancel') {
+        if ($text === '/start' || str_starts_with($text, '/start@') || $text === '/cancel' || $text === '/لغو') {
             $this->addresses->reset($customer);
             $this->menu($bot);
 
@@ -123,7 +124,13 @@ class StorefrontBot
         }
 
         if ($this->addresses->isCollecting($session)) {
-            $bot->sendMessage($this->addresses->accept($customer, $text, $this->saveAddress));
+            $this->sendAddressPrompt($bot, $customer, $this->addresses->accept($customer, $text, $this->saveAddress));
+
+            return;
+        }
+
+        if ($session->state === 'address:review') {
+            $this->sendAddressPrompt($bot, $customer, 'برای ذخیره یا اصلاح نشانی از دکمه‌های زیر استفاده کنید.');
 
             return;
         }
@@ -172,7 +179,31 @@ class StorefrontBot
         $data = (string) ($callback->data ?? '');
 
         try {
-            if ($data === 'menu:catalog') {
+            if ($data === 'form:cancel') {
+                $state = $this->addresses->session($customer)->state;
+                if ($state !== 'idle') {
+                    $this->addresses->reset($customer);
+                }
+                $bot->sendMessage('❌ عملیات ورود اطلاعات لغو شد.', reply_markup: Keyboard::make()->addRow(
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ));
+            } elseif ($data === 'addr:confirm') {
+                $bot->sendMessage($this->addresses->confirm($customer, $this->saveAddress));
+            } elseif ($data === 'addr:correct') {
+                $session = $this->addresses->session($customer);
+                if (! $this->addresses->isReviewing($session)) {
+                    $bot->sendMessage('فرم منقضی شده است. دوباره شروع کنید.');
+                } else {
+                    $keyboard = Keyboard::make();
+                    foreach ($this->addresses->correctionFields() as $field => $label) {
+                        $keyboard->addRow(Button::make($label, callback_data: 'addr:field:'.$field));
+                    }
+                    $keyboard->addRow(Button::make('❌ لغو', callback_data: 'form:cancel'));
+                    $bot->sendMessage('✏️ کدام مورد را اصلاح می‌کنید؟', reply_markup: $keyboard);
+                }
+            } elseif (preg_match('/^addr:field:(recipient_name|recipient_mobile|province|city|address_line|postal_code)$/', $data, $parts)) {
+                $this->sendAddressPrompt($bot, $customer, $this->addresses->correction($customer, $parts[1]));
+            } elseif ($data === 'menu:catalog') {
                 $this->catalog->categories($bot);
             } elseif ($data === 'menu:search') {
                 $this->startSearch($bot, $customer);
@@ -239,12 +270,14 @@ class StorefrontBot
                     $this->startSearch($bot, $customer);
                 }
             } elseif ($data === 'addr:new') {
-                $bot->sendMessage($this->addresses->start($customer));
+                $this->sendAddressPrompt($bot, $customer, $this->addresses->start($customer));
             } elseif (preg_match('/^addr:edit:([1-9][0-9]*)$/', $data, $m)) {
                 $address = $customer->addresses()->find((int) $m[1]);
-                $bot->sendMessage($address
-                    ? $this->addresses->start($customer, $address->id)
-                    : 'نشانی پیدا نشد.');
+                if ($address) {
+                    $this->sendAddressPrompt($bot, $customer, $this->addresses->start($customer, $address->id));
+                } else {
+                    $bot->sendMessage('نشانی پیدا نشد.');
+                }
             } elseif (preg_match('/^addr:default:([1-9][0-9]*)$/', $data, $m)) {
                 if ($customer->addresses()->whereKey((int) $m[1])->exists()) {
                     $this->saveAddress->setDefault($customer, (int) $m[1]);
@@ -291,7 +324,20 @@ class StorefrontBot
             'updated_at' => now(),
         ]);
 
-        $bot->sendMessage('نام یا بخشی از توضیحات محصول را بنویسید. /cancel برای لغو');
+        $bot->sendMessage('🔎 نام یا بخشی از توضیحات محصول را بنویسید.', reply_markup: Keyboard::make()->addRow(
+            Button::make('❌ لغو', callback_data: 'form:cancel'),
+        ));
+    }
+
+    private function sendAddressPrompt(Nutgram $bot, Customer $customer, string $text): void
+    {
+        $keyboard = Keyboard::make();
+        if ($this->addresses->isReviewing($this->addresses->session($customer))) {
+            $keyboard->addRow(StorefrontButtons::success('✅ تأیید و ذخیره نشانی', 'addr:confirm'));
+            $keyboard->addRow(Button::make('✏️ اصلاح اطلاعات', callback_data: 'addr:correct'));
+        }
+        $keyboard->addRow(Button::make('❌ لغو', callback_data: 'form:cancel'));
+        $bot->sendMessage(text: $text, parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     private function support(Nutgram $bot): void
