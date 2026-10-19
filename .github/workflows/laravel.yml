@@ -46,6 +46,15 @@ jobs:
       - name: Validate Composer manifest
         run: composer validate --no-check-publish
 
+      - name: Preview exact formatter output (temporary phase-7 check)
+        run: |
+          vendor/bin/pint > /dev/null
+          for f in app/Integrations/Telegram/CartCheckoutMessages.php app/Integrations/Telegram/CatalogMessages.php tests/Feature/TelegramCatalogCartUxTest.php tests/Feature/TelegramCheckoutStatusUxTest.php; do
+            echo "PINT_FILE_BEGIN $f"
+            cat "$f"
+            echo "PINT_FILE_END $f"
+          done
+
       - name: Check formatting
         run: vendor/bin/pint --test
 
