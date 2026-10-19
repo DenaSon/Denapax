@@ -12,7 +12,7 @@ class PublicLandingController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $orderable = static fn (Builder $query) => $query
+        $orderable = static fn ($query) => $query
             ->where('is_available', true)
             ->where('price_irr', '>', 0);
 
