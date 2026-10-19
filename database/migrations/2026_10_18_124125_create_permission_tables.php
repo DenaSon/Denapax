@@ -21,19 +21,21 @@ return new class extends Migration
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
         /**
-         * See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered.
+         * Keep composite role/permission indexes below the 1000-byte limit
+         * on restrictive MySQL/MariaDB instances using utf8mb4.
          */
         Schema::create($tableNames['permissions'], static function (Blueprint $table) {
             $table->id(); // permission id
-            $table->string('name');
-            $table->string('guard_name');
+            $table->string('name', 100);
+            $table->string('guard_name', 32);
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
         });
 
         /**
-         * See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered.
+         * Keep composite role/permission indexes below the 1000-byte limit
+         * on restrictive MySQL/MariaDB instances using utf8mb4.
          */
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
             $table->id(); // role id
@@ -41,8 +43,8 @@ return new class extends Migration
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
-            $table->string('name');
-            $table->string('guard_name');
+            $table->string('name', 100);
+            $table->string('guard_name', 32);
             $table->timestamps();
             if ($teams || config('permission.testing')) {
                 $table->unique([$columnNames['team_foreign_key'], 'name', 'guard_name']);
