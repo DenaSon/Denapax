@@ -28,9 +28,13 @@ class CustomerOrdersBot
         }
 
         $keyboard = Keyboard::make();
+        $text = '📦 <b>سفارش‌های من</b>';
         foreach ($orders as $order) {
+            $text .= "\n\n🧾 <b>".$order->public_reference.'</b>'
+                ."\n".htmlspecialchars(OrderStateLabels::order($order->order_status), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                ."\n💳 ".number_format(intdiv($order->total_irr, 10)).' تومان';
             $keyboard->addRow(Button::make(
-                $order->order_number.' · '.OrderStateLabels::order($order->order_status),
+                'مشاهده '.$order->public_reference,
                 callback_data: 'myorder:'.$order->id,
             ));
         }
@@ -47,7 +51,7 @@ class CustomerOrdersBot
 
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
-        $bot->sendMessage(text: '📦 سفارش‌های من', reply_markup: $keyboard);
+        $bot->sendMessage(text: $text, parse_mode: \SergiX44\Nutgram\Telegram\Properties\ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function details(Nutgram $bot, Customer $customer, int $orderId): void
@@ -65,7 +69,7 @@ class CustomerOrdersBot
             return;
         }
 
-        $text = '📦 شماره سفارش: '.$order->order_number
+        $text = '📦 شماره سفارش: '.$order->public_reference
             ."\nوضعیت سفارش: ".OrderStateLabels::order($order->order_status)
             ."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status)
             ."\n\n🛒 جمع کالا: ".number_format(intdiv($order->goods_subtotal_irr, 10)).' تومان'
