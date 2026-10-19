@@ -23,4 +23,4 @@
 - Additional assertions confirm safe HTML escaping, visual totals/button wording, no duplicate description, and positive receipt confirmation.
 - Check PHPUnit/Pint, Composer audit/validate and npm build in the phase PR CI. Note that CI's FakeNutgram is not real iOS/Android rendering; a live smoke after deployment remains necessary.
 
-**Merge SHA / CI:** Fill with actual verified PR merge and master CI results after acceptance.
+**Implementation PR:** [#61](https://github.com/DenaSon/Denapax/pull/61). Check [Phase 7 Issue #57](https://github.com/DenaSon/Denapax/issues/57) for verified merge SHA / CI closeout after acceptance; the document alone is not a claim of production deployment.
