@@ -4,6 +4,9 @@ Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
 
+**Phase 9 (in review):** Internal Telegram group alerts for three operational events — new order, receipt awaiting review, and payment approved. Code/CI status must be verified in [Issue #64](https://github.com/DenaSon/Denapax/issues/64). Configuration and activation/runbook: [docs/27-phase-9-admin-group-alerts.md](docs/27-phase-9-admin-group-alerts.md). A single negative `TELEGRAM_ADMIN_CHAT_ID` enables alerts **after** the initial activation command (historical events intentionally skipped); no real group ID/token in Git. Production smoke not yet verified. Product-gallery issue remains separately awaiting user retest.
+
+
 **Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** Admin private-group alerts are deferred and unimplemented.
 
 
@@ -25,6 +28,7 @@ The security preparation originally in draft Phase 6 PR #36 has been reconciled 
 - **[Post-MVP Sprint 1 — feedback intake, Phase 7 UI and Phase 8 UX](docs/24-post-mvp-sprint-1.md)**
 - [Phase 7 UI/copy handoff — seven owner-approved improvements](docs/25-phase-7-ui-microcopy-handoff.md)
 - [Phase 8 UX handoff — ten owner-approved improvements](docs/26-phase-8-ux-handoff.md)
+- [Phase 9 private Telegram admin group alerts and Runflare activation](docs/27-phase-9-admin-group-alerts.md)
 - **[Phase 6 readiness plan and remaining operational evidence](docs/15-phase-6-readiness-plan.md)**
 - **[Phase 6 operator runbook — staging, webhook, database queue and recovery](docs/16-phase-6-operator-runbook.md)**
 - **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
