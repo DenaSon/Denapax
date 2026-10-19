@@ -1,93 +1,67 @@
 # Denapax 🌰
 
-Telegram-first store for Dena souvenirs and dried fruits.
+**Telegram-first store for Dena souvenirs, dried fruits and local products.**
 
-## Project status
+## Current milestone — 2026-10-19
 
-**Phase 9 (implementation PR [#65](https://github.com/DenaSon/Denapax/pull/65)):** Internal Telegram group alerts for three operational events — new order, receipt awaiting review, and payment approved. Check [Issue #64](https://github.com/DenaSon/Denapax/issues/64) and PR #65 for verified merge/CI status. Configuration and activation/runbook: [docs/27-phase-9-admin-group-alerts.md](docs/27-phase-9-admin-group-alerts.md). A single negative `TELEGRAM_ADMIN_CHAT_ID` enables alerts **after** the initial activation command (historical events intentionally skipped); no real group ID/token in Git. Production smoke not yet verified. Product-gallery issue remains separately awaiting user retest.
+**MVP functionally accepted, scope frozen and launched (owner-reported).** Several real products were entered in the staff admin and each was tried once in the Telegram bot. Earlier owner-run functional E2E shopping tests were reported successful. This is a **product milestone**, not an independently verified security/backup/recovery sign-off.
 
+- **Stable MVP:** catalog, product variants and images; Telegram browsing/search/cart; nationwide weight-based shipping; checkout; card-to-card manual payment/receipts; staff review; fulfillment, tracking and customer notifications.
+- **Production-price UX:** variant prices and shipping fees are **entered and displayed in toman** in the admin; Telegram amounts are shown in toman. Stored DB values and immutable order snapshots **remain integer IRR**. No blanket price migration. See [toman rules](docs/28-admin-toman-pricing.md), merged [PR #69](https://github.com/DenaSon/Denapax/pull/69).
+- **Catalog admin polish:** generated SKU suggestions and live slug suggestion ([PR #68](https://github.com/DenaSon/Denapax/pull/68)); product image fallback to public HTTPS for Telegram after failed local upload ([PR #67](https://github.com/DenaSon/Denapax/pull/67)).
+- **Recent catalog examples (not a complete inventory):** گردو؛ شیره انگور ارگانیک سی‌سخت؛ برگ آلو بخارا؛ لواشک آلو شابلون.
+- **Latest code baseline at milestone:** `master` [`edf3805`](https://github.com/DenaSon/Denapax/commit/edf3805811478683d1a23d79f1c7a43dfa72ee5d) with [green master CI run 39287004609](https://github.com/DenaSon/Denapax/actions/runs/39287004609).
 
-**Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** Admin private-group alerts are deferred and unimplemented.
+**Important residual release evidence:** [E07 Epic #11](https://github.com/DenaSon/Denapax/issues/11), [negative/security checks #24](https://github.com/DenaSon/Denapax/issues/24), [backup/restore/monitoring #25](https://github.com/DenaSon/Denapax/issues/25) remain **open**. Owner-reported live functional acceptance **must not** be presented as proof these controls passed. Prioritize these operational checks alongside stabilization.
 
+**Source of truth:** [MVP launch/freeze decision & handoff](docs/29-mvp-launch-freeze.md) · [Agent development handoff](AGENTS.md).
 
-The security preparation originally in draft Phase 6 PR #36 has been reconciled into a scoped update against current `master` (safe webhook error logs, private-receipt regression tests, locked Composer audit, and the operator runbook). Integrated and verified in merged [PR #49](https://github.com/DenaSon/Denapax/pull/49) ([master CI](https://github.com/DenaSon/Denapax/actions/runs/39209851902)); old [PR #36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded. This is **not** production deployment, live E2E, or Phase 6 approval. Horizon and Redis are deferred: use Laravel database queues.
+## Architecture
 
-**Status 2026-10-19 (owner update):** MVP is **live**, and exercised functional E2E purchase flows have been reported working by the owner. Last verified `master` SHA: `c5fa82d5376129b5e2da13689239bce646dfdf1b` ([green CI](https://github.com/DenaSon/Denapax/actions/runs/39229685750)). This does **not** establish that the Phase 6 security, negative-path, backup/restore or operational evidence has passed; release issues [#11](https://github.com/DenaSon/Denapax/issues/11)/[#24](https://github.com/DenaSon/Denapax/issues/24)/[#25](https://github.com/DenaSon/Denapax/issues/25) remain open. UX-1..4 PRs #43–#46 and issues #38–#41 are complete. [Post-MVP Sprint 1](docs/24-post-mvp-sprint-1.md) feedback is now **closed/frozen at 17 owner-approved items**: 7 UI/copy items in #57, 10 UX items in #58; parent #56 tracks delivery. Phase 7 was merged and verified in [PR #61](https://github.com/DenaSon/Denapax/pull/61). Phase 8 is implemented under [PR #62](https://github.com/DenaSon/Denapax/pull/62); verify its current merge/CI status and [handoff](docs/26-phase-8-ux-handoff.md). Production Telegram smoke is separately required.
+| Layer | Stack |
+| --- | --- |
+| Customer storefront | Regular Telegram Bot (Nutgram; Reply Keyboard + Inline Keyboards), **not** Mini App/web storefront |
+| Staff admin | Laravel 13 / PHP 8.4, Livewire 4, Mary UI 2, Tailwind CSS 4, Fortify and Spatie Permission |
+| Persistence | MySQL; product media via Spatie Media Library; private receipts stored separately |
+| Notifications | DB queue (`notifications` / `default`), Laravel scheduler and transactional outbox; **no Redis/Horizon** |
+| Payments | Card-to-card instructions and receipt upload; independent staff verification mandatory |
+| Hosting | Runflare (owner-tested), HTTPS webhook, protected server-side environment secrets |
 
-**Phase:** Phases 1–5 completed/merged. **Phase 6 functional acceptance has been reported from live testing by the owner**, while its *formal* E07 release sign-off remains open pending documented evidence. UX-1 through UX-4 were merged previously (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)); Post-MVP Sprint 1 is separate and contains **Phase 7: UI/copy** and **Phase 8: UX flows**, both now planned against the **owner-approved 17-item feedback backlog** (7 Phase 7; 10 Phase 8).
+## Delivery history
 
-## MVP channels
-- Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
-- Operations: Laravel + Livewire 4 + Mary UI 2 web admin (Fortify login and Spatie Permission RBAC).
-- Backend: Laravel 13 on PHP 8.4, Nutgram Telegram adapter, Modular Monolith, MySQL and Laravel database-backed queue (no Redis/Horizon requirement).
-- Product images: Spatie Media Library; audit actions: Spatie Activitylog. Current CI runs PHPUnit + Pint; Pest and Larastan are planned but not installed yet.
+- **Core MVP Phases 1–5:** [#30–#34](https://github.com/DenaSon/Denapax/pulls?q=is%3Apr+is%3Aclosed) merged; formal Phase 6 **E07 evidence remains open** (#11/#24/#25).
+- **Telegram UX-1–4:** PRs #43–#46 completed.
+- **Earlier Post-MVP Sprint 1:** Phase 7 [#61](https://github.com/DenaSon/Denapax/pull/61) and Phase 8 [#62](https://github.com/DenaSon/Denapax/pull/62) merged; feedback Issues #56–#58 closed as *code-delivered*. This sprint is historical/completed; do not start new work without new approved feedback.
+- **Phase 9 private admin-group alerts:** [#65](https://github.com/DenaSon/Denapax/pull/65) merged, [Issue #64](https://github.com/DenaSon/Denapax/issues/64) code-closed; live Telegram group activation and delivery still require explicit configuration/verification. [Runbook](docs/27-phase-9-admin-group-alerts.md).
 
-## Documentation
-- **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
-- **[Persistent Telegram Reply Keyboard (bottom customer menu) and inline sub-flows](docs/telegram-ui-ux-guidelines.md#main-reply-keyboard-persistent-two-columns)**
-- **[Post-MVP Sprint 1 — feedback intake, Phase 7 UI and Phase 8 UX](docs/24-post-mvp-sprint-1.md)**
-- [Phase 7 UI/copy handoff — seven owner-approved improvements](docs/25-phase-7-ui-microcopy-handoff.md)
-- [Phase 8 UX handoff — ten owner-approved improvements](docs/26-phase-8-ux-handoff.md)
-- [Phase 9 private Telegram admin group alerts and Runflare activation](docs/27-phase-9-admin-group-alerts.md)
-- **[Phase 6 readiness plan and remaining operational evidence](docs/15-phase-6-readiness-plan.md)**
-- **[Phase 6 operator runbook — staging, webhook, database queue and recovery](docs/16-phase-6-operator-runbook.md)**
-- **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
-- [UX-1 handoff — welcome, help, direct Telegram support and navigation (merged PR #43)](docs/17-ux-1-handoff.md)
-- [UX-2 handoff — native Telegram button styles and plain emoji fallback](docs/18-ux-2-handoff.md)
-- [UX-3 handoff — compact catalog, gallery and multi-page cart](docs/19-ux-3-handoff.md)
-- [UX-4 handoff — checkout, receipts, payment states, shipping and notifications](docs/20-ux-4-handoff.md)
-- [Initial settings and three opt-in demo products; database queue runbook](docs/21-initial-seeders-handoff.md)
-- [Runflare HTTPS mixed-content fix — Livewire JS / admin logout](docs/23-runflare-https-livewire-mixed-content.md)
-- [MVP Scope v1.1](docs/01-mvp-scope.md)
-- [Architecture and boundaries](docs/02-architecture.md)
-- [Database ERD and Data Dictionary](docs/03-database-design.md)
-- [Order, payment, and notification flows](docs/04-workflows.md)
-- [Packages, version policy and PowerShell bootstrap](docs/05-stack-and-windows-setup.md)
-- [Foundation implementation & handoff](docs/06-foundation-handoff.md)
-- [MVP epics, user stories and six delivery phases](docs/07-product-backlog.md)
-- [MVP requirements-to-stories traceability matrix](docs/08-mvp-traceability.md)
-- [Phase 2 Telegram and Customers handoff](docs/11-phase-2-handoff.md)
-- [Phase 3 Cart, Shipping and Checkout handoff](docs/12-phase-3-handoff.md)
-- [Phase 4 private manual payments handoff](docs/13-phase-4-handoff.md)
-- [Phase 5 fulfillment, tracking and notifications handoff](docs/14-phase-5-handoff.md)
-- [Project execution agreement (phase merges, lean tests and short reports)](docs/09-execution-agreement.md)
+## Post-MVP change policy
 
+**Feature scope is frozen until actionable owner/customer feedback exists.** Capture issue + reproduction + impact, prioritize safety and operational reliability first, secure owner approval, implement only the approved change in a scoped PR, run essential checks, merge to `master` and smoke-test affected live bot/admin paths. No speculative features or broad refactors.
 
-**Runflare MySQL first migration (SQLSTATE 1071):** the UTF8MB4 indexed-column limit fix and safe partial-migration recovery are documented in [MySQL index compatibility](docs/22-mysql-index-compatibility.md). Never run destructive migration reset on a database with data.
+Open candidate: [#70 — variant price-change audit trail](https://github.com/DenaSon/Denapax/issues/70), **backlog only**, not implemented or committed to a sprint.
 
-## Initial data and non-Redis queue
+## Operator notes
 
-Safe initialization on an authorized, backed-up database:
+On an authorized, backed-up deployment, use safe migrations and baseline settings seeders. Real payment instructions and tariffs are configured in admin; demo products are **not** seeded to production. Run a supervised database queue worker plus scheduler; protect HTTPS Telegram webhook secrets and private receipt images.
 
 ```bash
 php artisan migrate --force
 php artisan db:seed
+php artisan queue:work database --queue=notifications,default --tries=1 --timeout=60
 ```
 
-Creates/keeps RBAC plus missing store/shipping defaults only. **Real card/holder/support and delivery fees must be configured in the admin before accepting orders**; default shipping fees are zero placeholders, not approved tariffs.
+Do not run `migrate:fresh` on production. Do not commit `.env`, tokens, bank/card data, customer PII, receipt files or production identifiers.
 
-For **local, testing or staging only**, opt into three **unpublished** catalog fixtures:
+## Documentation index
 
-```bash
-php artisan db:seed --class=DemoProductsSeeder
-```
+- [29 — MVP launch scope freeze and Post-MVP handoff](docs/29-mvp-launch-freeze.md)
+- [28 — Exact toman/IRR conversion and verification](docs/28-admin-toman-pricing.md)
+- [27 — Phase 9 private admin group alert activation](docs/27-phase-9-admin-group-alerts.md)
+- [24 — Historical completed Post-MVP Sprint 1](docs/24-post-mvp-sprint-1.md)
+- [15 — Phase 6 evidence status](docs/15-phase-6-readiness-plan.md) · [16 — Operator runbook](docs/16-phase-6-operator-runbook.md)
+- [01 — Original MVP scope](docs/01-mvp-scope.md) · [02 — Architecture](docs/02-architecture.md) · [03 — Database](docs/03-database-design.md) · [04 — Workflows](docs/04-workflows.md)
+- [07 — Backlog](docs/07-product-backlog.md) · [08 — Traceability](docs/08-mvp-traceability.md) · [09 — Execution agreement](docs/09-execution-agreement.md)
+- [Telegram UI/UX guidelines](docs/telegram-ui-ux-guidelines.md) · [21 — Seeders and database queue](docs/21-initial-seeders-handoff.md)
+- [23 — Runflare HTTPS/Livewire troubleshooting](docs/23-runflare-https-livewire-mixed-content.md)
 
-Three sample products: انجیر خشک نمونه، مغز گردو نمونه، کشمش نمونه. Their prices are fictional and variants unavailable; no demo data is created by the normal db:seed, and production execution is blocked. See [seeders handoff](docs/21-initial-seeders-handoff.md).
-
-Horizon and Redis are **not part of current scope**. The default queue is database; background Telegram notifications still require a supervised `php artisan queue:work database --queue=notifications,default --tries=1 --timeout=60` process **plus** the Laravel scheduler.
-
-## Key decisions
-- Product variants have predefined sale quantities, units and independent prices.
-- Shipping weight is stored in **grams** on every variant, independent from its sale unit.
-- Shipping is a nationwide formula: base tier + increments above the base tier; settings are admin-configurable.
-- Payment is card-to-card with customer receipt upload and **manual admin approval**.
-- A customer may re-upload a receipt after rejection; all attempts are retained.
-- Order/payment status changes trigger transactional Telegram notifications.
-- Order lines, address and shipping fee are snapshotted at checkout.
-- Inventory is available/unavailable only in the MVP; no numeric stock tracking.
-
-> **Security:** Do not commit `.env`, bot tokens, cardholder secrets, customer PII, or payment receipt images.
-
-**Next action:** Check [Phase 8 PR #62](https://github.com/DenaSon/Denapax/pull/62) for merged status, CI and production rollout; confirm real Telegram search, gallery, checkout, address review and payment-card clipboard. See [Phase 8 handoff](docs/26-phase-8-ux-handoff.md). Separately, record outstanding Phase 6 negative/security, backup/restore and operational evidence in #24/#25/#11. The owner has confirmed functional live E2E acceptance; do not claim unverified gates as complete. See [Phase 5 handoff](docs/14-phase-5-handoff.md).
-
-For authoritative scope, data rules and acceptance criteria, see the documentation links above.
+**Handoff for a new chat:** read [AGENTS.md](AGENTS.md), [MVP freeze status](docs/29-mvp-launch-freeze.md) and current GitHub issues/CI. Treat the owner's functional launch decision as recorded, but verify unresolved operations/security separately.
