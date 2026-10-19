@@ -5,13 +5,13 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
 use App\Support\TelegramHtml;
-use SergiX44\Nutgram\Nutgram;
-use SergiX44\Nutgram\Telegram\Types\Internal\InputFile;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Support\Facades\Log;
+use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
+use SergiX44\Nutgram\Telegram\Types\Internal\InputFile;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class CatalogMessages
 {
