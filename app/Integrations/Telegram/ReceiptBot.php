@@ -95,8 +95,11 @@ class ReceiptBot
         if ($order->order_status === 'awaiting_payment'
             && in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
             $payment = $order->payment_instructions_snapshot;
-            $text .= "\nشماره کارت: ".TelegramHtml::escape((string) ($payment['card_number'] ?? ''))
+            $text .= "\nشماره کارت: <code>".TelegramHtml::escape((string) ($payment['card_number'] ?? '')).'</code>'
                 ."\nبه نام: ".TelegramHtml::escape((string) ($payment['card_holder_name'] ?? ''));
+            if (is_string($payment['card_number'] ?? null) && $payment['card_number'] !== '') {
+                $keyboard->addRow(Button::make('📋 کپی شماره کارت', copy_text: CopyTextButton::make($payment['card_number'])));
+            }
             $text .= "\nفقط پس از انتقال وجه، عکس یا فایل تصویری رسید را ارسال کنید.";
             $keyboard->addRow(StorefrontButtons::primary(
                 $order->payment_status === 'rejected' ? '📎 ارسال مجدد رسید' : '📎 ارسال رسید پرداخت',
@@ -141,10 +144,12 @@ class ReceiptBot
         ]);
 
         $bot->sendMessage(
-            '📷 ارسال رسید برای سفارش '.$order->public_reference
-            ."\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان'
-            ."\n\nعکس یا فایل تصویری JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت)."
-            ."\n/cancel برای لغو. تا تأیید فروشگاه، پرداخت در انتظار بررسی است.",
+            text: '📷 ارسال رسید برای سفارش '.$order->public_reference
+                ."\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان'
+                ."\n\nعکس JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت).",
+            reply_markup: Keyboard::make()->addRow(
+                Button::make('❌ لغو', callback_data: 'form:cancel'),
+            ),
         );
     }
 
