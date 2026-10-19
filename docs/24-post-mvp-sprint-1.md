@@ -2,6 +2,8 @@
 
 **Initiated:** 2026-10-19 · **Owner:** DenaPax · **Status:** INTAKE / NO IMPLEMENTATION YET
 
+**Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** Admin private-group alerts are deferred and unimplemented.
+
 ## Sprint scope freeze — 2026-10-19
 
 **Owner accepted the recommendations and closed feedback collection at exactly 17 items.** This supersedes the historical “awaiting feedback” intake section below. All 17 items are tracked in [parent #56](https://github.com/DenaSon/Denapax/issues/56), with execution checklists attached to the two linked phase issues. The original E07 release/security/recovery Issues #11/#24/#25 stay open independently.
@@ -78,7 +80,7 @@ Do **not** casually change checkout idempotence, order/address/amount snapshots,
 - **Feedback list:** Finalized and owner-approved at 17 items on 2026-10-19; this overrides historical intake instructions above.
 - **Prioritized backlog:** Approved and mapped to #57 / #58.
 - **Phase 7 implementation:** [PR #61](https://github.com/DenaSon/Denapax/pull/61) merged into master; [issue #57](https://github.com/DenaSon/Denapax/issues/57) code-closed.
-- **Phase 8 implementation:** [PR #62](https://github.com/DenaSon/Denapax/pull/62) implemented; verify merge and live acceptance in #58.
+- **Phase 8 implementation:** [PR #62](https://github.com/DenaSon/Denapax/pull/62) merged, issue #58 code-closed; production/phone acceptance remains separate.
 - **Original Phase 6 operational closure:** Pending linked release evidence, tracked independently from this UX sprint.
 
 **Working agreement:** Use a scoped branch per approved phase, essential CI, PR to master, merge only after phase exit gate, concise Persian delivery summary. See [AGENTS](../AGENTS.md) and [execution agreement](09-execution-agreement.md).
