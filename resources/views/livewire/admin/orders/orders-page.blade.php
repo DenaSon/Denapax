@@ -32,7 +32,7 @@
                         <tr wire:key="order-{{ $order->id }}">
                             <td dir="ltr">{{ $order->public_reference }}</td>
                             <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
-                            <td>{{ number_format(intdiv($order->total_irr, 10)) }}</td>
+                            <td>{{ \App\Support\Money::formatToman($order->total_irr) }}</td>
                             <td>{{ $order->order_status }}</td>
                             <td>{{ $order->payment_status }}</td>
                             <td><x-button label="جزئیات" class="btn-sm" link="{{ route('admin.orders.show', $order) }}" /></td>
