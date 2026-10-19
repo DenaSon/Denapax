@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\OrderReference;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,6 +27,11 @@ class Order extends Model
             'shipping_rule_snapshot' => 'array',
             'payment_instructions_snapshot' => 'array',
         ];
+    }
+
+    public function getPublicReferenceAttribute(): string
+    {
+        return OrderReference::forId((int) $this->id);
     }
 
     public function shipment(): HasOne
