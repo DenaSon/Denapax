@@ -30,6 +30,10 @@ Second-phase work adds topographic path drawing, chapter-aware scroll progress, 
 
 Product cards now open one responsive native-dialog preview with gallery thumbnails, description, features and **only available variants with exact toman prices**. Alpine changes the visible variant/image, while the actual checkout remains in the Telegram bot (no product deep-link promise). The payload contains only public catalog fields for the current page and uses safe JSON serialization. The page remains usable without JavaScript through existing links. See [L3 handoff](docs/32-public-landing-phase-3.md). Real phone/desktop smoke is distinct from CI.
 
+### Landing Phase L4 — final SEO and production handoff
+
+The final phase adds SEO-friendly product permalinks at `/products/{slug}` with full server-rendered public product details, accurate `Product`/`Offer` JSON-LD (prices in **IRR**), canonical/Open Graph metadata, dynamic published-orderable `/sitemap.xml` and robots.txt. Card click still opens Alpine modal but preserves true links for no-JS and crawlers. This phase does not add checkout or other dynamic site content. See [L4 final runbook](docs/33-public-landing-phase-4-final.md). Actual live SEO indexing/performance and device checks are distinct from CI.
+
 ## Architecture
 
 | Layer | Stack |
