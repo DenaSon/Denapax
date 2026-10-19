@@ -5,18 +5,18 @@
     </div>
     <x-card title="وضعیت و مبالغ قطعی سفارش">
         <p>وضعیت سفارش: <strong>{{ $order->order_status }}</strong> · وضعیت پرداخت: <strong>{{ $order->payment_status }}</strong></p>
-        <p>مجموع کالا: {{ number_format(intdiv($order->goods_subtotal_irr, 10)) }} تومان</p>
-        <p>هزینه پست: {{ number_format(intdiv($order->shipping_fee_irr, 10)) }} تومان</p>
-        <p>جمع کل: <strong>{{ number_format(intdiv($order->total_irr, 10)) }} تومان</strong></p>
+        <p>مجموع کالا: {{ \App\Support\Money::formatToman($order->goods_subtotal_irr) }} تومان</p>
+        <p>هزینه پست: {{ \App\Support\Money::formatToman($order->shipping_fee_irr) }} تومان</p>
+        <p>جمع کل: <strong>{{ \App\Support\Money::formatToman($order->total_irr) }} تومان</strong></p>
         <p>وزن مرسوله: {{ $order->shipping_weight_grams }} گرم</p>
     </x-card>
     <x-card title="اقلام ثبت‌شده (Snapshot)">
         <div class="overflow-x-auto">
             <table class="table">
-                <thead><tr><th>کالا و تنوع</th><th>SKU</th><th>تعداد</th><th>بهای واحد (ریال)</th></tr></thead>
+                <thead><tr><th>کالا و تنوع</th><th>SKU</th><th>تعداد</th><th>بهای واحد (تومان)</th></tr></thead>
                 <tbody>
                 @foreach($order->items as $item)
-                    <tr><td>{{ $item->product_title_snapshot }} / {{ $item->variant_title_snapshot }}</td><td>{{ $item->sku_snapshot }}</td><td>{{ $item->quantity }}</td><td>{{ number_format($item->unit_price_irr) }}</td></tr>
+                    <tr><td>{{ $item->product_title_snapshot }} / {{ $item->variant_title_snapshot }}</td><td>{{ $item->sku_snapshot }}</td><td>{{ $item->quantity }}</td><td>{{ \App\Support\Money::formatToman($item->unit_price_irr) }}</td></tr>
                 @endforeach
                 </tbody>
             </table>
