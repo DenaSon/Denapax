@@ -126,7 +126,6 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertSame(6, $customer->cart->items()->sum('quantity'));
     }
 
-
     public function test_single_cart_page_hides_page_counter_and_detail_escapes_repeated_text(): void
     {
         $product = $this->product('sour-cherry', 3500000);
