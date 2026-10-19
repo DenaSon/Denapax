@@ -101,6 +101,10 @@ class AdminTomanPricingTest extends TestCase
             ->call('save')
             ->assertHasErrors(['variants.0.price_toman']);
 
+        $editor->set('variants.0.price_toman', '0')
+            ->call('save')
+            ->assertHasErrors(['variants']);
+
         $editor->set('variants.0.price_toman', '1389000')
             ->set('variants.0.is_available', false)
             ->call('save')
