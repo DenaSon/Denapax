@@ -30,7 +30,7 @@
                 <tbody>
                     @forelse($orders as $order)
                         <tr wire:key="order-{{ $order->id }}">
-                            <td dir="ltr">{{ $order->order_number }}</td>
+                            <td dir="ltr">{{ $order->public_reference }}</td>
                             <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
                             <td>{{ number_format(intdiv($order->total_irr, 10)) }}</td>
                             <td>{{ $order->order_status }}</td>
