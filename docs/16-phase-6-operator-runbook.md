@@ -14,9 +14,9 @@
 
 ## 1. Prepare isolated staging
 
-Record only host OS, PHP version, extension names, MySQL and database queue **versions**, deployed Git commit, HTTPS hostname (if disclosure permitted), and timestamp. Never record passwords, bot token, secret header value, `.env`, card data or Telegram request bodies.
+Record only host OS, PHP version, extension names, MySQL **version** and selected database queue driver, deployed Git commit, HTTPS hostname (if disclosure permitted), and timestamp. Never record passwords, bot token, secret header value, `.env`, card data or Telegram request bodies.
 
-1. Create a dedicated database/user with least-privilege application permissions, a configured MySQL-backed Laravel database queue and a non-production Telegram test bot. Restrict inbound database/database queue ports. Configure a real HTTPS reverse proxy; the HTTP document root must be `public/`, **not** the repository root or `storage/`.
+1. Create a dedicated database/user with least-privilege application permissions, Laravel database queue tables/worker and a non-production Telegram test bot. Restrict inbound MySQL ports; database queues do not require any extra network service. Configure a real HTTPS reverse proxy; the HTTP document root must be `public/`, **not** the repository root or `storage/`.
 2. Inject application secrets from the host's secret manager or a protected environment file excluded from source control. Production-like configuration: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://...`, `DB_CONNECTION=mysql`, `QUEUE_CONNECTION=database`, `DB_QUEUE_RETRY_AFTER=120`, `TELEGRAM_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_LOG_CHANNEL=null`; set a dedicated `APP_KEY` and appropriate database authentication. Keep `LOG_LEVEL` restrained and ensure application logs are access-controlled.
 3. Ensure PHP **8.4** and required extensions (`pdo_mysql`, `mbstring`, `fileinfo`, `gd`, `zip`, `database`) exist. Review third-party package migrations before first deploy; in particular Spatie permission, media and activity-log tables. Dependency audit is performed by CI and should be repeated on the exact deployable lockfile.
 4. Deploy the **reviewed commit**, install Composer dependencies with `--no-dev --optimize-autoloader`, build Vite assets from the locked release, and keep the prior deploy artifact for rollback. Run `php artisan config:cache`, `php artisan route:cache` only if the app supports it, and `php artisan view:cache`. Run `php artisan about` in the target only after validating that output excludes secret values.
@@ -51,7 +51,7 @@ The example admin address is **not** a credential. Supply a real authorized staf
 - Verify one authentic inbound test update is accepted, a forged secret is rejected, and replay of the same `update_id` does not repeat business actions.
 - Run a **supervised** database worker, for example the service's command:
   `php artisan queue:work database --queue=notifications,default --tries=1 --timeout=60 --sleep=3`.
-  Set process restart and logs; the database queue queue retry window **120s must exceed** worker timeout 60s. After deployment, restart workers with `php artisan queue:restart`.
+  Set process restart and logs; the database queue retry window **120s must exceed** worker timeout 60s. After deployment, restart workers with `php artisan queue:restart`.
 - Run Laravel scheduler every minute under one designated scheduler host: `* * * * * ... php artisan schedule:run` (absolute paths; appropriate service account). Never run multiple unsupervised schedulers accidentally.
 - Prove outbox poller `denapax:notifications:dispatch` runs, notifications transition from queued to sent, failed provider delivery retries within bounded attempts, and exhausted failures are visible in the admin notification log. Telegram delivery is **at least once** on ambiguous network failures; duplicates remain possible.
 
