@@ -18,9 +18,9 @@ class TelegramCatalogCartUxTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_catalog_page_shows_five_product_choices_in_one_message_and_paginates(): void
+    public function test_catalog_page_shows_ten_product_choices_in_one_message_and_paginates(): void
     {
-        for ($i = 1; $i <= 6; $i++) {
+        for ($i = 1; $i <= 11; $i++) {
             $this->product('fig-'.$i, 130000);
         }
 
@@ -32,7 +32,7 @@ class TelegramCatalogCartUxTest extends TestCase
         $first = $messages[0];
         $this->assertStringContainsString('صفحه 1 از 2', $first['text']);
         $rows = $first['reply_markup']['inline_keyboard'];
-        $this->assertCount(5, array_filter($rows, fn ($row) => str_starts_with($row[0]['callback_data'], 'item:')));
+        $this->assertCount(10, array_filter($rows, fn ($row) => str_starts_with($row[0]['callback_data'], 'item:')));
         $this->assertTrue(collect($rows)->flatten(1)->contains(fn ($button) => ($button['callback_data'] ?? '') === 'all:2'));
         $this->assertStringContainsString('13,000 تومان', $rows[0][0]['text']);
 
@@ -79,12 +79,12 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertSame('menu:search', $empty[0]['reply_markup']['inline_keyboard'][0][0]['callback_data']);
     }
 
-    public function test_cart_shows_compact_totals_and_five_lines_per_page_without_changing_quantities(): void
+    public function test_cart_shows_compact_totals_and_nine_lines_per_page_without_changing_quantities(): void
     {
         $product = $this->product('mixed-nuts', 130000);
         $customer = app(IdentifyTelegramCustomer::class)->execute(898989, 898989, 'Buyer');
         $variants = [$product->variants()->firstOrFail()];
-        for ($i = 2; $i <= 6; $i++) {
+        for ($i = 2; $i <= 10; $i++) {
             $variants[] = $product->variants()->create([
                 'sku' => 'mixed-'.$i,
                 'title' => 'Pack '.$i,
@@ -104,7 +104,7 @@ class TelegramCatalogCartUxTest extends TestCase
         $first = $this->messages($bot);
         $this->assertCount(1, $first);
         $this->assertStringContainsString('صفحه 1 از 2', $first[0]['text']);
-        $this->assertStringContainsString('جمع سبد: 78,000 تومان', $first[0]['text']);
+        $this->assertStringContainsString('جمع سبد: 130,000 تومان', $first[0]['text']);
         $this->assertSame('HTML', $first[0]['parse_mode']);
         $this->assertStringContainsString('۱', $first[0]['reply_markup']['inline_keyboard'][0][0]['text']);
         $this->assertStringContainsString('× 13,000 = 13,000 تومان', $first[0]['text']);
@@ -113,17 +113,17 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertTrue(collect($first[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->contains(fn ($button) => ($button['text'] ?? '') === '🛍️ افزودن محصول دیگر'
                 && ($button['callback_data'] ?? '') === 'menu:catalog'));
-        $this->assertSame(5, collect($first[0]['reply_markup']['inline_keyboard'])->flatten(1)
+        $this->assertSame(9, collect($first[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->filter(fn ($button) => str_starts_with($button['callback_data'] ?? '', 'cart:remove:'))->count());
 
         $bot->hearCallbackQueryData('cart:page:2')->reply();
         $second = $this->messages($bot);
         $this->assertCount(1, $second);
         $this->assertStringContainsString('صفحه 2 از 2', $second[0]['text']);
-        $this->assertStringContainsString('جمع سبد: 78,000 تومان', $second[0]['text']);
+        $this->assertStringContainsString('جمع سبد: 130,000 تومان', $second[0]['text']);
         $this->assertSame(1, collect($second[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->filter(fn ($button) => str_starts_with($button['callback_data'] ?? '', 'cart:remove:'))->count());
-        $this->assertSame(6, $customer->cart->items()->sum('quantity'));
+        $this->assertSame(10, $customer->cart->items()->sum('quantity'));
     }
 
     public function test_single_cart_page_hides_page_counter_and_detail_escapes_repeated_text(): void

@@ -10,7 +10,7 @@ class TelegramNotificationText
 {
     public function render(string $event, Order $order, ?PaymentReceipt $receipt = null): string
     {
-        $reference = TelegramHtml::escape($order->order_number);
+        $reference = TelegramHtml::escape($order->public_reference);
 
         return match ($event) {
             'order.created' => TelegramHtml::bold('🌰 سفارش ثبت شد')

@@ -12,6 +12,7 @@ use App\Support\TelegramHtml;
 use Illuminate\Support\Str;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\CopyTextButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -39,7 +40,7 @@ class CartCheckoutMessages
             return;
         }
 
-        $perPage = 5;
+        $perPage = 9;
         $pages = (int) ceil($items->count() / $perPage);
         $page = min($pages, max(1, $page));
         $subtotal = $items->sum(fn ($item) => ($item->variant?->price_irr ?? 0) * $item->quantity);
@@ -211,7 +212,7 @@ class CartCheckoutMessages
         if ($order->order_status === 'awaiting_payment') {
             $payment = $order->payment_instructions_snapshot;
             $text = TelegramHtml::bold('✅ سفارش شما ثبت شد!')
-                ."\n".TelegramHtml::bold('شماره سفارش: ').TelegramHtml::escape($order->order_number)
+                ."\n".TelegramHtml::bold('شماره سفارش: ').TelegramHtml::escape($order->public_reference)
                 ."\n".TelegramHtml::bold('وضعیت: ⏳ در انتظار پرداخت')
                 ."\nوضعیت رسید: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status))
                 ."\n\n🛒 جمع کالا: ".$this->toman($order->goods_subtotal_irr).' تومان'
@@ -220,17 +221,23 @@ class CartCheckoutMessages
 
             if (in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
                 $text .= "\n\n".TelegramHtml::bold('💳 اطلاعات واریز')
-                    ."\n".TelegramHtml::bold('شماره کارت: '.(string) ($payment['card_number'] ?? ''))
+                    ."\n".'شماره کارت: <code>'.TelegramHtml::escape((string) ($payment['card_number'] ?? '')).'</code>'
                     ."\nبه نام: ".TelegramHtml::escape((string) ($payment['card_holder_name'] ?? ''))
                     ."\n\nپس از انتقال وجه، رسید این سفارش را ارسال کنید."
                     ."\n\n".TelegramHtml::quote('پس از بررسی و تأیید پرداخت، سفارش شما نهایی شده و در صف آماده‌سازی قرار می‌گیرد.');
+                if (is_string($payment['card_number'] ?? null) && $payment['card_number'] !== '') {
+                    $keyboard->addRow(Button::make(
+                        '📋 کپی شماره کارت',
+                        copy_text: CopyTextButton::make($payment['card_number']),
+                    ));
+                }
                 $keyboard->addRow(StorefrontButtons::primary('🧾 ارسال رسید پرداخت', 'receipt:order:'.$order->id));
             } else {
                 $text .= "\n\n".TelegramHtml::quote('رسید دریافت شده است؛ پس از بررسی و تأیید پرداخت، نتیجه اعلام می‌شود.');
             }
         } else {
             // Replayed checkout callbacks must not ask a paid/canceled user to transfer again.
-            $text = TelegramHtml::bold('📦 سفارش '.(string) $order->order_number)
+            $text = TelegramHtml::bold('📦 سفارش '.(string) $order->public_reference)
                 ."\nوضعیت سفارش: ".TelegramHtml::escape(OrderStateLabels::order($order->order_status))
                 ."\nوضعیت پرداخت: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status))
                 ."\n".TelegramHtml::bold('مبلغ سفارش: '.$this->toman($order->total_irr).' تومان');

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Orders;
 
 use App\Models\Order;
+use App\Support\OrderReference;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -50,7 +51,16 @@ class OrdersPage extends Component
 
         return view('livewire.admin.orders.orders-page', [
             'orders' => Order::query()
-                ->when($filters['search'] !== '', fn ($q) => $q->where('order_number', 'like', '%'.$filters['search'].'%'))
+                ->when($filters['search'] !== '', function ($query) use ($filters): void {
+                    $search = trim($filters['search']);
+                    $id = OrderReference::toId($search);
+                    $query->where(function ($q) use ($search, $id): void {
+                        $q->where('order_number', 'like', '%'.$search.'%');
+                        if ($id !== null) {
+                            $q->orWhereKey($id);
+                        }
+                    });
+                })
                 ->when($filters['orderStatus'] !== '', fn ($q) => $q->where('order_status', $filters['orderStatus']))
                 ->when($filters['paymentStatus'] !== '', fn ($q) => $q->where('payment_status', $filters['paymentStatus']))
                 ->when($filters['dateFrom'] !== '', fn ($q) => $q->whereDate('created_at', '>=', $filters['dateFrom']))

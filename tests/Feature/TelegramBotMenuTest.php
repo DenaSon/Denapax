@@ -91,7 +91,7 @@ class TelegramBotMenuTest extends TestCase
 
         $bot->hearText(StorefrontReplyKeyboard::SEARCH)
             ->reply()
-            ->assertReplyText('نام یا بخشی از توضیحات محصول را بنویسید. /cancel برای لغو');
+            ->assertReplyText('🔎 نام یا بخشی از توضیحات محصول را بنویسید.');
 
         $this->assertSame('search', app(AddressConversation::class)->session($customer)->fresh()->state);
     }

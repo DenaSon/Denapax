@@ -10,6 +10,7 @@ use App\Integrations\Telegram\ReceiptBot;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
+use App\Support\OrderReference;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -34,13 +35,16 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $text = $this->latestMessage($bot);
         $this->assertStringContainsString('در انتظار پرداخت', $text['text']);
         $this->assertStringContainsString('120,000 تومان', $text['text']);
-        $this->assertStringContainsString('شماره کارت: 6037991234567890', $text['text']);
+        $this->assertStringContainsString('شماره کارت: <code>6037991234567890</code>', $text['text']);
         $this->assertSame('HTML', $text['parse_mode']);
         $this->assertStringContainsString('<b>💳 مبلغ قابل پرداخت: 120,000 تومان</b>', $text['text']);
         $this->assertStringContainsString('<blockquote>پس از بررسی و تأیید پرداخت', $text['text']);
         $this->assertStringNotContainsString('به‌معنای تأیید پرداخت نیست', $text['text']);
-        $this->assertSame('receipt:order:'.$order->id, $text['reply_markup']['inline_keyboard'][0][0]['callback_data']);
-        $this->assertSame('myorder:'.$order->id, $text['reply_markup']['inline_keyboard'][1][0]['callback_data']);
+        $buttons = collect($text['reply_markup']['inline_keyboard'])->flatten(1);
+        $this->assertTrue($buttons->contains(fn ($button) => ($button['callback_data'] ?? '') === 'receipt:order:'.$order->id));
+        $this->assertTrue($buttons->contains(fn ($button) => ($button['callback_data'] ?? '') === 'myorder:'.$order->id));
+        $this->assertTrue($buttons->contains(fn ($button) => ($button['copy_text']['text'] ?? '') === '6037991234567890'));
+        $this->assertStringContainsString($order->public_reference, $text['text']);
 
         $order->update(['payment_status' => 'approved', 'order_status' => 'confirmed']);
         $bot = $this->bot();
@@ -84,7 +88,8 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $detail = $this->latestMessage($bot);
         $this->assertStringContainsString('مبلغ تطبیق نداشت', $detail['text']);
         $this->assertStringContainsString('همین سفارش رسید جدید', $detail['text']);
-        $this->assertSame('receipt:upload:'.$order->id, $detail['reply_markup']['inline_keyboard'][0][0]['callback_data']);
+        $this->assertTrue(collect($detail['reply_markup']['inline_keyboard'])->flatten(1)
+            ->contains(fn ($button) => ($button['callback_data'] ?? '') === 'receipt:upload:'.$order->id));
 
         $order->update(['payment_status' => 'under_review']);
         $bot = $this->bot();
@@ -178,6 +183,29 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $this->assertStringContainsString('Dena &lt;Store&gt; &amp; Co', $notice);
     }
 
+    public function test_public_reference_is_stable_unique_and_reversible_without_mutating_legacy_number(): void
+    {
+        $owner = Customer::create(['telegram_user_id' => 4512]);
+        $one = $this->order($owner);
+        $two = $this->order($owner);
+        $two->update(['order_number' => 'OLD-LEGACY-ORDER-2']);
+
+        $this->assertMatchesRegularExpression('/^DN-[0-9]{9}$/', $one->public_reference);
+        $this->assertNotSame($one->public_reference, $two->public_reference);
+        $this->assertSame($one->id, OrderReference::toId($one->public_reference));
+        $this->assertSame($two->id, OrderReference::toId($two->public_reference));
+        $this->assertSame('DN-UX4-001', $one->fresh()->order_number);
+
+        $screen = app(CustomerOrdersBot::class);
+        $bot = $this->bot();
+        $screen->list($bot, $owner);
+        $list = $this->latestMessage($bot);
+        $this->assertStringContainsString($one->public_reference, $list['text']);
+        $this->assertStringContainsString('120,000 تومان', $list['text']);
+        $this->assertStringNotContainsString('DN-UX4-001', $list['text']);
+        $this->assertSame('HTML', $list['parse_mode']);
+    }
+
     private function bot(): FakeNutgram
     {
         /** @var FakeNutgram $bot */
@@ -202,7 +230,7 @@ class TelegramCheckoutStatusUxTest extends TestCase
     private function order(Customer $owner): Order
     {
         return Order::create([
-            'order_number' => 'DN-UX4-001',
+            'order_number' => 'DN-UX4-'.str_pad((string) (Order::count() + 1), 3, '0', STR_PAD_LEFT),
             'checkout_key' => (string) Str::uuid(),
             'customer_id' => $owner->id,
             'order_status' => 'awaiting_payment',

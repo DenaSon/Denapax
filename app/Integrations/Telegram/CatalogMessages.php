@@ -5,10 +5,13 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
 use App\Support\TelegramHtml;
+use Illuminate\Support\Facades\Log;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
+use SergiX44\Nutgram\Telegram\Types\Internal\InputFile;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class CatalogMessages
 {
@@ -87,8 +90,11 @@ class CatalogMessages
         );
 
         $title = $term !== null ? '🔎 نتایج جستجو: '.mb_substr($term, 0, 80) : '🌰 محصولات فروشگاه';
+        $pagination = $items->lastPage() > 1
+            ? "\nصفحه ".$items->currentPage().' از '.$items->lastPage()
+            : '';
         $bot->sendMessage(
-            text: $title."\nصفحه ".$items->currentPage().' از '.$items->lastPage()."\n\nبرای دیدن تصویر، مشخصات و تنوع‌ها، محصول را انتخاب کنید.",
+            text: $title.$pagination."\n\nبرای دیدن تصویر، مشخصات و تنوع‌ها، محصول را انتخاب کنید.",
             reply_markup: $keyboard,
         );
     }
@@ -153,21 +159,18 @@ class CatalogMessages
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
 
-        $media = $product->getFirstMedia('gallery');
-        if ($media && mb_strlen($text) <= 900) {
-            $bot->sendPhoto(photo: $media->getFullUrl(), caption: $text, parse_mode: ParseMode::HTML, reply_markup: $keyboard);
+        // Try product gallery first, falling back to a published variant photo.
+        $media = $product->getFirstMedia('gallery')
+            ?? $product->variants->first(fn ($variant) => $variant->getFirstMedia('variant-image') !== null)?->getFirstMedia('variant-image');
 
+        if ($media && mb_strlen($text) <= 900
+            && $this->sendMedia($bot, $media, $text, $keyboard, true)) {
             return;
         }
 
         if ($media) {
-            // Preserve complete selectable variants in the text message when
-            // Telegram's photo caption limit cannot fit the full details.
-            $bot->sendPhoto(
-                photo: $media->getFullUrl(),
-                caption: mb_substr(TelegramHtml::escape($product->title."\n".$product->summary), 0, 900),
-                parse_mode: ParseMode::HTML,
-            );
+            // Keep variants in a separate message if the photo caption is too long.
+            $this->sendMedia($bot, $media, mb_substr(TelegramHtml::escape($product->title), 0, 800), null, true);
         }
         $bot->sendMessage(text: mb_substr($text, 0, 3900), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
@@ -205,11 +208,9 @@ class CatalogMessages
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
 
-        $bot->sendPhoto(
-            photo: $images[$index]->getFullUrl(),
-            caption: mb_substr($product->title.' — تصویر '.($index + 1).' از '.$images->count(), 0, 900),
-            reply_markup: $keyboard,
-        );
+        if (! $this->sendMedia($bot, $images[$index], mb_substr($product->title.' — تصویر '.($index + 1).' از '.$images->count(), 0, 900), $keyboard)) {
+            $bot->sendMessage('تصویر موقتاً قابل نمایش نیست.', reply_markup: $keyboard);
+        }
     }
 
     public function variantImage(Nutgram $bot, int $variantId): void
@@ -232,14 +233,40 @@ class CatalogMessages
             return;
         }
 
-        $bot->sendPhoto(
-            photo: $media->getFullUrl(),
-            caption: mb_substr($variant->product->title.' — '.$variant->title, 0, 900),
-            reply_markup: Keyboard::make()->addRow(
+        if (! $this->sendMedia(
+            $bot,
+            $media,
+            mb_substr($variant->product->title.' — '.$variant->title, 0, 900),
+            Keyboard::make()->addRow(
                 Button::make('⬅️ بازگشت به محصول', callback_data: 'item:'.$variant->product_id),
                 Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
             ),
-        );
+        )) {
+            $bot->sendMessage('تصویر موقتاً قابل نمایش نیست.');
+        }
+    }
+
+    private function sendMedia(Nutgram $bot, Media $media, string $caption, ?Keyboard $keyboard = null, bool $html = false): bool
+    {
+        try {
+            // Upload directly from the server when the public storage URL is not
+            // reachable by Telegram (e.g., CDN/proxy/storage-link mismatch).
+            $path = $media->getPath();
+            $photo = is_file($path) ? InputFile::make($path) : $media->getFullUrl();
+            $bot->sendPhoto(
+                photo: $photo,
+                caption: $caption,
+                parse_mode: $html ? ParseMode::HTML : null,
+                reply_markup: $keyboard,
+            );
+
+            return true;
+        } catch (\Throwable $exception) {
+            // Do not leak storage locations, provider response URLs or bot tokens.
+            Log::warning('Product photo delivery failed', ['error_type' => class_basename($exception)]);
+
+            return false;
+        }
     }
 
     private function toman(int $irr): string

@@ -20,7 +20,7 @@
 1. Phase 7 (7 items): concise cart and order messages, bold/selectable important info, Persian quantity/add-more labels, non-threatening accurate payment-review copy, concise product descriptions.
 2. Phase 8 (10 items): normalized Persian search; usable address prompts, native cancel, address review; copy card number from payment snapshot; pagination cart **9 items/page** and catalog **10 products/page**; primary photo automatically above product details/full-screen native view; shared short **DN-** human reference for orders and admin search, preserving legacy orders; readable order history.
 
-Preserve native Telegram Bot UX, customer and staff permissions, private receipts, manual payment approval, idempotent checkout, financial snapshots and exact shipping arithmetic. Use essential targeted tests and real Telegram/mobile smoke. Each completed phase gets its own PR with green CI and verified merge to `master`; update status and deliver a concise Persian report. **Phase 7 application changes are tracked in [PR #61](https://github.com/DenaSon/Denapax/pull/61); verify its actual merge/CI status on GitHub. Phase 8 has not started.** Keep #56 open as parent until both #57 and #58 pass and close.
+Preserve native Telegram Bot UX, customer and staff permissions, private receipts, manual payment approval, idempotent checkout, financial snapshots and exact shipping arithmetic. Use essential targeted tests and real Telegram/mobile smoke. Each completed phase gets its own PR with green CI and verified merge to `master`; update status and deliver a concise Persian report. **Phase 7 PR #61 merged and passed CI. Phase 8 implementation is tracked in [PR #62](https://github.com/DenaSon/Denapax/pull/62); verify its actual merge/CI status, then perform live Telegram smoke after rollout.** Keep #56 open as parent until both #57 and #58 pass and close.
 
 ---
 
@@ -77,8 +77,8 @@ Do **not** casually change checkout idempotence, order/address/amount snapshots,
 
 - **Feedback list:** Finalized and owner-approved at 17 items on 2026-10-19; this overrides historical intake instructions above.
 - **Prioritized backlog:** Approved and mapped to #57 / #58.
-- **Phase 7 implementation:** [PR #61](https://github.com/DenaSon/Denapax/pull/61) — verify live merge/CI status and [issue #57](https://github.com/DenaSon/Denapax/issues/57).
-- **Phase 8 implementation:** Not started.
+- **Phase 7 implementation:** [PR #61](https://github.com/DenaSon/Denapax/pull/61) merged into master; [issue #57](https://github.com/DenaSon/Denapax/issues/57) code-closed.
+- **Phase 8 implementation:** [PR #62](https://github.com/DenaSon/Denapax/pull/62) implemented; verify merge and live acceptance in #58.
 - **Original Phase 6 operational closure:** Pending linked release evidence, tracked independently from this UX sprint.
 
 **Working agreement:** Use a scoped branch per approved phase, essential CI, PR to master, merge only after phase exit gate, concise Persian delivery summary. See [AGENTS](../AGENTS.md) and [execution agreement](09-execution-agreement.md).

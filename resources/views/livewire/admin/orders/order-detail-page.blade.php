@@ -1,6 +1,6 @@
 <div class="space-y-5">
     <div class="flex items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold">سفارش {{ $order->order_number }}</h1>
+        <h1 class="text-2xl font-bold">سفارش {{ $order->public_reference }}</h1>
         <a class="btn btn-ghost" href="{{ route('admin.orders') }}">بازگشت</a>
     </div>
     <x-card title="وضعیت و مبالغ قطعی سفارش">
