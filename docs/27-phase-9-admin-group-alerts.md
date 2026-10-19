@@ -59,4 +59,4 @@
    ```
 - The previous product-gallery upload concern remains separate. E07 #11/#24/#25 security, restore and production evidence remains open.
 
-**Status:** Code requires CI, review and `master` merge before live enablement. This document is not proof of a live group message.
+**Status:** [Implementation PR #65](https://github.com/DenaSon/Denapax/pull/65) / [Issue #64](https://github.com/DenaSon/Denapax/issues/64). Check the actual PR merge SHA and latest green CI before deploying. This document is **not** proof of a live group message.
