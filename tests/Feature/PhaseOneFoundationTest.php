@@ -11,6 +11,7 @@ use App\Models\StoreSetting;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -127,7 +128,7 @@ class PhaseOneFoundationTest extends TestCase
             ->set('title', 'Another Product Title')
             ->assertSet('slug', 'special-figs');
 
-        $this->assertNotSame('', \Illuminate\Support\Str::slug('آلبالو خشک طبیعی دنا'));
+        $this->assertNotSame('', Str::slug('آلبالو خشک طبیعی دنا'));
     }
 
     public function test_new_variants_get_editable_distinct_skus_and_existing_values_remain_stable(): void
