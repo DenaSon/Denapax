@@ -4,11 +4,11 @@ Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
 
-The security preparation originally in draft Phase 6 PR #36 has been reconciled into a scoped update against current `master` (safe webhook error logs, private-receipt regression tests, locked Composer audit, and the operator runbook). Verify the integration PR merge/CI; this is **not** production deployment, live E2E, or Phase 6 approval. Horizon and Redis are deferred: use Laravel database queues.
+The security preparation originally in draft Phase 6 PR #36 has been reconciled into a scoped update against current `master` (safe webhook error logs, private-receipt regression tests, locked Composer audit, and the operator runbook). Integrated and verified in merged [PR #49](https://github.com/DenaSon/Denapax/pull/49) ([master CI](https://github.com/DenaSon/Denapax/actions/runs/39209851902)); old [PR #36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded. This is **not** production deployment, live E2E, or Phase 6 approval. Horizon and Redis are deferred: use Laravel database queues.
 
 **Status 2026-10-19:** UX-1..4 code PRs #43–#46 are merged, with UX issues #38–#41 closed. [Setup issue #47](https://github.com/DenaSon/Denapax/issues/47) and [PR #48](https://github.com/DenaSon/Denapax/pull/48) cover idempotent initialization seeders. Phase 6 release issues #11/#24/#25 remain open. Verify latest GitHub status before reporting counts.
 
-**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1, UX-2, UX-3 and UX-4 are all merged (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)). This does not replace Phase 6. No live Telegram, real MySQL/Redis or banking trial has been claimed.
+**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1, UX-2, UX-3 and UX-4 are all merged (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)). This does not replace Phase 6. No live Telegram, real MySQL/database queue or banking trial has been claimed.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
