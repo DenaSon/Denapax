@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use Throwable;
 
 class DeliverOutboxNotification implements ShouldQueue
@@ -97,7 +98,7 @@ class DeliverOutboxNotification implements ShouldQueue
                 : null;
 
             $text = $formatter->render($event->event_type, $order, $receipt);
-            $result = $bot->sendMessage(text: $text, chat_id: $customer->telegram_chat_id);
+            $result = $bot->sendMessage(text: $text, chat_id: $customer->telegram_chat_id, parse_mode: ParseMode::HTML);
 
             DB::transaction(function () use ($claim, $result, $event): void {
                 $updated = NotificationLog::query()
