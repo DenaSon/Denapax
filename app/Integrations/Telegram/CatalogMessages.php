@@ -90,8 +90,11 @@ class CatalogMessages
         );
 
         $title = $term !== null ? '🔎 نتایج جستجو: '.mb_substr($term, 0, 80) : '🌰 محصولات فروشگاه';
+        $pagination = $items->lastPage() > 1
+            ? "\nصفحه ".$items->currentPage().' از '.$items->lastPage()
+            : '';
         $bot->sendMessage(
-            text: $title."\nصفحه ".$items->currentPage().' از '.$items->lastPage()."\n\nبرای دیدن تصویر، مشخصات و تنوع‌ها، محصول را انتخاب کنید.",
+            text: $title.$pagination."\n\nبرای دیدن تصویر، مشخصات و تنوع‌ها، محصول را انتخاب کنید.",
             reply_markup: $keyboard,
         );
     }
