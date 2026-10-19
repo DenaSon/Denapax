@@ -8,6 +8,8 @@
 
 **Public landing Phase L3 (owner-approved):** product card previews use one responsive native dialog with media gallery, product information, features, and only orderable variants/prices in toman. Alpine controls preview/selection; the final variant and order are selected anew in Telegram. Dynamic site data remains limited to products; static brand sections unchanged, no web checkout. JSON data must remain XSS-escaped and public-only. See [docs/32](docs/32-public-landing-phase-3.md). Confirm production behavior separately from merged code/CI.
 
+**Public landing Phase L4 (owner-approved final):** Product permalink pages `/products/{slug}`, real public catalog SSR, valid Product/Offer structured data (IRR schema price; toman visible), indexable links, dynamic public-only sitemap, robots.txt, minimal frontend hints and final rollout handoff. Dynamic content remains product catalog alone; no web checkout or fake product inventory/ratings. See [docs/33](docs/33-public-landing-phase-4-final.md). Verify current PR/CI/merge and independently perform live SEO/performance checks; E07 security/DR tasks remain open.
+
 ## 1. Current owner decision
 
 **MVP is functionally accepted, owner-reported live, and feature scope is frozen as of 2026-10-19.** The owner created multiple real products, tested each at least once in the bot and previously confirmed the functional E2E purchase experience. Launch/freeze is a **product decision**, **not** documentary clearance for the remaining E07 security and disaster-recovery tests.

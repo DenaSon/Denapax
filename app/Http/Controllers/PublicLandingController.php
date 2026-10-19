@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Money;
+use App\Support\PublicStorefront;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -13,16 +14,12 @@ class PublicLandingController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $orderable = static fn ($query) => $query
-            ->where('is_available', true)
-            ->where('price_irr', '>', 0);
+        $orderable = static fn ($query) => $query->where('is_available', true)->where('price_irr', '>', 0);
 
         // Only catalog is dynamic. Never expose unpublished or unsellable items.
         $categories = Category::query()
             ->where('is_active', true)
-            ->whereHas('products', fn (Builder $query) => $query
-                ->where('is_active', true)
-                ->whereHas('variants', $orderable))
+            ->whereHas('products', fn (Builder $query) => $query->publiclyOrderable())
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
@@ -35,8 +32,7 @@ class PublicLandingController extends Controller
                 : null;
 
         $products = Product::query()
-            ->published()
-            ->whereHas('variants', $orderable)
+            ->publiclyOrderable()
             ->when($selectedCategory !== null, fn (Builder $query) => $query
                 ->whereHas('category', fn (Builder $category) => $category->where('slug', $selectedCategory)))
             ->with([
@@ -50,11 +46,7 @@ class PublicLandingController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        // Public handle only; do not guess the bot name or reveal bot tokens.
-        $username = ltrim(trim((string) config('services.telegram.bot_username', '')), '@');
-        $telegramUrl = preg_match('/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/D', $username)
-            ? 'https://t.me/'.$username
-            : null;
+        $telegramUrl = PublicStorefront::telegramUrl();
 
         // The preview is limited to the current page and contains only public,
         // already-orderable catalog fields; no extra HTTP endpoint or N+1 lookups.
@@ -100,6 +92,14 @@ class PublicLandingController extends Controller
             ]];
         })->all();
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews'));
+        $websiteSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => 'DenaPax',
+            'url' => route('home'),
+            'inLanguage' => 'fa-IR',
+        ];
+
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews', 'websiteSchema'));
     }
 }

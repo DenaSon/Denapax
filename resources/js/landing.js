@@ -149,8 +149,13 @@ Alpine.data('landingPage', () => ({
 
     openProduct(id, event) {
         const item = this.productPreviews[String(id)];
-        if (!item || !item.variants?.length || !this.$refs.productDialog) return;
+        // Keep true links for crawlers, no-JS visitors, modifier clicks and
+        // browsers without native dialog support.
+        if (event && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
+        if (!item || !item.variants?.length || !this.$refs.productDialog
+            || typeof this.$refs.productDialog.showModal !== 'function') return;
 
+        event?.preventDefault();
         this.closeMenu();
         this.preview = item;
         this.previewImageIndex = 0;

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
+use App\Http\Controllers\PublicProductController;
+use App\Http\Controllers\PublicSitemapController;
 use App\Http\Middleware\EnsureActiveStaff;
 use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;
@@ -16,6 +18,8 @@ use App\Livewire\Admin\ShippingSettingsPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', PublicLandingController::class)->name('home');
+Route::get('/products/{slug}', PublicProductController::class)->name('products.show');
+Route::get('/sitemap.xml', PublicSitemapController::class)->name('sitemap');
 
 Route::middleware(['auth', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', Dashboard::class)->name('dashboard');
