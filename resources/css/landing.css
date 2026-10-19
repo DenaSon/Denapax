@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 @import 'tailwindcss' source(none);
 @source '../views/landing/**/*.blade.php';
 @source '../js/landing.js';
@@ -83,6 +82,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     transition: transform 850ms cubic-bezier(.2,.65,.1,1);
 }
 .product-card:hover .product-card-image { transform: scale(1.055); }
+.product-card:focus-within .product-card-image { transform: scale(1.04); }
 .product-card-featured .product-card-image { aspect-ratio: 1.34 / 1; }
 .product-card::before {
     content: '';
@@ -96,7 +96,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 .product-card:hover .product-arrow { background: #19392f; color: #fff; transform: rotate(-45deg); }
 .product-arrow { transition: background-color .25s ease, color .25s ease, transform .25s ease; }
 .organic-lines { background-image: url('/images/dena-contours.svg'); background-repeat: no-repeat; background-size: cover; background-position: center; }
-.motion-ready [data-reveal] { opacity: 0; transform: translateY(27px); transition: opacity 730ms cubic-bezier(.19,1,.22,1), transform 730ms cubic-bezier(.19,1,.22,1); }
+.motion-ready [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity 720ms cubic-bezier(.19,1,.22,1), transform 720ms cubic-bezier(.19,1,.22,1); }
 .motion-ready [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
 .motion-ready [data-reveal][data-delay="1"] { transition-delay: 90ms; }
 .motion-ready [data-reveal][data-delay="2"] { transition-delay: 180ms; }
@@ -119,4 +119,150 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     .motion-ready [data-reveal] { opacity: 1; transform: none; }
     .landing-landscape { transform: none !important; }
+}
+
+
+/* Phase L2: motion is intentionally subtle, progressive and nonessential. */
+.landing-progress {
+    position: fixed;
+    z-index: 60;
+    inset: 0 0 auto;
+    height: 3px;
+    pointer-events: none;
+    background: linear-gradient(270deg, #ddc6a1 0%, #9fb599 48%, #315e48 100%);
+    transform-origin: right center;
+    transform: scaleX(var(--landing-progress, 0));
+    transition: none;
+}
+.landing-chapter-rail {
+    display: none;
+    position: fixed;
+    z-index: 35;
+    inset-block-start: 50%;
+    inset-inline-end: 1rem;
+    flex-direction: column;
+    gap: .28rem;
+    padding: .6rem;
+    transform: translateY(-50%);
+    border: 1px solid rgba(25, 57, 47, .1);
+    border-radius: 999px;
+    background: rgba(244, 240, 231, .9);
+    box-shadow: 0 12px 35px -18px rgba(17, 40, 31, .36);
+    backdrop-filter: blur(16px);
+}
+.landing-chapter-rail a {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    color: #557161;
+    font-size: .62rem;
+    font-weight: 800;
+    transition: background-color .25s ease, color .25s ease, transform .25s ease;
+}
+.landing-chapter-rail a:hover { transform: scale(1.06); color: #17392f; }
+.landing-chapter-rail a[aria-current="location"] {
+    background: #19392f;
+    color: #f3f0e5;
+}
+.landing-hero-glow {
+    position: absolute;
+    inset-inline-start: 12%;
+    inset-block-end: -18%;
+    z-index: -1;
+    width: min(72vw, 730px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(238, 194, 131, .14) 0%, transparent 65%);
+    pointer-events: none;
+}
+.landing-landscape { will-change: auto; }
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .landing-hero:hover .landing-landscape { will-change: transform; }
+}
+.landing-orbit {
+    position: absolute;
+    inset-inline-start: 12%;
+    inset-block-end: 11%;
+    display: none;
+    width: 138px;
+    aspect-ratio: 1;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(246, 240, 217, .46);
+    color: #faf2d9;
+    box-shadow: inset 0 0 0 13px rgba(255, 255, 255, .045);
+    transform: rotate(-12deg);
+}
+.landing-orbit::after {
+    content: '';
+    position: absolute;
+    inset: -11px;
+    border: 1px dashed rgba(246, 240, 217, .28);
+    border-radius: 50%;
+}
+.landing-orbit span { text-align: center; font-size: .66rem; line-height: 2; letter-spacing: .14em; }
+@media (min-width: 1100px) { .landing-orbit { display: flex; } }
+@media (min-width: 1536px) { .landing-chapter-rail { display: flex; } }
+
+.topographic-signature {
+    position: absolute;
+    inset-block-start: 7%;
+    inset-inline-end: -9%;
+    width: min(55vw, 690px);
+    height: auto;
+    opacity: .32;
+    pointer-events: none;
+    color: #3c725a;
+}
+.topographic-signature path { stroke: currentColor; stroke-width: 1.25; fill: none; }
+.motion-ready .topographic-signature path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+.motion-ready .topographic-signature.is-visible path {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 2s cubic-bezier(.33, 0, .22, 1);
+}
+.motion-ready .topographic-signature.is-visible path:nth-child(2) { transition-delay: 120ms; }
+.motion-ready .topographic-signature.is-visible path:nth-child(3) { transition-delay: 240ms; }
+.motion-ready .topographic-signature.is-visible path:nth-child(4) { transition-delay: 360ms; }
+.motion-ready .topographic-signature.is-visible path:nth-child(5) { transition-delay: 480ms; }
+
+/* Reveal product imagery like a printed editorial panel. Without JS it stays visible. */
+.product-photo::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: #c6cdb7;
+    transform: translateX(-102%);
+    pointer-events: none;
+}
+.motion-ready .product-card:not(.is-visible) .product-photo::after {
+    transform: translateX(0);
+}
+.motion-ready .product-card.is-visible .product-photo::after {
+    transform: translateX(-102%);
+    transition: transform .88s cubic-bezier(.75, 0, .24, 1) .12s;
+}
+.product-card:focus-within {
+    outline: 2px solid #315e48;
+    outline-offset: 4px;
+}
+@media (max-width: 767px) {
+    .landing-chapter-rail, .landing-orbit { display: none; }
+    .topographic-signature { width: 102%; inset-inline-end: -40%; opacity: .2; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .motion-ready .topographic-signature path { stroke-dasharray: none; stroke-dashoffset: 0; }
+    .motion-ready .product-card .product-photo::after { transform: translateX(-102%); }
+    .landing-progress { transition: none; }
+    .product-card:focus-within .product-card-image { transform: none; }
+}
+@media (prefers-contrast: more) {
+    .landing-outline { color: #fff8e6; -webkit-text-stroke: 0; }
+    .landing-outline-dark { color: #365945; -webkit-text-stroke: 0; }
 }

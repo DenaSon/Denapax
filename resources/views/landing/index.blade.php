@@ -14,11 +14,19 @@
     <link rel="canonical" href="{{ route('home') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="preload" href="{{ asset('images/dena-landscape.svg') }}" as="image" type="image/svg+xml">
     <title>دناپکس | از دل دنا</title>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
 </head>
-<body class="landing landing-shell antialiased" x-data="landingPage()">
+<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
+    <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
+    <nav class="landing-chapter-rail" aria-label="بخش‌های صفحه" x-cloak>
+        <a href="#top" x-bind:aria-current="activeSection === 'top' ? 'location' : null" aria-label="ابتدای صفحه">01</a>
+        <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" aria-label="محصولات">02</a>
+        <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="روایت دنا">03</a>
+        <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="سفارش">04</a>
+    </nav>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
     <header class="absolute inset-x-0 top-0 z-30 text-white">
@@ -36,9 +44,9 @@
             </a>
 
             <nav class="hidden items-center gap-10 text-sm font-medium text-white/85 lg:flex" aria-label="فهرست اصلی">
-                <a href="#products" class="transition hover:text-white">محصولات</a>
-                <a href="#story" class="transition hover:text-white">روایت دنا</a>
-                <a href="#order" class="transition hover:text-white">سفارش</a>
+                <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" class="transition hover:text-white">محصولات</a>
+                <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" class="transition hover:text-white">روایت دنا</a>
+                <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" class="transition hover:text-white">سفارش</a>
             </nav>
 
             <div class="hidden items-center gap-4 lg:flex">
@@ -53,21 +61,29 @@
                 @endif
             </div>
 
-            <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white lg:hidden" x-on:click="menuOpen = !menuOpen" x-bind:aria-expanded="menuOpen.toString()" aria-controls="landing-mobile-nav" aria-label="باز و بسته کردن منو">
+            <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white lg:hidden" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
                 <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                 <svg x-show="menuOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
             </button>
         </div>
-        <nav id="landing-mobile-nav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown.escape.window="menuOpen = false" x-on:click.outside="menuOpen = false" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
-            <a x-on:click="menuOpen = false" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
-            <a x-on:click="menuOpen = false" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
-            <a x-on:click="menuOpen = false" href="#order" class="block py-3 text-sm">سفارش در تلگرام</a>
+        <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
+            <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
+            <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
+            <a x-on:click="closeMenu(true)" href="#order" class="block py-3 text-sm">سفارش در تلگرام</a>
         </nav>
+        <noscript>
+            <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
+                <a href="#products">محصولات</a>
+                <a href="#story">روایت دنا</a>
+                <a href="#order">سفارش</a>
+            </nav>
+        </noscript>
     </header>
 
     <main>
-        <section class="landing-hero text-white" aria-labelledby="hero-title" x-on:pointermove="onHeroMove($event)" x-on:pointerleave="resetHero()">
+        <section id="top" data-chapter class="landing-hero text-white" aria-labelledby="hero-title" x-on:pointermove="onHeroMove($event)" x-on:pointerleave="resetHero()">
             <img x-ref="landscape" class="landing-landscape" src="{{ asset('images/dena-landscape.svg') }}" width="1600" height="1100" alt="" aria-hidden="true" fetchpriority="high">
+            <div class="landing-hero-glow" aria-hidden="true"></div>
             <div class="landing-container relative flex min-h-[690px] flex-col justify-center pb-28 pt-38 md:min-h-[820px] md:pb-32 md:pt-40">
                 <div class="absolute left-0 top-36 hidden flex-col items-end gap-3 lg:flex" aria-hidden="true">
                     <span class="text-xs tracking-[.32em] text-white/65" lang="en">THE DENA COLLECTION</span>
@@ -94,6 +110,9 @@
                         <span class="text-xs text-white/65">سوغات و خشکبار دناپکس</span>
                     </div>
                 </div>
+                <div class="landing-orbit" aria-hidden="true">
+                    <span lang="en">DENA<br>ROOTS · TASTE<br>31° N</span>
+                </div>
                 <div class="absolute bottom-9 right-0 left-0 flex items-end justify-between text-[11px] text-white/70 md:bottom-12">
                     <div class="flex items-center gap-4">
                         <span class="inline-block h-7 w-px bg-white/60"></span>
@@ -117,7 +136,7 @@
             </div>
         </section>
 
-        <section id="products" class="landing-container scroll-mt-12 pb-25 md:pb-36" aria-labelledby="products-title">
+        <section id="products" data-chapter class="landing-container scroll-mt-12 pb-25 md:pb-36" aria-labelledby="products-title">
             <div class="landing-divider mb-12 md:mb-16"></div>
             <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
                 <div data-reveal>
@@ -168,7 +187,7 @@
                     <article class="product-card group relative overflow-hidden bg-[#ebe9dd] {{ $isFeatured ? 'sm:col-span-2 lg:col-span-2 product-card-featured' : '' }}" data-reveal data-delay="{{ $loop->index % 3 }}">
                         <a href="{{ $telegramUrl ?? '#order' }}" @if ($telegramUrl) target="_blank" rel="noopener noreferrer" @endif
                            class="block h-full" aria-label="{{ $product->title }}؛ {{ $telegramUrl ? 'ورود به بات برای سفارش' : 'راهنمای سفارش' }}">
-                            <div class="relative overflow-hidden bg-[#c8cbb6] {{ $isFeatured ? 'max-h-[570px]' : '' }}">
+                            <div class="product-photo relative overflow-hidden bg-[#c8cbb6] {{ $isFeatured ? 'max-h-[570px]' : '' }}">
                                 @if ($cover)
                                     <img class="product-card-image block w-full object-cover" src="{{ $cover->getUrl() }}"
                                          width="800" height="700" loading="lazy" decoding="async" alt="تصویر {{ $product->title }}">
@@ -232,8 +251,15 @@
             @endif
         </section>
 
-        <section id="story" class="relative overflow-hidden bg-[#e2e5d5] py-23 md:py-36" aria-labelledby="story-title">
+        <section id="story" data-chapter class="relative overflow-hidden bg-[#e2e5d5] py-23 md:py-36" aria-labelledby="story-title">
             <div class="pointer-events-none absolute inset-y-0 left-0 w-full opacity-60 organic-lines lg:w-[65%]" aria-hidden="true"></div>
+            <svg data-topography class="topographic-signature" viewBox="0 0 700 560" fill="none" aria-hidden="true">
+                <path pathLength="1" d="M-60 80C30 10 130 20 220 75s185 68 280 3 175-75 265-10"/>
+                <path pathLength="1" d="M-60 125C40 48 131 65 217 118s185 60 289 0 181-57 256 10"/>
+                <path pathLength="1" d="M-55 175C40 108 129 119 215 162s191 65 287 5 169-46 263 29"/>
+                <path pathLength="1" d="M-45 223C45 157 130 162 223 208s183 51 279 3 182-36 263 47"/>
+                <path pathLength="1" d="M-35 271C50 212 139 214 226 255s177 45 276 7 177-21 263 65"/>
+            </svg>
             <div class="landing-container relative grid items-center gap-16 lg:grid-cols-2">
                 <div data-reveal>
                     <p class="landing-label mb-6 text-[#8b6e54]">FROM THE LAND / 03</p>
@@ -266,7 +292,7 @@
             </div>
         </section>
 
-        <section id="order" class="relative overflow-hidden bg-[#17382d] py-25 text-[#f3f1e5] md:py-36" aria-labelledby="order-title">
+        <section id="order" data-chapter class="relative overflow-hidden bg-[#17382d] py-25 text-[#f3f1e5] md:py-36" aria-labelledby="order-title">
             <img class="pointer-events-none absolute -left-[15%] top-[-65%] h-[170%] w-[80%] object-cover opacity-[.16]" src="{{ asset('images/dena-contours.svg') }}" width="700" height="600" alt="" aria-hidden="true" loading="lazy">
             <div class="landing-container relative" data-reveal>
                 <p class="landing-label mb-9 text-[#d3bf9b]">A SIMPLE WAY TO ORDER / 04</p>
@@ -307,7 +333,7 @@
         </div>
     </footer>
 
-    <a href="#" x-show="hasScrolled" x-cloak x-transition.opacity.duration.200ms
+    <a href="#top" x-show="hasScrolled" x-cloak x-transition.opacity.duration.200ms
        class="fixed bottom-5 left-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-[#19392f] text-white shadow-xl ring-1 ring-white/20 md:bottom-8 md:left-8"
        aria-label="بازگشت به بالای صفحه">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>

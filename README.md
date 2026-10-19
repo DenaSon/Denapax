@@ -22,6 +22,10 @@ The homepage `/` serves a public RTL editorial brand/catalog experience for dena
 
 To activate the outbound links, configure `TELEGRAM_BOT_USERNAME` in Runflare (public handle *without* @), refresh config and confirm `APP_URL=https://denapax.ir` and public product media URLs. If unset, no fake Telegram link is generated. Run CI, deploy, then check real mobile/desktop and bot navigation. [Phase L1 runbook](docs/30-public-landing-phase-1.md).
 
+### Landing Phase L2 — visual and interaction refinement
+
+Second-phase work adds topographic path drawing, chapter-aware scroll progress, refined product reveals, accessible mobile keyboard focus behavior, no-JavaScript navigation fallback and reduced-motion/high-contrast safeguards. The dynamic scope remains **catalog only**. No web checkout or payment changes. [Phase L2 handoff](docs/31-public-landing-phase-2.md). Device/production smoke must be verified separately.
+
 ## Architecture
 
 | Layer | Stack |
