@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Providers\AppServiceProvider;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
@@ -19,42 +18,40 @@ class RunflareHttpsUrlsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_admin_logout_and_livewire_scripts_are_https_even_when_tls_terminates_at_proxy(): void
+    public function test_admin_logout_and_livewire_scripts_are_https_on_http_proxy_hop(): void
     {
         $this->withoutVite();
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        // Mimic production URL generation on the HTTP PHP-FPM hop behind
-        // Runflare's public HTTPS ingress. No trusted proxy headers required.
-        config(['app.env' => 'production', 'app.url' => 'https://denapax.ir']);
-        (new AppServiceProvider($this->app))->boot();
+        // Request middleware must fix real page URLs without any fixed domain
+        // in application code or an early service-provider bootstrap hook.
+        config(['app.env' => 'production', 'app.url' => 'https://store.example.test']);
 
         $admin = User::factory()->create();
         $admin->assignRole('super-admin');
 
         $response = $this->actingAs($admin)
-            ->get('http://denapax.ir/admin')
+            ->get('http://store.example.test/admin')
             ->assertOk();
 
         $html = $response->getContent();
 
-        $this->assertStringContainsString('action="https://denapax.ir/logout"', $html);
+        $this->assertStringContainsString('action="https://store.example.test/logout"', $html);
         $this->assertMatchesRegularExpression(
-            '~<script[^>]+src="https://denapax\.ir/[^"]*livewire\.js[^"]*"~',
+            '~<script[^>]+src="https://store\.example\.test/[^"]*livewire\.js[^"]*"~',
             $html,
         );
-        $this->assertStringNotContainsString('action="http://denapax.ir/logout"', $html);
-        $this->assertStringNotContainsString('src="http://denapax.ir/', $html);
+        $this->assertStringNotContainsString('action="http://store.example.test/logout"', $html);
+        $this->assertStringNotContainsString('src="http://store.example.test/', $html);
     }
 
-    public function test_non_production_environment_is_not_forced_to_https(): void
+    public function test_testing_environment_keeps_http_urls_without_redirecting(): void
     {
-        config(['app.env' => 'testing', 'app.url' => 'https://denapax.ir']);
-        URL::forceScheme(null);
-        (new AppServiceProvider($this->app))->boot();
+        config(['app.env' => 'testing', 'app.url' => 'https://store.example.test']);
 
         $this->withoutVite();
-        $response = $this->get('http://denapax.ir/login')->assertOk();
-        $this->assertStringContainsString('action="http://denapax.ir/login"', $response->getContent());
+        $response = $this->get('http://store.example.test/login')->assertOk();
+
+        $this->assertStringContainsString('action="http://store.example.test/login"', $response->getContent());
     }
 }
