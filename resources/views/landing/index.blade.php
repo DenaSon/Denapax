@@ -19,7 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" href="{{ asset('images/dena-landscape.svg') }}" as="image" type="image/svg+xml">
     <title>دناپکس | از دل دنا</title>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DenaPax","url":"{{ route('home') }}","inLanguage":"fa-IR"}</script>
+    <script type="application/ld+json">@json($websiteSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
 </head>
 <body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">

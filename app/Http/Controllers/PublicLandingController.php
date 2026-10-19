@@ -92,6 +92,14 @@ class PublicLandingController extends Controller
             ]];
         })->all();
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews'));
+        $websiteSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => 'DenaPax',
+            'url' => route('home'),
+            'inLanguage' => 'fa-IR',
+        ];
+
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews', 'websiteSchema'));
     }
 }
