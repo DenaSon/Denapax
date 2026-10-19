@@ -2,6 +2,8 @@
 
 **Updated 2026-10-19. Read this file first in any new Denapax ChatGPT/Codex development session.** The authoritative business milestone is [docs/29-mvp-launch-freeze.md](docs/29-mvp-launch-freeze.md); inspect current GitHub `master` and Issues before new code.
 
+**Approved Post-MVP exception (2026-10-19):** The owner explicitly approved the public Denapax landing/catalog at `/`. Phase L1 is implemented in [PR #72](https://github.com/DenaSon/Denapax/pull/72); confirm actual CI/merge/deployment status. The editorial sections are STATIC; only published/available catalog products, product photos and category filters are dynamic. No web checkout. Tailwind CSS 4 + standalone Alpine, original Dena SVG artwork. `TELEGRAM_BOT_USERNAME` must be set privately for working public bot links; no hardcoded guess. See [landing handoff](docs/30-public-landing-phase-1.md). This is an approved single-scope exception to the default feedback-only product freeze; unrelated features remain frozen.
+
 ## 1. Current owner decision
 
 **MVP is functionally accepted, owner-reported live, and feature scope is frozen as of 2026-10-19.** The owner created multiple real products, tested each at least once in the bot and previously confirmed the functional E2E purchase experience. Launch/freeze is a **product decision**, **not** documentary clearance for the remaining E07 security and disaster-recovery tests.

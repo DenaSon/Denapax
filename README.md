@@ -16,6 +16,12 @@
 
 **Source of truth:** [MVP launch/freeze decision & handoff](docs/29-mvp-launch-freeze.md) · [Agent development handoff](AGENTS.md).
 
+## Public editorial landing — approved Post-MVP Phase L1
+
+The homepage `/` serves a public RTL editorial brand/catalog experience for denapax.ir. **Only the product listing is dynamic** (published items, active categories, orderable variants, Media Library images and exact toman minimum price). The static sections include a bespoke Dena mountain SVG hero, topographic visual identity and Telegram CTA. Alpine.js enhances mobile navigation, progressive reveal and subtle motion; Tailwind 4 uses a standalone landing bundle. No web checkout or payment changes. The admin stays under `/admin`.
+
+To activate the outbound links, configure `TELEGRAM_BOT_USERNAME` in Runflare (public handle *without* @), refresh config and confirm `APP_URL=https://denapax.ir` and public product media URLs. If unset, no fake Telegram link is generated. Run CI, deploy, then check real mobile/desktop and bot navigation. [Phase L1 runbook](docs/30-public-landing-phase-1.md).
+
 ## Architecture
 
 | Layer | Stack |
