@@ -5,10 +5,12 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\AddressConversation;
 use App\Application\Actions\SubmitPaymentReceipt;
 use App\Models\Customer;
+use App\Support\TelegramHtml;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -79,11 +81,12 @@ class ReceiptBot
         }
 
         $latest = $order->receipts()->latest('attempt_number')->first();
-        $text = '🧾 سفارش '.$order->order_number."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status);
-        $text .= "\nمبلغ قابل پرداخت: ".number_format(intdiv($order->total_irr, 10)).' تومان';
+        $text = TelegramHtml::bold('🧾 سفارش '.$order->order_number)
+            ."\nوضعیت پرداخت: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status));
+        $text .= "\n".TelegramHtml::bold('مبلغ قابل پرداخت: '.number_format(intdiv($order->total_irr, 10)).' تومان');
 
         if ($latest?->status === 'rejected') {
-            $text .= "\n\n❌ دلیل رد رسید قبلی: ".$latest->rejection_reason
+            $text .= "\n\n".TelegramHtml::bold('❌ دلیل رد رسید قبلی: ').TelegramHtml::escape($latest->rejection_reason)
                 ."\nمی‌توانید برای همین سفارش رسید جدید ارسال کنید.";
         }
 
@@ -91,7 +94,8 @@ class ReceiptBot
         if ($order->order_status === 'awaiting_payment'
             && in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
             $payment = $order->payment_instructions_snapshot;
-            $text .= "\nشماره کارت: ".$payment['card_number']."\nبه نام: ".$payment['card_holder_name'];
+            $text .= "\nشماره کارت: ".TelegramHtml::escape((string) ($payment['card_number'] ?? ''))
+                ."\nبه نام: ".TelegramHtml::escape((string) ($payment['card_holder_name'] ?? ''));
             $text .= "\nفقط پس از انتقال وجه، عکس یا فایل تصویری رسید را ارسال کنید.";
             $keyboard->addRow(StorefrontButtons::primary(
                 $order->payment_status === 'rejected' ? '📎 ارسال مجدد رسید' : '📎 ارسال رسید پرداخت',
@@ -108,7 +112,7 @@ class ReceiptBot
             Button::make('⬅️ انتخاب سفارش', callback_data: 'menu:receipt'),
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
-        $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
+        $bot->sendMessage(text: mb_substr($text, 0, 3900), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function start(Nutgram $bot, Customer $customer, int $orderId): void
@@ -204,8 +208,9 @@ class ReceiptBot
             $this->submit->execute($customer, $orderId, $path, $fileId);
             $this->conversation->reset($customer);
             $bot->sendMessage(
-                text: '🧾 رسید شما ثبت شد و در انتظار بررسی پرداخت توسط فروشگاه است.'
-                    ."\nارسال رسید به‌معنای تأیید پرداخت نیست؛ نتیجه اعلام می‌شود.",
+                text: TelegramHtml::bold('🧾 رسید شما دریافت شد؛ در انتظار بررسی پرداخت')
+                    ."\n\n".TelegramHtml::quote('پس از بررسی و تأیید پرداخت، سفارش شما نهایی شده و نتیجه اعلام می‌شود.'),
+                parse_mode: ParseMode::HTML,
                 reply_markup: Keyboard::make()->addRow(
                     Button::make('📦 مشاهده وضعیت سفارش', callback_data: 'myorder:'.$orderId),
                     Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
