@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Catalog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Support\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -64,7 +65,7 @@ class ProductEditor extends Component
                 'title' => $variant->title,
                 'sale_quantity' => $variant->sale_quantity,
                 'sale_unit' => $variant->sale_unit,
-                'price_irr' => $variant->price_irr,
+                'price_toman' => Money::tomanInput($variant->price_irr),
                 'shipping_weight_grams' => $variant->shipping_weight_grams,
                 'is_available' => $variant->is_available,
             ])->all();
@@ -105,9 +106,9 @@ class ProductEditor extends Component
             'title' => '',
             'sale_quantity' => '1',
             'sale_unit' => 'piece',
-            'price_irr' => 0,
+            'price_toman' => '0',
             'shipping_weight_grams' => 1,
-            'is_available' => false,
+            'is_available' => true,
         ];
     }
 
@@ -162,6 +163,10 @@ class ProductEditor extends Component
         Gate::authorize('catalog.manage');
 
         $this->features = array_values(array_filter($this->features, fn ($row) => trim((string) ($row['name'] ?? '')) !== '' || trim((string) ($row['value'] ?? '')) !== ''));
+        foreach ($this->variants as &$variant) {
+            $variant['price_toman'] = Money::normalizeTomanInput((string) ($variant['price_toman'] ?? ''));
+        }
+        unset($variant);
 
         $data = $this->validate([
             'categoryId' => 'required|integer|exists:categories,id',
@@ -179,7 +184,7 @@ class ProductEditor extends Component
             'variants.*.title' => 'required|string|max:180',
             'variants.*.sale_quantity' => 'required|numeric|decimal:0,3|gt:0',
             'variants.*.sale_unit' => ['required', Rule::in(['g', 'kg', 'l', 'piece'])],
-            'variants.*.price_irr' => 'required|integer|min:0',
+            'variants.*.price_toman' => ['required', 'string', 'max:16', 'regex:/^(0|[1-9][0-9]*)(?:\.[0-9])?$/D'],
             'variants.*.shipping_weight_grams' => 'required|integer|min:1',
             'variants.*.is_available' => 'boolean',
             'galleryUploads' => 'array',
@@ -190,6 +195,12 @@ class ProductEditor extends Component
 
         if ($this->isActive && $this->variants === []) {
             $this->addError('variants', 'محصول فعال باید دست‌کم یک تنوع داشته باشد.');
+
+            return;
+        }
+
+        if ($this->isActive && ! collect($data['variants'])->contains(fn ($row) => ! empty($row['is_available']))) {
+            $this->addError('variants', 'برای انتشار محصول، حداقل یک تنوع باید قابل سفارش باشد.');
 
             return;
         }
@@ -233,7 +244,7 @@ class ProductEditor extends Component
                     'title' => $row['title'],
                     'sale_quantity' => $row['sale_quantity'],
                     'sale_unit' => $row['sale_unit'],
-                    'price_irr' => $row['price_irr'],
+                    'price_irr' => Money::tomanToIrr($row['price_toman']),
                     'shipping_weight_grams' => $row['shipping_weight_grams'],
                     'is_available' => $row['is_available'],
                     'sort_order' => $i,
