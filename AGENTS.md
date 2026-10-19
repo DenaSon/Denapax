@@ -31,9 +31,9 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 
 **Issue ledger note (2026-10-19):** UX-1..4 code PRs #43–#46 merged; UX Issues #38–#41 closed. Setup [Issue #47](https://github.com/DenaSon/Denapax/issues/47) / [PR #48](https://github.com/DenaSon/Denapax/pull/48) add baseline and opt-in demo seeders. Phase 6 #11/#24/#25 remains open. Re-query GitHub before quoting issue/PR totals.
 
-**CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build passed on the merged phase code. **Not evidence of a running/live store.** No confirmed live Telegram Bot API test, MySQL/Redis production-equivalent run, real bank transfer validation, full browser QA or successful E2E order/dispatch; do not imply these have passed.
+**CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build and production Composer audit passed on current [master CI run 39209851902](https://github.com/DenaSon/Denapax/actions/runs/39209851902). **Not evidence of a running/live store.** No confirmed live Telegram Bot API, real MySQL/database-queue worker, bank transfer, full browser QA or E2E fulfillment; do not imply these passed.
 
-**Next milestone:** Phase 6 remains OPEN under #11/#24/#25. UX-1..4 implementations are merged to `master`; this does **not** prove real-device E2E. Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Draft Phase 6 PR #36 requires reconciliation against UX-1..4 before merging.
+**Next milestone:** Phase 6 remains OPEN under #11/#24/#25. UX-1..4 implementations are merged to `master`; this does **not** prove real-device E2E. Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Former Phase 6 draft [#36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded; its still-useful security prep and operator runbook were reconciled into merged [#49](https://github.com/DenaSon/Denapax/pull/49). Phase 6 issues #11/#24/#25 remain OPEN.
 
 ## 3. Source-of-truth reading order
 
@@ -63,7 +63,7 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 - Treat external access (live bot token, MySQL, actual database queue worker, bank, server) as **not provisioned unless explicitly verified**. Never claim production tests from mocked CI.
 - Keep permissions, isolation, privacy, financial consistency and retries in scope for Phase 6; do not waive security or a release blocker just to close Issues.
 - For code changes consult existing Laravel domain Actions, Nutgram adapters, Livewire components, models, migrations and Spatie package migrations first; avoid duplicating models/services.
-- **Draft PR #36 overlap:** Reconcile stale Telegram bot/checkout/receipt/order/test changes in Phase 6 [PR #36](https://github.com/DenaSon/Denapax/pull/36) against merged UX-1..4 before any merge. Do not overwrite the approved greeting, button styles, catalog, cart, payment and notification UX.
+- **Draft PR #36 retired:** Old Telegram UI and Redis assumptions were intentionally not merged; [PR #49](https://github.com/DenaSon/Denapax/pull/49) brought all still-relevant security preparation onto master and [PR #36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded. Keep current UX-1..4 and database-queue decisions authoritative.
 
 ### Baseline verification (in a configured local/CI checkout)
 
