@@ -54,9 +54,6 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    // Comma-separated trusted reverse-proxy IPs/CIDRs; optional and off by default.
-    'trusted_proxies' => env('TRUSTED_PROXIES'),
-
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
