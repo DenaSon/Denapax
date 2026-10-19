@@ -8,6 +8,7 @@ use App\Models\StoreSetting;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ChatType;
 use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
@@ -45,6 +46,38 @@ class TelegramBotMenuTest extends TestCase
             'telegram_user_id' => 123456,
             'telegram_chat_id' => 123456,
         ]);
+    }
+
+    public function test_private_start_with_hydrated_chat_type_enum_sends_menu(): void
+    {
+        // A real Telegram update is hydrated as ChatType::PRIVATE, unlike
+        // older test factories that pass the literal string 'private'.
+        /** @var FakeNutgram $bot */
+        $bot = app(Nutgram::class);
+        $bot->setCommonUser(User::make(123456, false, 'Ali'));
+        $bot->setCommonChat(Chat::make(123456, ChatType::PRIVATE));
+
+        $bot->hearText('/start')
+            ->reply()
+            ->assertCalled('sendMessage');
+
+        $this->assertDatabaseHas('customers', [
+            'telegram_user_id' => 123456,
+            'telegram_chat_id' => 123456,
+        ]);
+    }
+
+    public function test_private_callback_with_chat_type_enum_is_acknowledged_and_handled(): void
+    {
+        /** @var FakeNutgram $bot */
+        $bot = app(Nutgram::class);
+        $bot->setCommonUser(User::make(123456, false, 'Ali'));
+        $bot->setCommonChat(Chat::make(123456, ChatType::PRIVATE));
+
+        $bot->hearCallbackQueryData('menu:home')
+            ->reply()
+            ->assertCalled('answerCallbackQuery')
+            ->assertCalled('sendMessage');
     }
 
     public function test_help_command_explains_order_payment_and_tracking_with_navigation(): void

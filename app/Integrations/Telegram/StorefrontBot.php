@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\StoreSetting;
 use Illuminate\Validation\ValidationException;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ChatType;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -32,7 +33,7 @@ class StorefrontBot
         $from = $message?->from;
         $chat = $message?->chat;
 
-        if (! $from || $from->is_bot || ! $chat || $chat->type !== 'private') {
+        if (! $from || $from->is_bot || ! $chat || ! in_array($chat->type, [ChatType::PRIVATE, ChatType::PRIVATE->value], true)) {
             return;
         }
 
@@ -148,7 +149,7 @@ class StorefrontBot
         $from = $callback?->from;
         $chat = $callback?->message?->chat;
 
-        if (! $from || $from->is_bot || ! $chat || $chat->type !== 'private') {
+        if (! $from || $from->is_bot || ! $chat || ! in_array($chat->type, [ChatType::PRIVATE, ChatType::PRIVATE->value], true)) {
             return;
         }
 
