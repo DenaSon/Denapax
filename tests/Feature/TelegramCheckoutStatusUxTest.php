@@ -159,7 +159,6 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $this->assertSame('رسید دریافت شد؛ در انتظار بررسی', OrderStateLabels::payment('under_review'));
     }
 
-
     public function test_payment_and_receipt_text_escape_dynamic_store_values(): void
     {
         $owner = Customer::create(['telegram_user_id' => 4512]);
