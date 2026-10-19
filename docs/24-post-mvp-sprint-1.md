@@ -1,8 +1,8 @@
 # Denapax — Post-MVP Sprint 1: Feedback-Led UI/UX
 
-**Initiated:** 2026-10-19 · **Owner:** DenaPax · **Status:** INTAKE / NO IMPLEMENTATION YET
+**Initiated / owner-approved / delivered:** 2026-10-19 · **Status:** COMPLETED IN CODE (17 feedback items, Phases 7 and 8 merged). Historical intake process below is archived for reference; there is no pending Sprint 1 implementation.
 
-**Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** Admin private-group alerts are deferred and unimplemented.
+**Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** A later Phase 9 implementation [PR #65](https://github.com/DenaSon/Denapax/pull/65) is merged and code-closed; group activation/delivery requires separate live verification. Owner subsequently declared the whole MVP scope frozen on 2026-10-19; see [MVP launch/freeze handoff](29-mvp-launch-freeze.md).
 
 ## Sprint scope freeze — 2026-10-19
 
@@ -22,7 +22,7 @@
 1. Phase 7 (7 items): concise cart and order messages, bold/selectable important info, Persian quantity/add-more labels, non-threatening accurate payment-review copy, concise product descriptions.
 2. Phase 8 (10 items): normalized Persian search; usable address prompts, native cancel, address review; copy card number from payment snapshot; pagination cart **9 items/page** and catalog **10 products/page**; primary photo automatically above product details/full-screen native view; shared short **DN-** human reference for orders and admin search, preserving legacy orders; readable order history.
 
-Preserve native Telegram Bot UX, customer and staff permissions, private receipts, manual payment approval, idempotent checkout, financial snapshots and exact shipping arithmetic. Use essential targeted tests and real Telegram/mobile smoke. Each completed phase gets its own PR with green CI and verified merge to `master`; update status and deliver a concise Persian report. **Phase 7 PR #61 merged and passed CI. Phase 8 implementation is tracked in [PR #62](https://github.com/DenaSon/Denapax/pull/62); verify its actual merge/CI status, then perform live Telegram smoke after rollout.** Keep #56 open as parent until both #57 and #58 pass and close.
+Preserve native Telegram Bot UX, customer and staff permissions, private receipts, manual payment approval, idempotent checkout, financial snapshots and exact shipping arithmetic. Use essential targeted tests and real Telegram/mobile smoke. Each completed phase gets its own PR with green CI and verified merge to `master`; update status and deliver a concise Persian report. **Phase 7 PR #61 and Phase 8 PR #62 have both merged; Issues #56/#57/#58 are closed as code-delivered.** Separate production/device verification remains necessary for any untested flows.
 
 ---
 
@@ -40,9 +40,9 @@ Preserve native Telegram Bot UX, customer and staff permissions, private receipt
 - [Phase 7 — UI/RTL/Persian copy — #57](https://github.com/DenaSon/Denapax/issues/57)
 - [Phase 8 — UX/navigation/error recovery — #58](https://github.com/DenaSon/Denapax/issues/58)
 
-## Feedback intake (Step 0: observation only)
+## Historical feedback intake (Step 0 — completed/archived)
 
-Until the owner explicitly states **«لیست کامل شد»**, do not write UI/UX implementation code or preemptively declare findings solved. Capture each observation as a numbered `PMVP-###` item. A useful entry contains:
+**Historical procedure only:** The owner already closed and approved this 17-item feedback list. Do not re-open intake or start a new sprint automatically; future feedback-led improvements use [the new frozen-MVP policy](29-mvp-launch-freeze.md). Capture each observation as a numbered `PMVP-###` item. A useful entry contains:
 
 | Field | Meaning |
 | --- | --- |
@@ -57,7 +57,7 @@ Until the owner explicitly states **«لیست کامل شد»**, do not write U
 
 De-duplicate overlapping observations and preserve existing implemented behavior. Only approved findings become individual execution issues; link them to #56 and the relevant phase.
 
-## Planned delivery
+## Historical delivery criteria (both phases code-delivered)
 
 ### Phase 7 — UI and content refinement
 

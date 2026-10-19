@@ -59,4 +59,4 @@
    ```
 - The previous product-gallery upload concern remains separate. E07 #11/#24/#25 security, restore and production evidence remains open.
 
-**Status:** [Implementation PR #65](https://github.com/DenaSon/Denapax/pull/65) / [Issue #64](https://github.com/DenaSon/Denapax/issues/64). Check the actual PR merge SHA and latest green CI before deploying. This document is **not** proof of a live group message.
+**Updated status (2026-10-19):** [PR #65](https://github.com/DenaSon/Denapax/pull/65) **merged** to `master` as `7d050799c51e1735bfc3bda48be9d7c3a2b1e2e3`; [Issue #64](https://github.com/DenaSon/Denapax/issues/64) closed as **code-delivered**. [Master CI 39252028375](https://github.com/DenaSon/Denapax/actions/runs/39252028375) passed. **Live group activation, receiving the three events and checking staff links remain unverified** until operator configuration and a fresh real smoke check. The owner subsequently accepted/froze the functional MVP: [launch record](29-mvp-launch-freeze.md).
