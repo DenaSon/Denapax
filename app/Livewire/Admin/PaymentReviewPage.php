@@ -5,9 +5,9 @@ namespace App\Livewire\Admin;
 use App\Application\Actions\ReviewPaymentReceipt;
 use App\Models\PaymentReceipt;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 
 class PaymentReviewPage extends Component
 {
