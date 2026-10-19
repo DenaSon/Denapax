@@ -120,7 +120,7 @@ class TelegramCatalogCartUxTest extends TestCase
         $second = $this->messages($bot);
         $this->assertCount(1, $second);
         $this->assertStringContainsString('صفحه 2 از 2', $second[0]['text']);
-        $this->assertStringContainsString('جمع کالا: 78,000 تومان', $second[0]['text']);
+        $this->assertStringContainsString('جمع سبد: 78,000 تومان', $second[0]['text']);
         $this->assertSame(1, collect($second[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->filter(fn ($button) => str_starts_with($button['callback_data'] ?? '', 'cart:remove:'))->count());
         $this->assertSame(6, $customer->cart->items()->sum('quantity'));
