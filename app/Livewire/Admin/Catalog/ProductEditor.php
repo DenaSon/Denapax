@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -22,6 +23,9 @@ class ProductEditor extends Component
     public string $title = '';
 
     public string $slug = '';
+
+    // Keep existing slugs and intentional manual overrides untouched.
+    public bool $slugManuallyEdited = false;
 
     public string $summary = '';
 
@@ -46,6 +50,7 @@ class ProductEditor extends Component
             $this->categoryId = $product->category_id;
             $this->title = $product->title;
             $this->slug = $product->slug;
+            $this->slugManuallyEdited = true;
             $this->summary = $product->summary;
             $this->description = $product->description ?? '';
             $this->isActive = $product->is_active;
@@ -66,6 +71,18 @@ class ProductEditor extends Component
         }
     }
 
+    public function updatedTitle(): void
+    {
+        if (! $this->slugManuallyEdited && $this->productId === null) {
+            $this->slug = Str::slug($this->title);
+        }
+    }
+
+    public function updatedSlug(): void
+    {
+        $this->slugManuallyEdited = true;
+    }
+
     public function addFeature(): void
     {
         Gate::authorize('catalog.manage');
@@ -84,7 +101,7 @@ class ProductEditor extends Component
         Gate::authorize('catalog.manage');
         $this->variants[] = [
             'id' => null,
-            'sku' => '',
+            'sku' => $this->generateSku(),
             'title' => '',
             'sale_quantity' => '1',
             'sale_unit' => 'piece',
@@ -92,6 +109,23 @@ class ProductEditor extends Component
             'shipping_weight_grams' => 1,
             'is_available' => false,
         ];
+    }
+
+    private function generateSku(): string
+    {
+        // The database unique index remains the final authority. Pre-check
+        // existing rows and currently unsaved variants for a useful default.
+        for ($attempt = 0; $attempt < 30; $attempt++) {
+            $candidate = 'DN-'.random_int(1000000, 9999999);
+            $alreadyInForm = collect($this->variants)
+                ->contains(fn (array $variant) => ($variant['sku'] ?? null) === $candidate);
+
+            if (! $alreadyInForm && ! ProductVariant::query()->where('sku', $candidate)->exists()) {
+                return $candidate;
+            }
+        }
+
+        throw new \RuntimeException('Unable to generate unique SKU');
     }
 
     public function removeVariant(int $index): void
