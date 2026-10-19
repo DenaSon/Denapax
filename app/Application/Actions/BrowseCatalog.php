@@ -4,6 +4,7 @@ namespace App\Application\Actions;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\PersianSearch;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class BrowseCatalog
@@ -15,7 +16,7 @@ class BrowseCatalog
 
     public function products(?int $categoryId = null, ?string $term = null, int $page = 1): LengthAwarePaginator
     {
-        $term = trim((string) $term);
+        $term = PersianSearch::normalize((string) $term);
 
         return Product::query()
             ->published()
@@ -23,13 +24,14 @@ class BrowseCatalog
             ->when($categoryId !== null, fn ($q) => $q->where('category_id', $categoryId))
             ->when($term !== '', function ($q) use ($term): void {
                 $q->where(function ($inner) use ($term): void {
-                    $inner->where('title', 'like', '%'.$term.'%')
-                        ->orWhere('description', 'like', '%'.$term.'%');
+                    foreach (['title', 'summary', 'description'] as $column) {
+                        $inner->orWhereRaw(PersianSearch::sql($column).' LIKE ?', ['%'.$term.'%']);
+                    }
                 });
             })
             ->with(['category', 'variants' => fn ($q) => $q->where('is_available', true)->orderBy('price_irr')])
             ->orderBy('id')
-            ->paginate(perPage: 5, page: max(1, $page));
+            ->paginate(perPage: 10, page: max(1, $page));
     }
 
     public function product(int $id): ?Product
