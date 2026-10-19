@@ -45,7 +45,7 @@ class TelegramCustomersTest extends TestCase
         $flow = app(AddressConversation::class);
         $action = app(SaveCustomerAddress::class);
 
-        $this->assertStringContainsString('نام گیرنده', $flow->start($customer));
+        $this->assertStringContainsString('نام و نام خانوادگی گیرنده', $flow->start($customer));
         foreach (['Ali', '09123456789', 'Tehran', 'Tehran', 'Azadi street building 42', '1234567890'] as $input) {
             $result = $flow->accept($customer, $input, $action);
         }
