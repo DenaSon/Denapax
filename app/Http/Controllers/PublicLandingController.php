@@ -41,7 +41,7 @@ class PublicLandingController extends Controller
             ->with([
                 'category',
                 'media',
-                'variants' => fn (Builder $query) => $orderable($query)->orderBy('sort_order'),
+                'variants' => fn ($query) => $orderable($query)->orderBy('sort_order'),
                 'variants.media',
             ])
             ->latest('id')
