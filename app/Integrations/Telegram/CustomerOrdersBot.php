@@ -2,8 +2,8 @@
 
 namespace App\Integrations\Telegram;
 
-use App\Support\Money;
 use App\Models\Customer;
+use App\Support\Money;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
