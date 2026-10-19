@@ -15,7 +15,7 @@
 
 ## 2. Current milestone — where to resume
 
-The **six-phase delivery plan is approved**. Phases **1–5 are code-implemented, merged into `master` and passed essential GitHub CI**; Phase **6 has NOT been completed or launched**.
+The **six-phase MVP plan** delivered Phases **1–5** to `master` with passing core CI. **Owner update (2026-10-19): the MVP is now live; owner-reported functional E2E checks passed.** Phase **6 remains formally OPEN** on #11/#24/#25 until its independent security/negative-path, backup/restore and operational evidence is recorded. Do not conflate functional acceptance with a complete E07 release gate.
 
 | Phase | What shipped in repository | Merged PR |
 | --- | --- | --- |
@@ -24,16 +24,16 @@ The **six-phase delivery plan is approved**. Phases **1–5 are code-implemented
 | 3 — Cart, Shipping & Checkout | Cart, nationwide gram-based shipping, transactional checkout and snapshots | [#32](https://github.com/DenaSon/Denapax/pull/32) |
 | 4 — Manual Payments | Private receipts, staff approval/rejection, multiple attempts | [#33](https://github.com/DenaSon/Denapax/pull/33) |
 | 5 — Fulfillment & Notifications | Staff order queue, shipment/tracking, Telegram customer orders, outbox/queue/retry | [#34](https://github.com/DenaSon/Denapax/pull/34) |
-| 6 — Real E2E & Launch | **OPEN**: deployment-capable testing, security checks, backups, rollback, release gate | [Epic #11](https://github.com/DenaSon/Denapax/issues/11) |
+| 6 — Real E2E & Launch | **Live functional smoke owner-approved; formal security/backup/restore/release evidence still open** | [Epic #11](https://github.com/DenaSon/Denapax/issues/11) |
 
 Other merged PRs: foundation [#1](https://github.com/DenaSon/Denapax/pull/1), process agreement [#29](https://github.com/DenaSon/Denapax/pull/29).
 Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `master` commit may differ due to documentation updates.
 
 **Issue ledger note (2026-10-19):** UX-1..4 code PRs #43–#46 merged; UX Issues #38–#41 closed. Setup [Issue #47](https://github.com/DenaSon/Denapax/issues/47) / [PR #48](https://github.com/DenaSon/Denapax/pull/48) add baseline and opt-in demo seeders. Phase 6 #11/#24/#25 remains open. Re-query GitHub before quoting issue/PR totals.
 
-**CI:** PHP 8.4 PHPUnit, Pint, Composer validation, npm/Vite build and production Composer audit passed on current [master CI run 39209851902](https://github.com/DenaSon/Denapax/actions/runs/39209851902). **Not evidence of a running/live store.** No confirmed live Telegram Bot API, real MySQL/database-queue worker, bank transfer, full browser QA or E2E fulfillment; do not imply these passed.
+**CI (verified 2026-10-19):** current master `c5fa82d5376129b5e2da13689239bce646dfdf1b`, [successful CI run 39229685750](https://github.com/DenaSon/Denapax/actions/runs/39229685750) (64 tests reported in #24). **Owner separately reports the MVP is live and exercised functional E2E behavior is correct.** Specific high-risk negative cases and full ops/recovery checks are **not yet evidenced** in GitHub; do not imply those passed.
 
-**Next milestone:** Phase 6 remains OPEN under #11/#24/#25. UX-1..4 implementations are merged to `master`; this does **not** prove real-device E2E. Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Former Phase 6 draft [#36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded; its still-useful security prep and operator runbook were reconciled into merged [#49](https://github.com/DenaSon/Denapax/pull/49). Phase 6 issues #11/#24/#25 remain OPEN.
+**Next milestone:** owner-reported functional MVP launch acceptance is recorded; Phase 6 formally stays OPEN under #11/#24/#25 pending remaining proof. **Post-MVP Sprint 1** has started in feedback-only mode: [intake #56](https://github.com/DenaSon/Denapax/issues/56), [Phase 7 #57](https://github.com/DenaSon/Denapax/issues/57) and [Phase 8 #58](https://github.com/DenaSon/Denapax/issues/58); see [Post-MVP Sprint 1 plan](docs/24-post-mvp-sprint-1.md). UX-1..4 were previously merged to `master`; do not duplicate them.  Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Former Phase 6 draft [#36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded; its still-useful security prep and operator runbook were reconciled into merged [#49](https://github.com/DenaSon/Denapax/pull/49). Phase 6 issues #11/#24/#25 remain OPEN.
 
 
 **Runflare HTTPS / browser outage diagnostics:** [request middleware secure URL generation and runtime log analysis](docs/23-runflare-https-livewire-mixed-content.md). Public TLS is terminated upstream of PHP; HTTPS URLs for Livewire JS/logout are generated per request by `ForceHttpsUrls` middleware based solely on production `APP_URL=https://...`. No hardcoded real domain, no redirect, no global provider force and no unverified `TRUSTED_PROXIES`. 2026-10-19 logs show Nginx/PHP/Artisan and internal HTTP `/up` healthy (200) even while public browser reported `ERR_CONNECTION_CLOSED`; public ingress/TLS routing needs separate investigation. Also fix empty `TELEGRAM_LOG_CHANNEL` and disable `APP_DEBUG`. Do not reset keys or weaken CSRF. Actual public browser verification still pending.
@@ -98,6 +98,6 @@ The above is a **verification reference**, not a claim it ran on the owner's Win
 
 In a **new conversation**, ask the assistant:
 
-> Read `AGENTS.md`, `docs/15-phase-6-readiness-plan.md`, [seeder handoff](docs/21-initial-seeders-handoff.md) and open GitHub Issues #11/#24/#25. Continue Phase 6 using **MySQL + database queue/worker + scheduler**; Redis/Horizon are deferred. Run real Telegram, checkout, receipt, shipping, security, backup/restore and RTL acceptance before go/no-go; keep GitHub/CI/PR status accurate.
+> Read `AGENTS.md`, [Post-MVP Sprint 1 plan](docs/24-post-mvp-sprint-1.md) and GitHub issues #56/#57/#58 plus the remaining Phase 6 gates #11/#24/#25. MVP is live with owner-reported functional E2E pass. Collect and de-duplicate user UI/UX feedback first; **do not implement before the owner says «لیست کامل شد»**; then implement Phase 7 visual/copy and Phase 8 UX flows with scoped PRs and green CI, merging each finished phase into master. Separately preserve evidence-based E07 security, backup/restore and operational release checks.
 
 **Status note:** At time of handoff, the project's ChatGPT Memory is unavailable; **GitHub docs + Issues + code are the durable project memory**. Keep this guide current after real Phase 6 progress.
