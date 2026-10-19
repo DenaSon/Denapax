@@ -2,6 +2,7 @@
 
 namespace App\Integrations\Telegram;
 
+use App\Support\Money;
 use App\Models\Customer;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
@@ -33,7 +34,7 @@ class CustomerOrdersBot
         foreach ($orders as $order) {
             $text .= "\n\n🧾 <b>".$order->public_reference.'</b>'
                 ."\n".htmlspecialchars(OrderStateLabels::order($order->order_status), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-                ."\n💳 ".number_format(intdiv($order->total_irr, 10)).' تومان';
+                ."\n💳 ".Money::formatToman($order->total_irr).' تومان';
             $keyboard->addRow(Button::make(
                 'مشاهده '.$order->public_reference,
                 callback_data: 'myorder:'.$order->id,
@@ -73,9 +74,9 @@ class CustomerOrdersBot
         $text = '📦 شماره سفارش: '.$order->public_reference
             ."\nوضعیت سفارش: ".OrderStateLabels::order($order->order_status)
             ."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status)
-            ."\n\n🛒 جمع کالا: ".number_format(intdiv($order->goods_subtotal_irr, 10)).' تومان'
-            ."\n🚚 هزینه ارسال: ".number_format(intdiv($order->shipping_fee_irr, 10)).' تومان'
-            ."\n💳 مبلغ کل: ".number_format(intdiv($order->total_irr, 10)).' تومان';
+            ."\n\n🛒 جمع کالا: ".Money::formatToman($order->goods_subtotal_irr).' تومان'
+            ."\n🚚 هزینه ارسال: ".Money::formatToman($order->shipping_fee_irr).' تومان'
+            ."\n💳 مبلغ کل: ".Money::formatToman($order->total_irr).' تومان';
 
         foreach ($order->items as $item) {
             $text .= "\n• ".$item->product_title_snapshot.' / '.$item->variant_title_snapshot
