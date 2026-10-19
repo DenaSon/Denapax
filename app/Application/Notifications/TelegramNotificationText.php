@@ -2,9 +2,9 @@
 
 namespace App\Application\Notifications;
 
-use App\Support\Money;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
+use App\Support\Money;
 use App\Support\TelegramHtml;
 
 class TelegramNotificationText
