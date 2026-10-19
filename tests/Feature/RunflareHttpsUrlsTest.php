@@ -27,7 +27,7 @@ class RunflareHttpsUrlsTest extends TestCase
         // Mimic production URL generation on the HTTP PHP-FPM hop behind
         // Runflare's public HTTPS ingress. No trusted proxy headers required.
         config(['app.env' => 'production', 'app.url' => 'https://denapax.ir']);
-        app(AppServiceProvider::class)->boot();
+        (new AppServiceProvider($this->app))->boot();
 
         $admin = User::factory()->create();
         $admin->assignRole('super-admin');
@@ -51,7 +51,7 @@ class RunflareHttpsUrlsTest extends TestCase
     {
         config(['app.env' => 'testing', 'app.url' => 'https://denapax.ir']);
         URL::forceScheme(null);
-        app(AppServiceProvider::class)->boot();
+        (new AppServiceProvider($this->app))->boot();
 
         $this->withoutVite();
         $response = $this->get('http://denapax.ir/login')->assertOk();
