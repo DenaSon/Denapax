@@ -40,4 +40,4 @@ Ensure the worker restart/retry/supervision and scheduler are proven before real
 
 ## Verification and release boundaries
 
-Focused seed tests cover repeated seeding, preserving manually changed settings, exactly three demo records and not publishing them, plus the production guard. Check PR #48 latest GitHub Actions for CI evidence. Actual seeded MySQL/staging, Telegram Bot API, bank, webhook, notification worker, mobile UI, backups and rollback remain **unverified**, required by Phase 6 issues #11/#24/#25. Draft Phase 6 PR #36 must be reconciled with current master before merge.
+Focused seed tests cover repeated seeding, preserving manually changed settings, exactly three demo records and not publishing them, plus the production guard. Check PR #48 latest GitHub Actions for CI evidence. Actual seeded MySQL/staging, Telegram Bot API, bank, webhook, notification worker, mobile UI, backups and rollback remain **unverified**, required by Phase 6 issues #11/#24/#25. Old Phase 6 PR #36 was reconciled into merged [PR #49](https://github.com/DenaSon/Denapax/pull/49) and closed as superseded. Real launch acceptance is still pending.

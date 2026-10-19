@@ -1,14 +1,14 @@
 # Denapax — Current Delivery Status & Phase 6 Readiness Plan
 
-**Checked against GitHub:** 2026-10-18. **Scope:** approved MVP v1.1; no new features assumed.  
+**Checked against GitHub:** 2026-10-19. **Scope:** approved MVP v1.1; UX-1..4 and safe initial seeders are merged; live Phase 6 gates remain OPEN.  
 **Status:** Five implementation phases merged to `master`; real integration, operational rehearsal and launch approval **PENDING**.
 
 ## Verified GitHub ledger
 
 - **Six delivery phases** map to **seven Epics**: E01–E06 delivered over Phases 1–5; E07 covers Phase 6.
-- **20 User Stories + 7 Epics = 27 GitHub Issues**, excluding Pull Requests. **18 Stories + 6 Epics closed**; **2 Stories + 1 Epic open**.
+- **Original delivery scope:** 20 Stories + 7 Epics = 27 GitHub Issues. Four completed UX polish Issues #38–#41 and completed seeders Issue #47 were added separately. At this snapshot **29 of 32 actual Issues are closed**, with only release Issues #11/#24/#25 open.
 - Remaining: [#24 — regression/E2E/security](https://github.com/DenaSon/Denapax/issues/24), [#25 — production/deployment/monitoring/recovery](https://github.com/DenaSon/Denapax/issues/25), [#11 — E07 Epic](https://github.com/DenaSon/Denapax/issues/11).
-- **Seven merged PRs:** [#1](https://github.com/DenaSon/Denapax/pull/1), [#29](https://github.com/DenaSon/Denapax/pull/29), [#30](https://github.com/DenaSon/Denapax/pull/30), [#31](https://github.com/DenaSon/Denapax/pull/31), [#32](https://github.com/DenaSon/Denapax/pull/32), [#33](https://github.com/DenaSon/Denapax/pull/33), [#34](https://github.com/DenaSon/Denapax/pull/34).
+- **Merged engineering milestones:** core phases #30–#34, UX #43–#46, safe seeders #48 and reconciled security/operator preparation [#49](https://github.com/DenaSon/Denapax/pull/49). Historical draft [#36](https://github.com/DenaSon/Denapax/pull/36) was **closed unmerged as superseded**, not as a release completion. Latest reviewed master SHA `444b0a1f161ad9c074b835605cc555d0503f9d9b` ([green CI](https://github.com/DenaSon/Denapax/actions/runs/39209851902)); newer commits must be checked separately.
 - Phase 5 code merged as `bf6ef852f6f95e3bc494874c5a8795a00c995d75`. The post-phase documentation commit also passed [CI](https://github.com/DenaSon/Denapax/actions/runs/39153631505). These are essential automated checks, **not live acceptance**.
 
 ### Completed implementation
@@ -54,7 +54,7 @@
 
 ## Phase 6 preparatory security work reconciled (2026-10-19)
 
-The useful changes originally in draft PR #36 have been re-applied **on top of latest master** in a small integration PR: safe exception-type-only Telegram webhook logging, negative private-receipt access assertions, locked production Composer dependency audit in CI, and the [Phase 6 operator runbook](16-phase-6-operator-runbook.md). The current owner-approved **database queue** backend, UX-1 through UX-4, and baseline/demo seeders remain unchanged. PR #36 was based on obsolete Telegram UI and Redis assumptions and is to be **closed as superseded** after the new integration PR passes and merges.
+The useful changes originally in draft PR #36 have been re-applied **on top of latest master** in a small integration PR: safe exception-type-only Telegram webhook logging, negative private-receipt access assertions, locked production Composer dependency audit in CI, and the [Phase 6 operator runbook](16-phase-6-operator-runbook.md). The current owner-approved **database queue** backend, UX-1 through UX-4, and baseline/demo seeders remain unchanged. PR #36 was based on obsolete Telegram UI and Redis assumptions and **was closed as superseded** after merged [PR #49](https://github.com/DenaSon/Denapax/pull/49), with its valuable security work retained.
 
 **Important:** this is code/documentation preparation only. It does NOT verify real Telegram / MySQL / worker operation, finance approval, backup/restore, mobile RTL, or production go/no-go. Issues #11/#24/#25 remain OPEN until evidence-backed Phase 6 Gates A/B/C are satisfied.
 
