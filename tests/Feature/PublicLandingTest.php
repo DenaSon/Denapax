@@ -86,7 +86,7 @@ class PublicLandingTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('id="denapax-product-preview"', false)
-            ->assertSee('x-on:click.prevent="openProduct(', false)
+            ->assertSee('x-on:click="openProduct(', false)
             ->assertSee('id="landing-product-data"', false)
             ->assertDontSee('</script><script>alert(1)</script>', false)
             ->assertViewHas('productPreviews', function (array $previews) use ($product): bool {
@@ -101,6 +101,54 @@ class PublicLandingTest extends TestCase
                     && $preview['variants'][0]['size'] === '0.5 کیلوگرم'
                     && $preview['images'] === [];
             });
+    }
+
+    public function test_public_product_permalink_is_indexable_but_inactive_products_are_not(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردو دنا', 'dena-walnut', 13890000);
+        $product->update(['description' => 'گردو < ویژه >']);
+        $product->variants()->create([
+            'sku' => 'SOLD-OUT', 'title' => 'تنوع تمام‌شده',
+            'sale_quantity' => 1, 'sale_unit' => 'kg',
+            'price_irr' => 500000, 'shipping_weight_grams' => 1000,
+            'is_available' => false,
+        ]);
+
+        $this->get(route('products.show', ['slug' => $product->slug]))
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="'.route('products.show', ['slug' => $product->slug]).'">', false)
+            ->assertSee('application/ld+json')
+            ->assertSee('"priceCurrency":"IRR"', false)
+            ->assertSee('"price":"13890000"', false)
+            ->assertSee('1,389,000')
+            ->assertSee('گردو &lt; ویژه &gt;', false)
+            ->assertDontSee('تنوع تمام‌شده')
+            ->assertDontSee('SOLD-OUT');
+
+        $product->update(['is_active' => false]);
+        $this->get(route('products.show', ['slug' => $product->slug]))->assertNotFound();
+    }
+
+    public function test_xml_sitemap_lists_only_publicly_orderable_products(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $active = $this->product($category, 'گردو', 'walnuts', 250000);
+        $this->product($category, 'منتشرنشده', 'draft', 120000)->update(['is_active' => false]);
+        $this->product($category, 'تمام‌شده', 'sold-out', 90000)->variants()->update(['is_available' => false]);
+        $inactiveCategory = Category::create(['name' => 'غیرفعال', 'slug' => 'inactive', 'is_active' => false]);
+        $this->product($inactiveCategory, 'مخفی', 'hidden', 60000);
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->assertSee(route('home'), false)
+            ->assertSee(route('products.show', ['slug' => $active->slug]), false)
+            ->assertDontSee('/products/draft', false)
+            ->assertDontSee('/products/sold-out', false)
+            ->assertDontSee('/products/hidden', false);
+
+        $this->get('/')->assertOk()->assertSee('href="'.route('products.show', ['slug' => $active->slug]).'"', false);
     }
 
     public function test_telegram_button_only_links_to_a_configured_valid_handle(): void
