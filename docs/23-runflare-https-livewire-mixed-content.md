@@ -1,45 +1,57 @@
-# Runflare HTTPS / Livewire mixed-content recovery (2026-10-19)
+# Runflare TLS termination and Laravel mixed-content URLs
 
-## Observed on the live domain
-When the browser opened `https://denapax.ir/admin`, the generated form action was `http://denapax.ir/logout` and Livewire 4's JS route was `http://denapax.ir/livewire-.../livewire.js`. The browser blocked these mixed-content resources, even though Vite assets could load via `ASSET_URL`.
+**2026-10-19 — corrected after live operator diagnostics.**
 
-## Application fix
+## Verified evidence
 
-- Laravel 13's request-facing `url()` and `route()` calls use the detected request scheme; with Runflare terminating public TLS before internal HTTP, that scheme may incorrectly be `http`.
-- In **production only**, when `APP_URL` explicitly uses the `https` scheme, `AppServiceProvider` forces Laravel's URL generator to use HTTPS. This immediately fixes both the logout form and Livewire's script URL without replacing Livewire's framework routes or editing vendor files.
-- An **optional** `TRUSTED_PROXIES` configuration is supported: set it to the provider's **confirmed ingress proxy IP/CIDR list**, comma-separated. Laravel then trusts only `X-Forwarded-Proto` and `X-Forwarded-Port` from those addresses. **Do not set it to `*` unless every origin request is guaranteed to come only through a trusted ingress that sanitizes forwarded headers.** In particular, the code does **not** accept unverified `X-Forwarded-Host` or `X-Forwarded-For`. This setting is optional for the specific mixed-content fix.
-- In staging/local/testing or if `APP_URL` is not HTTPS, do **not** force secure URL generation.
+- Browser reported `http://.../logout` and `http://.../livewire-.../livewire.js` on a HTTPS admin page.
+- After the earlier [PR #53](https://github.com/DenaSon/Denapax/pull/53) deploy the operator reported `ERR_CONNECTION_CLOSED`.
+- Operator runtime checks subsequently showed `nginx -t` passing, PHP files with no syntax errors, `php artisan about` completing, and **`curl http://127.0.0.1/up` returning HTTP 200**. These findings show the *internal* HTTP application works and do **not** diagnose whether Runflare's *public* HTTPS ingress, TLS, DNS, port mapping or routing has a separate problem.
+- Telegram message/callback operations were successfully sent in the provided Laravel log. A separate `Log [] is not defined` was caused by an **empty** `TELEGRAM_LOG_CHANNEL`. `APP_DEBUG` was still enabled in production.
 
-## Runflare environment (no secrets here)
+## Scoped code correction
+
+The previous implementation forced HTTPS globally from `AppServiceProvider::boot()` and introduced optional `TRUSTED_PROXIES` configuration. This follow-up moves **only URL scheme generation** into `App\Http\Middleware\ForceHttpsUrls`, registered in the global HTTP middleware stack. The provider is restored to its database Schema responsibility. The extra proxy configuration is removed.
+
+Middleware conditions:
+1. `APP_ENV=production`
+2. `APP_URL` begins with a real `https` URL scheme.
+
+If both hold, `URL::forceScheme('https')` runs **per HTTP request** and applies to Laravel URL generation (`url()`, `route()`, Livewire script URL). The scheme is derived from ENV; **no production domain name is hardcoded in application source**. This does **not** send a redirect, rewrite the incoming proxy request, or turn the HTTP origin into an HTTPS server. An ingress/TLS outage cannot be cured solely by changing this middleware.
+
+## Runflare ENV
 
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://denapax.ir
-ASSET_URL=https://denapax.ir
+APP_URL=https://YOUR_PUBLIC_DOMAIN
+ASSET_URL=https://YOUR_PUBLIC_DOMAIN
+SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
-SESSION_DRIVER=database
+TELEGRAM_LOG_CHANNEL=null
 ```
 
-Optional, **only with verified ingress addresses**:
+Replace placeholders using Runflare secrets/settings. `TELEGRAM_LOG_CHANNEL` must be the **literal valid logging channel name** `null`, not an empty string; do not enable verbose bot payload logs. Preserve the existing `APP_KEY`. Do not paste private tokens or bank data in tickets.
 
-```dotenv
-TRUSTED_PROXIES=10.0.12.5,10.0.12.6
-```
+## Restore/connectivity sequence
 
-Those example IPs are placeholders, **not Runflare's actual proxy addresses**. Do not copy them blindly.
-
-## Operator verification
-
-1. Deploy the commit containing the fix and confirm `APP_URL` remains HTTPS. **Do not** regenerate `APP_KEY` and do not relax CSRF.
-2. Restart the Runflare service; then in `/var/www` run:
+1. If the public HTTPS endpoint is currently unavailable, use Runflare's previous known-good deployment rollback first, while preserving database and secrets. A code change should not be assumed to fix `ERR_CONNECTION_CLOSED`.
+2. Verify actual **public** network separately from the working internal HTTP `/up`: confirm domain records, TLS certificate, service ingress/port mapping, target container status and logs, and try `curl -vkI https://YOUR_PUBLIC_DOMAIN/up` from a network outside the container. Do **not** expose HTTP origin just to bypass SSL.
+3. Only after the public endpoint is healthy, deploy the new `master` SHA containing this middleware correction, and:
    ```bash
+   cd /var/www
    php artisan optimize:clear
    php artisan config:cache
+   php artisan view:cache
    ```
-3. Open `https://denapax.ir/admin` in a fresh browser session. Inspect its HTML/Network: the logout form action and Livewire JS `src` must both begin with `https://denapax.ir/`. Test clicking menu links, Livewire interactions and logging out.
-4. A HTTPS Livewire JS response should be HTTP 200, not an insecure-content browser block or 404.
-5. Check no mixed-content messages remain in browser console. Check current Laravel log if HTTP errors occur. For proxy diagnostics use confirmed Runflare ingress behavior; if forwarded protocol is absent, the canonical URL fix still handles generated URLs but won't automatically repair any other request-security perception.
+4. Browser: open the HTTPS admin page, inspect the **generated** Logout form `action` and Livewire `script src` for HTTPS, verify the JS request is 200 and clicks work, test logout, session and CSRF.
+5. CI tests use `store.example.test` as an arbitrary fixture; the live domain comes solely from ENV. Real Runflare browser/TLS behavior must still be validated by the operator.
 
-**Evidence boundary:** Automated URL/render tests passing CI are not proof of real-browser execution on Runflare. No real payment/Telegram E2E or go/no-go approval is implied. Phase 6 issues #11/#24/#25 stay open.
+## Remaining unrelated deployment warnings
+
+- `supervisorctl status` can fail if the supplied INI is missing a `[supervisorctl]` section; it does **not** prove Nginx/PHP-FPM are stopped. Check process list/runtime logs. Do not replace Runflare's supervisor INI without confirming its startup contract.
+- Production `APP_DEBUG` must be `false`; Nutgram log channel should be a valid channel and not an empty string.
+- Missing `public/storage` symlink affects uploaded public media, **not** TCP/TLS handshake. Prepare persistent storage/volumes and run `php artisan storage:link` only when appropriate.
+
+**No changes to queue, billing, bot handlers or migrations in this HTTPS correction.** Keep Phase 6 issues open until real staging/live gate evidence.
