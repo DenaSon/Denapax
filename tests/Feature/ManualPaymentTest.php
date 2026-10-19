@@ -107,6 +107,10 @@ class ManualPaymentTest extends TestCase
         $this->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertRedirect('/login');
         $this->actingAs($operator)->get('/admin/payments')->assertOk();
         $this->actingAs($operator)->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertOk();
+
+        $unprivileged = User::factory()->create();
+        $this->actingAs($unprivileged)->get('/admin/payments/receipts/'.$receipt->id.'/image')->assertForbidden();
+        $this->get('/storage/'.$receipt->storage_path)->assertForbidden();
         // Render the reviewer-only approval controls as well.
         $this->actingAs($this->reviewer)->get('/admin/payments')->assertOk();
 
