@@ -65,7 +65,6 @@ class TelegramCustomersTest extends TestCase
         $this->assertSame('1234567890', $customer->addresses()->firstOrFail()->postal_code);
     }
 
-
     public function test_cancel_address_form_preserves_existing_saved_address(): void
     {
         $customer = Customer::create(['telegram_user_id' => 987654]);
