@@ -2,9 +2,9 @@
 
 namespace App\Application\Notifications;
 
-use App\Support\Money;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
+use App\Support\Money;
 use App\Support\TelegramHtml;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
