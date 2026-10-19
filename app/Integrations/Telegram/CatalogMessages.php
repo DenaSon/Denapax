@@ -163,15 +163,24 @@ class CatalogMessages
         $media = $product->getFirstMedia('gallery')
             ?? $product->variants->first(fn ($variant) => $variant->getFirstMedia('variant-image') !== null)?->getFirstMedia('variant-image');
 
-        if ($media && mb_strlen($text) <= 900
-            && $this->sendMedia($bot, $media, $text, $keyboard, true)) {
-            return;
+        if ($media) {
+            $fitsCaption = mb_strlen($text) <= 900;
+            // Attempt the photo once: upload from disk, then retry the public
+            // HTTPS media URL only if the first strategy fails.
+            $sent = $this->sendMedia(
+                $bot,
+                $media,
+                $fitsCaption ? $text : mb_substr(TelegramHtml::escape($product->title), 0, 800),
+                $fitsCaption ? $keyboard : null,
+                true,
+            );
+            if ($sent && $fitsCaption) {
+                return;
+            }
         }
 
-        if ($media) {
-            // Keep variants in a separate message if the photo caption is too long.
-            $this->sendMedia($bot, $media, mb_substr(TelegramHtml::escape($product->title), 0, 800), null, true);
-        }
+        // Still show actionable product details if both photo strategies fail,
+        // or if Telegram's caption limit requires a separate text message.
         $bot->sendMessage(text: mb_substr($text, 0, 3900), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
@@ -248,25 +257,44 @@ class CatalogMessages
 
     private function sendMedia(Nutgram $bot, Media $media, string $caption, ?Keyboard $keyboard = null, bool $html = false): bool
     {
-        try {
-            // Upload directly from the server when the public storage URL is not
-            // reachable by Telegram (e.g., CDN/proxy/storage-link mismatch).
-            $path = $media->getPath();
-            $photo = is_file($path) ? InputFile::make($path) : $media->getFullUrl();
-            $bot->sendPhoto(
-                photo: $photo,
-                caption: $caption,
-                parse_mode: $html ? ParseMode::HTML : null,
-                reply_markup: $keyboard,
-            );
+        $failed = [];
+        $path = $media->getPath();
+        $publicUrl = $media->getFullUrl();
 
-            return true;
-        } catch (\Throwable $exception) {
-            // Do not leak storage locations, provider response URLs or bot tokens.
-            Log::warning('Product photo delivery failed', ['error_type' => class_basename($exception)]);
-
-            return false;
+        // An HTTPS URL becomes useful after the public storage symlink is
+        // configured. It is the public MediaLibrary URL, not user-supplied input.
+        $strategies = [];
+        if (is_file($path) && is_readable($path)) {
+            $strategies[] = 'local_upload';
         }
+        if (str_starts_with($publicUrl, 'https://')) {
+            $strategies[] = 'public_https_url';
+        }
+
+        foreach ($strategies as $strategy) {
+            try {
+                $bot->sendPhoto(
+                    photo: $strategy === 'local_upload' ? InputFile::make($path) : $publicUrl,
+                    caption: $caption,
+                    parse_mode: $html ? ParseMode::HTML : null,
+                    reply_markup: $keyboard,
+                );
+
+                return true;
+            } catch (\Throwable $exception) {
+                // Never log the exception message, media path, provider URL or
+                // bot token. Telegram errors can contain sensitive parameters.
+                $failed[$strategy] = class_basename($exception);
+            }
+        }
+
+        Log::warning('Product photo delivery failed', [
+            'media_id' => $media->id,
+            'strategies' => $strategies,
+            'failure_types' => $failed,
+        ]);
+
+        return false;
     }
 
     private function toman(int $irr): string
