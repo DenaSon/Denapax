@@ -43,6 +43,17 @@ class Product extends Model implements HasMedia
             ->acceptsFile(fn (File $file) => str_starts_with($file->mimeType, 'image/'));
     }
 
+    /**
+     * Shared indexability and sellability contract for the homepage,
+     * product permalinks and XML sitemap. Never index archived/unavailable items.
+     */
+    public function scopePubliclyOrderable($query)
+    {
+        return $query->published()->whereHas('variants', fn ($variantQuery) => $variantQuery
+            ->where('is_available', true)
+            ->where('price_irr', '>', 0));
+    }
+
     public function scopePublished($query)
     {
         return $query->where('is_active', true)
