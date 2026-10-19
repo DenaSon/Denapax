@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class MysqlIndexCompatibilityTest extends TestCase
@@ -36,12 +35,17 @@ class MysqlIndexCompatibilityTest extends TestCase
 
     private function declaredColumnType(string $table, string $column): string
     {
-        // Laravel 13 getColumnType() normalizes types to "varchar", losing
-        // the declared SQLite width. The schema's column list retains it.
-        $definition = collect(Schema::getColumns($table))->firstWhere('name', $column);
+        // Laravel 13's Schema column metadata normalizes varchar widths.
+        // Read declared type from the engine's system catalog instead.
+        $definition = DB::getDriverName() === 'sqlite'
+            ? DB::selectOne('SELECT type FROM pragma_table_info(?) WHERE name = ?', [$table, $column])
+            : DB::selectOne(
+                'SELECT COLUMN_TYPE AS type FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+                [$table, $column],
+            );
 
         $this->assertNotNull($definition);
 
-        return strtolower($definition['type']);
+        return strtolower($definition->type);
     }
 }
