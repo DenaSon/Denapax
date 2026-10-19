@@ -2,14 +2,13 @@
 
 namespace App\Integrations\Telegram;
 
-use App\Support\TelegramHtml;
-
 use App\Application\Actions\AddressConversation;
 use App\Application\Actions\CreateOrder;
 use App\Application\Actions\ManageCart;
 use App\Application\Actions\PrepareCheckout;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Support\TelegramHtml;
 use Illuminate\Support\Str;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
