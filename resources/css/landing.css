@@ -135,11 +135,11 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     transition: none;
 }
 .landing-chapter-rail {
+    display: none;
     position: fixed;
     z-index: 35;
     inset-block-start: 50%;
     inset-inline-end: 1rem;
-    display: flex;
     flex-direction: column;
     gap: .28rem;
     padding: .6rem;
@@ -205,6 +205,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 }
 .landing-orbit span { text-align: center; font-size: .66rem; line-height: 2; letter-spacing: .14em; }
 @media (min-width: 1100px) { .landing-orbit { display: flex; } }
+@media (min-width: 1536px) { .landing-chapter-rail { display: flex; } }
 
 .topographic-signature {
     position: absolute;
