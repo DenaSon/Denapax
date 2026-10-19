@@ -53,6 +53,8 @@ class RunflareHttpsUrlsTest extends TestCase
         URL::forceScheme(null);
         app(AppServiceProvider::class)->boot();
 
-        $this->assertSame('http://denapax.ir/logout', url('http://denapax.ir/logout'));
+        $this->withoutVite();
+        $response = $this->get('http://denapax.ir/login')->assertOk();
+        $this->assertStringContainsString('action="http://denapax.ir/login"', $response->getContent());
     }
 }
