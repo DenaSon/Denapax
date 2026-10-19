@@ -52,6 +52,12 @@
 - [ ] Resolve or log severity of each finding and document release blockers. Do **not** close #24 or #25 until their acceptance criteria have evidence; do **not** close #11 until both stories and full release gate pass.
 - [ ] Make an explicit **go/no-go** decision with the operator/owner before public traffic. Merge fixes only after PR + essential CI.
 
+## Phase 6 preparatory security work reconciled (2026-10-19)
+
+The useful changes originally in draft PR #36 have been re-applied **on top of latest master** in a small integration PR: safe exception-type-only Telegram webhook logging, negative private-receipt access assertions, locked production Composer dependency audit in CI, and the [Phase 6 operator runbook](16-phase-6-operator-runbook.md). The current owner-approved **database queue** backend, UX-1 through UX-4, and baseline/demo seeders remain unchanged. PR #36 was based on obsolete Telegram UI and Redis assumptions and is to be **closed as superseded** after the new integration PR passes and merges.
+
+**Important:** this is code/documentation preparation only. It does NOT verify real Telegram / MySQL / worker operation, finance approval, backup/restore, mobile RTL, or production go/no-go. Issues #11/#24/#25 remain OPEN until evidence-backed Phase 6 Gates A/B/C are satisfied.
+
 ## What is *not* done as of this handoff
 
 No access-backed proof of running MySQL/database queue worker, BotFather webhook configuration, actual Telegram updates/sent notifications, real manual bank reconciliation, full mobile/browser UI acceptance, backup/restore rehearsal or production release exists in the project record. Mark these **unverified**, never **passed**.
