@@ -1,5 +1,8 @@
 # Denapax — Current Delivery Status & Phase 6 Readiness Plan
 
+> **Authoritative owner milestone update (2026-10-19):** After creating several real products and trying each in Telegram, the owner has **functionally accepted / launched the MVP and frozen new feature scope**. See [MVP launch & freeze record](29-mvp-launch-freeze.md). This **does not close** the E07 Epic #11, security regression #24, or operator/backup/restore #25; their evidence still needs to be captured. Earlier “next work” and CI snapshot text below records the historical Phase 6 planning context, not a command to restart a completed Post-MVP sprint. As of the milestone, GitHub `master` was `edf3805` with [successful CI 39287004609](https://github.com/DenaSon/Denapax/actions/runs/39287004609). 
+
+
 **Checked against GitHub:** 2026-10-19. **Scope:** approved MVP v1.1; UX-1..4 and safe initial seeders merged; E07 formal release gates still OPEN.  
 **Current status (owner update, 2026-10-19):** MVP **live**, and owner reports that exercised functional E2E checks passed. Formal high-risk negative/security, backup/restore, monitoring and operator sign-off evidence is **NOT YET ATTACHED**. Phases 1–5 merged. New work: [Post-MVP Sprint 1](24-post-mvp-sprint-1.md), intake [#56](https://github.com/DenaSon/Denapax/issues/56), Phase 7 [#57](https://github.com/DenaSon/Denapax/issues/57), Phase 8 [#58](https://github.com/DenaSon/Denapax/issues/58). No UI/UX coding before final feedback review.
 
