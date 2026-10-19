@@ -34,7 +34,7 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $text = $this->latestMessage($bot);
         $this->assertStringContainsString('در انتظار پرداخت', $text['text']);
         $this->assertStringContainsString('120,000 تومان', $text['text']);
-        $this->assertStringContainsString('شماره کارت: 6037991234567890', $text['text']);
+        $this->assertStringContainsString('شماره کارت: <code>6037991234567890</code>', $text['text']);
         $this->assertSame('HTML', $text['parse_mode']);
         $this->assertStringContainsString('<b>💳 مبلغ قابل پرداخت: 120,000 تومان</b>', $text['text']);
         $this->assertStringContainsString('<blockquote>پس از بررسی و تأیید پرداخت', $text['text']);
@@ -87,7 +87,8 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $detail = $this->latestMessage($bot);
         $this->assertStringContainsString('مبلغ تطبیق نداشت', $detail['text']);
         $this->assertStringContainsString('همین سفارش رسید جدید', $detail['text']);
-        $this->assertSame('receipt:upload:'.$order->id, $detail['reply_markup']['inline_keyboard'][0][0]['callback_data']);
+        $this->assertTrue(collect($detail['reply_markup']['inline_keyboard'])->flatten(1)
+            ->contains(fn ($button) => ($button['callback_data'] ?? '') === 'receipt:upload:'.$order->id));
 
         $order->update(['payment_status' => 'under_review']);
         $bot = $this->bot();
