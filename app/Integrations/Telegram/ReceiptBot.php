@@ -5,6 +5,7 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\AddressConversation;
 use App\Application\Actions\SubmitPaymentReceipt;
 use App\Models\Customer;
+use App\Support\Money;
 use App\Support\TelegramHtml;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -52,7 +53,7 @@ class ReceiptBot
 
         $keyboard = Keyboard::make();
         foreach ($orders as $order) {
-            $label = $order->public_reference.' · '.number_format(intdiv($order->total_irr, 10)).' تومان · '
+            $label = $order->public_reference.' · '.Money::formatToman($order->total_irr).' تومان · '
                 .OrderStateLabels::payment($order->payment_status);
             $keyboard->addRow(Button::make($label, callback_data: 'receipt:order:'.$order->id));
         }
@@ -84,7 +85,7 @@ class ReceiptBot
         $latest = $order->receipts()->latest('attempt_number')->first();
         $text = TelegramHtml::bold('🧾 سفارش '.$order->public_reference)
             ."\nوضعیت پرداخت: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status));
-        $text .= "\n".TelegramHtml::bold('مبلغ قابل پرداخت: '.number_format(intdiv($order->total_irr, 10)).' تومان');
+        $text .= "\n".TelegramHtml::bold('مبلغ قابل پرداخت: '.Money::formatToman($order->total_irr).' تومان');
 
         if ($latest?->status === 'rejected') {
             $text .= "\n\n".TelegramHtml::bold('❌ دلیل رد رسید قبلی: ').TelegramHtml::escape($latest->rejection_reason)
@@ -145,7 +146,7 @@ class ReceiptBot
 
         $bot->sendMessage(
             text: '📷 ارسال رسید برای سفارش '.$order->public_reference
-                ."\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان'
+                ."\nمبلغ: ".Money::formatToman($order->total_irr).' تومان'
                 ."\n\nعکس JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت).",
             reply_markup: Keyboard::make()->addRow(
                 Button::make('❌ لغو', callback_data: 'form:cancel'),

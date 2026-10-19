@@ -93,13 +93,13 @@ class PhaseOneFoundationTest extends TestCase
                 [
                     'id' => null, 'sku' => 'FIG-500', 'title' => '500 g',
                     'sale_quantity' => '500', 'sale_unit' => 'g',
-                    'price_irr' => 1200000, 'shipping_weight_grams' => 550,
+                    'price_toman' => '120000', 'shipping_weight_grams' => 550,
                     'is_available' => true,
                 ],
                 [
                     'id' => null, 'sku' => 'FIG-1000', 'title' => '1 kg',
                     'sale_quantity' => '1', 'sale_unit' => 'kg',
-                    'price_irr' => 2300000, 'shipping_weight_grams' => 1100,
+                    'price_toman' => '230000', 'shipping_weight_grams' => 1100,
                     'is_available' => true,
                 ],
             ])

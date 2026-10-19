@@ -1,5 +1,7 @@
 # Denapax — Agent Handoff & Working Agreement
 
+**Admin currency UX (2026-10-19):** Product and shipping editors use toman, as do all admin amount readouts and Telegram messages via a precise shared integer-IRR formatter. Database amounts and immutable snapshots remain IRR. Publication now requires an orderable variant. Live deployment/smoke is not asserted; see [toman rollout](docs/28-admin-toman-pricing.md).
+
 **Phase 9 (implementation PR [#65](https://github.com/DenaSon/Denapax/pull/65)):** Internal Telegram group alerts for three operational events — new order, receipt awaiting review, and payment approved. Check [Issue #64](https://github.com/DenaSon/Denapax/issues/64) and PR #65 for verified merge/CI status. Configuration and activation/runbook: [docs/27-phase-9-admin-group-alerts.md](docs/27-phase-9-admin-group-alerts.md). A single negative `TELEGRAM_ADMIN_CHAT_ID` enables alerts **after** the initial activation command (historical events intentionally skipped); no real group ID/token in Git. Production smoke not yet verified. Product-gallery issue remains separately awaiting user retest.
 
 

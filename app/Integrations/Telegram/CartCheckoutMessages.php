@@ -8,6 +8,7 @@ use App\Application\Actions\ManageCart;
 use App\Application\Actions\PrepareCheckout;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Support\Money;
 use App\Support\TelegramHtml;
 use Illuminate\Support\Str;
 use SergiX44\Nutgram\Nutgram;
@@ -251,8 +252,6 @@ class CartCheckoutMessages
 
     private function toman(int $irr): string
     {
-        return $irr % 10 === 0
-            ? number_format(intdiv($irr, 10))
-            : number_format($irr / 10, 1);
+        return Money::formatToman($irr);
     }
 }

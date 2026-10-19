@@ -4,6 +4,7 @@ namespace App\Application\Notifications;
 
 use App\Models\Order;
 use App\Models\PaymentReceipt;
+use App\Support\Money;
 use App\Support\TelegramHtml;
 
 class TelegramNotificationText
@@ -56,8 +57,6 @@ class TelegramNotificationText
 
     private function toman(int $irr): string
     {
-        return $irr % 10 === 0
-            ? number_format(intdiv($irr, 10)).' تومان'
-            : number_format($irr / 10, 1).' تومان';
+        return Money::formatToman($irr).' تومان';
     }
 }

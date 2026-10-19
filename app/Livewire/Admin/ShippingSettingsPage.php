@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\ShippingSetting;
+use App\Support\Money;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -10,11 +11,11 @@ class ShippingSettingsPage extends Component
 {
     public int $baseWeightGrams = 1000;
 
-    public int $basePriceIrr = 0;
+    public string $basePriceToman = '0';
 
     public int $extraStepGrams = 1000;
 
-    public int $extraStepPriceIrr = 0;
+    public string $extraStepPriceToman = '0';
 
     public int $packagingWeightGrams = 0;
 
@@ -24,9 +25,9 @@ class ShippingSettingsPage extends Component
 
         if ($settings = ShippingSetting::find(1)) {
             $this->baseWeightGrams = $settings->base_weight_grams;
-            $this->basePriceIrr = $settings->base_price_irr;
+            $this->basePriceToman = Money::tomanInput($settings->base_price_irr);
             $this->extraStepGrams = $settings->extra_step_grams;
-            $this->extraStepPriceIrr = $settings->extra_step_price_irr;
+            $this->extraStepPriceToman = Money::tomanInput($settings->extra_step_price_irr);
             $this->packagingWeightGrams = $settings->packaging_weight_grams;
         }
     }
@@ -35,19 +36,22 @@ class ShippingSettingsPage extends Component
     {
         Gate::authorize('shipping.manage');
 
+        $this->basePriceToman = Money::normalizeTomanInput($this->basePriceToman);
+        $this->extraStepPriceToman = Money::normalizeTomanInput($this->extraStepPriceToman);
+
         $data = $this->validate([
             'baseWeightGrams' => 'required|integer|min:1',
-            'basePriceIrr' => 'required|integer|min:0',
+            'basePriceToman' => ['required', 'string', 'max:16', 'regex:/^(0|[1-9][0-9]*)(?:\.[0-9])?$/D'],
             'extraStepGrams' => 'required|integer|min:1',
-            'extraStepPriceIrr' => 'required|integer|min:0',
+            'extraStepPriceToman' => ['required', 'string', 'max:16', 'regex:/^(0|[1-9][0-9]*)(?:\.[0-9])?$/D'],
             'packagingWeightGrams' => 'required|integer|min:0',
         ]);
 
         ShippingSetting::updateOrCreate(['id' => 1], [
             'base_weight_grams' => $data['baseWeightGrams'],
-            'base_price_irr' => $data['basePriceIrr'],
+            'base_price_irr' => Money::tomanToIrr($data['basePriceToman']),
             'extra_step_grams' => $data['extraStepGrams'],
-            'extra_step_price_irr' => $data['extraStepPriceIrr'],
+            'extra_step_price_irr' => Money::tomanToIrr($data['extraStepPriceToman']),
             'packaging_weight_grams' => $data['packagingWeightGrams'],
             'updated_by' => auth()->id(),
         ]);

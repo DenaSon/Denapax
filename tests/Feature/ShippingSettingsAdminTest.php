@@ -24,9 +24,9 @@ class ShippingSettingsAdminTest extends TestCase
 
         Livewire::test(ShippingSettingsPage::class)
             ->set('baseWeightGrams', 1000)
-            ->set('basePriceIrr', 1000000)
+            ->set('basePriceToman', '100000')
             ->set('extraStepGrams', 1000)
-            ->set('extraStepPriceIrr', 500000)
+            ->set('extraStepPriceToman', '50000')
             ->set('packagingWeightGrams', 150)
             ->call('save')
             ->assertHasNoErrors();

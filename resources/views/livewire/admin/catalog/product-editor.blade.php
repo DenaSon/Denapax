@@ -42,6 +42,7 @@
         </x-card>
 
         <x-card title="تنوع‌های فروش">
+            <p class="mb-3 text-sm opacity-70">برای نمایش در بات، حداقل یک تنوع «قابل سفارش» لازم است. قیمت‌ها را به تومان وارد کنید.</p>
             @error('variants') <p class="text-error mb-2">{{ $message }}</p> @enderror
             <div class="space-y-4">
                 @foreach($variants as $index => $variant)
@@ -56,7 +57,10 @@
                                     <option value="l">لیتر</option><option value="piece">عدد</option>
                                 </select>
                             </label>
-                            <x-input label="قیمت (ریال)" type="number" min="0" wire:model="variants.{{ $index }}.price_irr" />
+                            <div>
+                                <x-input label="قیمت (تومان)" type="text" inputmode="decimal" dir="ltr" wire:model="variants.{{ $index }}.price_toman" />
+                                <p class="mt-1 text-xs opacity-70">مثال: 1389000؛ جداکننده هزارگان اختیاری است.</p>
+                            </div>
                             <x-input label="وزن پستی (گرم)" type="number" min="1" wire:model="variants.{{ $index }}.shipping_weight_grams" />
                         </div>
                         <label class="label mt-2 cursor-pointer justify-start gap-3">
