@@ -132,7 +132,7 @@ class ProductEditor extends Component
         $data = $this->validate([
             'categoryId' => 'required|integer|exists:categories,id',
             'title' => 'required|string|max:220',
-            'slug' => ['required', 'string', 'max:240', 'regex:/^[a-z0-9-]+$/', Rule::unique('products', 'slug')->ignore($this->productId)],
+            'slug' => ['required', 'string', 'max:191', 'regex:/^[a-z0-9-]+$/', Rule::unique('products', 'slug')->ignore($this->productId)],
             'summary' => 'required|string|max:600',
             'description' => 'string',
             'isActive' => 'boolean',
