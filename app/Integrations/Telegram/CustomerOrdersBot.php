@@ -4,6 +4,7 @@ namespace App\Integrations\Telegram;
 
 use App\Models\Customer;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -51,7 +52,7 @@ class CustomerOrdersBot
 
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
-        $bot->sendMessage(text: $text, parse_mode: \SergiX44\Nutgram\Telegram\Properties\ParseMode::HTML, reply_markup: $keyboard);
+        $bot->sendMessage(text: $text, parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function details(Nutgram $bot, Customer $customer, int $orderId): void
