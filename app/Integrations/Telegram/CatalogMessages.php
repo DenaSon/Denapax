@@ -2,10 +2,9 @@
 
 namespace App\Integrations\Telegram;
 
-use App\Support\TelegramHtml;
-
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
+use App\Support\TelegramHtml;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
