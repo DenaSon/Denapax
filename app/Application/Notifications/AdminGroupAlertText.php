@@ -2,6 +2,7 @@
 
 namespace App\Application\Notifications;
 
+use App\Support\Money;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
 use App\Support\TelegramHtml;
@@ -28,7 +29,7 @@ class AdminGroupAlertText
 
         return TelegramHtml::bold($heading)
             ."\nشماره سفارش: <code>".TelegramHtml::escape($order->public_reference).'</code>'
-            ."\n".TelegramHtml::bold('مبلغ سفارش: '.number_format(intdiv($order->total_irr, 10)).' تومان')
+            ."\n".TelegramHtml::bold('مبلغ سفارش: '.Money::formatToman($order->total_irr).' تومان')
             ."\nوضعیت: ".$status;
     }
 
