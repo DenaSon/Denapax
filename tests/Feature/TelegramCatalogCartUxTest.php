@@ -79,7 +79,7 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertSame('menu:search', $empty[0]['reply_markup']['inline_keyboard'][0][0]['callback_data']);
     }
 
-    public function test_cart_shows_subtotal_and_five_lines_per_page_without_changing_quantities(): void
+    public function test_cart_shows_compact_totals_and_five_lines_per_page_without_changing_quantities(): void
     {
         $product = $this->product('mixed-nuts', 130000);
         $customer = app(IdentifyTelegramCustomer::class)->execute(898989, 898989, 'Buyer');
@@ -104,7 +104,15 @@ class TelegramCatalogCartUxTest extends TestCase
         $first = $this->messages($bot);
         $this->assertCount(1, $first);
         $this->assertStringContainsString('صفحه 1 از 2', $first[0]['text']);
-        $this->assertStringContainsString('جمع کالا: 78,000 تومان', $first[0]['text']);
+        $this->assertStringContainsString('جمع سبد: 78,000 تومان', $first[0]['text']);
+        $this->assertSame('HTML', $first[0]['parse_mode']);
+        $this->assertStringContainsString('۱', $first[0]['reply_markup']['inline_keyboard'][0][0]['text']);
+        $this->assertStringContainsString('× 13,000 = 13,000 تومان', $first[0]['text']);
+        $this->assertSame('افزایش +۱', $first[0]['reply_markup']['inline_keyboard'][0][0]['text']);
+        $this->assertSame('کاهش -۱', $first[0]['reply_markup']['inline_keyboard'][0][1]['text']);
+        $this->assertTrue(collect($first[0]['reply_markup']['inline_keyboard'])->flatten(1)
+            ->contains(fn ($button) => ($button['text'] ?? '') === '🛍️ افزودن محصول دیگر'
+                && ($button['callback_data'] ?? '') === 'menu:catalog'));
         $this->assertSame(5, collect($first[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->filter(fn ($button) => str_starts_with($button['callback_data'] ?? '', 'cart:remove:'))->count());
 
@@ -116,6 +124,31 @@ class TelegramCatalogCartUxTest extends TestCase
         $this->assertSame(1, collect($second[0]['reply_markup']['inline_keyboard'])->flatten(1)
             ->filter(fn ($button) => str_starts_with($button['callback_data'] ?? '', 'cart:remove:'))->count());
         $this->assertSame(6, $customer->cart->items()->sum('quantity'));
+    }
+
+
+    public function test_single_cart_page_hides_page_counter_and_detail_escapes_repeated_text(): void
+    {
+        $product = $this->product('sour-cherry', 3500000);
+        $product->update([
+            'summary' => 'آلبالو <خوش‌طعم> & طبیعی',
+            'description' => '  آلبالو <خوش‌طعم> & طبیعی  ',
+        ]);
+        $customer = app(IdentifyTelegramCustomer::class)->execute(898989, 898989, 'Buyer');
+        app(ManageCart::class)->add($customer, $product->variants()->firstOrFail()->id);
+
+        $bot = $this->bot();
+        $bot->hearText('/cart')->reply();
+        $cart = $this->messages($bot)[0];
+        $this->assertStringNotContainsString('صفحه 1 از 1', $cart['text']);
+        $this->assertStringContainsString('<b>جمع سبد: 350,000 تومان</b>', $cart['text']);
+
+        $bot->hearCallbackQueryData('item:'.$product->id)->reply();
+        $details = $this->messages($bot)[0];
+        $this->assertSame('HTML', $details['parse_mode']);
+        $this->assertSame(1, substr_count($details['text'], 'آلبالو &lt;خوش‌طعم&gt; &amp; طبیعی'));
+        $this->assertStringNotContainsString('(1.000 kg)', $details['text']);
+        $this->assertStringContainsString('<b>تنوع‌های قابل سفارش</b>', $details['text']);
     }
 
     public function test_empty_cart_has_direct_catalog_recovery(): void
