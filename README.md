@@ -26,6 +26,7 @@ The security preparation originally in draft Phase 6 PR #36 has been reconciled 
 - [UX-3 handoff — compact catalog, gallery and multi-page cart](docs/19-ux-3-handoff.md)
 - [UX-4 handoff — checkout, receipts, payment states, shipping and notifications](docs/20-ux-4-handoff.md)
 - [Initial settings and three opt-in demo products; database queue runbook](docs/21-initial-seeders-handoff.md)
+- [Runflare HTTPS mixed-content fix — Livewire JS / admin logout](docs/23-runflare-https-livewire-mixed-content.md)
 - [MVP Scope v1.1](docs/01-mvp-scope.md)
 - [Architecture and boundaries](docs/02-architecture.md)
 - [Database ERD and Data Dictionary](docs/03-database-design.md)
