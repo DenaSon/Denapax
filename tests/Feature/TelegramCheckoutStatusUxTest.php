@@ -229,7 +229,7 @@ class TelegramCheckoutStatusUxTest extends TestCase
     private function order(Customer $owner): Order
     {
         return Order::create([
-            'order_number' => 'DN-UX4-001',
+            'order_number' => 'DN-UX4-'.str_pad((string) (Order::count() + 1), 3, '0', STR_PAD_LEFT),
             'checkout_key' => (string) Str::uuid(),
             'customer_id' => $owner->id,
             'order_status' => 'awaiting_payment',
