@@ -18,6 +18,7 @@ The security preparation originally in draft Phase 6 PR #36 has been reconciled 
 
 ## Documentation
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
+- **[Persistent Telegram Reply Keyboard (bottom customer menu) and inline sub-flows](docs/telegram-ui-ux-guidelines.md#main-reply-keyboard-persistent-two-columns)**
 - **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
 - **[Phase 6 operator runbook — staging, webhook, database queue and recovery](docs/16-phase-6-operator-runbook.md)**
 - **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**

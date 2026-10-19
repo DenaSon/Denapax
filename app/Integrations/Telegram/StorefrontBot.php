@@ -45,6 +45,14 @@ class StorefrontBot
 
         $text = trim((string) ($message->text ?? ''));
 
+        // Reply-keyboard buttons arrive as normal text messages. Treat them
+        // as top-level navigation even during an address/search/receipt flow.
+        $shortcut = StorefrontReplyKeyboard::commandFor($text);
+        if ($shortcut !== null) {
+            $this->addresses->reset($customer);
+            $text = $shortcut;
+        }
+
         if ($text === '/start' || str_starts_with($text, '/start@') || $text === '/cancel') {
             $this->addresses->reset($customer);
             $this->menu($bot);
@@ -268,17 +276,10 @@ class StorefrontBot
 
     private function menu(Nutgram $bot): void
     {
-        $keyboard = Keyboard::make()
-            ->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
-            ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
-            ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
-            ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))
-            ->addRow(
-                Button::make('📖 راهنما', callback_data: 'menu:help'),
-                Button::make('☎️ پشتیبانی', callback_data: 'menu:support'),
-            );
-
-        $bot->sendMessage(text: "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.", reply_markup: $keyboard);
+        $bot->sendMessage(
+            text: "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.",
+            reply_markup: StorefrontReplyKeyboard::make(),
+        );
     }
 
     private function startSearch(Nutgram $bot, Customer $customer): void

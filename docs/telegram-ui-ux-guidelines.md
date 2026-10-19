@@ -33,7 +33,7 @@ Customer experience principles, in order:
 
 ## 2. Approved startup copy (canonical)
 
-On `/start`, show the following text followed immediately by the main inline keyboard. Preserve wording and punctuation (formatting can use Telegram-supported parse mode only when safe):
+On `/start`, show the following text with the **persistent main Reply Keyboard below the message input**. Preserve wording and punctuation (formatting can use Telegram-supported parse mode only when safe). This supersedes the earlier inline-only main-menu rule, following the owner's 2026-10-19 approval:
 
 ```text
 🏔️ دنا؛ طعم اصالت، عطر طبیعت
@@ -45,17 +45,18 @@ On `/start`, show the following text followed immediately by the main inline key
 
 Only this copy is explicitly approved as **final customer-facing wording**. Other sample texts in this guide are behavioral guidance subject to implementation review.
 
-### Main menu layout (two columns where meaningful)
+### Main Reply Keyboard (persistent, two columns)
 
-| Row | Left/right buttons | Callback/behavior |
+| Row | Buttons | Behavior |
 | --- | --- | --- |
-| 1 | 🌰 محصولات · 🔎 جستجو | `menu:catalog`, `menu:search` |
-| 2 | 📍 نشانی‌های من | `menu:addresses` |
-| 3 | 🧾 ارسال رسید | `menu:receipt` |
-| 4 | 🛒 سبد خرید · 📦 سفارش‌های من | `menu:cart`, `menu:orders` |
-| 5 | 📖 راهنما · ☎️ پشتیبانی | `menu:help`, `menu:support` |
+| 1 | 🛍 محصولات · 🔎 جستجو | `/catalog` · `/search` |
+| 2 | 🛒 سبد خرید · 📦 سفارش‌های من | `/cart` · `/orders` |
+| 3 | 💳 پرداخت / ارسال رسید · 💬 پشتیبانی | `/receipt` · `/support` |
+| 4 | ℹ️ راهنما · 🏠 منوی اصلی | `/help` · `/start` |
 
-Keep each important standalone action on a single full-width row if its label or mobile readability requires it. Do not switch to persistent ReplyKeyboard or Mini App without explicit product approval.
+**Approved 2026-10-19 change:** `ReplyKeyboardMarkup` is shown by `/start`, `/cancel`, Home text and `menu:home` callback. Set `is_persistent=true`, `resize_keyboard=true`, `one_time_keyboard=false`. Buttons send **normal text**, not callback data. The bot maps the exact labels to existing navigation and cancels an active address/search/receipt prompt on a main-menu tap. Text unrelated to the menu still enters the active form/search as before.
+
+**Keep InlineKeyboardMarkup inside all inner pages** (catalog, product details, cart, checkout, order details, receipt upload, help/support and address actions); do not replace those transactional callbacks with free text. The Reply Keyboard is client-persistent after a user first starts/interacts with the bot; Telegram does not trigger server-side `/start` automatically merely because an existing conversation is opened. Telegram clients can temporarily hide the keyboard.
 
 **UX-1 implementation note (2026-10-19):** [PR #43](https://github.com/DenaSon/Denapax/pull/43) implements the exact welcome message, help/menu integration, Telegram support URL button with safe fallback and key home/back paths; see [UX-1 handoff](17-ux-1-handoff.md). This reuses, rather than duplicates, help code from draft Phase 6 PR #36; that later PR **must be reconciled** to prevent stale overwrites. Read current PR/CI before claiming merge; real Telegram/mobile smoke and release acceptance are still unverified.
 

@@ -40,6 +40,8 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 
 **Runflare initial MySQL migration issue:** [1071 index key compatibility fix and safe recovery instructions](docs/22-mysql-index-compatibility.md). Schema defaults to 191 indexed-safe chars, Spatie role/permission composite keys are bounded and MySQL uses InnoDB. If first migration failed, operator must verify whether a partially created empty users table exists and back up before any cleanup; do not use migrate:fresh against live data. Live Runflare migration success is unverified.
 
+**Telegram customer Reply Keyboard (2026-10-19):** The owner approved persistent bottom-of-chat `ReplyKeyboardMarkup` with four rows (products/search; cart/orders; receipts/support; help/home). `StorefrontReplyKeyboard` holds button labels and command mapping; `StorefrontBot::menu` sends it on `/start` or home; tapping a menu button during address/search/receipt input resets the active session before navigating. **All inner-page InlineKeyboards/callbacks are preserved.** See [Telegram UI/UX guide](docs/telegram-ui-ux-guidelines.md). Do not equate automated tests with live Telegram-client verification.
+
 ## 3. Source-of-truth reading order
 
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).

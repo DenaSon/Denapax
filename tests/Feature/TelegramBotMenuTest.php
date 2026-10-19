@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Integrations\Telegram\StorefrontButtons;
+use App\Application\Actions\AddressConversation;
+use App\Integrations\Telegram\StorefrontReplyKeyboard;
 use App\Integrations\Telegram\SupportContactLink;
+use App\Models\Customer;
 use App\Models\StoreSetting;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,21 +33,85 @@ class TelegramBotMenuTest extends TestCase
             ->reply()
             ->assertReplyMessage([
                 'text' => "🏔️ دنا؛ طعم اصالت، عطر طبیعت\n\nبه دنیای خوش‌طعم سوغات و خشکبار دنا خوش آمدید. 🌿\n\n🌰 برای شروع، از منوی زیر انتخاب کنید.",
-                'reply_markup' => Keyboard::make()
-                    ->addRow(StorefrontButtons::primary('🌰 محصولات', 'menu:catalog'), Button::make('🔎 جستجو', callback_data: 'menu:search'))
-                    ->addRow(Button::make('📍 نشانی‌های من', callback_data: 'menu:addresses'))
-                    ->addRow(Button::make('🧾 ارسال رسید', callback_data: 'menu:receipt'))
-                    ->addRow(Button::make('🛒 سبد خرید', callback_data: 'menu:cart'), Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'))
-                    ->addRow(
-                        Button::make('📖 راهنما', callback_data: 'menu:help'),
-                        Button::make('☎️ پشتیبانی', callback_data: 'menu:support'),
-                    ),
+                'reply_markup' => StorefrontReplyKeyboard::make(),
             ]);
 
         $this->assertDatabaseHas('customers', [
             'telegram_user_id' => 123456,
             'telegram_chat_id' => 123456,
         ]);
+    }
+
+    public function test_reply_keyboard_is_persistent_and_each_label_maps_to_existing_navigation(): void
+    {
+        $keyboard = StorefrontReplyKeyboard::make()->jsonSerialize();
+
+        $this->assertTrue($keyboard['is_persistent']);
+        $this->assertTrue($keyboard['resize_keyboard']);
+        $this->assertFalse($keyboard['one_time_keyboard']);
+        $this->assertCount(4, $keyboard['keyboard']);
+
+        $actions = [
+            StorefrontReplyKeyboard::PRODUCTS => '/catalog',
+            StorefrontReplyKeyboard::SEARCH => '/search',
+            StorefrontReplyKeyboard::CART => '/cart',
+            StorefrontReplyKeyboard::ORDERS => '/orders',
+            StorefrontReplyKeyboard::RECEIPT => '/receipt',
+            StorefrontReplyKeyboard::SUPPORT => '/support',
+            StorefrontReplyKeyboard::HELP => '/help',
+            StorefrontReplyKeyboard::HOME => '/start',
+        ];
+
+        $this->assertSame(
+            array_keys($actions),
+            array_merge(...array_map(
+                fn (array $row): array => array_map(fn ($button): string => $button->text, $row),
+                $keyboard['keyboard'],
+            )),
+        );
+
+        foreach ($actions as $label => $command) {
+            $this->assertSame($command, StorefrontReplyKeyboard::commandFor($label));
+        }
+
+        $this->assertNull(StorefrontReplyKeyboard::commandFor('یک متن معمولی'));
+    }
+
+    public function test_search_reply_button_interrupts_address_form_and_starts_search(): void
+    {
+        /** @var FakeNutgram $bot */
+        $bot = app(Nutgram::class);
+        $bot->setCommonUser(User::make(123456, false, 'Ali'));
+        $bot->setCommonChat(Chat::make(123456, ChatType::PRIVATE));
+        $bot->hearText('/start')->reply();
+
+        $customer = Customer::where('telegram_user_id', 123456)->firstOrFail();
+        app(AddressConversation::class)->start($customer);
+        $this->assertSame('address:recipient_name', app(AddressConversation::class)->session($customer)->state);
+
+        $bot->hearText(StorefrontReplyKeyboard::SEARCH)
+            ->reply()
+            ->assertReplyText('نام یا بخشی از توضیحات محصول را بنویسید. /cancel برای لغو');
+
+        $this->assertSame('search', app(AddressConversation::class)->session($customer)->fresh()->state);
+    }
+
+    public function test_receipt_reply_button_still_opens_inline_order_selection(): void
+    {
+        /** @var FakeNutgram $bot */
+        $bot = app(Nutgram::class);
+        $bot->setCommonUser(User::make(123456, false, 'Ali'));
+        $bot->setCommonChat(Chat::make(123456, ChatType::PRIVATE));
+
+        $bot->hearText(StorefrontReplyKeyboard::RECEIPT)
+            ->reply()
+            ->assertReplyMessage([
+                'text' => 'سفارش پرداخت‌نشده‌ای برای ارسال رسید ندارید.',
+                'reply_markup' => Keyboard::make()->addRow(
+                    Button::make('📦 سفارش‌های من', callback_data: 'menu:orders'),
+                    Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
+                ),
+            ]);
     }
 
     public function test_private_start_with_hydrated_chat_type_enum_sends_menu(): void
