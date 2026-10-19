@@ -17,6 +17,21 @@ class PublicLandingTest extends TestCase
         $this->withoutVite();
     }
 
+    public function test_editorial_navigation_is_accessible_without_hiding_server_rendered_catalog(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('id="top" data-chapter', false)
+            ->assertSee('id="products" data-chapter', false)
+            ->assertSee('id="story" data-chapter', false)
+            ->assertSee('id="order" data-chapter', false)
+            ->assertSee('aria-label="فهرست موبایل بدون جاوااسکریپت"', false)
+            ->assertSee('x-on:keydown="onMobileNavKeydown($event)"', false)
+            ->assertSee('x-bind:aria-expanded="menuOpen.toString()"', false)
+            ->assertSee('data-topography', false)
+            ->assertSee('href="#top"', false);
+    }
+
     public function test_guest_sees_only_published_orderable_products_and_exact_toman_prices(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
