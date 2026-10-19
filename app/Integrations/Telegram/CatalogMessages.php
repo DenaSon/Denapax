@@ -2,6 +2,8 @@
 
 namespace App\Integrations\Telegram;
 
+use App\Support\TelegramHtml;
+
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
 use SergiX44\Nutgram\Nutgram;
