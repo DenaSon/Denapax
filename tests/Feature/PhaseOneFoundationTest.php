@@ -112,6 +112,60 @@ class PhaseOneFoundationTest extends TestCase
         $this->assertSame(1100, ProductVariant::where('sku', 'FIG-1000')->firstOrFail()->shipping_weight_grams);
     }
 
+    public function test_product_title_autofills_slug_but_respects_manual_override(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
+        $this->actingAs($admin);
+
+        Livewire::test(ProductEditor::class)
+            ->set('title', 'Dena Natural Figs')
+            ->assertSet('slug', 'dena-natural-figs')
+            ->set('title', 'Dena Premium Figs')
+            ->assertSet('slug', 'dena-premium-figs')
+            ->set('slug', 'special-figs')
+            ->set('title', 'Another Product Title')
+            ->assertSet('slug', 'special-figs');
+
+        $this->assertNotSame('', \Illuminate\Support\Str::slug('آلبالو خشک طبیعی دنا'));
+    }
+
+    public function test_new_variants_get_editable_distinct_skus_and_existing_values_remain_stable(): void
+    {
+        $category = Category::create(['name' => 'Dried fruit', 'slug' => 'dried-fruit']);
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
+        $this->actingAs($admin);
+
+        $editor = Livewire::test(ProductEditor::class)
+            ->set('categoryId', $category->id)
+            ->set('title', 'Dena Dried Cherries')
+            ->assertSet('slug', 'dena-dried-cherries')
+            ->set('summary', 'Premium cherry from Dena')
+            ->call('addVariant')
+            ->call('addVariant');
+
+        $variants = $editor->get('variants');
+        $this->assertMatchesRegularExpression('/^DN-[0-9]{7}$/', $variants[0]['sku']);
+        $this->assertMatchesRegularExpression('/^DN-[0-9]{7}$/', $variants[1]['sku']);
+        $this->assertNotSame($variants[0]['sku'], $variants[1]['sku']);
+
+        $editor->set('variants.0.sku', 'MANUAL-CHERRY-1')
+            ->set('variants.0.title', '500 g')
+            ->set('variants.1.title', '1 kg')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $product = Product::where('slug', 'dena-dried-cherries')->firstOrFail();
+        $this->assertSame('MANUAL-CHERRY-1', $product->variants()->orderBy('sort_order')->firstOrFail()->sku);
+        $this->assertSame($variants[1]['sku'], $product->variants()->orderBy('sort_order')->skip(1)->firstOrFail()->sku);
+
+        Livewire::test(ProductEditor::class, ['product' => $product])
+            ->set('title', 'Renamed Dena Dried Cherries')
+            ->assertSet('slug', 'dena-dried-cherries')
+            ->assertSet('variants.0.sku', 'MANUAL-CHERRY-1');
+    }
+
     public function test_unprivileged_user_cannot_edit_catalog(): void
     {
         $staff = User::factory()->create();
