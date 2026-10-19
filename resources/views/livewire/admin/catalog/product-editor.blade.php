@@ -15,8 +15,8 @@
                     </select>
                     @error('categoryId') <span class="text-error text-sm">{{ $message }}</span> @enderror
                 </label>
-                <x-input label="نام محصول" wire:model="title" />
-                <x-input label="شناسه انگلیسی" wire:model="slug" />
+                <x-input label="نام محصول" wire:model.live.debounce.500ms="title" />
+                <x-input label="شناسه انگلیسی (Slug)" wire:model.live="slug" />
                 <x-input label="خلاصه محصول" wire:model="summary" />
             </div>
             <label class="form-control mt-4"><span class="label">توضیحات</span>
@@ -47,7 +47,7 @@
                 @foreach($variants as $index => $variant)
                     <div class="rounded-lg border border-base-300 p-4" wire:key="variant-{{ $index }}">
                         <div class="grid gap-3 md:grid-cols-3">
-                            <x-input label="شناسه SKU" wire:model="variants.{{ $index }}.sku" />
+                            <x-input label="شناسه SKU (پیشنهاد خودکار)" wire:model="variants.{{ $index }}.sku" />
                             <x-input label="عنوان تنوع" wire:model="variants.{{ $index }}.title" />
                             <x-input label="مقدار فروش" type="number" min="0.001" step="0.001" wire:model="variants.{{ $index }}.sale_quantity" />
                             <label class="form-control"><span class="label">واحد فروش</span>
