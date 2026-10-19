@@ -266,3 +266,177 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .landing-outline { color: #fff8e6; -webkit-text-stroke: 0; }
     .landing-outline-dark { color: #365945; -webkit-text-stroke: 0; }
 }
+
+
+/* Phase L3: one native-dialog product preview, with no additional UI library. */
+.landing-product-dialog {
+    position: fixed;
+    inset: 0;
+    width: min(calc(100vw - 2.5rem), 1120px);
+    max-width: none;
+    max-height: calc(100dvh - 2.5rem);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: #f7f6ee;
+    color: #203b31;
+    box-shadow: 0 35px 100px rgba(9, 30, 23, .3);
+    overscroll-behavior: contain;
+}
+.landing-product-dialog:not([open]) { display: none; }
+.landing-product-dialog::backdrop {
+    background: rgba(8, 25, 20, .78);
+    backdrop-filter: blur(8px);
+}
+.landing-product-dialog[open] { animation: denapax-dialog-in .32s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes denapax-dialog-in {
+    from { opacity: 0; transform: translateY(14px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.landing-product-sheet {
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+    max-height: calc(100dvh - 2.5rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #a8b4a2 #f1f1e7;
+}
+.landing-product-visual {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-width: 0;
+    padding: 1.25rem;
+    background: #e5e8d9;
+}
+.landing-product-visual-main {
+    position: relative;
+    height: min(67vh, 600px);
+    min-height: 320px;
+    overflow: hidden;
+    border-radius: 1.05rem;
+    background: #cdd1bd;
+}
+.landing-product-photo-nav {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .4rem;
+    border-radius: 999px;
+    background: rgba(247,246,238,.92);
+    color: #234635;
+    backdrop-filter: blur(12px);
+}
+.landing-product-photo-nav button {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #1c4532;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+.landing-product-photo-nav button:hover { background: #386e50; }
+.landing-product-thumbnails {
+    display: flex;
+    gap: .65rem;
+    margin-top: .9rem;
+    padding-bottom: .15rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+.landing-product-thumbnail {
+    flex: none;
+    width: 65px;
+    height: 65px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: .65rem;
+    opacity: .68;
+    cursor: pointer;
+    transition: border-color .2s ease, opacity .2s ease;
+}
+.landing-product-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+.landing-product-thumbnail:hover,
+.landing-product-thumbnail.is-selected { border-color: #19392f; opacity: 1; }
+.landing-product-info { min-width: 0; padding: 1.75rem 2rem 2.25rem; }
+.landing-product-close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #c3cdbf;
+    border-radius: 50%;
+    background: #edf0e6;
+    color: #315441;
+    cursor: pointer;
+    transition: background-color .2s ease, transform .2s ease;
+}
+.landing-product-close:hover { background: #dce5d8; transform: rotate(90deg); }
+.landing-variant-button {
+    display: block;
+    width: 100%;
+    padding: .95rem;
+    border: 1px solid #cad3c5;
+    border-radius: .85rem;
+    background: #f4f4ec;
+    color: #365743;
+    text-align: right;
+    cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.landing-variant-button:hover { border-color: #72917c; }
+.landing-variant-button.is-selected {
+    border-color: #254c36;
+    background: #e6ebdd;
+    box-shadow: inset 0 0 0 1px #254c36;
+}
+.landing-variant-radio {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    flex: none;
+    border: 2px solid #809585;
+    border-radius: 50%;
+}
+.landing-variant-button.is-selected .landing-variant-radio {
+    border-color: #254c36;
+    background: #254c36;
+    box-shadow: inset 0 0 0 2px #e6ebdd;
+}
+.landing-product-dialog button:focus-visible,
+.landing-product-dialog a:focus-visible {
+    outline: 3px solid #b97c55;
+    outline-offset: 3px;
+}
+@media (max-width: 767px) {
+    .landing-product-dialog {
+        inset: auto 0 0;
+        width: 100%;
+        max-height: calc(100dvh - .5rem);
+        margin: 0;
+        border-radius: 1.35rem 1.35rem 0 0;
+    }
+    .landing-product-sheet {
+        grid-template-columns: minmax(0, 1fr);
+        max-height: calc(100dvh - .5rem);
+    }
+    .landing-product-visual { position: static; padding: .8rem .8rem .3rem; }
+    .landing-product-visual-main { height: clamp(230px, 38vh, 390px); min-height: 0; }
+    .landing-product-info { padding: 1.3rem 1.35rem 2rem; }
+    .landing-product-thumbnail { width: 52px; height: 52px; }
+    .landing-product-photo-nav { bottom: .6rem; left: .6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .landing-product-dialog[open] { animation: none; }
+    .landing-product-close:hover { transform: none; }
+}
