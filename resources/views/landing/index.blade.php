@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#19392f">
+    <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="description" content="دناپکس؛ آشنایی با سوغات، خشکبار و محصولات محلی دنا. محصولات را ببینید و سفارش خود را در بات تلگرام ثبت کنید.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fa_IR">
@@ -11,12 +12,14 @@
     <meta property="og:title" content="دناپکس | از دل دنا">
     <meta property="og:description" content="روایتی از طعم‌های محلی دنا؛ معرفی محصولات و سفارش از طریق تلگرام.">
     <meta property="og:url" content="{{ route('home') }}">
+    <meta name="twitter:card" content="summary">
     <link rel="canonical" href="{{ route('home') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" href="{{ asset('images/dena-landscape.svg') }}" as="image" type="image/svg+xml">
     <title>دناپکس | از دل دنا</title>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DenaPax","url":"{{ route('home') }}","inLanguage":"fa-IR"}</script>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
 </head>
 <body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
@@ -185,8 +188,8 @@
                         $startingPrice = (int) $product->variants->min('price_irr');
                     @endphp
                     <article class="product-card group relative overflow-hidden bg-[#ebe9dd] {{ $isFeatured ? 'sm:col-span-2 lg:col-span-2 product-card-featured' : '' }}" data-reveal data-delay="{{ $loop->index % 3 }}">
-                        <a href="{{ $telegramUrl ?? '#order' }}" @if ($telegramUrl) target="_blank" rel="noopener noreferrer" @endif
-                           x-on:click.prevent="openProduct({{ $product->id }}, $event)"
+                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}"
+                           x-on:click="openProduct({{ $product->id }}, $event)"
                            aria-haspopup="dialog" aria-controls="denapax-product-preview"
                            class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
                             <div class="product-photo relative overflow-hidden bg-[#c8cbb6] {{ $isFeatured ? 'max-h-[570px]' : '' }}">
