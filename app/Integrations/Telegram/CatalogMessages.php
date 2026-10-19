@@ -5,6 +5,7 @@ namespace App\Integrations\Telegram;
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -106,23 +107,34 @@ class CatalogMessages
             return;
         }
 
-        $text = '🌰 '.$product->title."\n".$product->summary;
-        if ($product->description) {
-            $text .= "\n".mb_substr($product->description, 0, 550);
+        $summary = trim((string) $product->summary);
+        $description = trim((string) $product->description);
+        $normalize = static fn (string $value): string => mb_strtolower(
+            preg_replace('/\\s+/u', ' ', trim($value)) ?? trim($value)
+        );
+
+        $text = '🌰 '.TelegramHtml::bold($product->title);
+        if ($summary !== '') {
+            $text .= "\n\n".TelegramHtml::escape($summary);
+        }
+        if ($description !== '' && $normalize($description) !== $normalize($summary)) {
+            $text .= "\n".TelegramHtml::escape(mb_substr($description, 0, 550));
         }
         if ($product->features->isNotEmpty()) {
-            $text .= "\n\nویژگی‌ها:";
+            $text .= "\n\n".TelegramHtml::bold('ویژگی‌ها');
             foreach ($product->features->take(5) as $feature) {
-                $text .= "\n• ".$feature->name.': '.$feature->value;
+                $text .= "\n• ".TelegramHtml::escape($feature->name).': '.TelegramHtml::escape($feature->value);
             }
         }
 
-        $text .= "\n\nتنوع‌های قابل سفارش:";
+        $text .= "\n\n".TelegramHtml::bold('تنوع‌های قابل سفارش');
         foreach ($product->variants as $variant) {
-            $text .= "\n• ".$variant->title.' ('.$variant->sale_quantity.' '.$variant->sale_unit.') — '
-                .$this->toman($variant->price_irr).' تومان';
+            // The merchant's variant title is customer-facing (e.g. "یک کیلو").
+            // Avoid adding technical, redundant "1.000 kg" beside it.
+            $text .= "\n• ".TelegramHtml::escape($variant->title)
+                .' — '.$this->toman($variant->price_irr).' تومان';
         }
-        $text .= "\n\nبرای افزودن به سبد، تنوع موردنظر را انتخاب کنید.";
+        $text .= "\n\nتنوع موردنظر را برای افزودن به سبد انتخاب کنید.";
 
         $keyboard = Keyboard::make();
         if ($product->getMedia('gallery')->count() > 1) {
@@ -142,7 +154,7 @@ class CatalogMessages
 
         $media = $product->getFirstMedia('gallery');
         if ($media && mb_strlen($text) <= 900) {
-            $bot->sendPhoto(photo: $media->getFullUrl(), caption: $text, reply_markup: $keyboard);
+            $bot->sendPhoto(photo: $media->getFullUrl(), caption: $text, parse_mode: ParseMode::HTML, reply_markup: $keyboard);
 
             return;
         }
@@ -152,10 +164,11 @@ class CatalogMessages
             // Telegram's photo caption limit cannot fit the full details.
             $bot->sendPhoto(
                 photo: $media->getFullUrl(),
-                caption: mb_substr($product->title."\n".$product->summary, 0, 900),
+                caption: mb_substr(TelegramHtml::escape($product->title."\n".$product->summary), 0, 900),
+                parse_mode: ParseMode::HTML,
             );
         }
-        $bot->sendMessage(text: mb_substr($text, 0, 3900), reply_markup: $keyboard);
+        $bot->sendMessage(text: mb_substr($text, 0, 3900), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function gallery(Nutgram $bot, int $productId, int $index): void
