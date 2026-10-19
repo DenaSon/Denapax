@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Mockery;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Types\Internal\InputFile;
@@ -26,11 +27,14 @@ class TelegramProductMediaDeliveryTest extends TestCase
             'filesystems.disks.public.url' => 'https://store.example.test/storage',
         ]);
         Storage::fake('public');
+        URL::forceRootUrl('https://store.example.test');
+        URL::forceScheme('https');
     }
 
     public function test_variant_photo_tries_public_https_url_after_local_file_upload_fails(): void
     {
         $variant = $this->publishedVariantWithPhoto();
+        $this->assertStringStartsWith('https://', $variant->getFirstMedia('variant-image')->getFullUrl());
         $attempts = [];
 
         $bot = Mockery::mock(Nutgram::class);
