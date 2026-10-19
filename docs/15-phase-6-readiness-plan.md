@@ -1,7 +1,16 @@
 # Denapax — Current Delivery Status & Phase 6 Readiness Plan
 
-**Checked against GitHub:** 2026-10-19. **Scope:** approved MVP v1.1; UX-1..4 and safe initial seeders are merged; live Phase 6 gates remain OPEN.  
-**Status:** Five implementation phases merged to `master`; real integration, operational rehearsal and launch approval **PENDING**.
+**Checked against GitHub:** 2026-10-19. **Scope:** approved MVP v1.1; UX-1..4 and safe initial seeders merged; E07 formal release gates still OPEN.  
+**Current status (owner update, 2026-10-19):** MVP **live**, and owner reports that exercised functional E2E checks passed. Formal high-risk negative/security, backup/restore, monitoring and operator sign-off evidence is **NOT YET ATTACHED**. Phases 1–5 merged. New work: [Post-MVP Sprint 1](24-post-mvp-sprint-1.md), intake [#56](https://github.com/DenaSon/Denapax/issues/56), Phase 7 [#57](https://github.com/DenaSon/Denapax/issues/57), Phase 8 [#58](https://github.com/DenaSon/Denapax/issues/58). No UI/UX coding before final feedback review.
+
+
+## Owner-reported live functional acceptance (2026-10-19)
+
+The owner explicitly confirms the MVP is live and the functional flows exercised in the end-to-end trial work. This supersedes the earlier **historical** claim below that *no* live deployment exists, but **does not** attest that every security negative test, backup/restore rehearsal, monitoring setup, privacy/access-control demonstration or formal release gate has been independently documented. The phase-6 checklists below are intentionally left unchecked until specific recorded proof is present. 
+
+- GitHub verification: master `c5fa82d5376129b5e2da13689239bce646dfdf1b` / [CI success](https://github.com/DenaSon/Denapax/actions/runs/39229685750).
+- Remaining Phase 6 stories: #24 / #25 / #11, kept open pending objective closure evidence.
+- Approved next delivery stream: [Post-MVP Sprint 1 feedback backlog](24-post-mvp-sprint-1.md). It is safe to **collect feedback** in parallel while E07 operational gaps are tracked, not safe to silently declare those gaps fixed.
 
 ## Verified GitHub ledger
 
@@ -20,7 +29,7 @@
 | 3 — Cart, Shipping & Checkout | [#32](https://github.com/DenaSon/Denapax/pull/32) | Merged / passed | Not verified |
 | 4 — Manual Payments | [#33](https://github.com/DenaSon/Denapax/pull/33) | Merged / passed | Not verified |
 | 5 — Fulfillment & Notifications | [#34](https://github.com/DenaSon/Denapax/pull/34) | Merged / passed | Not verified |
-| 6 — Real E2E, Security, Launch | [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) | Not complete | Not verified |
+| 6 — Real E2E, Security, Launch | [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) | Owner reports live functional pass; formal closure pending | Functional pass owner-reported; detailed gate evidence pending |
 
 ## Phase 6 — work sequence and proof required
 
@@ -58,9 +67,9 @@ The useful changes originally in draft PR #36 have been re-applied **on top of l
 
 **Important:** this is code/documentation preparation only. It does NOT verify real Telegram / MySQL / worker operation, finance approval, backup/restore, mobile RTL, or production go/no-go. Issues #11/#24/#25 remain OPEN until evidence-backed Phase 6 Gates A/B/C are satisfied.
 
-## What is *not* done as of this handoff
+## Evidence not yet attached for full E07 sign-off
 
-No access-backed proof of running MySQL/database queue worker, BotFather webhook configuration, actual Telegram updates/sent notifications, real manual bank reconciliation, full mobile/browser UI acceptance, backup/restore rehearsal or production release exists in the project record. Mark these **unverified**, never **passed**.
+Prior to the owner's 2026-10-19 live update, the record lacked confirmation of runtime integration. The owner now reports a live MVP and passing functional E2E. However, **specific, independently reviewable evidence** for the entire B01–B10 security/negative-case matrix, consistent MySQL + private receipt media backup, isolated restore rehearsal, operational monitoring and explicit release gate is still absent from GitHub. Mark those **unverified**, not **passed**. Do not reclassify functional acceptance as security or disaster-recovery evidence.
 
 ## Initial actions for the next agent
 
