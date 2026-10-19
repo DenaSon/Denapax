@@ -50,9 +50,53 @@ class TelegramCustomersTest extends TestCase
             $result = $flow->accept($customer, $input, $action);
         }
 
-        $this->assertStringContainsString('ذخیره شد', $result);
+        $this->assertStringContainsString('بررسی اطلاعات تحویل', $result);
+        $this->assertSame('address:review', $flow->session($customer)->fresh()->state);
+        $this->assertSame(0, $customer->addresses()->count());
+
+        $this->assertStringContainsString('شماره همراه گیرنده', $flow->review($customer));
+        $this->assertStringContainsString('نام و نام خانوادگی', $flow->correction($customer, 'recipient_name'));
+        $this->assertStringContainsString('بررسی اطلاعات تحویل', $flow->accept($customer, 'Ali Updated', $action));
+        $this->assertSame(0, $customer->addresses()->count());
+        $this->assertStringContainsString('ذخیره شد', $flow->confirm($customer, $action));
+        $this->assertStringContainsString('قبلاً ذخیره', $flow->confirm($customer, $action));
         $this->assertSame('idle', $flow->session($customer)->fresh()->state);
+        $this->assertSame('Ali Updated', $customer->addresses()->firstOrFail()->recipient_name);
         $this->assertSame('1234567890', $customer->addresses()->firstOrFail()->postal_code);
+    }
+
+
+    public function test_cancel_address_form_preserves_existing_saved_address(): void
+    {
+        $customer = Customer::create(['telegram_user_id' => 987654]);
+        $action = app(SaveCustomerAddress::class);
+        $saved = $action->execute($customer, $this->address('Original'));
+        $flow = app(AddressConversation::class);
+        $flow->start($customer, $saved->id);
+        $flow->accept($customer, 'Wrong Name', $action);
+        $flow->reset($customer);
+        $this->assertSame('Buyer Original', $saved->fresh()->recipient_name);
+        $this->assertDatabaseCount('customer_addresses', 1);
+    }
+
+    public function test_persian_search_matches_alef_and_arabic_forms(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'dried-fruit', 'is_active' => true]);
+        $product = Product::create([
+            'category_id' => $category->id, 'title' => 'آلبالو خشک طبیعی',
+            'slug' => 'albaloo', 'summary' => 'بدون افزودنی', 'description' => 'ترش و خوش‌طعم', 'is_active' => true,
+        ]);
+        ProductVariant::create([
+            'product_id' => $product->id, 'sku' => 'albaloo-1', 'title' => 'یک کیلو',
+            'sale_quantity' => 1, 'sale_unit' => 'kg', 'price_irr' => 3500000,
+            'shipping_weight_grams' => 1000, 'is_available' => true,
+        ]);
+
+        $catalog = app(BrowseCatalog::class);
+        $this->assertSame($product->id, $catalog->products(term: 'البالو')->first()?->id);
+        $this->assertSame($product->id, $catalog->products(term: 'آلبالو')->first()?->id);
+        $this->assertSame($product->id, $catalog->products(term: 'طبيعي')->first()?->id);
+        $this->assertSame(0, $catalog->products(term: 'نامرتبط')->total());
     }
 
     public function test_published_catalog_requires_active_category_and_available_variant(): void
