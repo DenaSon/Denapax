@@ -4,6 +4,8 @@
 **Tracking:** [#24 E2E/security](https://github.com/DenaSon/Denapax/issues/24), [#25 deployment/recovery](https://github.com/DenaSon/Denapax/issues/25), [#11 release gate](https://github.com/DenaSon/Denapax/issues/11).
 **Owners:** An authorized operator must record test results and explicitly approve launch. Keep credentials, card details, receipt files and customer PII out of GitHub.
 
+> **2026-10-19 owner update:** The MVP is live, and the owner has confirmed that exercised functional E2E behavior works. The matrix below remains **UNVERIFIED** as a *record of independently attached, case-by-case evidence*, not a denial of the owner's functional observation. Do not mark backups, a restore rehearsal, security negative tests, monitoring or go/no-go as passed without objective evidence. Track Post-MVP UI/UX feedback separately in [Sprint 1](24-post-mvp-sprint-1.md) (#56–#58).
+
 ## 0. Release gates
 
 - **A — Integration readiness (#25):** authorized staging domain with TLS, actual PHP 8.4/MySQL/database queue, migrations/RBAC, private storage, bot webhook, notifications worker + scheduler. Capture sanitized command output.

@@ -6,9 +6,9 @@ Telegram-first store for Dena souvenirs and dried fruits.
 
 The security preparation originally in draft Phase 6 PR #36 has been reconciled into a scoped update against current `master` (safe webhook error logs, private-receipt regression tests, locked Composer audit, and the operator runbook). Integrated and verified in merged [PR #49](https://github.com/DenaSon/Denapax/pull/49) ([master CI](https://github.com/DenaSon/Denapax/actions/runs/39209851902)); old [PR #36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded. This is **not** production deployment, live E2E, or Phase 6 approval. Horizon and Redis are deferred: use Laravel database queues.
 
-**Status 2026-10-19:** UX-1..4 code PRs #43–#46 are merged, with UX issues #38–#41 closed. [Setup issue #47](https://github.com/DenaSon/Denapax/issues/47) and [PR #48](https://github.com/DenaSon/Denapax/pull/48) cover idempotent initialization seeders. Phase 6 release issues #11/#24/#25 remain open. Verify latest GitHub status before reporting counts.
+**Status 2026-10-19 (owner update):** MVP is **live**, and exercised functional E2E purchase flows have been reported working by the owner. Last verified `master` SHA: `c5fa82d5376129b5e2da13689239bce646dfdf1b` ([green CI](https://github.com/DenaSon/Denapax/actions/runs/39229685750)). This does **not** establish that the Phase 6 security, negative-path, backup/restore or operational evidence has passed; release issues [#11](https://github.com/DenaSon/Denapax/issues/11)/[#24](https://github.com/DenaSon/Denapax/issues/24)/[#25](https://github.com/DenaSon/Denapax/issues/25) remain open. UX-1..4 PRs #43–#46 and issues #38–#41 are complete. [Post-MVP Sprint 1](docs/24-post-mvp-sprint-1.md) is now in feedback intake (#56/#57/#58).
 
-**Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1, UX-2, UX-3 and UX-4 are all merged (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)). This does not replace Phase 6. No live Telegram, real MySQL/database queue or banking trial has been claimed.
+**Phase:** Phases 1–5 completed/merged. **Phase 6 functional acceptance has been reported from live testing by the owner**, while its *formal* E07 release sign-off remains open pending documented evidence. UX-1 through UX-4 were merged previously (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)); Post-MVP Sprint 1 is separate and contains **Phase 7: UI/copy** and **Phase 8: UX flows**, both awaiting the owner’s finalized feedback list.
 
 ## MVP channels
 - Customer-facing: Telegram Bot (messages, inline buttons, search, cart, order tracking).
@@ -19,7 +19,8 @@ The security preparation originally in draft Phase 6 PR #36 has been reconciled 
 ## Documentation
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
 - **[Persistent Telegram Reply Keyboard (bottom customer menu) and inline sub-flows](docs/telegram-ui-ux-guidelines.md#main-reply-keyboard-persistent-two-columns)**
-- **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
+- **[Post-MVP Sprint 1 — feedback intake, Phase 7 UI and Phase 8 UX](docs/24-post-mvp-sprint-1.md)**
+- **[Phase 6 readiness plan and remaining operational evidence](docs/15-phase-6-readiness-plan.md)**
 - **[Phase 6 operator runbook — staging, webhook, database queue and recovery](docs/16-phase-6-operator-runbook.md)**
 - **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
 - [UX-1 handoff — welcome, help, direct Telegram support and navigation (merged PR #43)](docs/17-ux-1-handoff.md)
@@ -78,6 +79,6 @@ Horizon and Redis are **not part of current scope**. The default queue is databa
 
 > **Security:** Do not commit `.env`, bot tokens, cardholder secrets, customer PII, or payment receipt images.
 
-**Next action:** Phase 6 should exercise the real Telegram → cart → checkout → receipt → manual approval/rejection → shipment → notifications cycle using MySQL and the database queue worker/scheduler (Redis/Horizon deferred); inspect privacy/security, queues, backups/restore, visual QA and production deployment readiness. See [Phase 5 handoff](docs/14-phase-5-handoff.md).
+**Next action:** Capture and prioritize real-user UI/UX feedback under [Post-MVP Sprint 1](docs/24-post-mvp-sprint-1.md) — **no UI/UX code until the owner finishes the list**. Separately, record outstanding Phase 6 negative/security, backup/restore and operational evidence in #24/#25/#11. The owner has confirmed functional live E2E acceptance; do not claim unverified gates as complete. See [Phase 5 handoff](docs/14-phase-5-handoff.md).
 
 For authoritative scope, data rules and acceptance criteria, see the documentation links above.
