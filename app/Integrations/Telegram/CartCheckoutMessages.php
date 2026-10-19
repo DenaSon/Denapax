@@ -2,6 +2,7 @@
 
 namespace App\Integrations\Telegram;
 
+use App\Support\Money;
 use App\Application\Actions\AddressConversation;
 use App\Application\Actions\CreateOrder;
 use App\Application\Actions\ManageCart;
@@ -251,8 +252,6 @@ class CartCheckoutMessages
 
     private function toman(int $irr): string
     {
-        return $irr % 10 === 0
-            ? number_format(intdiv($irr, 10))
-            : number_format($irr / 10, 1);
+        return Money::formatToman($irr);
     }
 }
