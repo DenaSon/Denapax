@@ -21,11 +21,11 @@ class TelegramProductMediaDeliveryTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('public');
         config([
             'app.url' => 'https://store.example.test',
             'filesystems.disks.public.url' => 'https://store.example.test/storage',
         ]);
+        Storage::fake('public');
     }
 
     public function test_variant_photo_tries_public_https_url_after_local_file_upload_fails(): void
