@@ -35,6 +35,9 @@ Last Phase 5 merge SHA: `bf6ef852f6f95e3bc494874c5a8795a00c995d75`; a later `mas
 
 **Next milestone:** Phase 6 remains OPEN under #11/#24/#25. UX-1..4 implementations are merged to `master`; this does **not** prove real-device E2E. Setup [PR #48](https://github.com/DenaSon/Denapax/pull/48) adds idempotent initial settings and exactly three opt-in inactive demo products; details in [Seeder Handoff](docs/21-initial-seeders-handoff.md). Current owner choice is database queue, **not** Redis/Horizon. Former Phase 6 draft [#36](https://github.com/DenaSon/Denapax/pull/36) was closed as superseded; its still-useful security prep and operator runbook were reconciled into merged [#49](https://github.com/DenaSon/Denapax/pull/49). Phase 6 issues #11/#24/#25 remain OPEN.
 
+
+**Runflare initial MySQL migration issue:** [1071 index key compatibility fix and safe recovery instructions](docs/22-mysql-index-compatibility.md). Schema defaults to 191 indexed-safe chars, Spatie role/permission composite keys are bounded and MySQL uses InnoDB. If first migration failed, operator must verify whether a partially created empty users table exists and back up before any cleanup; do not use migrate:fresh against live data. Live Runflare migration success is unverified.
+
 ## 3. Source-of-truth reading order
 
 1. **This file**, [Current status and Phase 6 plan](docs/15-phase-6-readiness-plan.md).

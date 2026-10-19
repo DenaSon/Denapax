@@ -40,6 +40,9 @@ The security preparation originally in draft Phase 6 PR #36 has been reconciled 
 - [Phase 5 fulfillment, tracking and notifications handoff](docs/14-phase-5-handoff.md)
 - [Project execution agreement (phase merges, lean tests and short reports)](docs/09-execution-agreement.md)
 
+
+**Runflare MySQL first migration (SQLSTATE 1071):** the UTF8MB4 indexed-column limit fix and safe partial-migration recovery are documented in [MySQL index compatibility](docs/22-mysql-index-compatibility.md). Never run destructive migration reset on a database with data.
+
 ## Initial data and non-Redis queue
 
 Safe initialization on an authorized, backed-up database:
