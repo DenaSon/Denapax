@@ -46,15 +46,6 @@ jobs:
       - name: Validate Composer manifest
         run: composer validate --no-check-publish
 
-      - name: Temporary formatter output (phase 8 only)
-        run: |
-          vendor/bin/pint > /dev/null
-          for f in app/Integrations/Telegram/CatalogMessages.php app/Integrations/Telegram/CustomerOrdersBot.php tests/Feature/TelegramCheckoutStatusUxTest.php tests/Feature/TelegramCustomersTest.php; do
-            echo "PINT_PHASE8_BEGIN $f"
-            cat "$f"
-            echo "PINT_PHASE8_END $f"
-          done
-
       - name: Check formatting
         run: vendor/bin/pint --test
 
