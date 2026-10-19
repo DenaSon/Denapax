@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\CopyTextButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -51,7 +52,7 @@ class ReceiptBot
 
         $keyboard = Keyboard::make();
         foreach ($orders as $order) {
-            $label = $order->order_number.' · '.number_format(intdiv($order->total_irr, 10)).' تومان · '
+            $label = $order->public_reference.' · '.number_format(intdiv($order->total_irr, 10)).' تومان · '
                 .OrderStateLabels::payment($order->payment_status);
             $keyboard->addRow(Button::make($label, callback_data: 'receipt:order:'.$order->id));
         }
@@ -81,7 +82,7 @@ class ReceiptBot
         }
 
         $latest = $order->receipts()->latest('attempt_number')->first();
-        $text = TelegramHtml::bold('🧾 سفارش '.$order->order_number)
+        $text = TelegramHtml::bold('🧾 سفارش '.$order->public_reference)
             ."\nوضعیت پرداخت: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status));
         $text .= "\n".TelegramHtml::bold('مبلغ قابل پرداخت: '.number_format(intdiv($order->total_irr, 10)).' تومان');
 
@@ -140,7 +141,7 @@ class ReceiptBot
         ]);
 
         $bot->sendMessage(
-            '📷 ارسال رسید برای سفارش '.$order->order_number
+            '📷 ارسال رسید برای سفارش '.$order->public_reference
             ."\nمبلغ: ".number_format(intdiv($order->total_irr, 10)).' تومان'
             ."\n\nعکس یا فایل تصویری JPG/PNG/WebP بفرستید (حداکثر ۸ مگابایت)."
             ."\n/cancel برای لغو. تا تأیید فروشگاه، پرداخت در انتظار بررسی است.",
