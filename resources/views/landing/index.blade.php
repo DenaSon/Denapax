@@ -186,7 +186,9 @@
                     @endphp
                     <article class="product-card group relative overflow-hidden bg-[#ebe9dd] {{ $isFeatured ? 'sm:col-span-2 lg:col-span-2 product-card-featured' : '' }}" data-reveal data-delay="{{ $loop->index % 3 }}">
                         <a href="{{ $telegramUrl ?? '#order' }}" @if ($telegramUrl) target="_blank" rel="noopener noreferrer" @endif
-                           class="block h-full" aria-label="{{ $product->title }}؛ {{ $telegramUrl ? 'ورود به بات برای سفارش' : 'راهنمای سفارش' }}">
+                           x-on:click.prevent="openProduct({{ $product->id }}, $event)"
+                           aria-haspopup="dialog" aria-controls="denapax-product-preview"
+                           class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
                             <div class="product-photo relative overflow-hidden bg-[#c8cbb6] {{ $isFeatured ? 'max-h-[570px]' : '' }}">
                                 @if ($cover)
                                     <img class="product-card-image block w-full object-cover" src="{{ $cover->getUrl() }}"
@@ -338,5 +340,137 @@
        aria-label="بازگشت به بالای صفحه">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
     </a>
+
+    {{-- Only the product catalog is dynamic; safely-escaped, page-limited public fields. --}}
+    <script id="landing-product-data" type="application/json">@json($productPreviews, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
+
+    {{-- Native dialog provides a top-layer backdrop, focus containment, Escape and mobile support. --}}
+    <dialog id="denapax-product-preview" x-ref="productDialog"
+        x-on:close="onProductClosed()" x-on:click.self="closeProduct()"
+        aria-labelledby="landing-preview-title"
+        class="landing-product-dialog">
+        <template x-if="preview">
+            <div class="landing-product-sheet">
+                <div class="landing-product-visual">
+                    <div class="landing-product-visual-main">
+                        <template x-if="preview.images.length">
+                            <img x-bind:src="preview.images[previewImageIndex].url"
+                                 x-bind:alt="preview.images[previewImageIndex].alt"
+                                 class="h-full w-full object-cover" width="720" height="720" decoding="async">
+                        </template>
+                        <template x-if="!preview.images.length">
+                            <div class="organic-lines flex h-full w-full items-center justify-center bg-[#cad0bb]">
+                                <svg viewBox="0 0 110 110" class="h-27 w-27 text-[#547560]" fill="none" aria-hidden="true">
+                                    <path d="m7 83 36-58 22 34 14-23 25 47M14 90h84" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </template>
+                        <span class="absolute right-5 top-5 rounded-full bg-[#f0eee2]/90 px-4 py-2 text-xs font-semibold text-[#355643]" x-text="preview.category"></span>
+                        <template x-if="preview.images.length > 1">
+                            <div class="landing-product-photo-nav">
+                                <button type="button" x-on:click="nextImage(-1)" aria-label="تصویر قبلی">→</button>
+                                <span dir="ltr" class="text-xs font-medium" x-text="(previewImageIndex + 1) + ' / ' + preview.images.length"></span>
+                                <button type="button" x-on:click="nextImage(1)" aria-label="تصویر بعدی">←</button>
+                            </div>
+                        </template>
+                    </div>
+                    <template x-if="preview.images.length > 1">
+                        <div class="landing-product-thumbnails" aria-label="انتخاب تصویر محصول">
+                            <template x-for="(image, index) in preview.images" x-bind:key="image.url">
+                                <button type="button" class="landing-product-thumbnail"
+                                    x-bind:class="{ 'is-selected': index === previewImageIndex }"
+                                    x-bind:aria-label="'تصویر ' + (index + 1) + ' محصول'"
+                                    x-bind:aria-pressed="(index === previewImageIndex).toString()"
+                                    x-on:click="selectImage(index)">
+                                    <img x-bind:src="image.url" x-bind:alt="image.alt"
+                                         width="72" height="72" loading="lazy" decoding="async">
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="landing-product-info">
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="landing-label text-[#9b7958]" lang="en">THE DENA COLLECTION</span>
+                        <button data-product-close type="button" x-on:click="closeProduct()"
+                            class="landing-product-close" aria-label="بستن جزئیات محصول">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="mt-6">
+                        <h2 id="landing-preview-title" class="text-[clamp(1.75rem,3.8vw,2.8rem)] font-extrabold leading-[1.5] tracking-tight text-[#1d4130]" x-text="preview.title"></h2>
+                        <p class="mt-2 text-sm leading-8 text-[#6a7b6d]" x-show="preview.summary" x-text="preview.summary"></p>
+                        <p class="mt-4 whitespace-pre-line text-sm leading-8 text-[#3f5c49]" x-show="preview.description" x-text="preview.description"></p>
+                    </div>
+
+                    <div class="my-7 h-px bg-[#d5dbcc]"></div>
+
+                    <section aria-labelledby="landing-variants-title">
+                        <h3 id="landing-variants-title" class="mb-4 text-base font-bold text-[#234b39]">تنوع‌های قابل سفارش</h3>
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <template x-for="(variant, index) in preview.variants" x-bind:key="index">
+                                <button type="button" class="landing-variant-button"
+                                    x-bind:class="{ 'is-selected': previewVariantIndex === index }"
+                                    x-bind:aria-pressed="(previewVariantIndex === index).toString()"
+                                    x-on:click="selectVariant(index)">
+                                    <span class="flex items-center justify-between gap-2 text-right">
+                                        <span class="text-sm font-bold" x-text="variant.title"></span>
+                                        <span class="landing-variant-radio" aria-hidden="true"></span>
+                                    </span>
+                                    <span class="mt-2 block text-xs opacity-70" x-text="variant.size"></span>
+                                    <span class="mt-3 block text-sm font-bold">
+                                        <span dir="ltr" class="inline-block" x-text="variant.price"></span>
+                                        <span class="text-xs font-normal">تومان</span>
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
+                    </section>
+
+                    <template x-if="preview.features.length">
+                        <section class="mt-8" aria-labelledby="landing-features-title">
+                            <h3 id="landing-features-title" class="mb-3 text-sm font-bold text-[#234b39]">ویژگی‌های محصول</h3>
+                            <dl class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                <template x-for="(feature, index) in preview.features" x-bind:key="index">
+                                    <div class="flex items-baseline justify-between gap-4 border-b border-[#d4dccd] py-2 text-xs">
+                                        <dt class="text-[#738474]" x-text="feature.name"></dt>
+                                        <dd class="text-left font-semibold text-[#294d3b]" x-text="feature.value"></dd>
+                                    </div>
+                                </template>
+                            </dl>
+                        </section>
+                    </template>
+
+                    <div class="mt-8 rounded-2xl bg-[#e8ebdf] p-4">
+                        <div class="flex items-baseline justify-between gap-2">
+                            <span class="text-sm text-[#637867]">قیمت تنوع انتخاب‌شده</span>
+                            <span class="text-xl font-extrabold text-[#1d4130]">
+                                <span dir="ltr" class="inline-block" x-text="preview.variants[previewVariantIndex].price"></span>
+                                <span class="text-xs font-medium">تومان</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    @if ($telegramUrl)
+                        <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer"
+                           class="landing-button mt-4 w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]">
+                            ادامه سفارش در بات تلگرام
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-4-2zM12 14l8-10"/></svg>
+                        </a>
+                    @else
+                        <a href="#order" x-on:click="closeProduct()"
+                           class="landing-button mt-4 w-full bg-[#19392f] text-white">
+                            راهنمای سفارش
+                        </a>
+                    @endif
+                    <p class="mt-3 text-center text-xs leading-6 text-[#7b8a7a]">
+                        انتخاب نهایی تنوع و ثبت سفارش داخل بات انجام می‌شود.
+                    </p>
+                </div>
+            </div>
+        </template>
+    </dialog>
 </body>
 </html>

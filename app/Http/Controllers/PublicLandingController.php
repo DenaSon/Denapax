@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\Money;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ class PublicLandingController extends Controller
                 ->whereHas('category', fn (Builder $category) => $category->where('slug', $selectedCategory)))
             ->with([
                 'category',
+                'features',
                 'media',
                 'variants' => fn ($query) => $orderable($query)->orderBy('sort_order'),
                 'variants.media',
@@ -54,6 +56,50 @@ class PublicLandingController extends Controller
             ? 'https://t.me/'.$username
             : null;
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl'));
+        // The preview is limited to the current page and contains only public,
+        // already-orderable catalog fields; no extra HTTP endpoint or N+1 lookups.
+        $productPreviews = $products->getCollection()->mapWithKeys(function (Product $product): array {
+            $gallery = $product->getMedia('gallery')
+                ->map(fn ($media): array => [
+                    'url' => $media->getUrl(),
+                    'alt' => 'تصویر '.$product->title,
+                ]);
+
+            $variantPhotos = $product->variants
+                ->map(fn ($variant) => $variant->getFirstMedia('variant-image'))
+                ->filter()
+                ->map(fn ($media): array => [
+                    'url' => $media->getUrl(),
+                    'alt' => 'تصویر '.$product->title,
+                ]);
+
+            return [(string) $product->id => [
+                'title' => $product->title,
+                'category' => $product->category->name,
+                'summary' => $product->summary,
+                'description' => $product->description,
+                'images' => $gallery->concat($variantPhotos)->unique('url')->take(12)->values()->all(),
+                'features' => $product->features
+                    ->map(fn ($feature): array => ['name' => $feature->name, 'value' => $feature->value])
+                    ->values()->all(),
+                'variants' => $product->variants
+                    ->map(fn ($variant): array => [
+                        'title' => $variant->title,
+                        'size' => rtrim(rtrim((string) $variant->sale_quantity, '0'), '.').' '.match ($variant->sale_unit) {
+                            'g' => 'گرم',
+                            'kg' => 'کیلوگرم',
+                            'l' => 'لیتر',
+                            'piece' => 'عدد',
+                            'pack' => 'بسته',
+                            default => $variant->sale_unit,
+                        },
+                        'price' => Money::formatToman((int) $variant->price_irr),
+                        'image' => $variant->getFirstMedia('variant-image')?->getUrl(),
+                    ])
+                    ->values()->all(),
+            ]];
+        })->all();
+
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews'));
     }
 }

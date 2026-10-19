@@ -26,6 +26,10 @@ To activate the outbound links, configure `TELEGRAM_BOT_USERNAME` in Runflare (p
 
 Second-phase work adds topographic path drawing, chapter-aware scroll progress, refined product reveals, accessible mobile keyboard focus behavior, no-JavaScript navigation fallback and reduced-motion/high-contrast safeguards. The dynamic scope remains **catalog only**. No web checkout or payment changes. [Phase L2 handoff](docs/31-public-landing-phase-2.md). Device/production smoke must be verified separately.
 
+### Landing Phase L3 — Product Experience
+
+Product cards now open one responsive native-dialog preview with gallery thumbnails, description, features and **only available variants with exact toman prices**. Alpine changes the visible variant/image, while the actual checkout remains in the Telegram bot (no product deep-link promise). The payload contains only public catalog fields for the current page and uses safe JSON serialization. The page remains usable without JavaScript through existing links. See [L3 handoff](docs/32-public-landing-phase-3.md). Real phone/desktop smoke is distinct from CI.
+
 ## Architecture
 
 | Layer | Stack |

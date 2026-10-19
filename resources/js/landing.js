@@ -9,10 +9,19 @@ Alpine.data('landingPage', () => ({
     pointerFrame: null,
     revealObserver: null,
     sectionObserver: null,
+    productPreviews: {},
+    preview: null,
+    previewImageIndex: 0,
+    previewVariantIndex: 0,
+    previewReturnFocus: null,
+    priorScrollLock: '',
     onScroll: null,
     onResize: null,
 
     init() {
+        const catalog = document.getElementById('landing-product-data');
+        if (catalog?.textContent) this.productPreviews = JSON.parse(catalog.textContent);
+
         const updateScroll = () => {
             this.scrollFrame = null;
             this.hasScrolled = window.scrollY > 400;
@@ -138,7 +147,65 @@ Alpine.data('landingPage', () => ({
         this.$refs.landscape.style.setProperty('--landscape-y', '0px');
     },
 
+    openProduct(id, event) {
+        const item = this.productPreviews[String(id)];
+        if (!item || !item.variants?.length || !this.$refs.productDialog) return;
+
+        this.closeMenu();
+        this.preview = item;
+        this.previewImageIndex = 0;
+        this.previewVariantIndex = 0;
+        this.previewReturnFocus = event?.currentTarget ?? document.activeElement;
+
+        this.$nextTick(() => {
+            const dialog = this.$refs.productDialog;
+            if (dialog.open) return;
+            this.priorScrollLock = document.documentElement.style.overflow;
+            dialog.showModal();
+            document.documentElement.style.overflow = 'hidden';
+            dialog.querySelector('[data-product-close]')?.focus();
+        });
+    },
+
+    closeProduct() {
+        if (this.$refs.productDialog?.open) this.$refs.productDialog.close();
+    },
+
+    onProductClosed() {
+        document.documentElement.style.overflow = this.priorScrollLock;
+        this.preview = null;
+        this.previewImageIndex = 0;
+        this.previewVariantIndex = 0;
+        this.$nextTick(() => {
+            this.previewReturnFocus?.focus?.();
+            this.previewReturnFocus = null;
+        });
+    },
+
+    selectVariant(index) {
+        const variant = this.preview?.variants?.[index];
+        if (!variant) return;
+        this.previewVariantIndex = index;
+
+        if (variant.image) {
+            const imageIndex = this.preview.images.findIndex((photo) => photo.url === variant.image);
+            if (imageIndex !== -1) this.previewImageIndex = imageIndex;
+        }
+    },
+
+    selectImage(index) {
+        if (index >= 0 && index < (this.preview?.images?.length ?? 0)) this.previewImageIndex = index;
+    },
+
+    nextImage(step) {
+        const count = this.preview?.images?.length ?? 0;
+        if (count > 1) this.previewImageIndex = (this.previewImageIndex + step + count) % count;
+    },
+
     destroy() {
+        // A navigation/unmount must never leave a locked page behind.
+        if (this.$refs.productDialog?.open) this.$refs.productDialog.close();
+        document.documentElement.style.overflow = this.priorScrollLock;
         window.removeEventListener('scroll', this.onScroll);
         window.removeEventListener('resize', this.onResize);
         if (this.scrollFrame !== null) window.cancelAnimationFrame(this.scrollFrame);

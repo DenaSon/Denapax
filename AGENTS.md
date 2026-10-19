@@ -6,6 +6,8 @@
 
 **Public landing Phase L2 (owner-approved):** Motion and responsive refinement on top of public landing L1. Includes progress/chapter navigation, topographic drawing, photo wipes, accessible Alpine mobile keyboard menu and no-JS/reduced-motion fallbacks. Only the product catalog is dynamic; do not add web checkout. Verify PR/master CI separately from real production browser testing. See [docs/31](docs/31-public-landing-phase-2.md).
 
+**Public landing Phase L3 (owner-approved):** product card previews use one responsive native dialog with media gallery, product information, features, and only orderable variants/prices in toman. Alpine controls preview/selection; the final variant and order are selected anew in Telegram. Dynamic site data remains limited to products; static brand sections unchanged, no web checkout. JSON data must remain XSS-escaped and public-only. See [docs/32](docs/32-public-landing-phase-3.md). Confirm production behavior separately from merged code/CI.
+
 ## 1. Current owner decision
 
 **MVP is functionally accepted, owner-reported live, and feature scope is frozen as of 2026-10-19.** The owner created multiple real products, tested each at least once in the bot and previously confirmed the functional E2E purchase experience. Launch/freeze is a **product decision**, **not** documentary clearance for the remaining E07 security and disaster-recovery tests.

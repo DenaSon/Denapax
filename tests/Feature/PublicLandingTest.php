@@ -66,6 +66,43 @@ class PublicLandingTest extends TestCase
         $this->get('/?category=unknown')->assertOk()->assertSee('آلو بخارا');
     }
 
+    public function test_product_preview_contains_only_orderable_variants_and_safe_public_details(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'dena-walnut', 13890000);
+        $product->update([
+            'summary' => 'گردوی طبیعی',
+            'description' => 'توضیحات </script><script>alert(1)</script>',
+        ]);
+        $product->features()->create([
+            'name' => 'خاستگاه', 'value' => 'سی‌سخت', 'sort_order' => 1,
+        ]);
+        $product->variants()->create([
+            'sku' => 'HIDDEN-VARIANT', 'title' => 'تنوع غیرقابل سفارش',
+            'sale_quantity' => 1, 'sale_unit' => 'kg', 'price_irr' => 100000,
+            'shipping_weight_grams' => 1000, 'is_available' => false,
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('id="denapax-product-preview"', false)
+            ->assertSee('x-on:click.prevent="openProduct(', false)
+            ->assertSee('id="landing-product-data"', false)
+            ->assertDontSee('</script><script>alert(1)</script>', false)
+            ->assertViewHas('productPreviews', function (array $previews) use ($product): bool {
+                $preview = $previews[$product->id] ?? null;
+
+                return $preview !== null
+                    && $preview['title'] === 'گردوی دنا'
+                    && $preview['description'] === 'توضیحات </script><script>alert(1)</script>'
+                    && $preview['features'] === [['name' => 'خاستگاه', 'value' => 'سی‌سخت']]
+                    && count($preview['variants']) === 1
+                    && $preview['variants'][0]['price'] === '1,389,000'
+                    && $preview['variants'][0]['size'] === '0.5 کیلوگرم'
+                    && $preview['images'] === [];
+            });
+    }
+
     public function test_telegram_button_only_links_to_a_configured_valid_handle(): void
     {
         config()->set('services.telegram.bot_username', 'DenaPaxBot');
