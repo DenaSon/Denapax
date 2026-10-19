@@ -1,5 +1,8 @@
 # Denapax — Agent Handoff & Working Agreement
 
+**Verified closeout (2026-10-19):** Both Post-MVP Sprint 1 phases are merged and code-complete. Phase 7 [PR #61](https://github.com/DenaSon/Denapax/pull/61) → `7aa0b10`; Phase 8 [PR #62](https://github.com/DenaSon/Denapax/pull/62) → `87f3c92`. [Master CI run 39248240505](https://github.com/DenaSon/Denapax/actions/runs/39248240505) is green. Phase 8: 69 tests / 383 assertions; Pint, Composer and Vite passed. [#56](https://github.com/DenaSon/Denapax/issues/56), [#57](https://github.com/DenaSon/Denapax/issues/57), [#58](https://github.com/DenaSon/Denapax/issues/58) closed as *code-delivered*. **Production Telegram/device smoke and independent E07 security/backup gates #11/#24/#25 remain unverified/open; no claim of live rollout in this documentation update.** Admin private-group alerts are deferred and unimplemented.
+
+
 > **Read this first in every new ChatGPT/Codex/AI development conversation about Denapax.**
 > This is a versioned repository handoff, not a substitute for inspecting GitHub's current code, issues or CI before taking actions.
 > Snapshot date: **2026-10-19**. Update this file when project status materially changes.
