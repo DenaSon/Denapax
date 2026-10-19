@@ -205,6 +205,12 @@ class ProductEditor extends Component
             return;
         }
 
+        if ($this->isActive && collect($data['variants'])->contains(fn ($row) => ! empty($row['is_available']) && Money::tomanToIrr($row['price_toman']) === 0)) {
+            $this->addError('variants', 'قیمت تنوع قابل سفارش برای محصول منتشرشده باید بیشتر از صفر باشد.');
+
+            return;
+        }
+
         foreach ($this->variants as $i => $row) {
             if (! empty($row['id']) && ! ProductVariant::where('product_id', $this->productId)->whereKey($row['id'])->exists()) {
                 $this->addError("variants.$i.sku", 'تنوع متعلق به این محصول نیست.');
