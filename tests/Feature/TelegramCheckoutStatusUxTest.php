@@ -35,6 +35,10 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $this->assertStringContainsString('در انتظار پرداخت', $text['text']);
         $this->assertStringContainsString('120,000 تومان', $text['text']);
         $this->assertStringContainsString('شماره کارت: 6037991234567890', $text['text']);
+        $this->assertSame('HTML', $text['parse_mode']);
+        $this->assertStringContainsString('<b>💳 مبلغ قابل پرداخت: 120,000 تومان</b>', $text['text']);
+        $this->assertStringContainsString('<blockquote>پس از بررسی و تأیید پرداخت', $text['text']);
+        $this->assertStringNotContainsString('به‌معنای تأیید پرداخت نیست', $text['text']);
         $this->assertSame('receipt:order:'.$order->id, $text['reply_markup']['inline_keyboard'][0][0]['callback_data']);
         $this->assertSame('myorder:'.$order->id, $text['reply_markup']['inline_keyboard'][1][0]['callback_data']);
 
@@ -130,9 +134,12 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $this->assertStringContainsString('در انتظار پرداخت', $created);
         $this->assertStringContainsString('120,000 تومان', $created);
         $this->assertStringContainsString('ابتدا همین سفارش را انتخاب', $created);
+        $this->assertStringContainsString('<blockquote>', $created);
+        $this->assertStringContainsString('<b>💳 مبلغ قابل پرداخت: 120,000 تومان</b>', $created);
 
         $submitted = $notice->render('payment.receipt_submitted', $order);
         $this->assertStringContainsString('در انتظار بررسی', $submitted);
+        $this->assertStringNotContainsString('به‌معنای تأیید پرداخت نیست', $submitted);
         $rejected = $notice->render('payment.receipt_rejected', $order, $receipt);
         $this->assertStringContainsString('رسید ناخواناست', $rejected);
         $this->assertStringContainsString('همین سفارش را انتخاب', $rejected);
@@ -150,6 +157,25 @@ class TelegramCheckoutStatusUxTest extends TestCase
 
         $this->assertSame('در انتظار پرداخت', OrderStateLabels::order('awaiting_payment'));
         $this->assertSame('رسید دریافت شد؛ در انتظار بررسی', OrderStateLabels::payment('under_review'));
+    }
+
+    public function test_payment_and_receipt_text_escape_dynamic_store_values(): void
+    {
+        $owner = Customer::create(['telegram_user_id' => 4512]);
+        $order = $this->order($owner);
+        $order->update(['payment_instructions_snapshot' => [
+            'card_number' => '6037991234567890',
+            'card_holder_name' => 'Dena <Store> & Co',
+        ]]);
+
+        $bot = $this->bot();
+        app(CartCheckoutMessages::class)->confirm($bot, $owner, $order->checkout_key);
+        $sent = $this->latestMessage($bot);
+        $this->assertStringContainsString('Dena &lt;Store&gt; &amp; Co', $sent['text']);
+        $this->assertStringNotContainsString('Dena <Store>', $sent['text']);
+
+        $notice = app(TelegramNotificationText::class)->render('order.created', $order);
+        $this->assertStringContainsString('Dena &lt;Store&gt; &amp; Co', $notice);
     }
 
     private function bot(): FakeNutgram
