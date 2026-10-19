@@ -2,6 +2,10 @@
     <h1 class="text-2xl font-bold">بررسی دستی رسیدهای کارت‌به‌کارت</h1>
     <p class="text-sm opacity-70">دریافت تصویر به‌معنای پرداخت قطعی نیست. مبلغ و شماره سفارش را با تراکنش واقعی بانک مطابقت دهید و سپس تأیید کنید.</p>
 
+    @if($receiptId !== null)
+        <p><a class="link" href="{{ route('admin.payments') }}">← مشاهده همه رسیدها</a></p>
+    @endif
+
     <x-card>
         <label class="form-control">
             <span class="label">وضعیت رسید</span>
