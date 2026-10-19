@@ -3,6 +3,9 @@
 Telegram-first store for Dena souvenirs and dried fruits.
 
 ## Project status
+
+The security preparation originally in draft Phase 6 PR #36 has been reconciled into a scoped update against current `master` (safe webhook error logs, private-receipt regression tests, locked Composer audit, and the operator runbook). Verify the integration PR merge/CI; this is **not** production deployment, live E2E, or Phase 6 approval. Horizon and Redis are deferred: use Laravel database queues.
+
 **Status 2026-10-19:** UX-1..4 code PRs #43–#46 are merged, with UX issues #38–#41 closed. [Setup issue #47](https://github.com/DenaSon/Denapax/issues/47) and [PR #48](https://github.com/DenaSon/Denapax/pull/48) cover idempotent initialization seeders. Phase 6 release issues #11/#24/#25 remain open. Verify latest GitHub status before reporting counts.
 
 **Phase:** All five principal MVP implementation phases are merged to `master` with passing CI. Phase 6 — integrated real-world testing, security/operational hardening and launch readiness — remains OPEN. Telegram UX polish is tracked in **four sub-phases UX-1..UX-4** ([guide](docs/telegram-ui-ux-guidelines.md)); UX-1, UX-2, UX-3 and UX-4 are all merged (last: [PR #46](https://github.com/DenaSon/Denapax/pull/46)). This does not replace Phase 6. No live Telegram, real MySQL/Redis or banking trial has been claimed.
@@ -16,6 +19,7 @@ Telegram-first store for Dena souvenirs and dried fruits.
 ## Documentation
 - **[AGENTS.md — start here in a new AI/chat development session](AGENTS.md)**
 - **[Phase 6 readiness plan and accurate current status](docs/15-phase-6-readiness-plan.md)**
+- **[Phase 6 operator runbook — staging, webhook, database queue and recovery](docs/16-phase-6-operator-runbook.md)**
 - **[Telegram UI/UX & brand guidelines — approved greeting, native button styles/icons and four polish sub-phases](docs/telegram-ui-ux-guidelines.md)**
 - [UX-1 handoff — welcome, help, direct Telegram support and navigation (merged PR #43)](docs/17-ux-1-handoff.md)
 - [UX-2 handoff — native Telegram button styles and plain emoji fallback](docs/18-ux-2-handoff.md)
