@@ -24,7 +24,7 @@
                 <div class="flex flex-wrap justify-between gap-2">
                     <div>
                         <p class="font-bold">سفارش {{ $receipt->order->public_reference }} · تلاش {{ $receipt->attempt_number }}</p>
-                        <p class="text-sm">مبلغ سفارش: {{ number_format(intdiv($receipt->order->total_irr, 10)) }} تومان</p>
+                        <p class="text-sm">مبلغ سفارش: {{ \App\Support\Money::formatToman($receipt->order->total_irr) }} تومان</p>
                         <p class="text-sm">وضعیت: {{ $receipt->status }} · {{ $receipt->submitted_at?->format('Y-m-d H:i') }}</p>
                     </div>
                     <a href="{{ route('admin.payments.receipt.image', $receipt) }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">مشاهده تصویر خصوصی رسید</a>
