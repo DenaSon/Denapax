@@ -2,6 +2,7 @@
 
 namespace App\Integrations\Telegram;
 
+use App\Support\Money;
 use App\Application\Actions\BrowseCatalog;
 use App\Models\ProductVariant;
 use App\Support\TelegramHtml;
@@ -299,8 +300,6 @@ class CatalogMessages
 
     private function toman(int $irr): string
     {
-        return $irr % 10 === 0
-            ? number_format(intdiv($irr, 10))
-            : number_format($irr / 10, 1);
+        return Money::formatToman($irr);
     }
 }
