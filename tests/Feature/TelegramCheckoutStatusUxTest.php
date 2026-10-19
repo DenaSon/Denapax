@@ -10,6 +10,7 @@ use App\Integrations\Telegram\ReceiptBot;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
+use App\Support\OrderReference;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -182,7 +183,6 @@ class TelegramCheckoutStatusUxTest extends TestCase
         $this->assertStringContainsString('Dena &lt;Store&gt; &amp; Co', $notice);
     }
 
-
     public function test_public_reference_is_stable_unique_and_reversible_without_mutating_legacy_number(): void
     {
         $owner = Customer::create(['telegram_user_id' => 4512]);
@@ -192,8 +192,8 @@ class TelegramCheckoutStatusUxTest extends TestCase
 
         $this->assertMatchesRegularExpression('/^DN-[0-9]{9}$/', $one->public_reference);
         $this->assertNotSame($one->public_reference, $two->public_reference);
-        $this->assertSame($one->id, \App\Support\OrderReference::toId($one->public_reference));
-        $this->assertSame($two->id, \App\Support\OrderReference::toId($two->public_reference));
+        $this->assertSame($one->id, OrderReference::toId($one->public_reference));
+        $this->assertSame($two->id, OrderReference::toId($two->public_reference));
         $this->assertSame('DN-UX4-001', $one->fresh()->order_number);
 
         $screen = app(CustomerOrdersBot::class);
