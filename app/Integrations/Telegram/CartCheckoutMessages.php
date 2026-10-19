@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use Illuminate\Support\Str;
 use SergiX44\Nutgram\Nutgram;
+use SergiX44\Nutgram\Telegram\Properties\ParseMode;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton as Button;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup as Keyboard;
 
@@ -42,7 +43,10 @@ class CartCheckoutMessages
         $page = min($pages, max(1, $page));
         $subtotal = $items->sum(fn ($item) => ($item->variant?->price_irr ?? 0) * $item->quantity);
 
-        $message = '🛒 سبد خرید شما'."\nصفحه ".$page.' از '.$pages;
+        $message = '🛒 '.TelegramHtml::bold('سبد خرید');
+        if ($pages > 1) {
+            $message .= "\nصفحه ".$page.' از '.$pages;
+        }
         $keyboard = Keyboard::make();
 
         foreach ($items->forPage($page, $perPage) as $index => $item) {
@@ -50,20 +54,20 @@ class CartCheckoutMessages
             $variant = $item->variant;
             $title = $variant?->product?->title ?? 'محصول غیرفعال';
             $unit = $variant?->price_irr ?? 0;
-            $message .= "\n\n".$number.'. '.mb_substr($title, 0, 90).' / '.mb_substr($variant?->title ?? 'تنوع غیرفعال', 0, 70)
-                ."\n".$this->toman($unit).' تومان × '.$item->quantity.' = '
+            $message .= "\n\n".$number.'. '.TelegramHtml::bold(mb_substr($title, 0, 90))
+                .' | '.TelegramHtml::escape(mb_substr($variant?->title ?? 'تنوع غیرفعال', 0, 70))
+                ."\n".$item->quantity.' × '.$this->toman($unit).' = '
                 .$this->toman($unit * $item->quantity).' تومان';
 
             $keyboard->addRow(
-                Button::make('➕ #'.$number, callback_data: 'cart:plus:'.$item->product_variant_id),
-                Button::make('➖ #'.$number, callback_data: 'cart:minus:'.$item->product_variant_id),
+                Button::make('افزایش +۱', callback_data: 'cart:plus:'.$item->product_variant_id),
+                Button::make('کاهش -۱', callback_data: 'cart:minus:'.$item->product_variant_id),
             );
             $keyboard->addRow(StorefrontButtons::danger('🗑️ حذف #'.$number, 'cart:remove:'.$item->product_variant_id));
         }
 
-        $message .= "\n\nتعداد اقلام: ".$items->sum('quantity')
-            ."\nجمع کالا: ".$this->toman((int) $subtotal).' تومان'
-            ."\nهزینه ارسال در مرحله بعد محاسبه می‌شود.";
+        $message .= "\n\n".TelegramHtml::bold('جمع سبد: '.$this->toman((int) $subtotal).' تومان')
+            ."\n🚚 هزینه ارسال در مرحله بعد محاسبه می‌شود.";
 
         $pager = [];
         if ($page > 1) {
@@ -78,11 +82,11 @@ class CartCheckoutMessages
 
         $keyboard->addRow(StorefrontButtons::success('✅ ادامه و ثبت سفارش', 'checkout:start'));
         $keyboard->addRow(
-            StorefrontButtons::primary('🌰 ادامه خرید', 'menu:catalog'),
+            StorefrontButtons::primary('🛍️ افزودن محصول دیگر', 'menu:catalog'),
             Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
         );
 
-        $bot->sendMessage(text: mb_substr($message, 0, 3900), reply_markup: $keyboard);
+        $bot->sendMessage(text: mb_substr($message, 0, 3900), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function chooseAddress(Nutgram $bot, Customer $customer): void
@@ -137,19 +141,19 @@ class CartCheckoutMessages
             'updated_at' => now(),
         ]);
 
-        $text = "🧾 پیش‌نمایش نهایی سفارش\n";
+        $text = TelegramHtml::bold('🧾 پیش‌نمایش نهایی سفارش')."\n";
         foreach ($quote['items'] as $line) {
-            $text .= "\n• ".$line['product_title_snapshot'].' / '.$line['variant_title_snapshot']
+            $text .= "\n• ".TelegramHtml::escape($line['product_title_snapshot']).' / '.TelegramHtml::escape($line['variant_title_snapshot'])
                 .' × '.$line['quantity'].' : '.$this->toman($line['line_total_irr']).' تومان';
         }
-        $text .= "\n\n👤 گیرنده: ".$quote['address']['recipient_name']
-            ."\nتلفن گیرنده: ".$quote['address']['recipient_mobile'];
-        $text .= "\n📍 نشانی: ".$quote['address']['province'].'، '.$quote['address']['city'].'، '.$quote['address']['address_line']
-            ."\nکد پستی: ".$quote['address']['postal_code'];
+        $text .= "\n\n".TelegramHtml::bold('👤 گیرنده: ').TelegramHtml::escape($quote['address']['recipient_name'])
+            ."\nتلفن گیرنده: ".TelegramHtml::escape($quote['address']['recipient_mobile']);
+        $text .= "\n📍 نشانی: ".TelegramHtml::escape($quote['address']['province']).'، '.TelegramHtml::escape($quote['address']['city']).'، '.TelegramHtml::escape($quote['address']['address_line'])
+            ."\nکد پستی: ".TelegramHtml::escape($quote['address']['postal_code']);
         $text .= "\n\nوزن مرسوله: ".$quote['shipping_weight_grams'].' گرم';
         $text .= "\n🛒 جمع کالا: ".$this->toman($quote['goods_subtotal_irr']).' تومان';
         $text .= "\n🚚 هزینه ارسال: ".$this->toman($quote['shipping_fee_irr']).' تومان';
-        $text .= "\n💳 مبلغ قابل پرداخت: ".$this->toman($quote['total_irr']).' تومان';
+        $text .= "\n".TelegramHtml::bold('💳 مبلغ قابل پرداخت: '.$this->toman($quote['total_irr']).' تومان');
         $text .= "\n\n".'با تأیید، سفارش ثبت می‌شود و اطلاعات کارت‌به‌کارت نمایش داده خواهد شد.';
 
         $keyboard = Keyboard::make()
@@ -160,7 +164,7 @@ class CartCheckoutMessages
                 Button::make('🏠 منوی اصلی', callback_data: 'menu:home'),
             );
 
-        $bot->sendMessage(text: mb_substr($text, 0, 3950), reply_markup: $keyboard);
+        $bot->sendMessage(text: mb_substr($text, 0, 3950), parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     public function confirm(Nutgram $bot, Customer $customer, string $key): void
@@ -205,35 +209,36 @@ class CartCheckoutMessages
 
         if ($order->order_status === 'awaiting_payment') {
             $payment = $order->payment_instructions_snapshot;
-            $text = "✅ سفارش ثبت شد\nشماره سفارش: ".$order->order_number
-                ."\nوضعیت سفارش: در انتظار پرداخت"
-                ."\nوضعیت رسید: ".OrderStateLabels::payment($order->payment_status)
+            $text = TelegramHtml::bold('✅ سفارش شما ثبت شد!')
+                ."\n".TelegramHtml::bold('شماره سفارش: ').TelegramHtml::escape($order->order_number)
+                ."\n".TelegramHtml::bold('وضعیت: ⏳ در انتظار پرداخت')
+                ."\nوضعیت رسید: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status))
                 ."\n\n🛒 جمع کالا: ".$this->toman($order->goods_subtotal_irr).' تومان'
                 ."\n🚚 هزینه ارسال: ".$this->toman($order->shipping_fee_irr).' تومان'
-                ."\n💳 مبلغ قابل پرداخت: ".$this->toman($order->total_irr).' تومان';
+                ."\n".TelegramHtml::bold('💳 مبلغ قابل پرداخت: '.$this->toman($order->total_irr).' تومان');
 
             if (in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
-                $text .= "\n\nپرداخت کارت‌به‌کارت:"
-                    ."\nشماره کارت: ".$payment['card_number']
-                    ."\nبه نام: ".$payment['card_holder_name']
-                    ."\n\nپس از واریز، رسید این سفارش را ارسال کنید. ارسال رسید به‌معنای تأیید پرداخت نیست.";
+                $text .= "\n\n".TelegramHtml::bold('💳 اطلاعات واریز')
+                    ."\n".TelegramHtml::bold('شماره کارت: '.(string) ($payment['card_number'] ?? ''))
+                    ."\nبه نام: ".TelegramHtml::escape((string) ($payment['card_holder_name'] ?? ''))
+                    ."\n\nپس از انتقال وجه، رسید این سفارش را ارسال کنید."
+                    ."\n\n".TelegramHtml::quote('پس از بررسی و تأیید پرداخت، سفارش شما نهایی شده و در صف آماده‌سازی قرار می‌گیرد.');
                 $keyboard->addRow(StorefrontButtons::primary('🧾 ارسال رسید پرداخت', 'receipt:order:'.$order->id));
             } else {
-                $text .= "\n\nرسید دریافت شده است؛ پس از بررسی فروشگاه نتیجه اعلام می‌شود.";
+                $text .= "\n\n".TelegramHtml::quote('رسید دریافت شده است؛ پس از بررسی و تأیید پرداخت، نتیجه اعلام می‌شود.');
             }
         } else {
-            // Replayed checkout callbacks must never ask a paid or canceled
-            // customer to send another transfer or receipt.
-            $text = '📦 سفارش '.$order->order_number
-                ."\nوضعیت سفارش: ".OrderStateLabels::order($order->order_status)
-                ."\nوضعیت پرداخت: ".OrderStateLabels::payment($order->payment_status)
-                ."\nمبلغ سفارش: ".$this->toman($order->total_irr).' تومان';
+            // Replayed checkout callbacks must not ask a paid/canceled user to transfer again.
+            $text = TelegramHtml::bold('📦 سفارش '.(string) $order->order_number)
+                ."\nوضعیت سفارش: ".TelegramHtml::escape(OrderStateLabels::order($order->order_status))
+                ."\nوضعیت پرداخت: ".TelegramHtml::escape(OrderStateLabels::payment($order->payment_status))
+                ."\n".TelegramHtml::bold('مبلغ سفارش: '.$this->toman($order->total_irr).' تومان');
         }
 
         $keyboard->addRow(Button::make('📦 مشاهده وضعیت سفارش', callback_data: 'myorder:'.$order->id));
         $keyboard->addRow(Button::make('🏠 منوی اصلی', callback_data: 'menu:home'));
 
-        $bot->sendMessage(text: $text, reply_markup: $keyboard);
+        $bot->sendMessage(text: $text, parse_mode: ParseMode::HTML, reply_markup: $keyboard);
     }
 
     private function toman(int $irr): string
