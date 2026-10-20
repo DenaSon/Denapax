@@ -32,6 +32,23 @@ class PublicLandingTest extends TestCase
             ->assertSee('href="#top"', false);
     }
 
+    public function test_refreshed_landing_keeps_real_category_links_and_compact_static_sections(): void
+    {
+        $nuts = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $this->product($nuts, 'گردوی دنا', 'dena-walnuts', 450000);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('گردوی دنا')
+            ->assertSee('data-catalog-link href="'.route('home', ['category' => 'nuts']).'#products"', false)
+            ->assertSee('x-on:click="handleCatalogClick($event)"', false)
+            ->assertSee('id="products" data-chapter', false)
+            ->assertSee('id="order" data-chapter', false)
+            ->assertDontSee('هر محصول، روایتی از یک جاست.')
+            ->assertDontSee('از اینجا')
+            ->assertDontSee('به تلگرام.');
+    }
+
     public function test_guest_sees_only_published_orderable_products_and_exact_toman_prices(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
