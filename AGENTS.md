@@ -10,6 +10,8 @@
 
 **Public landing Phase L4 (owner-approved final):** Product permalink pages `/products/{slug}`, real public catalog SSR, valid Product/Offer structured data (IRR schema price; toman visible), indexable links, dynamic public-only sitemap, robots.txt, minimal frontend hints and final rollout handoff. Dynamic content remains product catalog alone; no web checkout or fake product inventory/ratings. See [docs/33](docs/33-public-landing-phase-4-final.md). Verify current PR/CI/merge and independently perform live SEO/performance checks; E07 security/DR tasks remain open.
 
+**Landing visual refinement approved (2026-10-20):** center the photo hero; eliminate the introductory statement before products; Alpine progressively fetches SSR catalog HTML for category and pagination without a hard refresh; compact Telegram CTA, photo credit kept. Do not reintroduce an HTML web cart or checkout. Photo is CC BY 3.0 from Wikimedia (Farid Atar), attributed in footer; local SVG remains the fallback. Verify real browser and CI, then update master. See [docs/34](docs/34-landing-owner-refresh.md). Security/backup items remain open.
+
 ## 1. Current owner decision
 
 **MVP is functionally accepted, owner-reported live, and feature scope is frozen as of 2026-10-19.** The owner created multiple real products, tested each at least once in the bot and previously confirmed the functional E2E purchase experience. Launch/freeze is a **product decision**, **not** documentary clearance for the remaining E07 security and disaster-recovery tests.

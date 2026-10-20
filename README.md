@@ -34,6 +34,10 @@ Product cards now open one responsive native-dialog preview with gallery thumbna
 
 The final phase adds SEO-friendly product permalinks at `/products/{slug}` with full server-rendered public product details, accurate `Product`/`Offer` JSON-LD (prices in **IRR**), canonical/Open Graph metadata, dynamic published-orderable `/sitemap.xml` and robots.txt. Card click still opens Alpine modal but preserves true links for no-JS and crawlers. This phase does not add checkout or other dynamic site content. See [L4 final runbook](docs/33-public-landing-phase-4-final.md). Actual live SEO indexing/performance and device checks are distinct from CI.
 
+### Landing post-launch visual refinement (2026-10-20)
+
+A centered real-photo Dena hero, immediate SSR product catalog, category/pagination updates without full-page refresh via Alpine `fetch`, and a compact Telegram order CTA. The existing catalog remains the only dynamic site content. Licensed photo credit remains visible in the footer. [Release/visual checklist](docs/34-landing-owner-refresh.md).
+
 ## Architecture
 
 | Layer | Stack |

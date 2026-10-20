@@ -440,3 +440,41 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .landing-product-dialog[open] { animation: none; }
     .landing-product-close:hover { transform: none; }
 }
+
+
+/* Owner-approved editorial refresh: authentic Dena photograph, centered and quieter. */
+/* Original photo: Farid Atar, CC BY 3.0, via Wikimedia Commons (attributed in footer). */
+/* Keep the original local SVG beneath the photo as an offline/CDN-failure fallback. */
+.landing-hero {
+    min-height: clamp(560px, 72svh, 740px);
+    background: #1b3b2e;
+    border-radius: 0 0 2.25rem 2.25rem;
+}
+.landing-landscape {
+    background-image:
+        url('https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg'),
+        url('/images/dena-landscape.svg');
+    background-position: center 47%;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.landing-hero::after {
+    background: linear-gradient(180deg, rgba(12,36,29,.44) 0%, rgba(11,35,29,.63) 55%, rgba(12,38,30,.77) 100%);
+}
+.landing-hero-glow { opacity: .24; }
+#products { position: relative; }
+#products[aria-busy="true"] .product-card { opacity: .56; pointer-events: none; }
+#products .product-card { transition: opacity .22s ease; }
+@media (min-width: 768px) {
+    .landing-hero { border-radius: 0 0 3rem 3rem; }
+}
+@media (max-width: 767px) {
+    .landing-hero { min-height: 560px; }
+    .landing-landscape { background-position: 48% center; }
+    .landing-hero::after {
+        background: linear-gradient(180deg, rgba(13,38,31,.52) 0%, rgba(12,37,30,.72) 68%, rgba(12,37,30,.85) 100%);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    #products .product-card { transition: none; }
+}

@@ -10,6 +10,9 @@ Alpine.data('landingPage', () => ({
     revealObserver: null,
     sectionObserver: null,
     productPreviews: {},
+    catalogLoading: false,
+    catalogRequest: null,
+    onCatalogPopState: null,
     preview: null,
     previewImageIndex: 0,
     previewVariantIndex: 0,
@@ -46,6 +49,8 @@ Alpine.data('landingPage', () => ({
         updateScroll();
         window.addEventListener('scroll', this.onScroll, { passive: true });
         window.addEventListener('resize', this.onResize, { passive: true });
+        this.onCatalogPopState = () => this.loadCatalog(window.location.href);
+        window.addEventListener('popstate', this.onCatalogPopState);
 
         this.$nextTick(() => {
             this.observeReveals();
@@ -54,6 +59,7 @@ Alpine.data('landingPage', () => ({
     },
 
     observeReveals() {
+        this.revealObserver?.disconnect();
         const elements = this.$root.querySelectorAll('[data-reveal], [data-topography]');
 
         if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -147,6 +153,75 @@ Alpine.data('landingPage', () => ({
         this.$refs.landscape.style.setProperty('--landscape-y', '0px');
     },
 
+    handleCatalogClick(event) {
+        const link = event.target.closest?.('a[data-catalog-link]');
+        if (!link || event.defaultPrevented || event.button !== 0
+            || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        const target = new URL(link.href, window.location.href);
+        if (target.origin !== window.location.origin || target.pathname !== window.location.pathname) return;
+
+        event.preventDefault();
+        const isPagination = Boolean(link.closest('nav[aria-label="صفحات محصولات"]'));
+        this.loadCatalog(target.href, true, isPagination);
+    },
+
+    async loadCatalog(url, updateHistory = false, scrollToProducts = false) {
+        this.catalogRequest?.abort();
+        const request = new AbortController();
+        this.catalogRequest = request;
+        this.catalogLoading = true;
+
+        try {
+            // Fresh server-rendered catalog: includes the selected category,
+            // correct pagination, public prices and modal preview data.
+            const response = await fetch(url, {
+                signal: request.signal,
+                credentials: 'same-origin',
+                headers: { 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!response.ok) throw new Error('Catalog request failed');
+
+            const markup = await response.text();
+            if (request.signal.aborted) return;
+
+            const nextDocument = new DOMParser().parseFromString(markup, 'text/html');
+            const replacement = nextDocument.getElementById('products');
+            const previewPayload = nextDocument.getElementById('landing-product-data');
+            const current = this.$root.querySelector('#products');
+
+            if (!replacement || !previewPayload || !current) throw new Error('Invalid catalog response');
+
+            const previews = JSON.parse(previewPayload.textContent);
+            current.innerHTML = replacement.innerHTML;
+            this.productPreviews = previews;
+
+            if (updateHistory) window.history.pushState({ denapaxCatalog: true }, '', url);
+
+            this.$nextTick(() => {
+                this.observeReveals();
+                if (scrollToProducts) {
+                    current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+                } else if (updateHistory) {
+                    current.querySelector('nav[aria-label="فیلتر دسته‌بندی محصولات"] a[aria-current="page"]')
+                        ?.focus({ preventScroll: true });
+                }
+                this.onScroll?.();
+            });
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                // Network outages and unexpected HTML must not leave the
+                // catalog unusable. Real filter links are still navigable.
+                window.location.assign(url);
+            }
+        } finally {
+            if (this.catalogRequest === request) {
+                this.catalogRequest = null;
+                this.catalogLoading = false;
+            }
+        }
+    },
+
     openProduct(id, event) {
         const item = this.productPreviews[String(id)];
         // Keep true links for crawlers, no-JS visitors, modifier clicks and
@@ -213,6 +288,8 @@ Alpine.data('landingPage', () => ({
         document.documentElement.style.overflow = this.priorScrollLock;
         window.removeEventListener('scroll', this.onScroll);
         window.removeEventListener('resize', this.onResize);
+        window.removeEventListener('popstate', this.onCatalogPopState);
+        this.catalogRequest?.abort();
         if (this.scrollFrame !== null) window.cancelAnimationFrame(this.scrollFrame);
         if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
 

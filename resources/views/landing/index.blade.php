@@ -17,12 +17,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" href="{{ asset('images/dena-landscape.svg') }}" as="image" type="image/svg+xml">
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
+    <link rel="preload" href="https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D9%87_%D8%A8%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" as="image">
     <title>دناپکس | از دل دنا</title>
     <script type="application/ld+json">@json($websiteSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
 </head>
-<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
+<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)">
     <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
     <nav class="landing-chapter-rail" aria-label="بخش‌های صفحه" x-cloak>
         <a href="#top" x-bind:aria-current="activeSection === 'top' ? 'location' : null" aria-label="ابتدای صفحه">01</a>
@@ -85,27 +86,27 @@
 
     <main>
         <section id="top" data-chapter class="landing-hero text-white" aria-labelledby="hero-title" x-on:pointermove="onHeroMove($event)" x-on:pointerleave="resetHero()">
-            <img x-ref="landscape" class="landing-landscape" src="{{ asset('images/dena-landscape.svg') }}" width="1600" height="1100" alt="" aria-hidden="true" fetchpriority="high">
+            <div x-ref="landscape" class="landing-landscape" aria-hidden="true"></div>
             <div class="landing-hero-glow" aria-hidden="true"></div>
-            <div class="landing-container relative flex min-h-[690px] flex-col justify-center pb-28 pt-38 md:min-h-[820px] md:pb-32 md:pt-40">
+            <div class="landing-container relative flex min-h-[560px] flex-col items-center justify-center pb-19 pt-32 text-center md:min-h-[630px] md:pb-20 md:pt-36">
                 <div class="absolute left-0 top-36 hidden flex-col items-end gap-3 lg:flex" aria-hidden="true">
                     <span class="text-xs tracking-[.32em] text-white/65" lang="en">THE DENA COLLECTION</span>
                     <span class="h-32 w-px bg-white/40"></span>
                     <span class="text-xs text-white/60">۰۱ / ۰۴</span>
                 </div>
-                <div class="max-w-[690px]" data-reveal>
-                    <p class="landing-label mb-7 flex items-center gap-3 text-[#e3d4b7]">
+                <div class="mx-auto flex max-w-[760px] flex-col items-center" data-reveal>
+                    <p class="landing-label mb-7 flex items-center justify-center gap-3 text-[#e3d4b7]">
                         <span class="h-px w-8 bg-[#ddc6a1]"></span>
                         طعم‌هایی با ریشه در طبیعت
                     </p>
-                    <h1 id="hero-title" class="landing-display text-[clamp(4rem,9vw,8.5rem)]">
+                    <h1 id="hero-title" class="landing-display text-[clamp(4.25rem,9vw,8.3rem)]">
                         از دل
                         <span class="block landing-outline">دنا</span>
                     </h1>
-                    <p class="mt-7 max-w-[440px] text-[15px] leading-9 text-white/85 md:mt-9 md:text-lg md:leading-10">
+                    <p class="mt-7 max-w-[460px] text-[15px] leading-8 text-white/85 md:mt-8 md:text-base md:leading-9">
                         مجموعه‌ای از سوغات و خشکبار؛ با طعم‌ها و روایت‌هایی از سرزمین دنا.
                     </p>
-                    <div class="mt-9 flex flex-wrap items-center gap-5 md:mt-12">
+                    <div class="mt-8 flex flex-wrap items-center justify-center gap-5 md:mt-10">
                         <a href="#products" class="landing-button bg-[#e7e3d1] text-[#19392f] shadow-xl shadow-black/10 hover:bg-white">
                             محصولات را ببینید
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M5 19h14V5"/></svg>
@@ -113,10 +114,7 @@
                         <span class="text-xs text-white/65">سوغات و خشکبار دناپکس</span>
                     </div>
                 </div>
-                <div class="landing-orbit" aria-hidden="true">
-                    <span lang="en">DENA<br>ROOTS · TASTE<br>31° N</span>
-                </div>
-                <div class="absolute bottom-9 right-0 left-0 flex items-end justify-between text-[11px] text-white/70 md:bottom-12">
+                <div class="absolute bottom-6 right-0 left-0 flex items-end justify-between text-[11px] text-white/70 md:bottom-8">
                     <div class="flex items-center gap-4">
                         <span class="inline-block h-7 w-px bg-white/60"></span>
                         <span>برای دیدن محصولات اسکرول کنید</span>
@@ -126,26 +124,12 @@
             </div>
         </section>
 
-        <section class="landing-container py-20 md:py-30" aria-label="درباره مجموعه">
-            <div class="grid items-start gap-10 lg:grid-cols-[1fr_2fr]" data-reveal>
-                <div>
-                    <p class="landing-label text-clay">A sense of place</p>
-                    <p class="mt-2 text-sm text-[#61776a]">برآمده از یک سرزمین</p>
-                </div>
-                <p class="max-w-[900px] text-[clamp(1.75rem,3.8vw,3.75rem)] font-bold leading-[1.9] tracking-tight">
-                    هر محصول، <span class="text-[#8c9a81]">روایتی از یک جاست.</span>
-                    دناپکس این طعم‌ها را کنار هم می‌آورد تا انتخابشان ساده‌تر باشد.
-                </p>
-            </div>
-        </section>
-
-        <section id="products" data-chapter class="landing-container scroll-mt-12 pb-25 md:pb-36" aria-labelledby="products-title">
-            <div class="landing-divider mb-12 md:mb-16"></div>
+        <section id="products" data-chapter class="landing-container scroll-mt-12 pt-14 pb-20 md:pt-19 md:pb-28" x-bind:aria-busy="catalogLoading.toString()" aria-labelledby="products-title">
             <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
                 <div data-reveal>
                     <div class="mb-4 flex items-center gap-3 text-xs font-semibold tracking-widest text-clay">
                         <span class="h-px w-8 bg-clay"></span>
-                        THE COLLECTION / 02
+                        THE COLLECTION / 01
                     </div>
                     <h2 id="products-title" class="landing-display text-[clamp(2.9rem,6.2vw,6.1rem)]">
                         انتخاب‌های <span class="landing-outline-dark">دنا</span>
@@ -159,12 +143,12 @@
 
             @if ($categories->isNotEmpty())
                 <nav aria-label="فیلتر دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
-                    <a href="{{ route('home') }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
+                    <a data-catalog-link href="{{ route('home') }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
                         class="{{ $selectedCategory === null ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                         همه محصولات
                     </a>
                     @foreach ($categories as $category)
-                        <a href="{{ route('home', ['category' => $category->slug]) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
+                        <a data-catalog-link href="{{ route('home', ['category' => $category->slug]) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
                             class="{{ $selectedCategory === $category->slug ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                             {{ $category->name }}
                         </a>
@@ -172,7 +156,8 @@
                 </nav>
             @endif
 
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+            <p class="mb-5 text-center text-xs text-[#4d7055]" x-show="catalogLoading" x-cloak role="status" aria-live="polite">در حال بارگذاری محصولات…</p>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7" aria-live="polite">
                 @forelse ($products as $product)
                     @php
                         $isFeatured = $loop->first && $products->currentPage() === 1;
@@ -242,13 +227,13 @@
             @if ($products->hasPages())
                 <nav class="mt-12 flex items-center justify-between border-t border-[#c9cec0] pt-7 text-sm font-semibold" aria-label="صفحات محصولات">
                     @if ($products->previousPageUrl())
-                        <a class="transition hover:text-clay" href="{{ $products->previousPageUrl() }}#products">صفحه قبل ←</a>
+                        <a class="transition hover:text-clay" data-catalog-link href="{{ $products->previousPageUrl() }}#products">صفحه قبل ←</a>
                     @else
                         <span class="text-[#9da99c]">صفحه قبل</span>
                     @endif
                     <span class="text-xs text-[#718276]">صفحه {{ $products->currentPage() }} از {{ $products->lastPage() }}</span>
                     @if ($products->nextPageUrl())
-                        <a class="transition hover:text-clay" href="{{ $products->nextPageUrl() }}#products">→ صفحه بعد</a>
+                        <a class="transition hover:text-clay" data-catalog-link href="{{ $products->nextPageUrl() }}#products">→ صفحه بعد</a>
                     @else
                         <span class="text-[#9da99c]">صفحه بعد</span>
                     @endif
@@ -297,24 +282,17 @@
             </div>
         </section>
 
-        <section id="order" data-chapter class="relative overflow-hidden bg-[#17382d] py-25 text-[#f3f1e5] md:py-36" aria-labelledby="order-title">
-            <img class="pointer-events-none absolute -left-[15%] top-[-65%] h-[170%] w-[80%] object-cover opacity-[.16]" src="{{ asset('images/dena-contours.svg') }}" width="700" height="600" alt="" aria-hidden="true" loading="lazy">
-            <div class="landing-container relative" data-reveal>
-                <p class="landing-label mb-9 text-[#d3bf9b]">A SIMPLE WAY TO ORDER / 04</p>
-                <h2 id="order-title" class="landing-display max-w-[850px] text-[clamp(2.9rem,6vw,6.8rem)]">
-                    از اینجا
-                    <span class="block landing-outline">به تلگرام.</span>
-                </h2>
-                <p class="mt-7 max-w-[550px] text-base leading-9 text-[#e0e6d7]/85">
-                    محصولات را در اینجا ببینید؛ برای انتخاب تنوع، ثبت سفارش و پیگیری، از بات دناپکس استفاده کنید.
-                </p>
+        <section id="order" data-chapter class="bg-[#17382d] py-9 text-[#f3f1e5] md:py-12" aria-labelledby="order-title">
+            <div class="landing-container flex justify-center">
+                <h2 id="order-title" class="sr-only">سفارش از طریق تلگرام</h2>
                 @if ($telegramUrl)
-                    <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer" class="landing-button mt-10 bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
+                    <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer"
+                       class="landing-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
                         ورود به فروشگاه تلگرام
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-4-2zM12 14l8-10"/></svg>
                     </a>
                 @else
-                    <p class="mt-8 inline-flex rounded-full border border-white/30 px-6 py-4 text-sm text-white/80" role="status">لینک بات در حال آماده‌سازی است</p>
+                    <p class="text-center text-sm text-white/80" role="status">لینک بات در حال آماده‌سازی است</p>
                 @endif
             </div>
         </section>
@@ -334,7 +312,9 @@
         </div>
         <div class="landing-container mt-7 flex flex-wrap justify-between gap-4 text-[11px] text-white/50">
             <span>دناپکس — معرفی محصولات محلی و خشکبار</span>
-            <span lang="en" dir="ltr">DESIGNED WITH DENA IN MIND</span>
+            <a href="https://commons.wikimedia.org/wiki/File:Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" target="_blank" rel="noopener noreferrer" class="hover:text-white">
+                عکس کوهستان دنا: Farid Atar · CC BY 3.0
+            </a>
         </div>
     </footer>
 
