@@ -19,6 +19,10 @@ A financial-exception operator screen exists at `/admin/payments/gateway`; `paym
 
 The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](docs/39-web-roadmap-status.md). Open launch issues: [#11](https://github.com/DenaSon/Denapax/issues/11) / [#24](https://github.com/DenaSon/Denapax/issues/24) / [#25](https://github.com/DenaSon/Denapax/issues/25).
 
+## Current payment priority while merchant onboarding is pending (2026-11-16)
+
+**Manual card-to-card transfer and private receipt upload are the primary payment UI when `ZARINPAL_ENABLED=false` (default).** Staff verify the actual bank deposit and approve/reject in `/admin/payments`. Zarinpal code remains integrated and switches to the primary online CTA automatically when `ZARINPAL_ENABLED=true` and a valid merchant ID are configured in the deployment environment, after live acceptance; manual receipts remain a fallback. No migration is needed to change this flag. The owner-reported live deployment is not proof of SMS OTP delivery or settlement checks; real checkout requires a configured SMS transport. See [manual-first rollout](docs/45-manual-receipt-first-rollout.md) and [release readiness](docs/38-web-phase4-release-readiness.md).
+
 ## Current web user journey
 
 1. Public `/` and `/products/{slug}` — search products and variants; mobile-first image gallery with swipe, selectable thumbnails, full-screen pinch zoom and photo switching by selected variant.
