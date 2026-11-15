@@ -2,6 +2,8 @@
 
 **Scope:** Close the browsing-to-order-registration loop inside Denapax's Persian RTL website without activating payments prematurely. **Merged as [PR #78](https://github.com/DenaSon/Denapax/pull/78).**
 
+> **Updated Phase 4B note:** customer checkout is now one page: default address selection and full shipping/amount quote on `GET /checkout` with direct `POST /checkout/confirm`. This historical `preview` → `review` flow remains supported for backward compatibility but is no longer the normal UI. See [Phase 4B UX](41-web-phase4b-mobile-checkout-ux.md).
+
 > **Historical phase handoff.** Zarinpal and private receipt payment code, customer order history, shipping tracking and inbox were subsequently implemented in [PR #79](https://github.com/DenaSon/Denapax/pull/79). The "Not in this phase" section below is a record of Phase 2 scope, **not the current remaining work**. See [current web ledger](39-web-roadmap-status.md) and [Phase 4 gates](38-web-phase4-release-readiness.md).
 
 ## Implemented
