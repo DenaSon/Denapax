@@ -114,8 +114,8 @@
                         </div>
                         <div class="product-lightbox-view" data-lightbox-viewport>
                             <img data-lightbox-image class="product-lightbox-image"
-                                 src="{{ $photos->first()['full_url'] }}"
-                                 alt="تصویر ۱ از {{ $product->title }}" width="1280" height="1280">
+                                 alt="تصویر ۱ از {{ $product->title }}" width="1280" height="1280"
+                                 decoding="async">
                         </div>
                         <div class="product-lightbox-toolbar">
                             <div class="product-lightbox-group">
