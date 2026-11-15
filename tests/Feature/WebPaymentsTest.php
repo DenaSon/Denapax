@@ -181,7 +181,7 @@ class WebPaymentsTest extends TestCase
         Storage::disk('receipts')->assertExists($receipt->storage_path);
         $this->get(route('orders.receipts.image', [
             'orderNumber' => $this->order->order_number, 'receipt' => $receipt->id,
-        ]))->assertOk()->assertHeader('Cache-Control', 'private, no-store, max-age=0');
+        ]))->assertOk()->assertHeader('Cache-Control', 'max-age=0, no-store, private');
 
         $this->post(route('orders.receipts.store', $this->order->order_number), [
             'receipt' => UploadedFile::fake()->image('again.png'),
