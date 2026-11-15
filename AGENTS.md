@@ -11,7 +11,7 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 ## What is implemented
 
 - Customer-only `customer` session guard and verified normalized Iranian mobile OTP; staff `web` Fortify guard/RBAC separate. OTP is hashed, time/attempt/IP/mobile limited and **disabled by default** until trusted HTTPS SMS provider integration.
-- Public search/product/variant catalog, session guest and DB customer cart, merge after login; saved customer-owned addresses and validated checkout (weight delivery quote, cart/price fingerprint, immutable order snapshots, idempotent checkout key).
+- Public search/product/variant catalog, session guest and DB customer cart, merge after login; saved customer-owned addresses and **Phase 4B single-page** validated checkout (weight delivery quote, cart/price fingerprint, immutable order snapshots, idempotent checkout key). Product variants use one shared add-to-cart form, cart quantities have one-tap +/- controls, OTP and address forms are mobile-focused.
 - Online-first Zarinpal v4 transport and attempt ledger, manual card-to-card receipt with protected private storage and authorized admin review; order list/detail, shipping tracking and customer **web inbox UI are implemented**. Transactional order SMS **is not**.
 - Staff admin catalogs/settings/orders/payment review/fulfillment, order state history, outbox events, background web inbox persistence. Use `QUEUE_CONNECTION=database`, supervised `notifications,default` workers and one-minute `denapax:notifications:dispatch`.
 - All financial values stored as integer **IRR**, displayed as exact **toman**. Catalog records have `is_available` but **no numeric stock reservations**. One nationwide weight-based shipping tariff.
@@ -29,7 +29,7 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 ## Next work: Web Phase 4
 
 1. **4A — code implemented, real provider validation pending:** conservative no-retry rule, Zarinpal inquiry, operator-visible exceptions, evidence-backed clearance, callback/timeout/late Authority tests. Must validate real merchant API/settlement/currency before enabling gateway.
-2. **4B — polish the mobile buying journey:** minimal RTL steps and forms, known address, transparent toman/shipping, accessible error feedback, paid/canceled/pending return, old session, duplicate-tap and manual-fallback UX.
+2. **4B — mobile-first UX code implemented, device acceptance pending:** product variant picker, one-tap cart quantity, compact OTP, prefilled receiver phone, saved address selection, one-page quote+order confirmation and clear toman/shipping total; preserve server-side fingerprint validation. Physical iOS/Android, a11y and browser Back/Forward testing still required. See [Phase 4B handoff](docs/41-web-phase4b-mobile-checkout-ux.md).
 3. **4C — configure and test staging providers:** real SMS OTP, active Zarinpal merchant and official account IRR/IRT compatibility, callback HTTPS, real low-value authorized payment, settings/stock availability policy, MySQL migration rehearsal.
 4. **4D — release/security/ops:** end-to-end and negative browser tests, storage ACL, backup + isolated restore, monitored queue/scheduler, Runflare HTTPS/secrets/debug checks, rollback rehearsal, owner/operator GO/NO-GO. Detailed acceptance matrix in [docs/38](docs/38-web-phase4-release-readiness.md).
 
@@ -39,4 +39,4 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 
 One branch/PR per coherent phase, reusable Laravel domain actions, no over-engineered testing; cover fundamental happy/negative paths. Run PHPUnit, Pint, Composer locked audit/validation, Vite build; wait for green CI before squash merge to `master`, verify resulting master SHA and CI. Report PR, merged SHA, tests, release blockers and next scope concisely in Persian. Never claim to have carried out real deployment, merchant settlement, SMS delivery or restore without live evidence.
 
-**Authoritative references:** [ledger](docs/39-web-roadmap-status.md), [Phase 4 plan](docs/38-web-phase4-release-readiness.md), [Phase 4A bank reconciliation](docs/40-web-phase4a-gateway-reconciliation.md), [Phase 3 payment design](docs/37-web-phase3-payments.md). Docs/01–34 and Telegram-era old issue text are historical only.
+**Authoritative references:** [Phase 4B UX](docs/41-web-phase4b-mobile-checkout-ux.md), [ledger](docs/39-web-roadmap-status.md), [Phase 4 plan](docs/38-web-phase4-release-readiness.md), [Phase 4A bank reconciliation](docs/40-web-phase4a-gateway-reconciliation.md), [Phase 3 payment design](docs/37-web-phase3-payments.md). Docs/01–34 and Telegram-era old issue text are historical only.

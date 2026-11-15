@@ -66,7 +66,7 @@ Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → 
 ## Suggested execution order (one clean PR per code change)
 
 1. **4A — code implemented in PR #82; release gate pending:** conservative no-double-payment state machine, inquiry, operator exception screen, late callback/fencing tests. Verify actual merchant account API/currency/refund/reconciliation in Phase 4C before any public activation. See [technical runbook](40-web-phase4a-gateway-reconciliation.md).
-2. **4B — mobile UX:** simplify checkout/page copy and recovery flows based on real-device inspection; validate the core journey end to end.
+2. **4B — mobile UX code implemented in PR #83; device QA pending:** one-page checkout, preselected address/shipping quote, one-tap cart quantity, concise OTP and product variants. Validate RTL/a11y/real-device/browser Back/Forward and payment recovery before approval. See [Phase 4B handoff](41-web-phase4b-mobile-checkout-ux.md).
 3. **4C — provider/staging integration:** SMS, activated Zarinpal credentials, actual merchant-currency and callback acceptance, real shipping/contact settings and MySQL migration rehearsal.
 4. **4D — reliability and launch:** worker/schedule, alerting, backups + restore, security review, real web test order, release checklist, owner/operator go/no-go.
 

@@ -11,7 +11,7 @@ Denapax sells Dena-region souvenirs and dried products through a customer web st
 - **P1 — identity and foundation:** independent customer guard, verified phone OTP with fail-closed SMS transport, guest and persistent cart merge, removal of Telegram, web outbox/inbox persistence. [PR #77](https://github.com/DenaSon/Denapax/pull/77).
 - **P2 — checkout:** Persian product search, cart, saved addresses, weight-based delivery quote, immutable order totals, idempotent confirmation. [PR #78](https://github.com/DenaSon/Denapax/pull/78).
 - **P3 — payments and account:** online-first Zarinpal v4 request/verify flow and attempt ledger, manual private receipt upload with staff approval, customer order history/tracking and web inbox UI. [PR #79](https://github.com/DenaSon/Denapax/pull/79).
-- **P4A — money-safety code:** unknown gateway payments now block duplicate charges/receipts until provider inquiry and authorized operator reconciliation; admin exception review and verification fencing are implemented in [PR #82](https://github.com/DenaSon/Denapax/pull/82). **Still pending:** live Zarinpal/SMS provider acceptance, real merchant settlement, mobile UX, negative/E2E staging, target MySQL migration, private-media backup/restore, worker/alerts, Runflare deployment acceptance and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
+- **P4A — money-safety code:** unknown gateway payments now block duplicate charges/receipts until provider inquiry and authorized operator reconciliation; admin exception review and verification fencing are implemented in [PR #82](https://github.com/DenaSon/Denapax/pull/82). **Phase 4B mobile UX code:** one-page delivery/shipping/confirm checkout, single-variant picker, one-tap cart quantities, compact OTP and address return; see [PR #83](https://github.com/DenaSon/Denapax/pull/83). **Still pending:** real mobile browser acceptance, live Zarinpal/SMS provider checks, real merchant settlement, negative/E2E staging, target MySQL migration, private-media backup/restore, workers/alerts, Runflare deployment and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
 
 **Last observed `master` code verification:** SHA `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [green GitHub Actions run](https://github.com/DenaSon/Denapax/actions/runs/43718573628), 67 tests / 416 assertions + Composer locked production audit/validation, Pint, Vite build. CI uses SQLite and fake gateway responses, not a real bank or production-like MySQL environment. No target production migration, actual OTP delivery, real Zarinpal payment or isolated restore has been confirmed.
 
@@ -23,7 +23,7 @@ The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](d
 
 1. Public `/` and `/products/{slug}` — search products and variants.
 2. `/cart` — guest/persisted cart; mobile OTP login at `/customer/login` when required.
-3. `/account/addresses`, `/checkout`, `/checkout/review` — delivery address, live shipping quote and exact order preview.
+3. `/account/addresses`, `/checkout` — saved delivery address, authoritative delivery/shipping quote and exact total with **one-tap order confirmation on the same page**. Previous `/checkout/review` remains compatible but is not in the normal path.
 4. `/orders/{orderNumber}` — order hub: **Zarinpal primary**, manual card-to-card + image receipt fallback, payment/fulfillment status and tracking.
 5. `/orders` — customer-owned order history; `/account/notifications` — customer-owned inbox; `/admin` — separate staff-only admin.
 
@@ -65,6 +65,7 @@ Run `php artisan test`, `vendor/bin/pint --test`, `composer validate --no-check-
 - [Current web delivery status and remaining work](docs/39-web-roadmap-status.md)
 - [Next Phase 4 release plan](docs/38-web-phase4-release-readiness.md)
 - [Phase 4A reconciliation/operator runbook](docs/40-web-phase4a-gateway-reconciliation.md)
+- [Phase 4B mobile checkout UX](docs/41-web-phase4b-mobile-checkout-ux.md)
 - [Phase 1 history](docs/35-web-phase1-cutover.md), [Phase 2 history](docs/36-web-phase2-checkout.md), [Phase 3 design](docs/37-web-phase3-payments.md)
 
 **Historical docs/01–34 and old GitHub issue history refer to a previous Telegram-first implementation; they are not the active web product specification.**

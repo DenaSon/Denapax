@@ -68,14 +68,15 @@ class WebCheckoutFlowTest extends TestCase
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 2])
             ->assertRedirect(route('cart.index'));
 
-        $this->post(route('addresses.store'), [
+        $savedResponse = $this->post(route('addresses.store'), [
             ...$this->addressData(),
             'recipient_mobile' => '۰۹۱۲۳۴۵۶۷۸۹',
             'postal_code' => '۱۲۳۴۵۶۷۸۹۰',
             'return' => 'checkout',
-        ])->assertRedirect(route('checkout.index'));
+        ]);
 
         $address = CustomerAddress::query()->sole();
+        $savedResponse->assertRedirect(route('checkout.index', ['address_id' => $address->id]));
         $this->assertSame('09123456789', $address->recipient_mobile);
         $this->assertSame('1234567890', $address->postal_code);
         $this->get(route('checkout.index'))->assertOk()->assertSee('آلو بخارا دنا');
@@ -105,6 +106,102 @@ class WebCheckoutFlowTest extends TestCase
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseCount('outbox_events', 1);
+    }
+
+    public function test_inline_checkout_shows_shipping_and_confirms_in_one_step(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+        $address = $this->makeAddress();
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 2]);
+
+        $this->get(route('checkout.index'))->assertOk()
+            ->assertSee('مبلغ نهایی')
+            ->assertSee('450,000')
+            ->assertSee('150,000')
+            ->assertSee('ثبت سفارش و ادامه به پرداخت')
+            ->assertDontSee('محاسبه ارسال و بررسی نهایی');
+
+        $context = session('web_checkout_preview');
+        $this->assertSame($address->id, $context['address_id']);
+        $firstKey = $context['checkout_key'];
+
+        // Refreshing the same quote must not change its idempotency key.
+        $this->get(route('checkout.index'))->assertOk();
+        $this->assertSame($firstKey, session('web_checkout_preview.checkout_key'));
+
+        $this->post(route('checkout.confirm'), ['checkout_key' => $firstKey])->assertRedirect();
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertSame(4500000, Order::query()->sole()->total_irr);
+        $this->get(route('orders.confirmation', Order::query()->sole()->order_number))
+            ->assertOk()->assertSee('تکمیل پرداخت');
+    }
+
+    public function test_switching_to_another_address_invalidates_previous_checkout_key(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+        $first = $this->makeAddress();
+        $second = $this->customer->addresses()->create([
+            ...$this->addressData(), 'label' => 'محل کار', 'is_default' => false,
+        ]);
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+
+        $this->get(route('checkout.index'))->assertOk()->assertSee('خانه');
+        $firstKey = session('web_checkout_preview.checkout_key');
+        $this->assertSame($first->id, session('web_checkout_preview.address_id'));
+
+        $this->get(route('checkout.index', ['address_id' => $second->id]))->assertOk()
+            ->assertSee('محل کار');
+        $this->assertSame($second->id, session('web_checkout_preview.address_id'));
+        $newKey = session('web_checkout_preview.checkout_key');
+        $this->assertNotSame($firstKey, $newKey);
+
+        $this->post(route('checkout.confirm'), ['checkout_key' => $firstKey])
+            ->assertRedirect(route('checkout.index'))
+            ->assertSessionHasErrors('checkout');
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertSame(1, $this->customer->cart->items()->count());
+
+        $this->get(route('checkout.index', ['address_id' => 999999]))->assertNotFound();
+        $another = Customer::create(['mobile' => '09120000888', 'mobile_verified_at' => now()]);
+        $otherAddress = $another->addresses()->create($this->addressData());
+        $this->get(route('checkout.index', ['address_id' => $otherAddress->id]))->assertNotFound();
+    }
+
+    public function test_price_change_regenerates_quote_and_does_not_confirm_stale_checkout(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+        $this->makeAddress();
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+        $this->get(route('checkout.index'))->assertOk();
+        $staleKey = session('web_checkout_preview.checkout_key');
+
+        $this->variant->update(['price_irr' => 2200000]);
+        $this->get(route('checkout.index'))->assertOk()->assertSee('220,000');
+        $this->assertNotSame($staleKey, session('web_checkout_preview.checkout_key'));
+        $this->post(route('checkout.confirm'), ['checkout_key' => $staleKey])
+            ->assertRedirect(route('checkout.index'))->assertSessionHasErrors('checkout');
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_cart_quantity_buttons_work_for_guest_and_customer(): void
+    {
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 2]);
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('کم کردن تعداد')->assertSee('زیاد کردن تعداد');
+
+        $this->patch(route('cart.update', $this->variant->id), ['quantity' => 1])
+            ->assertRedirect(route('cart.index'));
+        $this->get(route('cart.index'))->assertSee('150,000');
+
+        $this->patch(route('cart.update', $this->variant->id), ['quantity' => 0])
+            ->assertRedirect(route('cart.index'));
+        $this->get(route('cart.index'))->assertSee('سبد خرید شما خالی است');
+
+        $this->actingAs($this->customer, 'customer')
+            ->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+        $this->patch(route('cart.update', $this->variant->id), ['quantity' => 2])
+            ->assertRedirect(route('cart.index'));
+        $this->assertSame(2, $this->customer->cart->items()->sole()->quantity);
     }
 
     public function test_stale_quote_does_not_create_order_and_preserves_cart(): void

@@ -32,6 +32,13 @@
 - Added targeted tests for stale payment, no-Authority provider error, inquiry FAILED/PAID, permission denial, bank conflict and old verification response; see [Phase 4A runbook](40-web-phase4a-gateway-reconciliation.md).
 - **Remaining external proof:** activated merchant, actual provider contract/currency, controlled settlement/reconciliation and real delayed callback tests. This remains **NO-GO for public sales**.
 
+## Phase 4B mobile UX implementation (PR #83; code-level only)
+
+- Changed the normal web purchase path to a one-page server-quoted checkout with a saved default address and a single order-confirm action; the previous separate review route remains compatible.
+- Reworked product variant selection into one simple form, cart +/- into one tap, OTP into focused steps with Persian digit acceptance, mobile account navigation and the delivery form with customer mobile prefill and return to edited address.
+- Focused tests for quote freshness, refresh/idempotency, address ownership, guest/customer quantity changes and OTP return-to-checkout; [UX technical handoff](41-web-phase4b-mobile-checkout-ux.md).
+- **Still pending:** actual iOS/Android browser testing, accessibility/zoom checks and real provider/payment recovery UX. The code PR is not launch acceptance.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
@@ -57,7 +64,7 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md).
 2. Inspect `master` + latest CI and real open release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25).
-3. Review **Phase 4A PR #82** and [reconciliation operator runbook](40-web-phase4a-gateway-reconciliation.md), then start **Phase 4B mobile UX** and **4C real provider/MySQL staging**; confirm real bank acceptance before production enablement.
+3. Review **Phase 4A PR #82** and [reconciliation operator runbook](40-web-phase4a-gateway-reconciliation.md), then validate **Phase 4B mobile UX on real devices** and start **4C real provider/MySQL staging**; confirm real bank acceptance before production enablement.
 4. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.
