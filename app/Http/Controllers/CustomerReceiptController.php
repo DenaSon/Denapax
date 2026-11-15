@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Application\Actions\SubmitPaymentReceipt;
-use App\Models\PaymentReceipt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -30,13 +29,13 @@ class CustomerReceiptController extends Controller
             default => null,
         };
 
-        if ($extension === null || ! $file->isValid()) {
+        if ($extension === null || $file->isValid() === false) {
             throw ValidationException::withMessages(['receipt' => 'فرمت تصویر رسید قابل قبول نیست.']);
         }
 
         $path = $file->storeAs('payment-receipts', Str::uuid().'.'.$extension, 'receipts');
 
-        if (! is_string($path)) {
+        if (is_string($path) === false) {
             throw ValidationException::withMessages(['receipt' => 'بارگذاری رسید انجام نشد.']);
         }
 

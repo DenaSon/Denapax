@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\CustomerAddressController;
+use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrdersController;
 use App\Http\Controllers\CustomerReceiptController;
-use App\Http\Controllers\CustomerAuthController;
-use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\GatewayPaymentController;
+use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\PublicSitemapController;

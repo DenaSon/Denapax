@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Application\Actions\CreateOrder;
 use App\Application\Actions\PrepareCheckout;
 use App\Application\Actions\StoreCart;
+use App\Integrations\Payments\ZarinpalGateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -114,7 +115,7 @@ class WebCheckoutController extends Controller
 
         return view('store.checkout.confirmation', [
             'order' => $order,
-            'gatewayEnabled' => app(\App\Integrations\Payments\ZarinpalGateway::class)->enabled(),
+            'gatewayEnabled' => app(ZarinpalGateway::class)->enabled(),
         ]);
     }
 
