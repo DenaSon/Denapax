@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green CI at SHA `181793753b20dfd1cc4a0d7a5f41d306c433e589`](https://github.com/DenaSon/Denapax/actions/runs/43718573628). **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
+**Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green CI at SHA `3ca052738bb5397f658306669f67ecb37375d55f`](https://github.com/DenaSon/Denapax/actions/runs/43723331966). **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
 
 ## Completed in repository (merged, automated CI evidence)
 
@@ -9,9 +9,11 @@
 | Phase 1 — web identity / Telegram retirement | Independent customer authentication guard, Iran mobile + hashed OTP with limits, fail-closed SMS transport, guest/persistent cart merge, web storefront integration, Telegram runtime and Nutgram removed, web notification persistence, irreversible guarded schema cutover | [PR #77](https://github.com/DenaSon/Denapax/pull/77), `f294a4cde42c6a96023f9a249f190bc04fd3ea79`, [docs/35](35-web-phase1-cutover.md) |
 | Phase 2 — storefront + checkout | Persian catalog search, guest/cart operations, saved addresses, shipping quote with weight, session-bound price fingerprint, idempotent order snapshot and customer-scoped order confirmation | [PR #78](https://github.com/DenaSon/Denapax/pull/78), `18a1e5d4c719ec40796a9b85ce586884534e8fe0`, [docs/36](36-web-phase2-checkout.md) |
 | Phase 3 — payments + orders | Zarinpal v4 request/verify adapter and attempt ledger; online-first order page; fallback manual receipt upload/private retrieval/approval/rejection; order list, shipment tracking and customer web inbox | [PR #79](https://github.com/DenaSon/Denapax/pull/79), `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [docs/37](37-web-phase3-payments.md) |
+| Phase 4A — financial exception safety | No automatic timeout-based retry, inquiry and protected operator reconciliation, fenced verification, no competing manual payment; **real provider acceptance pending** | [PR #82](https://github.com/DenaSon/Denapax/pull/82), `7d9e93ce78a3cdbd4c9e19e257b0c18c6d79a7bc`, [docs/40](40-web-phase4a-gateway-reconciliation.md) |
+| Phase 4B — mobile-first purchase UX | Inline one-screen quote and confirmation, large +/- cart actions, one-form variant selection, simplified SMS code and recipient form; **physical mobile QA pending** | [PR #83](https://github.com/DenaSon/Denapax/pull/83), `3ca052738bb5397f658306669f67ecb37375d55f`, [docs/41](41-web-phase4b-mobile-checkout-ux.md) |
 | Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment, transactional outbox and database queue | Existing code + CI; still needs production-like acceptance |
 
-**Latest verified master CI:** 67 passed / 416 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
+**Latest verified master CI:** 77 passed / 523 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
 ## What is implemented but not activated
 
@@ -45,7 +47,7 @@
 2. **Real providers**: activated Zarinpal account, HTTPS callback and verified IRR/IRT handling with a small authorized payment; real SMS OTP delivery configured and tested.
 3. **Security / E2E (#24)**: staging MySQL and real browser/device regression, payment callback duplicate/conflict/timeout, receipt rejection/retry, private file permissions, customer/staff isolation.
 4. **Operations / resilience (#25)**: target-DB customer count, guarded irreversible migration rehearsal, MySQL and private receipt backups, isolated restore, Runflare HTTPS/secrets/debug validation, supervised queue/schedule and alerts, documented rollback.
-5. **Mobile simplicity / business correctness**: reduce unnecessary checkout friction, robust return-from-gateway flow, readable toman pricing/feedback, shipping tariff and customer support details, published inventory and oversell policy.
+5. **Real mobile/browser acceptance / business correctness**: Phase 4B code reduced checkout friction; validate actual iOS/Android, keyboard/zoom, gateway-return/cookie expiry, approved shipping tariff/support details, product availability and oversell policy.
 6. **Release approval (#11)**: record operator and owner GO/NO-GO with evidence; mark NO-GO until all criteria pass.
 
 ## P1 — after P0 or after controlled launch

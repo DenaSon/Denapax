@@ -6,7 +6,7 @@
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.
 
-**State evidence:** Web Phases 1–3 were merged as [PR #77](https://github.com/DenaSon/Denapax/pull/77), [PR #78](https://github.com/DenaSon/Denapax/pull/78), [PR #79](https://github.com/DenaSon/Denapax/pull/79). Latest observed `master` SHA `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [CI green](https://github.com/DenaSon/Denapax/actions/runs/43718573628) with 67 tests / 416 assertions. **No evidence of production cutover, real SMS, real merchant settlement or restore exercise. Public launch remains NO-GO.**
+**State evidence:** Web Phases 1–3 were merged as [PR #77](https://github.com/DenaSon/Denapax/pull/77), [PR #78](https://github.com/DenaSon/Denapax/pull/78), [PR #79](https://github.com/DenaSon/Denapax/pull/79). Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and Phase 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) are also merged. Latest verified `master` SHA `3ca052738bb5397f658306669f67ecb37375d55f`, [CI green](https://github.com/DenaSon/Denapax/actions/runs/43723331966) with 77 tests / 523 assertions. **No evidence of production cutover, real SMS, real merchant settlement or restore exercise. Public launch remains NO-GO.**
 
 ## What is implemented
 

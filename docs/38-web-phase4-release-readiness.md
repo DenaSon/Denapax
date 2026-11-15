@@ -1,6 +1,6 @@
 # Denapax — Web Phase 4: release readiness, payment safety and mobile UX
 
-**Status: PLANNED / NOT EXECUTED — 2026-11-15.** The code baseline is `master` at `181793753b20dfd1cc4a0d7a5f41d306c433e589`, merged via [PR #79](https://github.com/DenaSon/Denapax/pull/79). Its [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/43718573628) passed 67 tests / 416 assertions, Composer locked dependency audit/validation, Pint and Vite. **This proves code CI only, not deployment, payment settlement, SMS delivery, isolated restore or browser usability.**
+**Status: IN PROGRESS / LAUNCH NO-GO — 2026-11-15.** Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) were merged. Current verified `master` at `3ca052738bb5397f658306669f67ecb37375d55f` with [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/43723331966) green: 77 tests / 523 assertions, Composer locked dependency audit/validation, Pint and Vite. **Code CI does not prove deployment, actual merchant settlement, SMS delivery, isolated restore or real-device browser usability; Phase 4C/4D remain pending.**
 
 This is the current **release playbook**, replacing Telegram-specific procedures in historical `docs/15` and `docs/16`. Existing release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24) and [#25](https://github.com/DenaSon/Denapax/issues/25) remain OPEN. Keep them open until evidence and owner go/no-go exist.
 
@@ -8,7 +8,7 @@ This is the current **release playbook**, replacing Telegram-specific procedures
 
 Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → OTP login only when needed → delivery address → accurate shipping quote → one confirmation → primary Zarinpal payment or secondary manual transfer/receipt → status/tracking in the same order page. Never reintroduce Telegram or its bot/webhook/notification dependencies. No Laravel Horizon/Redis prerequisite: `QUEUE_CONNECTION=database` with supervised `notifications,default` queue workers is the agreed design.
 
-**Code implemented in Phases 1–3 is not a deployed release.** Do not mark tasks completed based on this plan. If the store cannot meet a P0 safety gate, do not accept public orders or enable Zarinpal.
+**Code implemented in Phases 1–3 plus 4A/4B is not a deployed release.** Do not mark tasks completed based on this plan. If the store cannot meet a P0 safety gate, do not accept public orders or enable Zarinpal.
 
 ## Priority P0 — must be resolved before launch
 
@@ -42,7 +42,7 @@ Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → 
 ### P0-D: real-browser UX acceptance
 
 - [ ] Run a full checkout on real Android/iOS devices at narrow/mobile and desktop sizes: variant choice, add/update/remove cart, OTP, address entry with Persian digits, shipping, order confirmation, bank redirect, return and manual fallback. Check RTL layout, readability, image weight/loading, tap targets, browser Back and double taps.
-- [ ] Make checkout feel linear: one visible primary action per step, minimal fields, default/saved address selection, concise totals in **toman**, visible delivery cost before commitment and no redundant identity steps. Assess whether the separate address/preview pages can be simplified without sacrificing order fingerprint validation.
+- [x] **Code/UX change in PR #83:** the main checkout combines selected delivery address and server-verified shipping quote with direct order confirmation; minimal primary actions, toman totals and separate review-page bypass while retaining the session fingerprint. **Real-device, customer observation and browser acceptance are not yet complete**.
 - [ ] Show payment outcome and next action in plain Persian. Confirm errors/retry paths work when OTP SMS is delayed, price changes, product becomes unavailable, gateway cancels/errors, receipt is rejected, network drops or order is already paid.
 - [ ] Check WCAG basics: form labels, validation/error association, keyboard focus and navigation, confirmation announcements, color contrast, accessible buttons and no reliance on color alone.
 - [ ] Measure the real mobile purchase journey: steps/taps from product to successful payment, abandonment/confusing moments and time to recovery. Keep improvements focused rather than adding decorative animations or extra forms.
