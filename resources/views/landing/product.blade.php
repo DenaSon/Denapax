@@ -155,7 +155,7 @@
 
                 <div class="mt-10">
                     <a href="{{ route('cart.index') }}" class="landing-button w-full bg-[#19392f] text-white hover:bg-[#315844] sm:w-auto">مشاهده سبد خرید</a>
-                    <p class="mt-4 text-xs leading-6 text-[#728272]">پرداخت پس از ثبت سفارش انجام می‌شود. تا فعال شدن پرداخت تحت وب، از واریز وجه خودداری کنید.</p>
+                    <p class="mt-4 text-xs leading-6 text-[#728272]">پس از ثبت سفارش، می‌توانید با درگاه زرین‌پال یا روش کارت‌به‌کارت پرداخت کنید.</p>
                 </div>
             </article>
         </div>

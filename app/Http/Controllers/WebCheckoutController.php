@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Application\Actions\CreateOrder;
 use App\Application\Actions\PrepareCheckout;
 use App\Application\Actions\StoreCart;
+use App\Integrations\Payments\ZarinpalGateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -109,10 +110,13 @@ class WebCheckoutController extends Controller
     {
         $order = $request->user('customer')->orders()
             ->where('order_number', $orderNumber)
-            ->with('items')
+            ->with(['items', 'receipts', 'shipment', 'gatewayAttempts'])
             ->firstOrFail();
 
-        return view('store.checkout.confirmation', ['order' => $order]);
+        return view('store.checkout.confirmation', [
+            'order' => $order,
+            'gatewayEnabled' => app(ZarinpalGateway::class)->enabled(),
+        ]);
     }
 
     private function validContext(Request $request): ?array

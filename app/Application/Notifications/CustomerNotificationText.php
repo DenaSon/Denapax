@@ -14,6 +14,7 @@ class CustomerNotificationText
         return match ($event) {
             'order.created' => ['ثبت سفارش', 'سفارش '.$reference.' ثبت شد و در انتظار پرداخت است.'],
             'payment.receipt_submitted' => ['دریافت رسید', 'رسید سفارش '.$reference.' دریافت شد و در انتظار بررسی است.'],
+            'payment.gateway_pending' => ['در انتظار تأیید درگاه', 'وضعیت پرداخت سفارش '.$reference.' در حال بررسی است.'],
             'payment.approved' => ['پرداخت تأیید شد', 'پرداخت سفارش '.$reference.' تأیید شد.'],
             'payment.receipt_rejected' => ['رسید رد شد', 'رسید سفارش '.$reference.' رد شد. '.(string) ($receipt?->rejection_reason ?? '')],
             'order.preparing' => ['آماده‌سازی سفارش', 'سفارش '.$reference.' در حال آماده‌سازی است.'],
