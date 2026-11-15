@@ -89,6 +89,60 @@ class WebPaymentsTest extends TestCase
         config()->set('zarinpal.merchant_id', '12345678-1234-1234-1234-123456789012');
     }
 
+    public function test_manual_receipt_is_primary_when_gateway_disabled_and_admin_can_approve(): void
+    {
+        Storage::fake('receipts');
+        config()->set('zarinpal.enabled', false);
+        $this->actingAs($this->customer, 'customer');
+
+        $this->get(route('orders.confirmation', $this->order->order_number))
+            ->assertOk()
+            ->assertSee('پرداخت کارت‌به‌کارت و ارسال رسید')
+            ->assertSee('6037 9912 3456 7890')
+            ->assertSee('ارسال رسید برای بررسی')
+            ->assertDontSee('پرداخت امن با زرین‌پال')
+            ->assertDontSee('روش جایگزین:')
+            ->assertDontSee('پرداخت زرین‌پال هنوز برای فروشگاه فعال نشده است');
+
+        // An inactive gateway must not create an attempt or start a charge.
+        $this->post(route('payments.zarinpal.start', $this->order->order_number))
+            ->assertSessionHasErrors('payment');
+        $this->assertDatabaseCount('gateway_payment_attempts', 0);
+
+        $this->post(route('orders.receipts.store', $this->order->order_number), [
+            'receipt' => UploadedFile::fake()->image('receipt.png'),
+        ])->assertRedirect(route('orders.confirmation', $this->order->order_number));
+
+        $receipt = PaymentReceipt::query()->sole();
+        $this->assertSame('pending', $receipt->status);
+        $this->assertSame('under_review', $this->order->fresh()->payment_status);
+
+        $this->get(route('orders.confirmation', $this->order->order_number))
+            ->assertOk()->assertSee('رسید دریافت شد؛ در انتظار بررسی')
+            ->assertDontSee('ارسال رسید برای بررسی');
+
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $reviewer = User::factory()->create();
+        $reviewer->assignRole('super-admin');
+        app(\App\Application\Actions\ReviewPaymentReceipt::class)->execute($reviewer, $receipt->id, 'approved');
+
+        $this->assertSame('approved', $this->order->fresh()->payment_status);
+        $this->assertSame('confirmed', $this->order->fresh()->order_status);
+        $this->get(route('orders.confirmation', $this->order->order_number))
+            ->assertOk()->assertSee('پرداخت تأیید شد');
+    }
+
+    public function test_enabled_gateway_remains_primary_and_manual_receipt_is_secondary(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+
+        $this->get(route('orders.confirmation', $this->order->order_number))
+            ->assertOk()
+            ->assertSee('پرداخت امن با زرین‌پال')
+            ->assertSee('روش جایگزین: کارت‌به‌کارت و ارسال رسید')
+            ->assertDontSee('id="manual-payment-title"', false);
+    }
+
     public function test_pending_gateway_shows_clear_warning_in_customer_order_list_and_payment_page(): void
     {
         $this->fakeGateway(200);
