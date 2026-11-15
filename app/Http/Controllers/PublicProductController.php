@@ -25,7 +25,11 @@ class PublicProductController extends Controller
             ])
             ->firstOrFail();
 
+        // Keep the product's first gallery photo as the cover, but include
+        // every sellable variant's own image so choosing a package can always
+        // select its matching photograph. Thumbnail images load lazily.
         $photos = $product->getMedia('gallery')
+            ->take(8)
             ->map(fn ($media): array => ['url' => $media->getUrl(), 'full_url' => $media->getFullUrl()])
             ->concat(
                 $product->variants
@@ -34,8 +38,19 @@ class PublicProductController extends Controller
                     ->map(fn ($media): array => ['url' => $media->getUrl(), 'full_url' => $media->getFullUrl()])
             )
             ->unique('url')
-            ->take(8)
             ->values();
+
+        $variantPhotoIndexes = $product->variants->mapWithKeys(function ($variant) use ($photos): array {
+            $url = $variant->getFirstMedia('variant-image')?->getUrl();
+
+            if ($url === null) {
+                return [];
+            }
+
+            $index = $photos->search(fn (array $photo): bool => $photo['url'] === $url);
+
+            return $index === false ? [] : [$variant->id => $index];
+        })->all();
 
         $canonicalUrl = route('products.show', ['slug' => $product->slug]);
         $description = (string) ($product->summary ?: $product->description ?: $product->title);
@@ -69,7 +84,7 @@ class PublicProductController extends Controller
 
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
-            'minimumPrice', 'schema'
+            'minimumPrice', 'schema', 'variantPhotoIndexes'
         ));
     }
 }
