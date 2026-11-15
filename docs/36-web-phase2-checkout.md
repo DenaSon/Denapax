@@ -1,6 +1,8 @@
 # Web Phase 2 — Storefront, addresses and checkout
 
-**Scope:** Close the browsing-to-order-registration loop inside Denapax's Persian RTL website without activating payments prematurely.
+**Scope:** Close the browsing-to-order-registration loop inside Denapax's Persian RTL website without activating payments prematurely. **Merged as [PR #78](https://github.com/DenaSon/Denapax/pull/78).**
+
+> **Historical phase handoff.** Zarinpal and private receipt payment code, customer order history, shipping tracking and inbox were subsequently implemented in [PR #79](https://github.com/DenaSon/Denapax/pull/79). The "Not in this phase" section below is a record of Phase 2 scope, **not the current remaining work**. See [current web ledger](39-web-roadmap-status.md) and [Phase 4 gates](38-web-phase4-release-readiness.md).
 
 ## Implemented
 
@@ -18,7 +20,7 @@ Online bank gateways, manual web receipt upload, payment confirmation UX, custom
 
 ## Release gates
 
-No production activation before configuring HTTPS customer OTP delivery, real settings for shipping and payment instructions, and completing phase 3. Before rollout: re-run CI, verify the Phase 1 database cutover and a consistent MySQL/private-receipt backup, and exercise E2E in staging against MySQL. The automated tests do not prove SMS delivery or production restore success.
+**Current note:** Phase 3 code has since merged; live SMS/gateway activation and production acceptance are still unverified. No production activation before configuring HTTPS customer OTP delivery, real settings for shipping and payment instructions, and completing Phase 4 release gates. Before rollout: re-run CI, verify the Phase 1 database cutover and a consistent MySQL/private-receipt backup, and exercise E2E in staging against MySQL. The automated tests do not prove SMS delivery or production restore success.
 
 ## Essential regression tests
 
