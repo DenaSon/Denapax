@@ -89,7 +89,7 @@ class VerifyGatewayPayment
             // this Authority, requires explicit reconciliation instead of
             // automatically marking the order paid a second time.
             $competing = $order->gatewayAttempts()
-                ->whereKeyNot($locked->id)
+                ->where('id', '!=', $locked->id)
                 ->where('status', '!=', 'cleared_unpaid')
                 ->exists();
             $pendingReceipt = $order->receipts()->where('status', 'pending')->exists();

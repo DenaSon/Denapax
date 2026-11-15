@@ -245,7 +245,7 @@ class WebPaymentsTest extends TestCase
             ->post(route('payments.zarinpal.start', $this->order->order_number))->assertRedirect();
 
         $attempt = GatewayPaymentAttempt::query()->sole();
-        $attempt->update(['created_at' => now()->subHours(3)]);
+        $attempt->forceFill(['created_at' => now()->subHours(3)])->save();
 
         $this->post(route('payments.zarinpal.start', $this->order->order_number))
             ->assertSessionHasErrors('payment');
@@ -355,7 +355,7 @@ class WebPaymentsTest extends TestCase
             $this->assertSame('request_unknown', $attempt->fresh()->status);
         }
 
-        $attempt->update(['created_at' => now()->subHours(2)]);
+        $attempt->forceFill(['created_at' => now()->subHours(2)])->save();
 
         try {
             $service->clearUnpaid($operator, $attempt->id, 'بررسی پنل پذیرنده و گزارش عدم دریافت وجه');
