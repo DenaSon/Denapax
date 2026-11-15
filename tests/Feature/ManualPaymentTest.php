@@ -33,7 +33,7 @@ class ManualPaymentTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
         Storage::fake('receipts');
 
-        $this->customer = Customer::create(['telegram_user_id' => 9876]);
+        $this->customer = Customer::create(['mobile' => '09120000001', 'mobile_verified_at' => now()]);
         $this->order = Order::create([
             'order_number' => 'DN-PAYMENT-001',
             'checkout_key' => (string) Str::uuid(),
@@ -120,7 +120,7 @@ class ManualPaymentTest extends TestCase
 
     public function test_another_customer_cannot_submit_or_review_without_reason(): void
     {
-        $someoneElse = Customer::create(['telegram_user_id' => 22222]);
+        $someoneElse = Customer::create(['mobile' => '09120000002', 'mobile_verified_at' => now()]);
         $path = $this->imagePath('stranger.png');
 
         try {
@@ -150,7 +150,7 @@ class ManualPaymentTest extends TestCase
     private function submit(string $label): PaymentReceipt
     {
         return app(SubmitPaymentReceipt::class)->execute(
-            $this->customer, $this->order->id, $this->imagePath($label), 'telegram-file-id',
+            $this->customer, $this->order->id, $this->imagePath($label),
         );
     }
 

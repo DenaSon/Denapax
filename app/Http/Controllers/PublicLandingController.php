@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Money;
-use App\Support\PublicStorefront;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -46,8 +45,6 @@ class PublicLandingController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $telegramUrl = PublicStorefront::telegramUrl();
-
         // The preview is limited to the current page and contains only public,
         // already-orderable catalog fields; no extra HTTP endpoint or N+1 lookups.
         $productPreviews = $products->getCollection()->mapWithKeys(function (Product $product): array {
@@ -67,6 +64,7 @@ class PublicLandingController extends Controller
 
             return [(string) $product->id => [
                 'title' => $product->title,
+                'url' => route('products.show', ['slug' => $product->slug]),
                 'category' => $product->category->name,
                 'summary' => $product->summary,
                 'description' => $product->description,
@@ -100,6 +98,6 @@ class PublicLandingController extends Controller
             'inLanguage' => 'fa-IR',
         ];
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'telegramUrl', 'productPreviews', 'websiteSchema'));
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'productPreviews', 'websiteSchema'));
     }
 }

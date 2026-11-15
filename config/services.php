@@ -18,10 +18,4 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    'telegram' => [
-        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
-        'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
-        // Public handle for website links; NEVER the bot token.
-        'bot_username' => env('TELEGRAM_BOT_USERNAME'),
-    ],
 ];

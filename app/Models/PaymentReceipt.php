@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PaymentReceipt extends Model
 {
     protected $fillable = [
-        'order_id', 'attempt_number', 'telegram_file_id', 'storage_path',
+        'order_id', 'attempt_number', 'storage_path',
         'status', 'rejection_reason', 'reviewed_by', 'submitted_at', 'reviewed_at',
     ];
 
-    protected $hidden = ['storage_path', 'telegram_file_id'];
+    protected $hidden = ['storage_path'];
 
     protected function casts(): array
     {
