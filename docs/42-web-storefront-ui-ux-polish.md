@@ -1,6 +1,6 @@
 # Denapax — Web storefront UI/UX polish
 
-**Date: 2026-11-15.** Implementation PR: [#84](https://github.com/DenaSon/Denapax/pull/84). This is a **code/design-system improvement**, not a verified real-device UX acceptance or a launch approval.
+**Date: 2026-11-15.** Implementation PR: [#84](https://github.com/DenaSon/Denapax/pull/85). This is a **code/design-system improvement**, not a verified real-device UX acceptance or a launch approval.
 
 ## Scope and design principles
 
