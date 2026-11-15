@@ -54,7 +54,7 @@ class CustomerOtpLogin
 
     public function verify(string $mobile, string $code): Customer
     {
-        return DB::transaction(function () use ($mobile, $code): Customer {
+        $customer = DB::transaction(function () use ($mobile, $code): ?Customer {
             $challenge = CustomerLoginCode::query()->whereKey($mobile)->lockForUpdate()->first();
 
             if (! $challenge || $challenge->expires_at->isPast() || $challenge->attempts >= 5) {
@@ -63,7 +63,8 @@ class CustomerOtpLogin
 
             if (! Hash::check($code, $challenge->code_hash)) {
                 $challenge->increment('attempts');
-                throw ValidationException::withMessages(['code' => 'کد نامعتبر یا منقضی شده است.']);
+
+                return null;
             }
 
             $challenge->delete();
@@ -79,5 +80,11 @@ class CustomerOtpLogin
 
             return $customer;
         }, 3);
+
+        if (! $customer) {
+            throw ValidationException::withMessages(['code' => 'کد نامعتبر یا منقضی شده است.']);
+        }
+
+        return $customer;
     }
 }

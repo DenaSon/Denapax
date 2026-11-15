@@ -33,7 +33,7 @@ class PhaseThreeCheckoutTest extends TestCase
     {
         parent::setUp();
 
-        $this->customer = Customer::create(['telegram_user_id' => 3001]);
+        $this->customer = Customer::create(['mobile' => '09120000003', 'mobile_verified_at' => now()]);
         $this->address = $this->customer->addresses()->create([
             'recipient_name' => 'Dena Buyer',
             'recipient_mobile' => '09123456789',
@@ -131,7 +131,7 @@ class PhaseThreeCheckoutTest extends TestCase
 
     public function test_customer_cannot_checkout_another_customers_address_or_unavailable_product(): void
     {
-        $other = Customer::create(['telegram_user_id' => 55555]);
+        $other = Customer::create(['mobile' => '09120000004', 'mobile_verified_at' => now()]);
         app(ManageCart::class)->add($other, $this->first->id);
 
         $this->expectException(ValidationException::class);

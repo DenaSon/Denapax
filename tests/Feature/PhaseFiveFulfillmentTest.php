@@ -26,7 +26,7 @@ class PhaseFiveFulfillmentTest extends TestCase
         $this->withoutVite();
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $customer = Customer::create(['telegram_user_id' => 54321]);
+        $customer = Customer::create(['mobile' => '09120000005', 'mobile_verified_at' => now()]);
         $this->order = Order::create([
             'order_number' => 'DN-TEST-501',
             'checkout_key' => (string) Str::uuid(),

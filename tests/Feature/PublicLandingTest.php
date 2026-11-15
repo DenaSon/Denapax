@@ -168,14 +168,14 @@ class PublicLandingTest extends TestCase
         $this->get('/')->assertOk()->assertSee('href="'.route('products.show', ['slug' => $active->slug]).'"', false);
     }
 
-    public function test_telegram_button_only_links_to_a_configured_valid_handle(): void
+    public function test_public_catalog_has_web_cart_links_without_bot_dependencies(): void
     {
-        config()->set('services.telegram.bot_username', 'DenaPaxBot');
-        $this->get('/')->assertOk()->assertSee('https://t.me/DenaPaxBot');
+        $this->get('/')->assertOk()
+            ->assertSee(route('cart.index'))
+            ->assertDontSee('https://t.me/')
+            ->assertDontSee('تلگرام');
 
-        config()->set('services.telegram.bot_username', 'bad/bot');
-        $this->get('/')->assertOk()->assertDontSee('https://t.me/bad/bot')
-            ->assertSee('لینک بات در حال آماده‌سازی است');
+        $this->get('/cart')->assertOk()->assertSee('سبد خرید');
     }
 
     private function product(Category $category, string $title, string $slug, int $price): Product
