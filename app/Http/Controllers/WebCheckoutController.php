@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Application\Actions\CreateOrder;
 use App\Application\Actions\PrepareCheckout;
 use App\Application\Actions\StoreCart;
-use App\Models\Order;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,7 +52,7 @@ class WebCheckoutController extends Controller
     {
         $context = $this->validContext($request);
 
-        if (! $context) {
+        if ($context === null) {
             return redirect()->route('checkout.index')->withErrors(['checkout' => 'ابتدا آدرس تحویل را انتخاب کنید.']);
         }
 
@@ -65,7 +64,7 @@ class WebCheckoutController extends Controller
             return redirect()->route('checkout.index')->withErrors($exception->errors());
         }
 
-        if (! hash_equals($context['fingerprint'], $checkout->fingerprint($quote))) {
+        if (hash_equals($context['fingerprint'], $checkout->fingerprint($quote)) === false) {
             $request->session()->forget(self::SESSION_KEY);
 
             return redirect()->route('checkout.index')->withErrors([
@@ -84,7 +83,7 @@ class WebCheckoutController extends Controller
         $data = $request->validate(['checkout_key' => 'required|uuid']);
         $context = $this->validContext($request);
 
-        if (! $context || ! hash_equals($context['checkout_key'], $data['checkout_key'])) {
+        if ($context === null || hash_equals($context['checkout_key'], $data['checkout_key']) === false) {
             return redirect()->route('checkout.index')->withErrors([
                 'checkout' => 'مهلت تأیید سفارش پایان یافته است. پیش‌نمایش جدید بگیرید.',
             ]);
@@ -120,11 +119,11 @@ class WebCheckoutController extends Controller
     {
         $context = $request->session()->get(self::SESSION_KEY);
 
-        if (! is_array($context)
+        if (is_array($context) === false
             || (int) ($context['customer_id'] ?? 0) !== (int) $request->user('customer')->id
-            || ! is_numeric($context['address_id'] ?? null)
-            || ! Str::isUuid((string) ($context['checkout_key'] ?? ''))
-            || ! preg_match('/^[a-f0-9]{64}$/D', (string) ($context['fingerprint'] ?? ''))
+            || is_numeric($context['address_id'] ?? null) === false
+            || Str::isUuid((string) ($context['checkout_key'] ?? '')) === false
+            || preg_match('/^[a-f0-9]{64}$/D', (string) ($context['fingerprint'] ?? '')) !== 1
             || (int) ($context['expires_at'] ?? 0) < now()->timestamp) {
             $request->session()->forget(self::SESSION_KEY);
 
