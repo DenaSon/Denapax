@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\StoreCartController;
 use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
@@ -20,6 +22,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', PublicLandingController::class)->name('home');
 Route::get('/products/{slug}', PublicProductController::class)->name('products.show');
 Route::get('/sitemap.xml', PublicSitemapController::class)->name('sitemap');
+
+Route::get('/cart', [StoreCartController::class, 'index'])->name('cart.index');
+Route::post('/cart/items', [StoreCartController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');
+Route::patch('/cart/items/{variantId}', [StoreCartController::class, 'update'])->middleware('throttle:60,1')->whereNumber('variantId')->name('cart.update');
+Route::delete('/cart/items/{variantId}', [StoreCartController::class, 'remove'])->middleware('throttle:60,1')->whereNumber('variantId')->name('cart.remove');
+
+Route::get('/customer/login', [CustomerAuthController::class, 'show'])->name('customer.login');
+Route::post('/customer/otp/request', [CustomerAuthController::class, 'requestCode'])->middleware('throttle:10,1')->name('customer.otp.request');
+Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verify'])->middleware('throttle:15,1')->name('customer.otp.verify');
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
 
 Route::middleware(['auth', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', Dashboard::class)->name('dashboard');

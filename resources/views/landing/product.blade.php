@@ -46,9 +46,7 @@
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-5 text-xs font-semibold text-[#e6e8d4] sm:text-sm">
                 <a class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
                 <a class="transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
-                @if ($telegramUrl)
-                    <a class="rounded-full border border-white/40 px-4 py-2 transition hover:bg-white hover:text-[#19392f]" href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer">بات سفارش</a>
-                @endif
+                <a class="rounded-full border border-white/40 px-4 py-2 transition hover:bg-white hover:text-[#19392f]" href="{{ route('cart.index') }}">سبد خرید</a>
             </nav>
         </div>
     </header>
@@ -129,6 +127,13 @@
                                     <span dir="ltr" class="inline-block">{{ \App\Support\Money::formatToman((int) $variant->price_irr) }}</span>
                                     <span class="text-xs font-normal">تومان</span>
                                 </p>
+                                <form method="POST" action="{{ route('cart.add') }}" class="mt-4 flex flex-wrap items-center gap-2">
+                                    @csrf
+                                    <input type="hidden" name="variant_id" value="{{ $variant->id }}">
+                                    <label for="quantity-{{ $variant->id }}" class="sr-only">تعداد</label>
+                                    <input id="quantity-{{ $variant->id }}" name="quantity" type="number" min="1" max="1000" value="1" required class="w-20 rounded-lg border border-[#cbd4c7] bg-white p-2">
+                                    <button type="submit" class="rounded-lg bg-[#19392f] px-4 py-2 text-sm font-bold text-white">افزودن به سبد</button>
+                                </form>
                             </li>
                         @endforeach
                     </ul>
@@ -149,16 +154,8 @@
                 @endif
 
                 <div class="mt-10">
-                    @if ($telegramUrl)
-                        <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer"
-                           class="landing-button w-full bg-[#19392f] text-white hover:bg-[#315844] sm:w-auto">
-                            انتخاب تنوع و سفارش در تلگرام
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-4-2zM12 14l8-10"/></svg>
-                        </a>
-                    @else
-                        <span role="status" class="inline-block rounded-full border border-[#91a392] px-5 py-3 text-sm text-[#58705c]">لینک بات در حال آماده‌سازی است</span>
-                    @endif
-                    <p class="mt-4 text-xs leading-6 text-[#728272]">ثبت سفارش و انتخاب نهایی تنوع در بات انجام می‌شود.</p>
+                    <a href="{{ route('cart.index') }}" class="landing-button w-full bg-[#19392f] text-white hover:bg-[#315844] sm:w-auto">مشاهده سبد خرید</a>
+                    <p class="mt-4 text-xs leading-6 text-[#728272]">ثبت سفارش و پرداخت وب در فازهای بعدی فعال می‌شود.</p>
                 </div>
             </article>
         </div>

@@ -23,6 +23,7 @@ class ManageCart
             Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
             $variant = ProductVariant::query()->whereKey($variantId)
                 ->where('is_available', true)
+                ->where('price_irr', '>', 0)
                 ->whereHas('product', fn ($q) => $q->published())
                 ->first();
 

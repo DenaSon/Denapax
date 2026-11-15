@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Support\PublicStorefront;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -41,7 +40,6 @@ class PublicProductController extends Controller
         $canonicalUrl = route('products.show', ['slug' => $product->slug]);
         $description = (string) ($product->summary ?: $product->description ?: $product->title);
         $metaDescription = mb_substr(trim(strip_tags($description)), 0, 155);
-        $telegramUrl = PublicStorefront::telegramUrl();
         $minimumPrice = (int) $product->variants->min('price_irr');
 
         // Structured-data offers are priced in actual DB currency (IRR), not
@@ -71,7 +69,7 @@ class PublicProductController extends Controller
 
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
-            'minimumPrice', 'telegramUrl', 'schema'
+            'minimumPrice', 'schema'
         ));
     }
 }

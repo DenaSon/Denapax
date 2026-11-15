@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#19392f">
     <meta name="robots" content="index,follow,max-image-preview:large">
-    <meta name="description" content="دناپکس؛ آشنایی با سوغات، خشکبار و محصولات محلی دنا. محصولات را ببینید و سفارش خود را در بات تلگرام ثبت کنید.">
+    <meta name="description" content="دناپکس؛ آشنایی با سوغات، خشکبار و محصولات محلی دنا. محصولات را ببینید و به سبد خرید اضافه کنید.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fa_IR">
     <meta property="og:site_name" content="DenaPax">
     <meta property="og:title" content="دناپکس | از دل دنا">
-    <meta property="og:description" content="روایتی از طعم‌های محلی دنا؛ معرفی محصولات و سفارش از طریق تلگرام.">
+    <meta property="og:description" content="روایتی از طعم‌های محلی دنا؛ معرفی محصولات و خرید از وب‌سایت.">
     <meta property="og:url" content="{{ route('home') }}">
     <meta name="twitter:card" content="summary">
     <link rel="canonical" href="{{ route('home') }}">
@@ -55,14 +55,7 @@
 
             <div class="hidden items-center gap-4 lg:flex">
                 <span class="text-xs tracking-[.25em] text-white/60" lang="en">NATURE • ORIGIN • TASTE</span>
-                @if ($telegramUrl)
-                    <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer">
-                        ورود به بات
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m19 5-14 14M19 5H9m10 0v10"/></svg>
-                    </a>
-                @else
-                    <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="#products">کشف محصولات</a>
-                @endif
+                <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">سبد خرید</a>
             </div>
 
             <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white lg:hidden" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
@@ -73,7 +66,7 @@
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
             <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
-            <a x-on:click="closeMenu(true)" href="#order" class="block py-3 text-sm">سفارش در تلگرام</a>
+            <a x-on:click="closeMenu(true)" href="#order" class="block py-3 text-sm">سبد خرید</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
@@ -284,16 +277,8 @@
 
         <section id="order" data-chapter class="bg-[#17382d] py-9 text-[#f3f1e5] md:py-12" aria-labelledby="order-title">
             <div class="landing-container flex justify-center">
-                <h2 id="order-title" class="sr-only">سفارش از طریق تلگرام</h2>
-                @if ($telegramUrl)
-                    <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer"
-                       class="landing-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
-                        ورود به فروشگاه تلگرام
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-4-2zM12 14l8-10"/></svg>
-                    </a>
-                @else
-                    <p class="text-center text-sm text-white/80" role="status">لینک بات در حال آماده‌سازی است</p>
-                @endif
+                <h2 id="order-title" class="sr-only">سبد خرید</h2>
+                <a href="{{ route('cart.index') }}" class="landing-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">مشاهده سبد خرید</a>
             </div>
         </section>
     </main>
@@ -436,20 +421,9 @@
                         </div>
                     </div>
 
-                    @if ($telegramUrl)
-                        <a href="{{ $telegramUrl }}" target="_blank" rel="noopener noreferrer"
-                           class="landing-button mt-4 w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]">
-                            ادامه سفارش در بات تلگرام
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-4-2zM12 14l8-10"/></svg>
-                        </a>
-                    @else
-                        <a href="#order" x-on:click="closeProduct()"
-                           class="landing-button mt-4 w-full bg-[#19392f] text-white">
-                            راهنمای سفارش
-                        </a>
-                    @endif
+                    <a x-bind:href="preview.url" class="landing-button mt-4 w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]">انتخاب تنوع و افزودن به سبد خرید</a>
                     <p class="mt-3 text-center text-xs leading-6 text-[#7b8a7a]">
-                        انتخاب نهایی تنوع و ثبت سفارش داخل بات انجام می‌شود.
+                        تنوع و تعداد موردنظر را در صفحه محصول انتخاب کنید.
                     </p>
                 </div>
             </div>
