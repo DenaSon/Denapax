@@ -1,6 +1,6 @@
 # Denapax Web Phase 4B — Mobile-first checkout UX
 
-**Implemented in code:** [PR #83](https://github.com/DenaSon/Denapax/pull/83) · 2026-11-15. **Release status:** NOT PRODUCTION-VERIFIED; real phone/device tests and the separate provider/restore gates remain pending. See [Phase 4 release plan](38-web-phase4-release-readiness.md).
+**Implemented and merged into `master`:** [PR #83](https://github.com/DenaSon/Denapax/pull/83) · SHA `3ca052738bb5397f658306669f67ecb37375d55f` · [green CI](https://github.com/DenaSon/Denapax/actions/runs/43723331966), 77 tests / 523 assertions · 2026-11-15. **Release status:** NOT PRODUCTION-VERIFIED; real phone/device tests and the separate provider/restore gates remain pending. See [Phase 4 release plan](38-web-phase4-release-readiness.md).
 
 ## Goal
 
