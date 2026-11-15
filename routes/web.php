@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\CustomerAuthController;
-use App\Http\Controllers\StoreCartController;
 use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\PublicSitemapController;
+use App\Http\Controllers\StoreCartController;
 use App\Http\Middleware\EnsureActiveStaff;
 use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;

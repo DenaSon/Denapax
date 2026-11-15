@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\CustomerLoginCode;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Support\CustomerOtpSender;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -19,6 +20,7 @@ class WebCustomerFoundationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->withoutVite();
     }
 
@@ -95,7 +97,7 @@ class WebCustomerFoundationTest extends TestCase
             ->get('/admin')->assertRedirect('/login');
     }
 
-    private function variant(): \App\Models\ProductVariant
+    private function variant(): ProductVariant
     {
         $category = Category::query()->create([
             'name' => 'سوغات', 'slug' => 'gifts', 'is_active' => true,
