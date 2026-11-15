@@ -6,6 +6,7 @@ use App\Application\Actions\CreateOrder;
 use App\Application\Actions\ManageCart;
 use App\Application\Actions\PrepareCheckout;
 use App\Application\Actions\ReconcileGatewayPayment;
+use App\Application\Actions\ReviewPaymentReceipt;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\GatewayPaymentAttempt;
@@ -124,7 +125,7 @@ class WebPaymentsTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
         $reviewer = User::factory()->create();
         $reviewer->assignRole('super-admin');
-        app(\App\Application\Actions\ReviewPaymentReceipt::class)->execute($reviewer, $receipt->id, 'approved');
+        app(ReviewPaymentReceipt::class)->execute($reviewer, $receipt->id, 'approved');
 
         $this->assertSame('approved', $this->order->fresh()->payment_status);
         $this->assertSame('confirmed', $this->order->fresh()->order_status);
