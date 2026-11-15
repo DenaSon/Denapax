@@ -51,6 +51,7 @@ class WebPaymentsTest extends TestCase
             'category_id' => $category->id,
             'title' => 'گردوی دنا',
             'slug' => 'dena-walnuts',
+            'summary' => 'گردوی کوهستان دنا',
             'is_active' => true,
         ]);
         $variant = $product->variants()->create([
