@@ -27,7 +27,7 @@
     @if ($photos->isNotEmpty())
         <link rel="preload" as="image" href="{{ $photos->first()['url'] }}">
     @endif
-    @vite(['resources/css/landing.css'])
+    @vite(['resources/css/landing.css', 'resources/js/product-gallery.js'])
     <script type="application/ld+json">@json($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
 </head>
 <body class="landing landing-shell antialiased">
@@ -61,28 +61,88 @@
         </nav>
 
         <div class="grid items-start gap-9 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] lg:gap-15">
-            <div class="min-w-0">
-                <div class="relative aspect-square overflow-hidden rounded-[1.65rem] bg-[#cdd4bf] md:aspect-[1.1/1]">
-                    @if ($photos->isNotEmpty())
-                        <img class="h-full w-full object-cover" src="{{ $photos->first()['url'] }}"
-                             alt="تصویر {{ $product->title }}" width="960" height="960" fetchpriority="high" decoding="async">
+            <div class="min-w-0" data-product-gallery aria-label="گالری تصاویر {{ $product->title }}">
+                @if ($photos->isNotEmpty())
+                    <div class="product-gallery-stage">
+                        <a href="{{ $photos->first()['full_url'] }}" target="_blank" rel="noopener noreferrer"
+                           data-gallery-open class="product-gallery-main-link"
+                           aria-label="نمایش بزرگ تصویر {{ $product->title }}">
+                            <img data-gallery-main class="product-gallery-main-image"
+                                 src="{{ $photos->first()['url'] }}" alt="تصویر ۱ از {{ $product->title }}"
+                                 width="960" height="960" fetchpriority="high" decoding="async">
+                            <span class="product-gallery-zoom-hint" aria-hidden="true">⌕ <span>بزرگ‌نمایی</span></span>
+                        </a>
+                        <span class="product-gallery-category">{{ $product->category->name }}</span>
+                        @if ($photos->count() > 1)
+                            <button type="button" class="product-gallery-arrow product-gallery-prev"
+                                    data-gallery-step="-1" aria-label="تصویر قبلی"><span aria-hidden="true">›</span></button>
+                            <button type="button" class="product-gallery-arrow product-gallery-next"
+                                    data-gallery-step="1" aria-label="تصویر بعدی"><span aria-hidden="true">‹</span></button>
+                            <span class="product-gallery-counter" data-gallery-counter aria-live="polite">۱ / {{ $photos->count() }}</span>
+                        @endif
+                    </div>
+                    @if ($photos->count() > 1)
+                        <div class="product-gallery-thumbs" aria-label="انتخاب تصویر محصول" data-gallery-thumbs>
+                            @foreach ($photos as $photo)
+                                <a href="{{ $photo['full_url'] }}" target="_blank" rel="noopener noreferrer"
+                                   class="product-gallery-thumb"
+                                   data-gallery-thumb data-gallery-index="{{ $loop->index }}"
+                                   data-image-url="{{ $photo['url'] }}"
+                                   data-image-full-url="{{ $photo['full_url'] }}"
+                                   data-image-alt="تصویر {{ $loop->iteration }} از {{ $product->title }}"
+                                   aria-label="نمایش تصویر {{ $loop->iteration }} از {{ $photos->count() }}"
+                                   @if ($loop->first) aria-current="true" @endif>
+                                    <img src="{{ $photo['url'] }}" alt="" width="120" height="120" loading="lazy" decoding="async">
+                                </a>
+                            @endforeach
+                        </div>
                     @else
-                        <div class="organic-lines flex h-full w-full items-center justify-center">
+                        <a class="product-gallery-single-fallback" href="{{ $photos->first()['full_url'] }}"
+                           target="_blank" rel="noopener noreferrer">مشاهده تصویر در اندازه اصلی</a>
+                        <a href="{{ $photos->first()['full_url'] }}" target="_blank" rel="noopener noreferrer"
+                           data-gallery-thumb data-gallery-index="0"
+                           data-image-url="{{ $photos->first()['url'] }}"
+                           data-image-full-url="{{ $photos->first()['full_url'] }}"
+                           data-image-alt="تصویر ۱ از {{ $product->title }}" hidden></a>
+                    @endif
+
+                    <dialog class="product-lightbox" data-gallery-lightbox aria-label="نمایش تمام‌صفحه تصاویر {{ $product->title }}">
+                        <div class="product-lightbox-header">
+                            <span class="product-lightbox-title">{{ $product->title }}</span>
+                            <button type="button" class="product-lightbox-control product-lightbox-close"
+                                    data-lightbox-close aria-label="بستن نمایش تمام‌صفحه">✕</button>
+                        </div>
+                        <div class="product-lightbox-view" data-lightbox-viewport>
+                            <img data-lightbox-image class="product-lightbox-image"
+                                 src="{{ $photos->first()['full_url'] }}"
+                                 alt="تصویر ۱ از {{ $product->title }}" width="1280" height="1280">
+                        </div>
+                        <div class="product-lightbox-toolbar">
+                            <div class="product-lightbox-group">
+                                @if ($photos->count() > 1)
+                                    <button type="button" class="product-lightbox-control" data-lightbox-step="-1"
+                                            aria-label="تصویر قبلی">›</button>
+                                    <span class="product-lightbox-count" data-lightbox-counter aria-live="polite">۱ / {{ $photos->count() }}</span>
+                                    <button type="button" class="product-lightbox-control" data-lightbox-step="1"
+                                            aria-label="تصویر بعدی">‹</button>
+                                @endif
+                            </div>
+                            <div class="product-lightbox-group">
+                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-out aria-label="کوچک‌نمایی">−</button>
+                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-reset aria-label="بازگشت به اندازه اصلی">۱:۱</button>
+                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-in aria-label="بزرگ‌نمایی">+</button>
+                            </div>
+                        </div>
+                        <p class="product-lightbox-help">برای بزرگ‌نمایی از دو انگشت یا دکمه‌های + و − استفاده کنید.</p>
+                    </dialog>
+                @else
+                    <div class="product-gallery-stage product-gallery-empty">
+                        <div class="organic-lines flex h-full w-full items-center justify-center" aria-label="تصویر این محصول هنوز ثبت نشده است">
                             <svg class="h-32 w-32 text-[#688872]" viewBox="0 0 120 120" fill="none" aria-hidden="true">
                                 <path d="m5 89 38-61 26 37 16-24 30 48M14 97h92" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                    @endif
-                    <span class="absolute right-5 top-5 rounded-full bg-[#f3f1e8]/90 px-5 py-2 text-xs font-bold text-[#315844]">{{ $product->category->name }}</span>
-                </div>
-                @if ($photos->count() > 1)
-                    <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4" aria-label="تصاویر دیگر محصول">
-                        @foreach ($photos->skip(1) as $photo)
-                            <a href="{{ $photo['full_url'] }}" target="_blank" rel="noopener noreferrer" class="block aspect-square overflow-hidden rounded-xl bg-[#d5dac9]" aria-label="نمایش تصویر {{ $loop->iteration + 1 }} محصول در اندازه اصلی">
-                                <img src="{{ $photo['url'] }}" alt="نمای دیگر {{ $product->title }}"
-                                     width="260" height="260" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105">
-                            </a>
-                        @endforeach
+                        <span class="product-gallery-category">{{ $product->category->name }}</span>
                     </div>
                 @endif
             </div>
@@ -127,7 +187,7 @@
                                         @endphp
                                         <label class="block cursor-pointer">
                                             <input type="radio" name="variant_id" value="{{ $variant->id }}" required
-                                                   class="peer sr-only" @checked($loop->first)>
+                                                   class="peer sr-only" data-variant-photo-index="{{ $variantPhotoIndexes[$variant->id] ?? '' }}" @checked($loop->first)>
                                             <span class="store-variant-card flex min-h-28 flex-col justify-between rounded-2xl border-2 border-[#cbd4c7] bg-[#f8f7ef] p-4 transition peer-checked:border-[#245840] peer-checked:bg-[#e4eddf] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ae855a]">
                                                 <span class="flex items-start justify-between gap-3">
                                                     <span class="text-sm font-bold text-[#234835]">{{ $variant->title }}</span>
