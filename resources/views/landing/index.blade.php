@@ -134,14 +134,28 @@
                 </span>
             </div>
 
+            <form method="GET" action="{{ route('home') }}#products" role="search" class="mb-7 flex flex-wrap items-center gap-3">
+                @if ($selectedCategory)
+                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
+                @endif
+                <label for="catalog-search" class="sr-only">جستجو در محصولات</label>
+                <input id="catalog-search" name="q" type="search" maxlength="80" value="{{ $search }}"
+                       placeholder="جستجو در سوغات و خشکبار دنا..."
+                       class="min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
+                <button type="submit" class="rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
+                @if ($search !== '')
+                    <a href="{{ route('home', $selectedCategory ? ['category' => $selectedCategory] : []) }}#products" class="text-xs font-semibold underline underline-offset-4">پاک‌کردن جستجو</a>
+                @endif
+            </form>
+
             @if ($categories->isNotEmpty())
                 <nav aria-label="فیلتر دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
-                    <a data-catalog-link href="{{ route('home') }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
+                    <a data-catalog-link href="{{ route('home', $search !== '' ? ['q' => $search] : []) }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
                         class="{{ $selectedCategory === null ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                         همه محصولات
                     </a>
                     @foreach ($categories as $category)
-                        <a data-catalog-link href="{{ route('home', ['category' => $category->slug]) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
+                        <a data-catalog-link href="{{ route('home', ['category' => $category->slug] + ($search !== '' ? ['q' => $search] : [])) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
                             class="{{ $selectedCategory === $category->slug ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                             {{ $category->name }}
                         </a>
@@ -210,7 +224,7 @@
                         <p class="mb-4 text-sm font-semibold text-[#71816c]">COLLECTION / 00</p>
                         <h3 class="text-2xl font-bold text-[#254736] md:text-3xl">محصولی برای نمایش پیدا نشد</h3>
                         <p class="mt-4 text-sm leading-8 text-[#637366]">محصولات منتشرشده و قابل سفارش به‌صورت خودکار در این بخش نمایش داده می‌شوند.</p>
-                        @if ($selectedCategory)
+                        @if ($selectedCategory || $search !== '')
                             <a href="{{ route('home') }}#products" class="mt-6 inline-flex text-sm font-bold underline underline-offset-8">نمایش همه محصولات</a>
                         @endif
                     </div>

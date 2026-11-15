@@ -73,7 +73,7 @@ class StoreCart
             ? $this->carts->cart($customer)->items()->pluck('quantity', 'product_variant_id')->all()
             : session()->get(self::SESSION_KEY, []);
 
-        $variants = ProductVariant::query()->with('product')->whereIn('id', array_keys($items))->get()->keyBy('id');
+        $variants = ProductVariant::query()->with('product.category')->whereIn('id', array_keys($items))->get()->keyBy('id');
 
         return collect($items)->map(function ($quantity, $variantId) use ($variants): ?array {
             $variant = $variants->get((int) $variantId);
@@ -87,7 +87,8 @@ class StoreCart
                 'quantity' => (int) $quantity,
                 'total_irr' => (int) $variant->price_irr * (int) $quantity,
                 'available' => $variant->is_available && $variant->price_irr > 0
-                    && $variant->shipping_weight_grams > 0 && $variant->product->is_active,
+                    && $variant->shipping_weight_grams > 0 && $variant->product->is_active
+                    && $variant->product->category?->is_active,
             ];
         })->filter()->values();
     }

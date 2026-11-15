@@ -15,6 +15,9 @@
                 <a href="{{ route('home') }}#products">محصولات</a>
                 <a href="{{ route('cart.index') }}">سبد خرید</a>
                 @auth('customer')
+                    <a href="{{ route('addresses.index') }}">نشانی‌های من</a>
+                @endauth
+                @auth('customer')
                     <form action="{{ route('customer.logout') }}" method="POST">@csrf <button type="submit">خروج از حساب</button></form>
                 @else
                     <a href="{{ route('customer.login') }}">ورود مشتری</a>

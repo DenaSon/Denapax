@@ -40,7 +40,7 @@ class PrepareCheckout
             $variant = $item->variant;
             $product = $variant?->product;
             if (! $variant || ! $product || ! $product->is_active || ! $product->category?->is_active
-                || ! $variant->is_available || $variant->shipping_weight_grams < 1
+                || ! $variant->is_available || $variant->price_irr < 1 || $variant->shipping_weight_grams < 1
                 || $item->quantity < 1 || $item->quantity > 1000) {
                 throw ValidationException::withMessages(['cart' => 'موجودی یا مشخصات یک کالا تغییر کرده است؛ سبد را بازبینی کنید.']);
             }
