@@ -15,6 +15,8 @@ use App\Models\Product;
 use App\Models\ShippingSetting;
 use App\Models\StoreSetting;
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpClientRequest;
 use Illuminate\Http\UploadedFile;
@@ -22,7 +24,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Database\Seeders\RolesAndPermissionsSeeder;
 use Tests\TestCase;
 
 class WebPaymentsTest extends TestCase
@@ -215,7 +216,6 @@ class WebPaymentsTest extends TestCase
         $this->assertSame('awaiting_receipt', $this->order->fresh()->payment_status);
     }
 
-
     public function test_unknown_old_payment_blocks_both_payment_methods_until_bank_reconciled(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
@@ -360,7 +360,7 @@ class WebPaymentsTest extends TestCase
         try {
             $service->clearUnpaid($operator, $attempt->id, 'بررسی پنل پذیرنده و گزارش عدم دریافت وجه');
             $this->fail('Only reviewers may clear money-related exceptions.');
-        } catch (\Illuminate\Auth\Access\AuthorizationException) {
+        } catch (AuthorizationException) {
             $this->assertSame('request_unknown', $attempt->fresh()->status);
         }
 
