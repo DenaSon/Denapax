@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Money;
+use App\Support\PersianSearch;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -30,10 +31,23 @@ class PublicLandingController extends Controller
                 ? $requestedCategory
                 : null;
 
+        $requestedSearch = $request->query('q');
+        $search = is_string($requestedSearch) && mb_strlen($requestedSearch) <= 80
+            ? trim($requestedSearch)
+            : '';
+        $normalizedSearch = str_replace(['%', '_'], '', PersianSearch::normalize($search));
+
         $products = Product::query()
             ->publiclyOrderable()
             ->when($selectedCategory !== null, fn (Builder $query) => $query
                 ->whereHas('category', fn (Builder $category) => $category->where('slug', $selectedCategory)))
+            ->when($normalizedSearch !== '', function (Builder $query) use ($normalizedSearch): void {
+                $query->where(function (Builder $match) use ($normalizedSearch): void {
+                    foreach (['title', 'summary', 'description'] as $column) {
+                        $match->orWhereRaw(PersianSearch::sql($column).' LIKE ?', ['%'.$normalizedSearch.'%']);
+                    }
+                });
+            })
             ->with([
                 'category',
                 'features',
@@ -98,6 +112,6 @@ class PublicLandingController extends Controller
             'inLanguage' => 'fa-IR',
         ];
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'productPreviews', 'websiteSchema'));
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'search', 'productPreviews', 'websiteSchema'));
     }
 }

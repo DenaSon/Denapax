@@ -31,10 +31,16 @@
             <a href="{{ route('home') }}#products" class="rounded-full border border-[#19392f] px-5 py-3 text-sm">ادامه انتخاب محصولات</a>
         </div>
         @if ($lines->isNotEmpty())
-            <p class="mt-7 rounded-xl bg-[#ecede6] p-4 text-sm">ثبت سفارش و پرداخت وب در فاز بعدی فعال می‌شود. سبد شما محفوظ می‌ماند.</p>
-            @guest('customer')
-                <a href="{{ route('customer.login') }}" class="mt-4 inline-block rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">ورود برای ادامه خرید</a>
-            @endguest
+            <p class="mt-6 text-sm text-[#687969]">هزینه ارسال پس از انتخاب نشانی و براساس وزن اقلام محاسبه می‌شود.</p>
+            @if ($lines->contains(fn ($line) => ! $line['available']))
+                <p class="mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-800">برای ادامه، اقلام ناموجود را حذف کنید.</p>
+            @else
+                @auth('customer')
+                    <a href="{{ route('checkout.index') }}" class="mt-5 inline-block rounded-full bg-[#19392f] px-7 py-3 text-sm font-bold text-white">انتخاب نشانی و ادامه ثبت سفارش</a>
+                @else
+                    <a href="{{ route('customer.login') }}" class="mt-5 inline-block rounded-full bg-[#19392f] px-7 py-3 text-sm font-bold text-white">ورود با موبایل و ادامه خرید</a>
+                @endauth
+            @endif
         @endif
     </section>
 @endcomponent
