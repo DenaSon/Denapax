@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\CustomerAddressController;
+use App\Http\Controllers\CustomerNotificationController;
+use App\Http\Controllers\CustomerOrdersController;
+use App\Http\Controllers\CustomerReceiptController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\PrivatePaymentReceiptController;
+use App\Http\Controllers\GatewayPaymentController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\PublicSitemapController;
@@ -24,6 +28,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', PublicLandingController::class)->name('home');
 Route::get('/products/{slug}', PublicProductController::class)->name('products.show');
 Route::get('/sitemap.xml', PublicSitemapController::class)->name('sitemap');
+
+// Public payment gateway return; NEVER regard callback parameters as proof of payment.
+Route::get('/payments/zarinpal/callback', [GatewayPaymentController::class, 'callback'])
+    ->middleware('throttle:60,1')->name('payments.zarinpal.callback');
 
 Route::get('/cart', [StoreCartController::class, 'index'])->name('cart.index');
 Route::post('/cart/items', [StoreCartController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');
@@ -48,7 +56,20 @@ Route::middleware('auth:customer')->group(function (): void {
     Route::post('/checkout/preview', [WebCheckoutController::class, 'preview'])->middleware('throttle:30,1')->name('checkout.preview');
     Route::get('/checkout/review', [WebCheckoutController::class, 'review'])->name('checkout.review');
     Route::post('/checkout/confirm', [WebCheckoutController::class, 'confirm'])->middleware('throttle:15,1')->name('checkout.confirm');
+    Route::get('/orders', [CustomerOrdersController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderNumber}', [WebCheckoutController::class, 'confirmation'])->name('orders.confirmation');
+    Route::post('/orders/{orderNumber}/payment/zarinpal', [GatewayPaymentController::class, 'start'])
+        ->middleware('throttle:10,1')->name('payments.zarinpal.start');
+    Route::post('/orders/{orderNumber}/payment/recheck', [GatewayPaymentController::class, 'recheck'])
+        ->middleware('throttle:10,1')->name('payments.zarinpal.recheck');
+    Route::post('/orders/{orderNumber}/receipts', [CustomerReceiptController::class, 'store'])
+        ->middleware('throttle:5,1')->name('orders.receipts.store');
+    Route::get('/orders/{orderNumber}/receipts/{receipt}/image', [CustomerReceiptController::class, 'image'])
+        ->whereNumber('receipt')->name('orders.receipts.image');
+
+    Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('customer.notifications.index');
+    Route::post('/account/notifications/{notification}/read', [CustomerNotificationController::class, 'markRead'])
+        ->whereNumber('notification')->name('customer.notifications.read');
 });
 
 Route::middleware(['auth:web', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {

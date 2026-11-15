@@ -15,7 +15,9 @@
                 <a href="{{ route('home') }}#products">محصولات</a>
                 <a href="{{ route('cart.index') }}">سبد خرید</a>
                 @auth('customer')
-                    <a href="{{ route('addresses.index') }}">نشانی‌های من</a>
+                    <a href="{{ route('orders.index') }}">سفارش‌های من</a>
+                    <a href="{{ route('addresses.index') }}">نشانی‌ها</a>
+                    <a href="{{ route('customer.notifications.index') }}">پیام‌ها</a>
                 @endauth
                 @auth('customer')
                     <form action="{{ route('customer.logout') }}" method="POST">@csrf <button type="submit">خروج از حساب</button></form>
@@ -28,6 +30,9 @@
     <main class="landing-container mx-auto max-w-4xl py-12">
         @if (session('status'))
             <p role="status" class="mb-5 rounded-xl bg-[#d9eadb] p-4">{{ session('status') }}</p>
+        @endif
+        @if (session('notice'))
+            <p role="status" class="mb-5 rounded-xl bg-[#f8eddd] p-4">{{ session('notice') }}</p>
         @endif
         @if ($errors->any())
             <div role="alert" class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
