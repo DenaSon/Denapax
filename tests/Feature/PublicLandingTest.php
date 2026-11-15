@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PublicLandingTest extends TestCase
@@ -145,6 +147,77 @@ class PublicLandingTest extends TestCase
 
         $product->update(['is_active' => false]);
         $this->get(route('products.show', ['slug' => $product->slug]))->assertNotFound();
+    }
+
+    public function test_product_gallery_is_accessible_without_images_or_javascript(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردو بدون عکس', 'walnuts-without-photo', 1250000);
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertSee('data-product-gallery', false)
+            ->assertSee('تصویر این محصول هنوز ثبت نشده است')
+            ->assertDontSee('data-gallery-open', false)
+            ->assertDontSee('data-gallery-lightbox', false);
+    }
+
+    public function test_single_photo_is_linkable_without_javascript_and_opens_native_lightbox_when_available(): void
+    {
+        Storage::fake('public');
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردو با یک عکس', 'single-walnut-photo', 1250000);
+        $product->addMedia(UploadedFile::fake()->image('only.jpg'))
+            ->toMediaCollection('gallery', 'public');
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertSee('data-gallery-open', false)
+            ->assertSee('data-gallery-lightbox', false)
+            ->assertSee('product-gallery-single-fallback')
+            ->assertDontSee('data-gallery-step', false)
+            ->assertDontSee('data-gallery-thumbs', false);
+    }
+
+    public function test_mobile_gallery_includes_variant_photos_and_maps_radio_selection_to_exact_image(): void
+    {
+        Storage::fake('public');
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'mobile-walnut-gallery', 13890000);
+
+        $product->addMedia(UploadedFile::fake()->image('cover.jpg'))
+            ->toMediaCollection('gallery', 'public');
+        $product->addMedia(UploadedFile::fake()->image('detail.jpg'))
+            ->toMediaCollection('gallery', 'public');
+
+        $variant = $product->variants()->create([
+            'sku' => 'DEN-WAL-ONE', 'title' => 'بسته یک کیلویی',
+            'sale_quantity' => 1, 'sale_unit' => 'kg',
+            'price_irr' => 24000000, 'shipping_weight_grams' => 1050,
+            'is_available' => true,
+        ]);
+        $variant->addMedia(UploadedFile::fake()->image('variant.jpg'))
+            ->toMediaCollection('variant-image', 'public');
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertSee('data-gallery-thumbs', false)
+            ->assertSee('data-gallery-step="1"', false)
+            ->assertSee('data-lightbox-viewport', false)
+            ->assertSee('data-lightbox-zoom-in', false)
+            ->assertSee('data-image-full-url=', false)
+            ->assertSee('data-gallery-index="2"', false)
+            ->assertSee('data-variant-photo-index="2"', false)
+            ->assertSee('aria-current="true"', false)
+            ->assertSee('loading="lazy"', false)
+            ->assertViewHas('photos', fn ($photos): bool => $photos->count() === 3)
+            ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$variant->id] === 2);
+
+        $this->assertStringContainsString('product-gallery.js', file_get_contents(base_path('vite.config.js')));
+        $this->assertStringContainsString(
+            "@source '../js/product-gallery.js';",
+            file_get_contents(resource_path('css/landing.css')),
+        );
     }
 
     public function test_xml_sitemap_lists_only_publicly_orderable_products(): void

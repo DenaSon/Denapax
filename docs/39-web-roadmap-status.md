@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green CI at SHA `3ca052738bb5397f658306669f67ecb37375d55f`](https://github.com/DenaSon/Denapax/actions/runs/43723331966). **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
+**Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green baseline CI at SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`](https://github.com/DenaSon/Denapax/actions/runs/43726671634), plus the product-gallery PR. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
 
 ## Completed in repository (merged, automated CI evidence)
 
@@ -13,7 +13,7 @@
 | Phase 4B — mobile-first purchase UX | Inline one-screen quote and confirmation, large +/- cart actions, one-form variant selection, simplified SMS code and recipient form; **physical mobile QA pending** | [PR #83](https://github.com/DenaSon/Denapax/pull/83), `3ca052738bb5397f658306669f67ecb37375d55f`, [docs/41](41-web-phase4b-mobile-checkout-ux.md) |
 | Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment, transactional outbox and database queue | Existing code + CI; still needs production-like acceptance |
 
-**Latest verified master CI:** 77 passed / 523 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
+**Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
 ## What is implemented but not activated
 
@@ -54,6 +54,13 @@
 - Responsive orders list, clearer next authorized action on order detail, receipt review linked to an individual receipt and bank reconciliation warnings; notifications report now correctly refers to **web** rather than retired Telegram.
 - Financial service methods, permissions, private receipt URLs, gateway retry and checkout rules remain enforced on the server. See [admin UX handoff](43-admin-ui-ux-polish.md).
 - **Still pending:** actual staff Android/iOS browser walkthrough and full production-like operations acceptance. Code tests do not prove go-live readiness.
+
+## Mobile-first product gallery (code-only addition)
+
+- Dedicated product permalink supports a responsive carousel: first gallery image as cover, thumbnail strip, arrows, mobile swipe, native full-screen dialog, pinch/double-tap zoom, keyboard/focus support and accurate image switching when selecting a variant with its own photo.
+- Product editor already supplies gallery/variant images through Spatie; only public images appear. With JavaScript disabled, regular full-image links and the add-to-cart form still work. No new migration or payment change.
+- Core regressions cover no-image/one-image/multiple-image and correct variant-to-photo mapping. [Gallery implementation and device QA](44-product-mobile-gallery.md).
+- **Still required:** actually inspect iOS/Android gestures, performance/long names and screenshot-based UX sign-off before declaring mobile acceptance.
 
 ## Remaining P0 — block public web-sales launch
 
