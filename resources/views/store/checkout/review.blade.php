@@ -32,12 +32,12 @@
                 <dd>{{ \App\Support\Money::formatToman((int) $quote['total_irr']) }} تومان</dd>
             </div>
         </dl>
-        <p class="mt-7 rounded-xl bg-[#f5eee0] p-4 text-sm leading-7">ثبت سفارش به معنی پرداخت نیست. امکان بارگذاری رسید و تکمیل پرداخت در فاز بعدی وب فعال می‌شود؛ تا آن زمان سفارش در وضعیت «در انتظار پرداخت» باقی می‌ماند.</p>
+        <p class="mt-7 rounded-xl bg-[#f5eee0] p-4 text-sm leading-7">پس از ثبت سفارش، به صفحه پرداخت منتقل می‌شوید. زرین‌پال روش اصلی و کارت‌به‌کارت روش جایگزین است؛ فقط پس از تأیید پرداخت، سفارش وارد مرحله آماده‌سازی می‌شود.</p>
         <div class="mt-7 flex flex-wrap items-center gap-4">
             <form method="POST" action="{{ route('checkout.confirm') }}">
                 @csrf
                 <input type="hidden" name="checkout_key" value="{{ $checkoutKey }}">
-                <button type="submit" class="rounded-full bg-[#19392f] px-8 py-4 font-bold text-white">تأیید و ثبت سفارش</button>
+                <button type="submit" class="rounded-full bg-[#19392f] px-8 py-4 font-bold text-white">ثبت سفارش و ادامه به پرداخت</button>
             </form>
             <a href="{{ route('checkout.index') }}" class="text-sm font-bold underline underline-offset-4">تغییر نشانی یا سبد</a>
         </div>
