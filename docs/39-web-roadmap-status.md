@@ -2,6 +2,10 @@
 
 **Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green baseline CI at SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`](https://github.com/DenaSon/Denapax/actions/runs/43726671634), plus the product-gallery PR. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
 
+## Payment operating mode — owner decision (2026-11-16)
+
+The next release uses **manual card-to-card transfer and private receipt upload as primary while `ZARINPAL_ENABLED=false`**. Approved staff check bank credit in `/admin/payments` before confirming the order. The Zarinpal code remains intact, and configuring an activated merchant ID plus `ZARINPAL_ENABLED=true` after real acceptance restores online-primary / manual-fallback UX without a code change. This is an operating-mode decision and must not be mistaken for proof of deployment or complete P0 release gates. [Rollout guide](45-manual-receipt-first-rollout.md).
+
 ## Completed in repository (merged, automated CI evidence)
 
 | Workstream | Delivered scope (implementation only) | Evidence |
