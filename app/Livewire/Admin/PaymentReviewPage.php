@@ -20,9 +20,26 @@ class PaymentReviewPage extends Component
 
     public string $rejectionReason = '';
 
+    public ?int $rejectingReceiptId = null;
+
     public function updatedFilter(): void
     {
         $this->resetPage();
+    }
+
+    public function startRejection(int $receiptId): void
+    {
+        Gate::authorize('payments.review');
+        $this->rejectingReceiptId = $receiptId;
+        $this->rejectionReason = '';
+        $this->resetValidation();
+    }
+
+    public function cancelRejection(): void
+    {
+        $this->rejectingReceiptId = null;
+        $this->rejectionReason = '';
+        $this->resetValidation();
     }
 
     public function approve(int $receiptId, ReviewPaymentReceipt $action): void
@@ -30,6 +47,7 @@ class PaymentReviewPage extends Component
         Gate::authorize('payments.review');
 
         $action->execute(auth()->user(), $receiptId, 'approved');
+        $this->cancelRejection();
         session()->flash('status', 'پرداخت پس از بررسی واریز بانکی تأیید شد.');
     }
 
@@ -37,9 +55,15 @@ class PaymentReviewPage extends Component
     {
         Gate::authorize('payments.review');
 
+        if ($this->rejectingReceiptId !== null && $this->rejectingReceiptId !== $receiptId) {
+            $this->addError('rejectionReason', 'برای رد این رسید، ابتدا همان رسید را انتخاب کنید.');
+
+            return;
+        }
+
         $this->validate(['rejectionReason' => 'required|string|min:3|max:1500']);
         $action->execute(auth()->user(), $receiptId, 'rejected', $this->rejectionReason);
-        $this->rejectionReason = '';
+        $this->cancelRejection();
         session()->flash('status', 'رسید رد شد و دلیل برای ارسال به مشتری ثبت شد.');
     }
 

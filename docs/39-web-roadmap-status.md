@@ -48,6 +48,13 @@
 - Server-side checkout idempotency, verified OTP, gateway reconciliation and private receipts remain unchanged. See [UI polish handoff](42-web-storefront-ui-ux-polish.md).
 - **Still pending:** actual mobile-browser visual/a11y acceptance, real merchant/OTP providers and staging/production validation; no screenshots, bank settlements or launch approval are claimed from code CI.
 
+## Admin operational UX polish (PR #86; code-level only)
+
+- Staff panel gets a responsive forest/stone shell, permission-gated unified navigation, operational dashboard and readable Persian order/payment/gateway status labels.
+- Responsive orders list, clearer next authorized action on order detail, receipt review linked to an individual receipt and bank reconciliation warnings; notifications report now correctly refers to **web** rather than retired Telegram.
+- Financial service methods, permissions, private receipt URLs, gateway retry and checkout rules remain enforced on the server. See [admin UX handoff](43-admin-ui-ux-polish.md).
+- **Still pending:** actual staff Android/iOS browser walkthrough and full production-like operations acceptance. Code tests do not prove go-live readiness.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.

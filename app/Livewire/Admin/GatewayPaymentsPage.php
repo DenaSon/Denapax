@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Application\Actions\ReconcileGatewayPayment;
 use App\Models\GatewayPaymentAttempt;
+use App\Support\AdminLabels;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -28,7 +29,9 @@ class GatewayPaymentsPage extends Component
         Gate::authorize('payments.review');
         $attempt = $reconciliation->inquire(auth('web')->user(), $id);
 
-        session()->flash('status', 'استعلام انجام شد؛ وضعیت فعلی: '.($attempt->inquiry_status ?: $attempt->status));
+        session()->flash('status', 'استعلام انجام شد؛ وضعیت فعلی: '.($attempt->inquiry_status
+            ? AdminLabels::inquiry($attempt->inquiry_status)
+            : AdminLabels::gateway($attempt->status)));
     }
 
     public function clearUnpaid(int $id, ReconcileGatewayPayment $reconciliation): void

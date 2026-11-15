@@ -67,6 +67,7 @@ Run `php artisan test`, `vendor/bin/pint --test`, `composer validate --no-check-
 - [Phase 4A reconciliation/operator runbook](docs/40-web-phase4a-gateway-reconciliation.md)
 - [Phase 4B mobile checkout UX](docs/41-web-phase4b-mobile-checkout-ux.md)
 - [Storefront UI/UX polish and device acceptance](docs/42-web-storefront-ui-ux-polish.md)
+- [Admin operational UI/UX polish](docs/43-admin-ui-ux-polish.md)
 - [Phase 1 history](docs/35-web-phase1-cutover.md), [Phase 2 history](docs/36-web-phase2-checkout.md), [Phase 3 design](docs/37-web-phase3-payments.md)
 
 **Historical docs/01–34 and old GitHub issue history refer to a previous Telegram-first implementation; they are not the active web product specification.**
