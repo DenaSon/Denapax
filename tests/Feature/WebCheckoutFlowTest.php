@@ -204,6 +204,30 @@ class WebCheckoutFlowTest extends TestCase
         $this->assertSame(2, $this->customer->cart->items()->sole()->quantity);
     }
 
+    public function test_polished_checkout_renders_one_primary_action_and_progress_steps(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+        $this->makeAddress();
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+
+        $this->get(route('checkout.index'))->assertOk()
+            ->assertSee('مراحل خرید')
+            ->assertSee('aria-current="step"', false)
+            ->assertSee('store-checkout-total')
+            ->assertSee('data-submit-once')
+            ->assertSee('در حال ثبت سفارش...')
+            ->assertSee('Vazirmatn');
+
+        $this->assertStringContainsString(
+            "@source '../views/store/**/*.blade.php';",
+            file_get_contents(resource_path('css/landing.css')),
+        );
+        $this->assertStringContainsString(
+            "@source '../views/layouts/store.blade.php';",
+            file_get_contents(resource_path('css/landing.css')),
+        );
+    }
+
     public function test_stale_quote_does_not_create_order_and_preserves_cart(): void
     {
         $this->actingAs($this->customer, 'customer');

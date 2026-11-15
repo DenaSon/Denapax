@@ -89,6 +89,25 @@ class WebPaymentsTest extends TestCase
         config()->set('zarinpal.merchant_id', '12345678-1234-1234-1234-123456789012');
     }
 
+    public function test_pending_gateway_shows_clear_warning_in_customer_order_list_and_payment_page(): void
+    {
+        $this->fakeGateway(200);
+        $this->actingAs($this->customer, 'customer');
+
+        $this->post(route('payments.zarinpal.start', $this->order->order_number))
+            ->assertRedirect();
+
+        $this->get(route('orders.index'))->assertOk()
+            ->assertSee('نتیجه پرداخت در حال بررسی')
+            ->assertSee('مشاهده جزئیات و وضعیت سفارش');
+
+        $this->get(route('orders.confirmation', $this->order->order_number))
+            ->assertOk()
+            ->assertSee('دوباره پرداخت یا کارت‌به‌کارت نکنید')
+            ->assertSee('data-copy-value')
+            ->assertDontSee('پرداخت امن با زرین‌پال');
+    }
+
     public function test_gateway_amount_is_irr_and_server_verification_approves_once(): void
     {
         $this->fakeGateway(100, '987654321');
