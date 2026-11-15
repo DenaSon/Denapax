@@ -25,9 +25,16 @@
 | Customer web database migration | Guarded migration exists | No proof it was safely run against target production database |
 | Sales launch | Not a code-only deliverable | **NO-GO pending Phase 4** |
 
+## Phase 4A financial-safety implementation (PR #82; code-level only)
+
+- Removed the original automatic retry after 45 minutes and blocked concurrent receipt/manual payment and order cancellation while an online attempt is unresolved.
+- Implemented v4 Zarinpal inquiry, fenced verifier ownership, conservative ambiguous results, late settlement conflict handling and permission-gated operator reconciliation with mandatory evidence in `/admin/payments/gateway`.
+- Added targeted tests for stale payment, no-Authority provider error, inquiry FAILED/PAID, permission denial, bank conflict and old verification response; see [Phase 4A runbook](40-web-phase4a-gateway-reconciliation.md).
+- **Remaining external proof:** activated merchant, actual provider contract/currency, controlled settlement/reconciliation and real delayed callback tests. This remains **NO-GO for public sales**.
+
 ## Remaining P0 — block public web-sales launch
 
-1. **Payment reconciliation and safe retry**: resolve unknown/expired Zarinpal Authority and `verification_pending/requires_review` without exposing a double-charge path. Add operator visibility and reconcile merchant/bank records. The current 45-minute expiry must not be interpreted as a negative bank settlement.
+1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
 2. **Real providers**: activated Zarinpal account, HTTPS callback and verified IRR/IRT handling with a small authorized payment; real SMS OTP delivery configured and tested.
 3. **Security / E2E (#24)**: staging MySQL and real browser/device regression, payment callback duplicate/conflict/timeout, receipt rejection/retry, private file permissions, customer/staff isolation.
 4. **Operations / resilience (#25)**: target-DB customer count, guarded irreversible migration rehearsal, MySQL and private receipt backups, isolated restore, Runflare HTTPS/secrets/debug validation, supervised queue/schedule and alerts, documented rollback.
@@ -50,7 +57,7 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md).
 2. Inspect `master` + latest CI and real open release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25).
-3. Implement **Phase 4A Zarinpal reconciliation and safe retry** as the highest-priority new code PR before production enablement, then mobile UX and staging operations.
+3. Review **Phase 4A PR #82** and [reconciliation operator runbook](40-web-phase4a-gateway-reconciliation.md), then start **Phase 4B mobile UX** and **4C real provider/MySQL staging**; confirm real bank acceptance before production enablement.
 4. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.
