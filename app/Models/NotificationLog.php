@@ -9,7 +9,7 @@ class NotificationLog extends Model
 {
     protected $fillable = [
         'outbox_event_id', 'customer_id', 'channel', 'status', 'attempts',
-        'telegram_message_id', 'last_error', 'claimed_at', 'next_attempt_at', 'sent_at',
+        'last_error', 'claimed_at', 'next_attempt_at', 'sent_at',
     ];
 
     protected function casts(): array

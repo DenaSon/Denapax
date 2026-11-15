@@ -9,4 +9,3 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('denapax:notifications:dispatch')->everyMinute()->withoutOverlapping();
-Schedule::command('denapax:admin-alerts:dispatch')->everyMinute()->withoutOverlapping();

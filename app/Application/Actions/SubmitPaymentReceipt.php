@@ -13,14 +13,14 @@ class SubmitPaymentReceipt
 {
     public function __construct(private readonly RecordPaymentEvent $events) {}
 
-    public function execute(Customer $customer, int $orderId, string $storagePath, ?string $fileId = null): PaymentReceipt
+    public function execute(Customer $customer, int $orderId, string $storagePath): PaymentReceipt
     {
         if (! preg_match('~^payment-receipts/[a-f0-9-]{36}\.(jpg|png|webp)$~', $storagePath)
             || ! Storage::disk('receipts')->exists($storagePath)) {
             throw ValidationException::withMessages(['receipt' => 'فایل رسید معتبر نیست.']);
         }
 
-        return DB::transaction(function () use ($customer, $orderId, $storagePath, $fileId): PaymentReceipt {
+        return DB::transaction(function () use ($customer, $orderId, $storagePath): PaymentReceipt {
             $order = Order::query()->whereKey($orderId)->lockForUpdate()->first();
 
             if (! $order || $order->customer_id !== $customer->id) {
@@ -38,7 +38,6 @@ class SubmitPaymentReceipt
             $receipt = $order->receipts()->create([
                 'attempt_number' => $attempt,
                 'storage_path' => $storagePath,
-                'telegram_file_id' => $fileId,
                 'status' => 'pending',
                 'submitted_at' => now(),
             ]);

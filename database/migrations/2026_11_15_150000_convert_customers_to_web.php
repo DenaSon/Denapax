@@ -41,6 +41,10 @@ return new class extends Migration
             Schema::table('notification_logs', fn (Blueprint $table) => $table->dropColumn('telegram_message_id'));
         }
 
+        Schema::table('notification_logs', function (Blueprint $table): void {
+            $table->string('channel', 20)->default('web')->change();
+        });
+
         Schema::create('customer_login_codes', function (Blueprint $table): void {
             $table->string('mobile', 16)->primary();
             $table->string('code_hash');
