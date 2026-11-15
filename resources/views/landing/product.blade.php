@@ -108,35 +108,56 @@
                     <p class="mt-3 text-xs leading-6 text-[#627565]">قیمت نهایی به تنوع انتخاب‌شده بستگی دارد.</p>
                 </div>
 
-                <section class="mt-9" aria-labelledby="product-variants">
-                    <h2 id="product-variants" class="text-xl font-extrabold text-[#264c38]">تنوع‌های قابل سفارش</h2>
-                    <ul class="mt-5 grid gap-3 sm:grid-cols-2">
-                        @foreach ($product->variants as $variant)
-                            @php
-                                $quantity = rtrim(rtrim((string) $variant->sale_quantity, '0'), '.');
-                                $unit = match ($variant->sale_unit) {
-                                    'g' => 'گرم', 'kg' => 'کیلوگرم', 'l' => 'لیتر',
-                                    'piece' => 'عدد', 'pack' => 'بسته',
-                                    default => $variant->sale_unit,
-                                };
-                            @endphp
-                            <li class="rounded-2xl border border-[#cbd4c7] bg-[#f8f7ef] p-5">
-                                <h3 class="text-sm font-bold text-[#234835]">{{ $variant->title }}</h3>
-                                <p class="mt-2 text-xs text-[#708470]">{{ $quantity }} {{ $unit }}</p>
-                                <p class="mt-4 text-base font-extrabold text-[#1c4432]">
-                                    <span dir="ltr" class="inline-block">{{ \App\Support\Money::formatToman((int) $variant->price_irr) }}</span>
-                                    <span class="text-xs font-normal">تومان</span>
-                                </p>
-                                <form method="POST" action="{{ route('cart.add') }}" class="mt-4 flex flex-wrap items-center gap-2">
-                                    @csrf
-                                    <input type="hidden" name="variant_id" value="{{ $variant->id }}">
-                                    <label for="quantity-{{ $variant->id }}" class="sr-only">تعداد</label>
-                                    <input id="quantity-{{ $variant->id }}" name="quantity" type="number" min="1" max="1000" value="1" required class="w-20 rounded-lg border border-[#cbd4c7] bg-white p-2">
-                                    <button type="submit" class="rounded-lg bg-[#19392f] px-4 py-2 text-sm font-bold text-white">افزودن به سبد</button>
-                                </form>
-                            </li>
-                        @endforeach
-                    </ul>
+                <section class="mt-8" aria-labelledby="product-variants">
+                    <h2 id="product-variants" class="text-xl font-extrabold text-[#264c38]">انتخاب بسته و تعداد</h2>
+                    @if ($product->variants->isNotEmpty())
+                        <form method="POST" action="{{ route('cart.add') }}" class="mt-5">
+                            @csrf
+                            <fieldset>
+                                <legend class="mb-3 text-sm font-semibold text-[#627565]">یکی از بسته‌های زیر را انتخاب کنید:</legend>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    @foreach ($product->variants as $variant)
+                                        @php
+                                            $quantity = rtrim(rtrim((string) $variant->sale_quantity, '0'), '.');
+                                            $unit = match ($variant->sale_unit) {
+                                                'g' => 'گرم', 'kg' => 'کیلوگرم', 'l' => 'لیتر',
+                                                'piece' => 'عدد', 'pack' => 'بسته',
+                                                default => $variant->sale_unit,
+                                            };
+                                        @endphp
+                                        <label class="block cursor-pointer">
+                                            <input type="radio" name="variant_id" value="{{ $variant->id }}" required
+                                                   class="peer sr-only" @checked($loop->first)>
+                                            <span class="flex min-h-28 flex-col justify-between rounded-2xl border-2 border-[#cbd4c7] bg-[#f8f7ef] p-4 transition peer-checked:border-[#245840] peer-checked:bg-[#e4eddf] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ae855a]">
+                                                <span class="flex items-start justify-between gap-3">
+                                                    <span class="text-sm font-bold text-[#234835]">{{ $variant->title }}</span>
+                                                    <span class="text-xs text-[#677c69]">{{ $quantity }} {{ $unit }}</span>
+                                                </span>
+                                                <span class="mt-4 text-lg font-extrabold text-[#1c4432]">
+                                                    {{ \App\Support\Money::formatToman((int) $variant->price_irr) }}
+                                                    <span class="text-xs font-medium">تومان</span>
+                                                </span>
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </fieldset>
+                            <div class="mt-5 flex flex-col gap-4 rounded-2xl border border-[#cbd4c7] bg-[#e6ebdd] p-4 sm:flex-row sm:items-end">
+                                <div class="flex items-center justify-between gap-4 sm:block">
+                                    <label for="product-quantity" class="block text-sm font-bold text-[#294936]">تعداد بسته</label>
+                                    <input id="product-quantity" name="quantity" type="number" min="1" max="1000"
+                                           inputmode="numeric" value="1" required
+                                           class="mt-1 min-h-12 w-24 rounded-xl border border-[#9eb19e] bg-white p-3 text-center font-bold">
+                                </div>
+                                <button type="submit" class="min-h-14 flex-1 rounded-xl bg-[#19392f] px-6 py-4 text-base font-extrabold text-white hover:bg-[#315844] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#ae855a]">
+                                    افزودن به سبد خرید
+                                </button>
+                            </div>
+                        </form>
+                        <a href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[#315743] underline underline-offset-4">مشاهده سبد خرید</a>
+                    @else
+                        <p class="mt-4 rounded-2xl bg-[#f8e9e4] p-5 text-sm leading-7 text-[#863c30]">فعلاً بسته‌ای برای سفارش این محصول موجود نیست.</p>
+                    @endif
                 </section>
 
                 @if ($product->features->isNotEmpty())
@@ -153,10 +174,7 @@
                     </section>
                 @endif
 
-                <div class="mt-10">
-                    <a href="{{ route('cart.index') }}" class="landing-button w-full bg-[#19392f] text-white hover:bg-[#315844] sm:w-auto">مشاهده سبد خرید</a>
-                    <p class="mt-4 text-xs leading-6 text-[#728272]">پس از ثبت سفارش، می‌توانید با درگاه زرین‌پال یا روش کارت‌به‌کارت پرداخت کنید.</p>
-                </div>
+                <p class="mt-8 text-xs leading-7 text-[#728272]">هزینه ارسال در مرحله تکمیل سفارش مشخص می‌شود. پس از ثبت سفارش، پرداخت با زرین‌پال یا کارت‌به‌کارت امکان‌پذیر است.</p>
             </article>
         </div>
 
