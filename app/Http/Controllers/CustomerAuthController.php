@@ -35,7 +35,11 @@ class CustomerAuthController extends Controller
 
     public function verify(Request $request, CustomerOtpLogin $login, StoreCart $cart): RedirectResponse
     {
-        $request->merge(['code' => IranDigits::toAscii((string) $request->input('code', ''))]);
+        $submittedCode = $request->input('code');
+        if (is_string($submittedCode)) {
+            $request->merge(['code' => IranDigits::toAscii($submittedCode)]);
+        }
+
         $data = $request->validate(['code' => 'required|digits:6']);
         $mobile = $request->session()->get('customer_otp_mobile');
 

@@ -57,6 +57,29 @@ class WebCustomerFoundationTest extends TestCase
         $this->assertGuest('customer');
     }
 
+    public function test_persian_otp_digits_are_accepted_and_checkout_intent_survives_login(): void
+    {
+        $variant = $this->variant();
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
+        $this->get(route('checkout.index'))->assertRedirect(route('customer.login'));
+
+        CustomerLoginCode::create([
+            'mobile' => '09120000015',
+            'code_hash' => Hash::make('123456'),
+            'attempts' => 0,
+            'expires_at' => now()->addMinutes(5),
+            'last_sent_at' => now(),
+        ]);
+
+        $this->withSession(['customer_otp_mobile' => '09120000015']);
+        $this->get(route('customer.login'))->assertOk()->assertSee('تأیید شماره موبایل');
+        $this->post(route('customer.otp.verify'), ['code' => '۱۲۳۴۵۶'])
+            ->assertRedirect(route('checkout.index'));
+
+        $this->assertAuthenticated('customer');
+        $this->assertSame(1, Customer::query()->sole()->cart->items()->sole()->quantity);
+    }
+
     public function test_invalid_otp_attempts_are_persisted_and_block_replay(): void
     {
         CustomerLoginCode::query()->create([
