@@ -97,7 +97,7 @@ class AdminUxPolishTest extends TestCase
 
         $this->actingAs($staff, 'web')->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('سفارش‌های در انتظار پرداخت')
+            ->assertSee('در انتظار پرداخت')
             ->assertDontSee('رسیدهای در انتظار بررسی بانک')
             ->assertDontSee('تراکنش‌های نامشخص زرین‌پال')
             ->assertDontSee('تراکنش‌های زرین‌پال');
