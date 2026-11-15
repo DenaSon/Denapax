@@ -47,7 +47,7 @@ class CustomerAuthController extends Controller
         $request->session()->forget('customer_otp_mobile');
         $cart->mergeGuestCart($customer);
 
-        return redirect()->route('cart.index')->with('status', 'ورود شما با موفقیت انجام شد.');
+        return redirect()->intended(route('cart.index'))->with('status', 'ورود شما با موفقیت انجام شد.');
     }
 
     public function logout(Request $request): RedirectResponse

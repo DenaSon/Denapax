@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\PublicSitemapController;
 use App\Http\Controllers\StoreCartController;
+use App\Http\Controllers\WebCheckoutController;
 use App\Http\Middleware\EnsureActiveStaff;
 use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;
@@ -32,6 +34,22 @@ Route::get('/customer/login', [CustomerAuthController::class, 'show'])->name('cu
 Route::post('/customer/otp/request', [CustomerAuthController::class, 'requestCode'])->middleware('throttle:10,1')->name('customer.otp.request');
 Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verify'])->middleware('throttle:15,1')->name('customer.otp.verify');
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+
+Route::middleware('auth:customer')->group(function (): void {
+    Route::get('/account/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
+    Route::get('/account/addresses/new', [CustomerAddressController::class, 'create'])->name('addresses.create');
+    Route::post('/account/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
+    Route::get('/account/addresses/{address}/edit', [CustomerAddressController::class, 'edit'])->whereNumber('address')->name('addresses.edit');
+    Route::put('/account/addresses/{address}', [CustomerAddressController::class, 'update'])->whereNumber('address')->name('addresses.update');
+    Route::post('/account/addresses/{address}/default', [CustomerAddressController::class, 'makeDefault'])->whereNumber('address')->name('addresses.default');
+    Route::delete('/account/addresses/{address}', [CustomerAddressController::class, 'destroy'])->whereNumber('address')->name('addresses.destroy');
+
+    Route::get('/checkout', [WebCheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/preview', [WebCheckoutController::class, 'preview'])->middleware('throttle:30,1')->name('checkout.preview');
+    Route::get('/checkout/review', [WebCheckoutController::class, 'review'])->name('checkout.review');
+    Route::post('/checkout/confirm', [WebCheckoutController::class, 'confirm'])->middleware('throttle:15,1')->name('checkout.confirm');
+    Route::get('/orders/{orderNumber}', [WebCheckoutController::class, 'confirmation'])->name('orders.confirmation');
+});
 
 Route::middleware(['auth:web', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', Dashboard::class)->name('dashboard');

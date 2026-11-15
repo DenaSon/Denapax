@@ -4,6 +4,7 @@ use App\Http\Middleware\ForceHttpsUrls;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Applied per HTTP request, after Laravel's proxy middleware.
         // Force secure URL generation without redirecting internal proxy traffic.
         $middleware->append(ForceHttpsUrls::class);
+        $middleware->redirectGuestsTo(fn (Request $request): string => $request->is('checkout', 'checkout/*', 'orders/*', 'account/*')
+            ? route('customer.login')
+            : route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
