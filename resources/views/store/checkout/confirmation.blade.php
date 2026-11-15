@@ -74,12 +74,16 @@
                             </button>
                         </form>
                         <p class="mt-3 text-xs text-[#6c7c6c]">پس از پرداخت به همین فروشگاه برمی‌گردید؛ وضعیت پرداخت به‌صورت خودکار استعلام می‌شود.</p>
-                    @else
-                        <p class="mt-4 rounded-xl bg-[#fff1df] p-4 text-sm">پرداخت زرین‌پال هنوز برای فروشگاه فعال نشده است.</p>
                     @endif
                     @if ($canUploadReceipt && preg_match('/^[0-9]{16}$/', $card))
-                        <details class="store-payment-choice mt-6 bg-white p-4 sm:p-5" @if (! $gatewayEnabled) open @endif>
-                            <summary class="text-sm font-bold text-[#315740]">روش جایگزین: کارت‌به‌کارت و بارگذاری رسید</summary>
+                        @if ($gatewayEnabled)
+                            <details class="store-payment-choice mt-6 bg-white p-4 sm:p-5">
+                                <summary class="text-sm font-bold text-[#315740]">روش جایگزین: کارت‌به‌کارت و ارسال رسید</summary>
+                        @else
+                            <section class="store-payment-choice mt-5 bg-white p-4 sm:p-5" aria-labelledby="manual-payment-title">
+                                <h3 id="manual-payment-title" class="text-lg font-extrabold text-[#315740]">پرداخت کارت‌به‌کارت و ارسال رسید</h3>
+                                <p class="mt-2 text-sm leading-7 text-[#687969]">مبلغ سفارش را به کارت زیر انتقال دهید و سپس تصویر رسید را برای تأیید مدیر ارسال کنید.</p>
+                        @endif
                             <div class="mt-5 space-y-3 text-sm leading-7">
                                 <p>شماره کارت:</p>
                                 <div class="flex flex-wrap items-center gap-3">
@@ -97,11 +101,17 @@
                                     <button type="submit" class="store-button store-button-primary w-full" data-busy-label="در حال ارسال رسید...">ارسال رسید برای بررسی</button>
                                 </form>
                             </div>
-                        </details>
+                        @if ($gatewayEnabled)
+                            </details>
+                        @else
+                            </section>
+                        @endif
+                    @elseif (! $gatewayEnabled)
+                        <p role="alert" class="mt-5 rounded-xl bg-[#fce9e6] p-4 text-sm leading-7 text-red-800">اطلاعات کارت فروشگاه برای پرداخت ثبت نشده است؛ لطفاً با پشتیبانی تماس بگیرید.</p>
                     @endif
                 @endif
                 @if ($order->payment_status === 'rejected' && $receipt)
-                    <p class="mt-4 rounded-xl bg-[#fce9e6] p-4 text-sm text-red-800">رسید قبلی تأیید نشد: {{ $receipt->rejection_reason }}. می‌توانید پرداخت آنلاین انجام دهید یا رسید صحیح بفرستید.</p>
+                    <p class="mt-4 rounded-xl bg-[#fce9e6] p-4 text-sm text-red-800">رسید قبلی تأیید نشد: {{ $receipt->rejection_reason }}. {{ $gatewayEnabled ? 'می‌توانید پرداخت آنلاین انجام دهید یا رسید صحیح بفرستید.' : 'می‌توانید رسید صحیح بفرستید.' }}</p>
                 @endif
             </div>
         @endif
