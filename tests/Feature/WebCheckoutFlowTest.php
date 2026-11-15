@@ -228,6 +228,19 @@ class WebCheckoutFlowTest extends TestCase
         );
     }
 
+    public function test_customer_storefront_assets_are_registered_in_production_vite_inputs(): void
+    {
+        // Feature tests normally bypass Vite; a missing JS entry can therefore
+        // silently pass CI while /cart throws a 500 against a real manifest.
+        $layout = file_get_contents(resource_path('views/layouts/store.blade.php'));
+        $config = file_get_contents(base_path('vite.config.js'));
+
+        foreach (['resources/css/landing.css', 'resources/js/store.js'] as $entry) {
+            $this->assertStringContainsString("'".$entry."'", $layout);
+            $this->assertStringContainsString("'".$entry."'", $config);
+        }
+    }
+
     public function test_stale_quote_does_not_create_order_and_preserves_cart(): void
     {
         $this->actingAs($this->customer, 'customer');
