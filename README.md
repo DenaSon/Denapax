@@ -6,7 +6,7 @@ Denapax is a Persian, RTL web store for Dena souvenirs, dried fruit and local pr
 
 ## Current delivery status — 2026-11-15
 
-**Web Phase 1: customer identity and cart foundation.** Customer sign-in is via mobile OTP with a separate `customer` session guard, and both guest/session carts and persistent customer carts work. Products and variants can be browsed and added from the public site. Checkout, web receipt upload, customer order history and customer notification pages are **not live yet**; do not announce a web-sales launch.
+**Web Phase 2: customer identity, product search, carts, saved addresses and checkout through order registration.** Verified mobile customers can preview authoritative shipping charges, confirm a snapshot-protected order and retrieve the order confirmation using a customer-scoped URL. Web receipt upload, customer order history/tracking and notification inbox pages are **not live yet**; do not announce a web-sales launch.
 
 The pre-existing staff admin, catalog, shipping, order snapshots, manual payment review and fulfillment domain actions remain in place. Monetary values are stored in integer IRR, presented in toman. The database has availability flags, **not numeric stock reservations**.
 
@@ -14,6 +14,9 @@ The pre-existing staff admin, catalog, shipping, order snapshots, manual payment
 
 - `/` and `/products/{slug}`: public, crawlable catalog and product details
 - `/cart`: guest or authenticated customer cart
+- `/account/addresses`: owner-scoped saved delivery addresses
+- `/checkout`: address selection and delivery quote; `/checkout/review`: immutable quote preview
+- `/orders/{orderNumber}`: customer-only confirmation for a newly created unpaid order
 - `/customer/login`: phone-based one-time-code authentication, separate from staff `/login`
 - `/admin`: protected staff admin (Fortify and RBAC); no public staff registration
 
@@ -50,4 +53,4 @@ The database notification queue/scheduler continues to persist web customer inbo
 
 Targeted feature tests, Pint, Composer validation/audit and Vite build run in CI. Keep PRs small, merge only when green, and separately verify production migrations/worker/restore. No test run can prove real SMS delivery or production DB state.
 
-See [AGENTS.md](AGENTS.md) and [Web Phase 1 handoff](docs/35-web-phase1-cutover.md). Earlier `docs/01`–`docs/34` describe historical Telegram-first development and are not current web scope.
+See [AGENTS.md](AGENTS.md), [Web Phase 1 handoff](docs/35-web-phase1-cutover.md), and [Web Phase 2 checkout handoff](docs/36-web-phase2-checkout.md). Earlier `docs/01`–`docs/34` describe historical Telegram-first development and are not current web scope.

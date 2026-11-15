@@ -84,7 +84,7 @@ class WebCheckoutFlowTest extends TestCase
             ->assertRedirect(route('checkout.review'));
         $this->get(route('checkout.review'))->assertOk()
             ->assertSee('150,000')->assertSee('450,000')
-            ->assertSee('1,050')->assertSee('محاسبه');
+            ->assertSee('1,050')->assertSee('وزن ارسالی');
 
         $context = session('web_checkout_preview');
         $this->assertSame($this->customer->id, $context['customer_id']);
