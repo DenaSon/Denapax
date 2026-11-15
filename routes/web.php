@@ -33,7 +33,7 @@ Route::post('/customer/otp/request', [CustomerAuthController::class, 'requestCod
 Route::post('/customer/otp/verify', [CustomerAuthController::class, 'verify'])->middleware('throttle:15,1')->name('customer.otp.verify');
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
 
-Route::middleware(['auth', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {
+Route::middleware(['auth:web', EnsureActiveStaff::class])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', Dashboard::class)->name('dashboard');
     Route::get('/categories', CategoriesPage::class)->middleware('can:catalog.manage')->name('categories');
     Route::get('/products', ProductsPage::class)->middleware('can:catalog.manage')->name('products');

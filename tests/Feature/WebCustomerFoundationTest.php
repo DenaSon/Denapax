@@ -16,6 +16,12 @@ class WebCustomerFoundationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     public function test_guest_cart_survives_mobile_verification_and_is_merged_into_customer_cart(): void
     {
         $variant = $this->variant();
