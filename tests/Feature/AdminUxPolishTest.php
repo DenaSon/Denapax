@@ -10,7 +10,6 @@ use App\Models\PaymentReceipt;
 use App\Models\User;
 use App\Support\AdminLabels;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -133,8 +132,10 @@ class AdminUxPolishTest extends TestCase
         $operator->assignRole('operator');
         $this->actingAs($operator, 'web')->get(route('admin.payments'))
             ->assertOk()->assertDontSee('تأیید پس از تطبیق بانک');
-        $this->expectException(AuthorizationException::class);
-        Livewire::test(PaymentReviewPage::class)->call('startRejection', $receipt->id);
+        $this->assertFalse($operator->can('payments.review'));
+        Livewire::test(PaymentReviewPage::class)
+            ->call('startRejection', $receipt->id)
+            ->assertForbidden();
     }
 
     public function test_ambiguous_gateway_hides_unpaid_cancellation_action_in_order_detail(): void
