@@ -1,6 +1,8 @@
 # Web Phase 3 — Online Zarinpal and fallback manual receipts
 
-**Date: 2026-11-15 · Payment-facing development. Production activation requires a verified gateway merchant and end-to-end live tests.**
+**Date: 2026-11-15 · Payment-facing implementation merged in [PR #79](https://github.com/DenaSon/Denapax/pull/79). Production activation requires a verified gateway merchant and end-to-end live tests.**
+
+> **Handoff status:** Code and mock-API CI passed (67 tests / 416 assertions); there is no verified live Zarinpal settlement, OTP provider activation, deployment or restore. **Phase 4 remains required.** Refer to [delivery ledger](39-web-roadmap-status.md) and [Phase 4 release plan](38-web-phase4-release-readiness.md).
 
 ## User experience
 
@@ -9,11 +11,19 @@ The customer sees a single order page immediately after submitting the order: nu
 ## Implementation
 
 - Zarinpal v4 request/verify transport with allowlisted production/sandbox domains; hosted payment redirect, untrusted GET callback and server-to-server verification of saved authority plus **exact stored integer IRR amount**. Optional `currency=IRR` is explicit in payment request.
-- `gateway_payment_attempts` table: unique authority and reference ID; amount, gateway state, verification progress, audit timestamps, conflict state. A 45-minute active-attempt window prevents accidental second payments or simultaneous manual receipt submissions.
+- `gateway_payment_attempts` table: unique authority and reference ID; amount, gateway state, verification progress, audit timestamps and conflict state. A 45-minute active-attempt UI window limits casual duplicate clicks and overlaps, **but is not proof that an older bank attempt failed**. Phase 4 must add provider/bank reconciliation before retrying unknown or expired attempts.
 - Verified gateway payment transitions existing order `awaiting_payment` → `confirmed` and payment `awaiting_receipt/rejected` → `approved` with immutable history and exactly one outbox payment event. Duplicate callback does not trigger a second approval.
 - Gateway error and timeout never mark an order paid. Provider-confirmed receipt conflicting with a previously finalized order goes to `requires_review` for manual reconciliation instead of overwriting or reapproving.
 - Manual method remains under a collapsed alternative; validates JPG/PNG/WebP up to 8MB, accepts private storage only, uses existing transaction-safe `SubmitPaymentReceipt`, and leaves approval to authorized staff via existing `ReviewPaymentReceipt`.
 - Customer `/orders` list and owner-scoped order/receipt views, current shipment and tracking information, and paginated inbox with per-recipient read state.
+
+## Known implementation limits / release blockers
+
+- **Priority P0: unresolved/expired attempt reconciliation.** `StartGatewayPayment` can age out a `redirected` or `verification_pending` attempt after 45 minutes and allow a new payment attempt. This must be changed: a timeout/age does **not** prove the prior transaction was unpaid. Implement explicit merchant/provider reconciliation and a safe retry policy before production payments.
+- **Priority P0: operator exceptions.** `requires_review`, `verification_pending`, gateway conflicts and unmatched settlement records do not yet have a dedicated admin reconciliation interface/workflow; existing `/admin/payments` reviews manual image receipts. Add financial auditability and resolution ownership.
+- **Priority P0: staging integration.** Confirm Zarinpal currency/amount semantics (IRR vs IRT), merchant account activation, real HTTPS callback and duplicate/retry behavior with the official provider and an authorized real transaction; CI currently mocks HTTP.
+- **Priority P0: deployment.** Configure OTP SMS, test web migration on target-like MySQL, protect private receipt media and execute backup/restore.
+- **Priority UX:** Validate purchase/payment recovery on actual phones, keyboard/a11y, cart → address → confirmation friction, session expiry during redirect, and manual receipt fallbacks. Outbound SMS notifications are not implemented; customer web inbox is.
 
 ## Environment
 

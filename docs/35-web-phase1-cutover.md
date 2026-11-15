@@ -1,6 +1,8 @@
 # Web Phase 1 — Customer foundation and Telegram retirement
 
-**Decision / implementation: 2026-11-15 · Target: `master` via reviewed PR**
+**Decision / implementation: 2026-11-15 · Merged as [PR #77](https://github.com/DenaSon/Denapax/pull/77).**
+
+> **Historical phase handoff.** Phase 2 checkout and Phase 3 web payments/order inbox were subsequently implemented in [PR #78](https://github.com/DenaSon/Denapax/pull/78) and [PR #79](https://github.com/DenaSon/Denapax/pull/79). The unfinished items described below are **historical as-of Phase 1**, not current web backlog. For up-to-date status and launch gates see [docs/39](39-web-roadmap-status.md) and [docs/38](38-web-phase4-release-readiness.md).
 
 ## Scope and implementation
 
@@ -35,8 +37,8 @@ Do not run `migrate:fresh` in production. Run against staging before live deploy
 4. Verify public product and cart browser workflows, admin login/permissions, configured worker+schedule and no reachable old Telegram webhook.
 5. Do **not** declare the web store commercially ready: Phase 2 checkout and Phase 3 payment/account remain pending.
 
-## Outstanding
+## Status after later web phases (updated 2026-11-15)
 
-- Phase 2: full responsive search/variant/cart UX, addresses, shipping quote, web checkout and order confirmation.
-- Phase 3: web receipt upload/retry, customer order list/status, private media ACL tests, inbox display and transactional SMS.
-- Phase 4: complete release QA, deployment, restore/rollback evidence and owner sign-off.
+- **Phase 2: code delivered** by PR #78 (search/variant/cart, addresses, shipping quote, checkout and confirmation).
+- **Phase 3: code delivered** by PR #79 (private web receipt upload/retry, customer orders/tracking, inbox display, Zarinpal integration). Outbound transactional SMS remains optional/unimplemented.
+- **Phase 4: still pending** real provider activation, payment reconciliation/safe retry, mobile web UX testing, MySQL migration rehearsal, security/ops, isolated restore and owner GO/NO-GO. See [current backlog](39-web-roadmap-status.md).

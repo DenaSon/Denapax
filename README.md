@@ -1,65 +1,67 @@
 # Denapax — Web-first Dena storefront
 
-**Laravel 13 · PHP 8.4 · Livewire 4 · Tailwind CSS 4 · Mary UI 2 · MySQL**
+**PHP 8.4 · Laravel 13 · Livewire 4 · Tailwind CSS 4 · Mary UI 2 · MySQL · Persian RTL**
 
-Denapax is a Persian, RTL web store for Dena souvenirs, dried fruit and local products. The Telegram ordering channel was retired in the web migration. There is **no Telegram bot, webhook, private group alert or Nutgram runtime** in the current application.
+Denapax sells Dena-region souvenirs and dried products through a customer web storefront. **Telegram ordering, Nutgram, bot/webhook and group alerts were retired** in the November 2026 web cutover. The staff/admin Fortify guard, product catalog, shipping, manual payment review, fulfillment and transactional outbox remain. Currency in the database is **integer IRR**; prices visible to customers/staff are formatted in **toman**.
 
-## Current delivery status — 2026-11-15
+## Current status — 2026-11-15
 
-**Web Phase 3: secure payment UX foundation.** Verified customers can search, add to cart, save addresses, confirm a shipping-quoted order, then choose Zarinpal online payment (primary) or private manual receipt upload (fallback). They can view order history, tracking and inbox notifications. **Zarinpal is disabled by default until a verified merchant, callback HTTPS and live payment smoke test are configured; do not announce web-sales launch on CI alone.**
+**Web Phases 1, 2 and 3 are implemented and merged to `master`; Phase 4 (real-world QA, gateway safety, mobile UX, staging and launch) has NOT been executed. This is NOT an approved public web-sales launch.**
 
-The pre-existing staff admin, catalog, shipping, order snapshots, manual payment review and fulfillment domain actions remain in place. Monetary values are stored in integer IRR, presented in toman. The database has availability flags, **not numeric stock reservations**.
+- **P1 — identity and foundation:** independent customer guard, verified phone OTP with fail-closed SMS transport, guest and persistent cart merge, removal of Telegram, web outbox/inbox persistence. [PR #77](https://github.com/DenaSon/Denapax/pull/77).
+- **P2 — checkout:** Persian product search, cart, saved addresses, weight-based delivery quote, immutable order totals, idempotent confirmation. [PR #78](https://github.com/DenaSon/Denapax/pull/78).
+- **P3 — payments and account:** online-first Zarinpal v4 request/verify flow and attempt ledger, manual private receipt upload with staff approval, customer order history/tracking and web inbox UI. [PR #79](https://github.com/DenaSon/Denapax/pull/79).
+- **Next P4 — release readiness:** money-safe reconciliation/retry, actual gateway/SMS provider integration, mobile UX testing, security/negative regression, target MySQL migration, private media backup/restore, worker/alerts, Runflare deployment acceptance and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
 
-### Web routes
+**Last observed `master` code verification:** SHA `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [green GitHub Actions run](https://github.com/DenaSon/Denapax/actions/runs/43718573628), 67 tests / 416 assertions + Composer locked production audit/validation, Pint, Vite build. CI uses SQLite and fake gateway responses, not a real bank or production-like MySQL environment. No target production migration, actual OTP delivery, real Zarinpal payment or isolated restore has been confirmed.
 
-- `/` and `/products/{slug}`: public, crawlable catalog and product details
-- `/cart`: guest or authenticated customer cart
-- `/account/addresses`: owner-scoped saved delivery addresses
-- `/checkout`: address selection and delivery quote; `/checkout/review`: immutable quote preview
-- `/orders`: private customer order history; `/orders/{orderNumber}`: payment, status, shipping tracking and evidence
-- `/account/notifications`: private notification inbox
-- `POST /orders/{orderNumber}/payment/zarinpal`: start verified merchant payment; public callback performs server-side verification
-- `POST /orders/{orderNumber}/receipts`: safe manual receipt upload on private disk
-- `/customer/login`: phone-based one-time-code authentication, separate from staff `/login`
-- `/admin`: protected staff admin (Fortify and RBAC); no public staff registration
+The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](docs/39-web-roadmap-status.md). Open launch issues: [#11](https://github.com/DenaSon/Denapax/issues/11) / [#24](https://github.com/DenaSon/Denapax/issues/24) / [#25](https://github.com/DenaSon/Denapax/issues/25).
 
-### Payment methods
+## Current web user journey
 
-Zarinpal REST v4 is the primary web flow. Configure `ZARINPAL_ENABLED=true`, `ZARINPAL_MERCHANT_ID` (real activated UUID), and `ZARINPAL_SANDBOX` (staging only) after merchant onboarding. The application posts its canonical **IRR** order total to the provider, verifies the returned authority server-to-server and prevents double confirmation or overlapping manual receipt submission. No customer payment should be considered successful on the basis of a browser callback alone.
+1. Public `/` and `/products/{slug}` — search products and variants.
+2. `/cart` — guest/persisted cart; mobile OTP login at `/customer/login` when required.
+3. `/account/addresses`, `/checkout`, `/checkout/review` — delivery address, live shipping quote and exact order preview.
+4. `/orders/{orderNumber}` — order hub: **Zarinpal primary**, manual card-to-card + image receipt fallback, payment/fulfillment status and tracking.
+5. `/orders` — customer-owned order history; `/account/notifications` — customer-owned inbox; `/admin` — separate staff-only admin.
 
-Manual card-to-card remains a private receipt-upload fallback, reviewed by staff. The receipt disk must remain outside the public storage symlink.
+Payments are **not** proved by return-page parameters or uploaded receipt images. Only a server-verified Zarinpal transaction or staff-approved bank receipt can confirm an order. Receipt media is stored on the non-public `receipts` disk. The current database uses `is_available` product flags rather than numeric inventory reservations.
 
-### Customer SMS configuration
+## Configuration gates (disabled by default)
 
-The production default is `CUSTOMER_SMS_DRIVER=disabled`, deliberately fail-closed. To enable real sign-in, configure a trusted HTTPS SMS webhook that accepts `{ "mobile": "...", "message": "..." }` with Bearer token:
+### Zarinpal
 
 ```env
-CUSTOMER_SMS_DRIVER=webhook
-CUSTOMER_SMS_URL=https://your-approved-sms-adapter.example/otp
-CUSTOMER_SMS_TOKEN=your-secret-token
+ZARINPAL_ENABLED=false
+ZARINPAL_MERCHANT_ID=
+ZARINPAL_SANDBOX=false
 ```
 
-The `log` driver is restricted to local/testing only and should not be used for real customers. Do not commit SMS credentials. Rate limits, SHA-256 hashed rate-limit keys, hashed OTPs, 5-minute expiry, 60-second resend cooldown and a 5-attempt verification cap are enforced.
+Use only an activated real merchant identifier and a public HTTPS callback (`/payments/zarinpal/callback`). Confirm provider currency contract (IRR/IRT) and a small authorized transaction against the merchant panel before enabling sales. **Known Phase 4 blocker:** the current 45-minute attempt window must be augmented with payment reconciliation/safe-retry controls; do not assume an expired/unknown gateway attempt is unpaid.
 
-### Deploying the web cutover
+### Customer OTP
 
-**Warning:** Migration `2026_11_15_150000_convert_customers_to_web` is intentionally irreversible and refuses to run if `customers` contains any rows. The project owner stated there are no existing customers. Independently verify that assertion on the target DB; back up MySQL + private receipt files first. The migration drops Telegram-only tables/columns, creates customer OTP/inbox tables and adapts notification logs. No `migrate:fresh` on production.
-
-After QA and a compatible backup:
-```bash
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-npm ci
-npm run build
-php artisan config:cache
-php artisan schedule:list
-php artisan queue:failed
+```env
+CUSTOMER_SMS_DRIVER=disabled
+CUSTOMER_SMS_URL=
+CUSTOMER_SMS_TOKEN=
 ```
 
-The database notification queue/scheduler continues to persist web customer inbox events. SMTP/SMS transactional order notifications are not yet active. Ensure a supervised `database:notifications,default` worker.
+Production needs a trusted HTTPS Bearer-token SMS adapter (`CUSTOMER_SMS_DRIVER=webhook`) capable of accepting `{ "mobile": "...", "message": "..." }`. Do not put credentials in GitHub. OTP challenges are hashed, expire after five minutes, and have a resend cooldown, attempt cap and IP/mobile throttles. `log` transport is local/testing-only.
 
-### Engineering practice
+## Deployment and operational constraints
 
-Targeted feature tests, Pint, Composer validation/audit and Vite build run in CI. Keep PRs small, merge only when green, and separately verify production migrations/worker/restore. No test run can prove real SMS delivery or production DB state.
+**Do not deploy blindly:** migration `2026_11_15_150000_convert_customers_to_web.php` deletes Telegram-era schema and refuses to execute if any target `customers` rows exist. Verify the **actual** target MySQL customer count first; create coordinated MySQL + private receipt-media backups and prove an **isolated restore**. Test web and gateway migrations against staging MySQL before any production `migrate --force`. Never `migrate:fresh` against production.
 
-See [AGENTS.md](AGENTS.md), [Web Phase 1 handoff](docs/35-web-phase1-cutover.md), and [Web Phase 2 checkout handoff](docs/36-web-phase2-checkout.md), and [Web Phase 3 payments handoff](docs/37-web-phase3-payments.md). Earlier `docs/01`–`docs/34` describe historical Telegram-first development and are not current web scope.
+Provision real shipping/card/support configuration, HTTPS and `APP_DEBUG=false`, secured environment secrets and supervised database workers for `notifications,default` plus the `denapax:notifications:dispatch` minute schedule. Confirm private media permissions, monitoring, restore/rollback and no old Telegram webhook; use [Phase 4 acceptance plan](docs/38-web-phase4-release-readiness.md).
+
+## Development quality
+
+Run `php artisan test`, `vendor/bin/pint --test`, `composer validate --no-check-publish`, `composer audit --locked --no-dev` and `npm run build`. GitHub CI runs these checks on PR and `master`. Use one feature branch/PR per coherent phase, essential tests rather than exhaustive duplicates, and only merge after clean CI.
+
+- [AGENTS.md — working agreement and handoff](AGENTS.md)
+- [Current web delivery status and remaining work](docs/39-web-roadmap-status.md)
+- [Next Phase 4 release plan](docs/38-web-phase4-release-readiness.md)
+- [Phase 1 history](docs/35-web-phase1-cutover.md), [Phase 2 history](docs/36-web-phase2-checkout.md), [Phase 3 design](docs/37-web-phase3-payments.md)
+
+**Historical docs/01–34 and old GitHub issue history refer to a previous Telegram-first implementation; they are not the active web product specification.**
