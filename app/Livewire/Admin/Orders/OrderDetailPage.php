@@ -48,7 +48,7 @@ class OrderDetailPage extends Component
         Gate::authorize('orders.view');
 
         return view('livewire.admin.orders.order-detail-page', [
-            'order' => Order::with(['items', 'shipment', 'receipts.reviewer'])
+            'order' => Order::with(['items', 'shipment', 'receipts.reviewer', 'gatewayAttempts'])
                 ->findOrFail($this->orderId),
         ])->layout('layouts.admin');
     }
