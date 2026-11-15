@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Orders;
 use App\Models\Order;
 use App\Support\OrderReference;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,8 +15,10 @@ class OrdersPage extends Component
 
     public string $search = '';
 
+    #[Url]
     public string $orderStatus = '';
 
+    #[Url]
     public string $paymentStatus = '';
 
     public string $dateFrom = '';
