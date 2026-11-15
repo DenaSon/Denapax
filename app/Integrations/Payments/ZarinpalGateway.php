@@ -70,6 +70,30 @@ class ZarinpalGateway
         return $referenceId;
     }
 
+    public function inquire(string $authority): string
+    {
+        if (! $this->enabled() || ! $this->validAuthority($authority)) {
+            throw new RuntimeException('Zarinpal inquiry is not configured.');
+        }
+
+        $response = Http::acceptJson()->connectTimeout(3)->timeout(12)
+            ->post($this->apiBase().'/pg/v4/payment/inquiry.json', [
+                'merchant_id' => $this->configuredMerchantId(),
+                'authority' => $authority,
+            ]);
+
+        $data = $response->json('data');
+        $status = is_array($data) ? ($data['status'] ?? null) : null;
+
+        if (! $response->successful() || ! is_array($data)
+            || ($data['code'] ?? null) !== 100
+            || ! in_array($status, ['PAID', 'VERIFIED', 'IN_BANK', 'FAILED', 'REVERSED'], true)) {
+            throw new RuntimeException('Zarinpal inquiry did not return an authoritative status.');
+        }
+
+        return $status;
+    }
+
     public function paymentUrl(string $authority): string
     {
         if (! $this->validAuthority($authority)) {

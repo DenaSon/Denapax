@@ -19,73 +19,104 @@ class VerifyGatewayPayment
             return null;
         }
 
-        $claimed = DB::transaction(function () use ($authority): ?GatewayPaymentAttempt {
-            $attempt = GatewayPaymentAttempt::query()->where('authority', $authority)->lockForUpdate()->first();
+        // Do not hold a database lock across a network call. A fencing token
+        // ensures a timed-out verifier cannot override a later authoritative one.
+        [$attempt, $token] = DB::transaction(function () use ($authority): array {
+            $attempt = GatewayPaymentAttempt::query()
+                ->where('authority', $authority)->lockForUpdate()->first();
 
-            if (! $attempt) {
-                return null;
+            if (! $attempt || in_array($attempt->status, ['verified', 'requires_review'], true)) {
+                return [$attempt, null];
             }
 
-            if (in_array($attempt->status, ['verified', 'requires_review'], true)
-                || ($attempt->status === 'verifying' && $attempt->verification_started_at?->greaterThan(now()->subMinutes(2)))) {
-                return $attempt;
+            if ($attempt->status === 'verifying'
+                && $attempt->verification_started_at?->greaterThan(now()->subMinutes(2))) {
+                return [$attempt, null];
             }
 
-            $attempt->update(['status' => 'verifying', 'verification_started_at' => now()]);
+            $token = (string) Str::uuid();
+            $attempt->update([
+                'status' => 'verifying',
+                'verification_started_at' => now(),
+                'verification_token' => $token,
+                'last_error' => null,
+            ]);
 
-            return $attempt;
+            return [$attempt, $token];
         }, 3);
 
-        if (! $claimed || in_array($claimed->status, ['verified', 'requires_review'], true)
-            || ($claimed->status === 'verifying'
-                && $claimed->verification_started_at?->greaterThan(now()->subMinutes(2))
-                && $claimed->wasChanged('status') === false)) {
-            return $claimed;
+        if ($attempt === null || $token === null) {
+            return $attempt?->fresh();
         }
 
         try {
-            $reference = $this->gateway->verify($claimed->amount_irr, $authority);
+            $reference = $this->gateway->verify($attempt->amount_irr, $authority);
         } catch (Throwable) {
-            GatewayPaymentAttempt::query()->whereKey($claimed->id)
+            GatewayPaymentAttempt::query()
+                ->whereKey($attempt->id)
+                ->where('verification_token', $token)
                 ->where('status', 'verifying')
-                ->update(['status' => 'verification_pending', 'last_error' => 'verification_unavailable']);
+                ->update([
+                    'status' => 'verification_pending',
+                    'last_error' => 'verification_unavailable',
+                    'verification_token' => null,
+                ]);
 
-            return $claimed->fresh();
+            return $attempt->fresh();
         }
 
-        return DB::transaction(function () use ($claimed, $reference): GatewayPaymentAttempt {
-            $order = Order::query()->whereKey($claimed->order_id)->lockForUpdate()->firstOrFail();
-            $attempt = GatewayPaymentAttempt::query()->whereKey($claimed->id)->lockForUpdate()->firstOrFail();
+        return DB::transaction(function () use ($attempt, $token, $reference): GatewayPaymentAttempt {
+            $order = Order::query()->whereKey($attempt->order_id)->lockForUpdate()->firstOrFail();
+            $locked = GatewayPaymentAttempt::query()->whereKey($attempt->id)->lockForUpdate()->firstOrFail();
 
-            if (in_array($attempt->status, ['verified', 'requires_review'], true)) {
-                return $attempt;
+            if ($locked->status !== 'verifying' || $locked->verification_token !== $token) {
+                return $locked;
             }
 
             if ($reference === null) {
-                $attempt->update(['status' => 'failed', 'last_error' => 'not_verified']);
+                // Generic non-100/101 provider codes cannot prove that a bank
+                // did not collect money. An operator must reconcile the outcome.
+                $locked->update([
+                    'status' => 'verification_pending',
+                    'last_error' => 'provider_not_confirmed',
+                    'verification_token' => null,
+                ]);
 
-                return $attempt->refresh();
+                return $locked->refresh();
             }
 
-            if ($attempt->amount_irr !== $order->total_irr
+            // Another charge/receipt, even one opened after an operator cleared
+            // this Authority, requires explicit reconciliation instead of
+            // automatically marking the order paid a second time.
+            $competing = $order->gatewayAttempts()
+                ->where('id', '!=', $locked->id)
+                ->where('status', '!=', 'cleared_unpaid')
+                ->exists();
+            $pendingReceipt = $order->receipts()->where('status', 'pending')->exists();
+
+            if ($locked->amount_irr !== $order->total_irr
                 || $order->order_status !== 'awaiting_payment'
-                || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
-                $attempt->update([
+                || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)
+                || $competing || $pendingReceipt) {
+                $locked->update([
                     'status' => 'requires_review',
                     'reference_id' => $reference,
                     'verified_at' => now(),
-                    'last_error' => 'order_payment_conflict',
+                    'verification_token' => null,
+                    'last_error' => 'settled_payment_conflict',
                 ]);
 
-                return $attempt->refresh();
+                return $locked->refresh();
             }
 
-            $attempt->update([
+            $locked->update([
                 'status' => 'verified',
                 'reference_id' => $reference,
                 'verified_at' => now(),
+                'verification_token' => null,
                 'last_error' => null,
             ]);
+
             $order->update(['payment_status' => 'approved', 'order_status' => 'confirmed']);
 
             DB::table('order_status_histories')->insert([
@@ -95,20 +126,21 @@ class VerifyGatewayPayment
                 'actor_type' => 'system',
                 'created_at' => now(),
             ]);
+
             DB::table('outbox_events')->insert([
                 'id' => (string) Str::uuid(),
                 'aggregate_type' => 'payment_gateway',
-                'aggregate_id' => $attempt->id,
+                'aggregate_id' => $locked->id,
                 'event_type' => 'payment.approved',
                 'payload' => json_encode([
                     'order_id' => $order->id,
                     'customer_id' => $order->customer_id,
-                    'gateway_payment_attempt_id' => $attempt->id,
+                    'gateway_payment_attempt_id' => $locked->id,
                 ], JSON_THROW_ON_ERROR),
                 'occurred_at' => now(),
             ]);
 
-            return $attempt->refresh();
+            return $locked->refresh();
         }, 3);
     }
 }

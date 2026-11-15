@@ -36,7 +36,8 @@ class ReviewPaymentReceipt
             if ($order->order_status !== 'awaiting_payment'
                 || $order->payment_status !== 'under_review'
                 || $receipt->status !== 'pending'
-                || $receipt->attempt_number !== (int) $latest) {
+                || $receipt->attempt_number !== (int) $latest
+                || $order->gatewayAttempts()->where('status', '!=', 'cleared_unpaid')->exists()) {
                 throw ValidationException::withMessages(['receipt' => 'این رسید دیگر برای بررسی معتبر نیست.']);
             }
 

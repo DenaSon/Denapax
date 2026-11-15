@@ -30,9 +30,7 @@ class SubmitPaymentReceipt
             if ($order->order_status !== 'awaiting_payment'
                 || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)
                 || $order->receipts()->where('status', 'pending')->exists()
-                || $order->gatewayAttempts()->whereIn('status', [
-                    'initializing', 'redirected', 'verifying', 'verification_pending',
-                ])->where('created_at', '>', now()->subMinutes(45))->exists()) {
+                || $order->gatewayAttempts()->where('status', '!=', 'cleared_unpaid')->exists()) {
                 throw ValidationException::withMessages(['receipt' => 'در حال حاضر امکان ارسال رسید برای این سفارش وجود ندارد.']);
             }
 

@@ -6,6 +6,7 @@ use App\Application\Actions\CreateOrder;
 use App\Application\Actions\PrepareCheckout;
 use App\Application\Actions\StoreCart;
 use App\Integrations\Payments\ZarinpalGateway;
+use App\Models\StoreSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -116,6 +117,7 @@ class WebCheckoutController extends Controller
         return view('store.checkout.confirmation', [
             'order' => $order,
             'gatewayEnabled' => app(ZarinpalGateway::class)->enabled(),
+            'supportContact' => StoreSetting::query()->find(1)?->support_contact,
         ]);
     }
 

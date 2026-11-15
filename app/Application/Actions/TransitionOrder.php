@@ -44,9 +44,7 @@ class TransitionOrder
                 // A pending receipt may already represent a bank transfer; review it first.
                 'cancel' => $old === 'awaiting_payment'
                     && in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)
-                    && ! $order->gatewayAttempts()->whereIn('status', [
-                        'initializing', 'redirected', 'verifying', 'verification_pending',
-                    ])->where('created_at', '>', now()->subMinutes(45))->exists(),
+                    && ! $order->gatewayAttempts()->where('status', '!=', 'cleared_unpaid')->exists(),
             };
 
             if (! $valid) {

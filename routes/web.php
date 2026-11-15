@@ -17,6 +17,7 @@ use App\Livewire\Admin\Catalog\CategoriesPage;
 use App\Livewire\Admin\Catalog\ProductEditor;
 use App\Livewire\Admin\Catalog\ProductsPage;
 use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\GatewayPaymentsPage;
 use App\Livewire\Admin\NotificationLogPage;
 use App\Livewire\Admin\Orders\OrderDetailPage;
 use App\Livewire\Admin\Orders\OrdersPage;
@@ -82,6 +83,7 @@ Route::middleware(['auth:web', EnsureActiveStaff::class])->prefix('admin')->name
     Route::get('/orders', OrdersPage::class)->middleware('can:orders.view')->name('orders');
     Route::get('/orders/{order}', OrderDetailPage::class)->middleware('can:orders.view')->name('orders.show');
     Route::get('/payments', PaymentReviewPage::class)->middleware('can:payments.view')->name('payments');
+    Route::get('/payments/gateway', GatewayPaymentsPage::class)->middleware('can:payments.view')->name('payments.gateway');
     Route::get('/payments/receipts/{receipt}/image', PrivatePaymentReceiptController::class)
         ->middleware('can:payments.view')->name('payments.receipt.image');
     Route::get('/shipping', ShippingSettingsPage::class)->middleware('can:shipping.manage')->name('shipping');

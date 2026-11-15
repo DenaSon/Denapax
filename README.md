@@ -11,9 +11,11 @@ Denapax sells Dena-region souvenirs and dried products through a customer web st
 - **P1 — identity and foundation:** independent customer guard, verified phone OTP with fail-closed SMS transport, guest and persistent cart merge, removal of Telegram, web outbox/inbox persistence. [PR #77](https://github.com/DenaSon/Denapax/pull/77).
 - **P2 — checkout:** Persian product search, cart, saved addresses, weight-based delivery quote, immutable order totals, idempotent confirmation. [PR #78](https://github.com/DenaSon/Denapax/pull/78).
 - **P3 — payments and account:** online-first Zarinpal v4 request/verify flow and attempt ledger, manual private receipt upload with staff approval, customer order history/tracking and web inbox UI. [PR #79](https://github.com/DenaSon/Denapax/pull/79).
-- **Next P4 — release readiness:** money-safe reconciliation/retry, actual gateway/SMS provider integration, mobile UX testing, security/negative regression, target MySQL migration, private media backup/restore, worker/alerts, Runflare deployment acceptance and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
+- **P4A — money-safety code:** unknown gateway payments now block duplicate charges/receipts until provider inquiry and authorized operator reconciliation; admin exception review and verification fencing are implemented in [PR #82](https://github.com/DenaSon/Denapax/pull/82). **Still pending:** live Zarinpal/SMS provider acceptance, real merchant settlement, mobile UX, negative/E2E staging, target MySQL migration, private-media backup/restore, worker/alerts, Runflare deployment acceptance and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
 
 **Last observed `master` code verification:** SHA `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [green GitHub Actions run](https://github.com/DenaSon/Denapax/actions/runs/43718573628), 67 tests / 416 assertions + Composer locked production audit/validation, Pint, Vite build. CI uses SQLite and fake gateway responses, not a real bank or production-like MySQL environment. No target production migration, actual OTP delivery, real Zarinpal payment or isolated restore has been confirmed.
+
+A financial-exception operator screen exists at `/admin/payments/gateway`; `payments.view` can inspect, while only `payments.review` can initiate inquiry and evidence-backed clearance. See [Phase 4A technical runbook](docs/40-web-phase4a-gateway-reconciliation.md).
 
 The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](docs/39-web-roadmap-status.md). Open launch issues: [#11](https://github.com/DenaSon/Denapax/issues/11) / [#24](https://github.com/DenaSon/Denapax/issues/24) / [#25](https://github.com/DenaSon/Denapax/issues/25).
 
@@ -37,7 +39,7 @@ ZARINPAL_MERCHANT_ID=
 ZARINPAL_SANDBOX=false
 ```
 
-Use only an activated real merchant identifier and a public HTTPS callback (`/payments/zarinpal/callback`). Confirm provider currency contract (IRR/IRT) and a small authorized transaction against the merchant panel before enabling sales. **Known Phase 4 blocker:** the current 45-minute attempt window must be augmented with payment reconciliation/safe-retry controls; do not assume an expired/unknown gateway attempt is unpaid.
+Use only an activated real merchant identifier and a public HTTPS callback (`/payments/zarinpal/callback`). Confirm provider currency contract (IRR/IRT) and a small authorized transaction against the merchant panel before enabling sales. **Phase 4A code mitigation:** the 45-minute age cutoff no longer authorizes a fresh charge. Unknown/expired attempts require provider inquiry and authorized bank-panel reconciliation; customers should not pay again while unresolved. **Real merchant account/currency/settlement and recovery testing are still mandatory before enabling production payments.**
 
 ### Customer OTP
 
@@ -62,6 +64,7 @@ Run `php artisan test`, `vendor/bin/pint --test`, `composer validate --no-check-
 - [AGENTS.md — working agreement and handoff](AGENTS.md)
 - [Current web delivery status and remaining work](docs/39-web-roadmap-status.md)
 - [Next Phase 4 release plan](docs/38-web-phase4-release-readiness.md)
+- [Phase 4A reconciliation/operator runbook](docs/40-web-phase4a-gateway-reconciliation.md)
 - [Phase 1 history](docs/35-web-phase1-cutover.md), [Phase 2 history](docs/36-web-phase2-checkout.md), [Phase 3 design](docs/37-web-phase3-payments.md)
 
 **Historical docs/01–34 and old GitHub issue history refer to a previous Telegram-first implementation; they are not the active web product specification.**
