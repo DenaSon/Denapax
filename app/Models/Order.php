@@ -39,6 +39,11 @@ class Order extends Model
         return $this->hasOne(Shipment::class);
     }
 
+    public function gatewayAttempts(): HasMany
+    {
+        return $this->hasMany(GatewayPaymentAttempt::class);
+    }
+
     public function receipts(): HasMany
     {
         return $this->hasMany(PaymentReceipt::class);
