@@ -17,7 +17,7 @@ class WebCheckoutController extends Controller
 {
     private const SESSION_KEY = 'web_checkout_preview';
 
-    public function index(Request $request, StoreCart $cart): View|RedirectResponse
+    public function index(Request $request, StoreCart $cart, PrepareCheckout $checkout): View|RedirectResponse
     {
         $customer = $request->user('customer');
         $lines = $cart->lines($customer);
@@ -26,10 +26,64 @@ class WebCheckoutController extends Controller
             return redirect()->route('cart.index')->withErrors(['cart' => 'ابتدا محصولی به سبد خرید اضافه کنید.']);
         }
 
+        $addresses = $customer->addresses()->orderByDesc('is_default')->orderByDesc('id')->get();
+        $requestedId = $request->query('address_id');
+
+        if ($requestedId !== null && (! is_string($requestedId) || ! ctype_digit($requestedId))) {
+            abort(404);
+        }
+
+        $selectedAddress = $requestedId === null
+            ? $addresses->first()
+            : $addresses->firstWhere('id', (int) $requestedId);
+
+        if ($requestedId !== null && $selectedAddress === null) {
+            abort(404);
+        }
+
+        $quote = null;
+        $checkoutKey = null;
+        $quoteError = null;
+
+        if ($lines->contains(fn (array $line): bool => ! $line['available'])) {
+            $quoteError = 'یکی از اقلام سبد دیگر قابل خرید نیست. ابتدا سبد را اصلاح کنید.';
+            $request->session()->forget(self::SESSION_KEY);
+        } elseif ($selectedAddress !== null) {
+            try {
+                $quote = $checkout->execute($customer, $selectedAddress->id);
+                $fingerprint = $checkout->fingerprint($quote);
+                $context = $this->validContext($request);
+
+                $checkoutKey = $context !== null
+                    && (int) $context['address_id'] === $selectedAddress->id
+                    && hash_equals($context['fingerprint'], $fingerprint)
+                    ? $context['checkout_key']
+                    : (string) Str::uuid();
+
+                $request->session()->put(self::SESSION_KEY, [
+                    'customer_id' => $customer->id,
+                    'address_id' => $selectedAddress->id,
+                    'checkout_key' => $checkoutKey,
+                    'fingerprint' => $fingerprint,
+                    'expires_at' => now()->addMinutes(30)->timestamp,
+                ]);
+            } catch (ValidationException $exception) {
+                $quoteError = collect($exception->errors())->flatten()->first()
+                    ?: 'امکان محاسبه مبلغ سفارش وجود ندارد. سبد را بازبینی کنید.';
+                $request->session()->forget(self::SESSION_KEY);
+            }
+        } else {
+            $request->session()->forget(self::SESSION_KEY);
+        }
+
         return view('store.checkout.index', [
             'lines' => $lines,
             'subtotal' => $lines->sum('total_irr'),
-            'addresses' => $customer->addresses()->orderByDesc('is_default')->orderByDesc('id')->get(),
+            'addresses' => $addresses,
+            'selectedAddress' => $selectedAddress,
+            'quote' => $quote,
+            'checkoutKey' => $checkoutKey,
+            'quoteError' => $quoteError,
         ]);
     }
 

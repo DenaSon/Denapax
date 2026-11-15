@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Application\Actions\CustomerOtpLogin;
 use App\Application\Actions\StoreCart;
+use App\Support\IranDigits;
 use App\Support\IranMobile;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -34,6 +35,7 @@ class CustomerAuthController extends Controller
 
     public function verify(Request $request, CustomerOtpLogin $login, StoreCart $cart): RedirectResponse
     {
+        $request->merge(['code' => IranDigits::toAscii((string) $request->input('code', ''))]);
         $data = $request->validate(['code' => 'required|digits:6']);
         $mobile = $request->session()->get('customer_otp_mobile');
 

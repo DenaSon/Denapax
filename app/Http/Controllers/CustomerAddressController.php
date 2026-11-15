@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Application\Actions\SaveCustomerAddress;
 use App\Models\CustomerAddress;
+use App\Support\IranDigits;
 use App\Support\IranMobile;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -24,15 +25,17 @@ class CustomerAddressController extends Controller
         return view('store.addresses.form', [
             'address' => new CustomerAddress,
             'returnTo' => $this->returnTo($request),
+            'customerMobile' => $request->user('customer')->mobile,
         ]);
     }
 
     public function store(Request $request, SaveCustomerAddress $addresses): RedirectResponse
     {
-        $addresses->execute($request->user('customer'), $this->attributes($request));
+        $saved = $addresses->execute($request->user('customer'), $this->attributes($request));
 
-        return redirect()->route($this->returnTo($request) === 'checkout' ? 'checkout.index' : 'addresses.index')
-            ->with('status', 'نشانی تحویل ثبت شد.');
+        return $this->returnTo($request) === 'checkout'
+            ? redirect()->route('checkout.index', ['address_id' => $saved->id])->with('status', 'نشانی تحویل ثبت شد.')
+            : redirect()->route('addresses.index')->with('status', 'نشانی تحویل ثبت شد.');
     }
 
     public function edit(Request $request, int $address): View
@@ -40,15 +43,17 @@ class CustomerAddressController extends Controller
         return view('store.addresses.form', [
             'address' => $request->user('customer')->addresses()->findOrFail($address),
             'returnTo' => $this->returnTo($request),
+            'customerMobile' => $request->user('customer')->mobile,
         ]);
     }
 
     public function update(Request $request, int $address, SaveCustomerAddress $addresses): RedirectResponse
     {
-        $addresses->execute($request->user('customer'), $this->attributes($request), $address);
+        $saved = $addresses->execute($request->user('customer'), $this->attributes($request), $address);
 
-        return redirect()->route($this->returnTo($request) === 'checkout' ? 'checkout.index' : 'addresses.index')
-            ->with('status', 'نشانی تحویل به‌روزرسانی شد.');
+        return $this->returnTo($request) === 'checkout'
+            ? redirect()->route('checkout.index', ['address_id' => $saved->id])->with('status', 'نشانی تحویل به‌روزرسانی شد.')
+            : redirect()->route('addresses.index')->with('status', 'نشانی تحویل به‌روزرسانی شد.');
     }
 
     public function makeDefault(Request $request, int $address, SaveCustomerAddress $addresses): RedirectResponse
@@ -83,12 +88,7 @@ class CustomerAddressController extends Controller
         ]);
 
         $data['recipient_mobile'] = IranMobile::normalize($data['recipient_mobile']);
-        $data['postal_code'] = strtr($data['postal_code'], [
-            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
-            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
-            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
-            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
-        ]);
+        $data['postal_code'] = IranDigits::toAscii($data['postal_code']);
 
         return $data;
     }
