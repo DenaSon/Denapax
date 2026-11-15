@@ -39,6 +39,13 @@
 - Focused tests for quote freshness, refresh/idempotency, address ownership, guest/customer quantity changes and OTP return-to-checkout; [UX technical handoff](41-web-phase4b-mobile-checkout-ux.md).
 - **Still pending:** actual iOS/Android browser testing, accessibility/zoom checks and real provider/payment recovery UX. The code PR is not launch acceptance.
 
+## Storefront UI/UX polish after Phase 4B (PR #84; code-level only)
+
+- Corrected Tailwind 4 `source(none)` to include customer storefront Blade templates and added a coherent premium Persian RTL forest/stone design system, font, usable input/tap/focus styles and a visible cart→delivery→payment stepper.
+- Consistent checkout/cart/OTP/address/order cards, improved payment amount hierarchy, progressive copy helpers and optional double-tap submission feedback; ambiguous gateway attempts now show `نتیجه پرداخت در حال بررسی` in the order list instead of a misleading default payable state.
+- Preserved server price fingerprint, OTP limits, order idempotency, gateway reconciliation and private receipt permissions; see [UI polish handoff](42-web-storefront-ui-ux-polish.md).
+- **Device/a11y QA remains open:** code build and regression tests are not a real mobile screenshot/accessibility audit. Record evidence in #24 before release.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
