@@ -2,104 +2,82 @@
 
 namespace Tests\Feature;
 
-use App\Application\Notifications\TelegramNotificationText;
+use App\Application\Notifications\CustomerNotificationText;
 use App\Jobs\DeliverOutboxNotification;
 use App\Models\Customer;
+use App\Models\CustomerNotification;
 use App\Models\NotificationLog;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Mockery;
-use SergiX44\Nutgram\Nutgram;
 use Tests\TestCase;
 
 class PhaseFiveNotificationsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_outbox_delivery_is_recorded_once_and_deduplicated(): void
+    public function test_web_inbox_persists_each_outbox_event_once(): void
     {
-        config(['nutgram.token' => 'testing-token']);
-        $eventId = $this->seedOutbox('order.shipped');
-
-        $bot = Mockery::mock(Nutgram::class);
-        $bot->shouldReceive('sendMessage')->once()->andReturnNull();
-        $this->app->instance(Nutgram::class, $bot);
+        [$eventId, $order] = $this->orderAndEvent();
 
         $job = new DeliverOutboxNotification($eventId);
-        $job->handle($bot, app(TelegramNotificationText::class));
-        $job->handle($bot, app(TelegramNotificationText::class));
+        $formatter = app(CustomerNotificationText::class);
+        $job->handle($formatter);
+        $job->handle($formatter);
 
-        $log = NotificationLog::query()->sole();
-        $this->assertSame('sent', $log->status);
-        $this->assertSame(1, $log->attempts);
+        $this->assertDatabaseCount('customer_notifications', 1);
+        $this->assertDatabaseCount('notification_logs', 1);
+        $this->assertSame('web', NotificationLog::query()->sole()->channel);
+        $this->assertSame('sent', NotificationLog::query()->sole()->status);
+        $this->assertSame($order->customer_id, CustomerNotification::query()->sole()->customer_id);
         $this->assertNotNull(DB::table('outbox_events')->where('id', $eventId)->first()->processed_at);
     }
 
-    public function test_transient_failure_records_retry_without_corrupting_order(): void
+    public function test_notification_does_not_cross_customer_boundary(): void
     {
-        config(['nutgram.token' => 'testing-token']);
-        $eventId = $this->seedOutbox('order.preparing');
+        [$eventId] = $this->orderAndEvent();
+        $other = Customer::create(['mobile' => '09120000032', 'mobile_verified_at' => now()]);
+        DB::table('outbox_events')->where('id', $eventId)->update([
+            'payload' => json_encode(['order_id' => Order::query()->sole()->id, 'customer_id' => $other->id]),
+        ]);
 
-        $bot = Mockery::mock(Nutgram::class);
-        $bot->shouldReceive('sendMessage')->once()->andThrow(new \RuntimeException('provider timeout'));
-        $bot->shouldReceive('sendMessage')->once()->andReturnNull();
-        $this->app->instance(Nutgram::class, $bot);
-
-        $job = new DeliverOutboxNotification($eventId);
-        $job->handle($bot, app(TelegramNotificationText::class));
-
-        $log = NotificationLog::query()->sole();
-        $this->assertSame('failed', $log->status);
-        $this->assertSame('RuntimeException', $log->last_error);
-        $this->assertSame(1, $log->attempts);
-
-        $this->travel(3)->minutes();
-        $job->handle($bot, app(TelegramNotificationText::class));
-        $this->assertSame('sent', $log->fresh()->status);
-        $this->assertSame(2, $log->fresh()->attempts);
-        $this->travelBack();
+        $this->expectException(\RuntimeException::class);
+        (new DeliverOutboxNotification($eventId))->handle(app(CustomerNotificationText::class));
     }
 
-    private function seedOutbox(string $event): string
+    private function orderAndEvent(): array
     {
-        $customer = Customer::create([
-            'telegram_user_id' => 20001,
-            'telegram_chat_id' => 20001,
-        ]);
+        $customer = Customer::create(['mobile' => '09120000031', 'mobile_verified_at' => now()]);
         $order = Order::create([
-            'order_number' => 'DN-NOTIF-1',
+            'order_number' => 'DN-WEB-1',
             'checkout_key' => (string) Str::uuid(),
             'customer_id' => $customer->id,
-            'order_status' => 'preparing',
-            'payment_status' => 'approved',
-            'recipient_name' => 'Test',
-            'recipient_mobile' => '09123456789',
-            'province' => 'Tehran', 'city' => 'Tehran',
-            'address_line' => 'long sample address',
+            'order_status' => 'awaiting_payment',
+            'payment_status' => 'awaiting_receipt',
+            'recipient_name' => 'Dena Buyer',
+            'recipient_mobile' => '09120000031',
+            'province' => 'Kohgiluyeh',
+            'city' => 'Sisakht',
+            'address_line' => 'Example test address 12',
             'postal_code' => '1234567890',
-            'goods_subtotal_irr' => 100000,
-            'shipping_fee_irr' => 20000,
-            'total_irr' => 120000,
-            'shipping_weight_grams' => 400,
-            'shipping_rule_snapshot' => ['base_weight_grams' => 1000],
-            'payment_instructions_snapshot' => ['card_number' => '6037991234567890', 'card_holder_name' => 'Dena'],
+            'goods_subtotal_irr' => 1500000,
+            'shipping_fee_irr' => 250000,
+            'total_irr' => 1750000,
+            'shipping_weight_grams' => 700,
+            'shipping_rule_snapshot' => [],
+            'payment_instructions_snapshot' => [],
         ]);
-        if ($event === 'order.shipped') {
-            $order->shipment()->create(['carrier' => 'Post', 'tracking_code' => 'TRACK-001']);
-        }
-
-        $id = (string) Str::uuid();
+        $eventId = (string) Str::uuid();
         DB::table('outbox_events')->insert([
-            'id' => $id,
+            'id' => $eventId,
             'aggregate_type' => 'order',
             'aggregate_id' => $order->id,
-            'event_type' => $event,
-            'payload' => json_encode(['order_id' => $order->id, 'customer_id' => $customer->id], JSON_THROW_ON_ERROR),
+            'event_type' => 'order.created',
+            'payload' => json_encode(['order_id' => $order->id, 'customer_id' => $customer->id]),
             'occurred_at' => now(),
         ]);
 
-        return $id;
+        return [$eventId, $order];
     }
 }
