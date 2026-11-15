@@ -11,7 +11,7 @@ The customer sees a single order page immediately after submitting the order: nu
 ## Implementation
 
 - Zarinpal v4 request/verify transport with allowlisted production/sandbox domains; hosted payment redirect, untrusted GET callback and server-to-server verification of saved authority plus **exact stored integer IRR amount**. Optional `currency=IRR` is explicit in payment request.
-- `gateway_payment_attempts` table: unique authority and reference ID; amount, gateway state, verification progress, audit timestamps, conflict state. A 45-minute active-attempt window prevents accidental second payments or simultaneous manual receipt submissions.
+- `gateway_payment_attempts` table: unique authority and reference ID; amount, gateway state, verification progress, audit timestamps and conflict state. A 45-minute active-attempt UI window limits casual duplicate clicks and overlaps, **but is not proof that an older bank attempt failed**. Phase 4 must add provider/bank reconciliation before retrying unknown or expired attempts.
 - Verified gateway payment transitions existing order `awaiting_payment` → `confirmed` and payment `awaiting_receipt/rejected` → `approved` with immutable history and exactly one outbox payment event. Duplicate callback does not trigger a second approval.
 - Gateway error and timeout never mark an order paid. Provider-confirmed receipt conflicting with a previously finalized order goes to `requires_review` for manual reconciliation instead of overwriting or reapproving.
 - Manual method remains under a collapsed alternative; validates JPG/PNG/WebP up to 8MB, accepts private storage only, uses existing transaction-safe `SubmitPaymentReceipt`, and leaves approval to authorized staff via existing `ReviewPaymentReceipt`.
