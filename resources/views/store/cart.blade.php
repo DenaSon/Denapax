@@ -1,9 +1,9 @@
 @component('layouts.store', ['title' => 'سبد خرید'])
-    <section class="rounded-2xl bg-white p-5 shadow-sm sm:p-8">
+    <section class="store-card p-5 sm:p-8">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-2xl font-extrabold">سبد خرید</h1>
+            <h1 class="store-heading">سبد خرید</h1>
             <a href="{{ route('home') }}#products"
-               class="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">ادامه انتخاب محصولات</a>
+               class="store-inline-link">ادامه انتخاب محصولات</a>
         </div>
 
         @forelse ($lines as $line)
@@ -13,7 +13,7 @@
                         {{ $line['variant']->product->title }}
                     </a>
                     <p class="mt-1 text-sm text-[#687c69]">{{ $line['variant']->title }}</p>
-                    <p class="mt-2 font-bold">{{ \App\Support\Money::formatToman($line['total_irr']) }} تومان</p>
+                    <p class="store-amount mt-2 font-bold">{{ \App\Support\Money::formatToman($line['total_irr']) }} تومان</p>
                     @unless ($line['available'])
                         <p class="mt-2 text-sm font-semibold text-red-700">این تنوع در حال حاضر قابل خرید نیست؛ آن را از سبد حذف کنید.</p>
                     @endunless
@@ -32,7 +32,7 @@
                     </form>
                     <form method="POST" action="{{ route('cart.remove', $line['variant']->id) }}">
                         @csrf @method('DELETE')
-                        <button type="submit" class="min-h-11 rounded-lg px-2 text-sm font-bold text-red-700">حذف</button>
+                        <button type="submit" class="min-h-11 rounded-lg px-3 text-sm font-bold text-red-700 hover:bg-red-50">حذف</button>
                     </form>
                 </div>
             </article>
@@ -40,7 +40,7 @@
             <div class="py-12 text-center">
                 <p class="text-base font-semibold">سبد خرید شما خالی است.</p>
                 <a href="{{ route('home') }}#products"
-                   class="mt-5 inline-flex min-h-12 items-center rounded-full bg-[#19392f] px-6 font-bold text-white">دیدن محصولات دنا</a>
+                   class="store-button store-button-primary mt-5">دیدن محصولات دنا</a>
             </div>
         @endforelse
 
@@ -53,7 +53,7 @@
                 <p role="alert" class="mt-5 rounded-xl bg-red-50 p-4 text-sm leading-7 text-red-800">پیش از ادامه، اقلام ناموجود را حذف کنید.</p>
             @else
                 <a href="{{ route('checkout.index') }}"
-                   class="mt-6 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#19392f] px-6 py-4 text-base font-extrabold text-white transition hover:bg-[#2b5741]">
+                   class="store-button store-button-primary mt-6 min-h-14 w-full text-base">
                     @auth('customer')
                         ادامه به نشانی و پرداخت
                     @else

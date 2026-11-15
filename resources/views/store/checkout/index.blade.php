@@ -1,15 +1,15 @@
 @component('layouts.store', ['title' => 'تکمیل سفارش'])
-    <div class="mb-6">
-        <p class="text-xs font-semibold tracking-widest text-[#a3744e]">سبد خرید ← تحویل ← پرداخت</p>
-        <h1 class="mt-2 text-2xl font-extrabold sm:text-3xl">تکمیل سفارش</h1>
-        <p class="mt-2 text-sm leading-7 text-[#637765]">نشانی تحویل و مبلغ نهایی را بررسی کنید؛ با یک تأیید به صفحه پرداخت می‌روید.</p>
+    <div class="mb-7">
+        <p class="store-eyebrow">سبد خرید ← تحویل ← پرداخت</p>
+        <h1 class="store-heading mt-2">تکمیل سفارش</h1>
+        <p class="store-muted mt-2 text-sm">نشانی تحویل و مبلغ نهایی را بررسی کنید؛ با یک تأیید به صفحه پرداخت می‌روید.</p>
     </div>
 
-    <section class="mb-5 rounded-2xl bg-white p-5 shadow-sm sm:p-7" aria-labelledby="delivery-title">
+    <section class="store-card mb-5 p-5 sm:p-7" aria-labelledby="delivery-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 id="delivery-title" class="text-lg font-extrabold">۱. نشانی تحویل</h2>
             <a href="{{ route('addresses.create', ['return' => 'checkout']) }}"
-               class="inline-flex min-h-11 items-center rounded-full border border-[#53735c] px-4 text-sm font-bold">+ نشانی جدید</a>
+               class="store-button store-button-outline min-h-11 !px-4 !py-2 text-sm">+ نشانی جدید</a>
         </div>
 
         @if ($addresses->isEmpty())
@@ -17,13 +17,13 @@
                 برای محاسبه ارسال، ابتدا نشانی و گیرنده را وارد کنید. این اطلاعات برای خرید بعدی ذخیره می‌شوند.
             </p>
             <a href="{{ route('addresses.create', ['return' => 'checkout']) }}"
-               class="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#19392f] px-6 font-bold text-white sm:w-auto">
+               class="store-button store-button-primary mt-4 w-full sm:w-auto">
                 ثبت نشانی تحویل
             </a>
         @else
             <div class="mt-4 space-y-3">
                 @foreach ($addresses as $address)
-                    <div class="rounded-2xl border p-4 {{ $selectedAddress?->id === $address->id ? 'border-[#346349] bg-[#f0f5ed]' : 'border-[#d8ddd3] bg-white' }}">
+                    <div class="rounded-2xl border p-4 {{ $selectedAddress?->id === $address->id ? 'border-[#346349] bg-[#edf4eb]' : 'border-[#d8ddd3] bg-white' }}">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <p class="font-bold">
                                 {{ $address->label ?: $address->city }}
@@ -33,11 +33,11 @@
                             </p>
                             <div class="flex items-center gap-3">
                                 <a href="{{ route('addresses.edit', ['address' => $address->id, 'return' => 'checkout']) }}"
-                                   class="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">ویرایش</a>
+                                   class="store-inline-link">ویرایش</a>
                                 @if ($selectedAddress?->id !== $address->id)
                                     <form method="GET" action="{{ route('checkout.index') }}">
                                         <button type="submit" name="address_id" value="{{ $address->id }}"
-                                                class="min-h-11 rounded-full bg-[#19392f] px-4 text-sm font-bold text-white">
+                                                class="store-button store-button-outline !min-h-11 !px-4 !py-2 text-sm">
                                             انتخاب این نشانی
                                         </button>
                                     </form>
@@ -51,22 +51,22 @@
         @endif
     </section>
 
-    <section class="rounded-2xl bg-white p-5 shadow-sm sm:p-7" aria-labelledby="order-summary-title">
+    <section class="store-card p-5 sm:p-7" aria-labelledby="order-summary-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 id="order-summary-title" class="text-lg font-extrabold">۲. خلاصه سفارش</h2>
-            <a href="{{ route('cart.index') }}" class="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">ویرایش سبد</a>
+            <a href="{{ route('cart.index') }}" class="store-inline-link">ویرایش سبد</a>
         </div>
         <div class="mt-3 divide-y divide-[#e0e8de]">
             @foreach ($lines as $line)
                 <div class="flex items-start justify-between gap-3 py-3 text-sm">
                     <div>
-                        <p class="font-semibold">{{ $line['variant']->product->title }} / {{ $line['variant']->title }}</p>
+                        <p class="store-amount font-semibold">{{ $line['variant']->product->title }} / {{ $line['variant']->title }}</p>
                         <p class="mt-1 text-[#687969]">تعداد: {{ $line['quantity'] }}</p>
                         @unless ($line['available'])
                             <p class="mt-1 text-red-700">این تنوع اکنون قابل خرید نیست.</p>
                         @endunless
                     </div>
-                    <span class="shrink-0 font-bold">{{ \App\Support\Money::formatToman($line['total_irr']) }} تومان</span>
+                    <span class="store-amount shrink-0 font-bold">{{ \App\Support\Money::formatToman($line['total_irr']) }} تومان</span>
                 </div>
             @endforeach
         </div>
@@ -83,7 +83,7 @@
                 </dd>
             </div>
             @if ($quote !== null)
-                <div class="flex items-center justify-between gap-3 border-t border-[#d3dbd0] pt-4 text-lg font-extrabold">
+                <div class="store-checkout-total mt-4 text-lg font-extrabold">
                     <dt>مبلغ نهایی</dt>
                     <dd>{{ \App\Support\Money::formatToman((int) $quote['total_irr']) }} تومان</dd>
                 </div>
@@ -91,7 +91,7 @@
         </dl>
 
         @if ($quoteError)
-            <div role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-7 text-red-800">
+            <div role="alert" class="store-error-summary mt-5 rounded-xl p-4 text-sm leading-7">
                 {{ $quoteError }}
                 <a href="{{ route('cart.index') }}" class="mr-2 font-bold underline underline-offset-4">اصلاح سبد خرید</a>
             </div>
@@ -99,10 +99,10 @@
             <p class="mt-5 text-sm leading-7 text-[#657967]">
                 این مبلغ شامل کالا و ارسال است. پرداخت در مرحله بعد انجام می‌شود؛ ثبت سفارش به‌تنهایی به معنای پرداخت نیست.
             </p>
-            <form method="POST" action="{{ route('checkout.confirm') }}" class="mt-5">
+            <form method="POST" action="{{ route('checkout.confirm') }}" class="mt-5" data-submit-once>
                 @csrf
                 <input type="hidden" name="checkout_key" value="{{ $checkoutKey }}">
-                <button type="submit" class="min-h-14 w-full rounded-2xl bg-[#19392f] px-6 py-4 text-base font-extrabold text-white transition hover:bg-[#2b5741] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#ae855a]">
+                <button type="submit" class="store-button store-button-primary min-h-14 w-full text-base" data-busy-label="در حال ثبت سفارش...">
                     ثبت سفارش و ادامه به پرداخت
                 </button>
             </form>

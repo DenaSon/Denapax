@@ -1,12 +1,12 @@
 @component('layouts.store', ['title' => 'پیام‌های من'])
     <div class="mb-8">
-        <p class="text-xs font-bold tracking-widest text-[#b18056]">ACCOUNT / INBOX</p>
-        <h1 class="mt-2 text-3xl font-extrabold">پیام‌های سفارش</h1>
+        <p class="store-eyebrow">ACCOUNT / INBOX</p>
+        <h1 class="store-heading mt-2">پیام‌های سفارش</h1>
         <p class="mt-2 text-sm text-[#687969]">وضعیت پرداخت و ارسال سفارش‌ها در این بخش ثبت می‌شود.</p>
     </div>
     <div class="space-y-4">
         @forelse ($notifications as $notification)
-            <article class="rounded-2xl border border-[#d8e0d5] {{ $notification->read_at ? 'bg-white/60' : 'bg-white' }} p-6">
+            <article class="store-card {{ $notification->read_at ? 'opacity-75' : '' }} p-5 sm:p-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <h2 class="font-extrabold">{{ $notification->title }}</h2>
                     <span class="text-xs text-[#687969]">{{ $notification->created_at->format('Y/m/d H:i') }}</span>
@@ -20,7 +20,7 @@
                 @endunless
             </article>
         @empty
-            <div class="rounded-2xl bg-white p-10 text-center text-[#687969]">هنوز پیامی ندارید.</div>
+            <div class="store-card p-10 text-center text-[#687969]">هنوز پیامی ندارید.</div>
         @endforelse
     </div>
     <div class="mt-8">{{ $notifications->links() }}</div>

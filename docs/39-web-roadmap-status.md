@@ -41,13 +41,20 @@
 - Focused tests for quote freshness, refresh/idempotency, address ownership, guest/customer quantity changes and OTP return-to-checkout; [UX technical handoff](41-web-phase4b-mobile-checkout-ux.md).
 - **Still pending:** actual iOS/Android browser testing, accessibility/zoom checks and real provider/payment recovery UX. The code PR is not launch acceptance.
 
+## Storefront UI/UX polish following Phase 4B (PR #85; code only)
+
+- Corrected Tailwind 4 `source(none)` to compile utilities in customer checkout/cart/address/login/order Blade pages. Added an RTL forest/stone design system, shared header/cards/fields/CTA, Vazirmatn, responsive focus/touch rules and a three-step cart→delivery→payment indicator.
+- Payment center now emphasizes the total and warns explicitly about ambiguous gateway results. The order list eagerly loads attempts to show `نتیجه پرداخت در حال بررسی`, with progressive one-tap copy and pending-form feedback where supported.
+- Server-side checkout idempotency, verified OTP, gateway reconciliation and private receipts remain unchanged. See [UI polish handoff](42-web-storefront-ui-ux-polish.md).
+- **Still pending:** actual mobile-browser visual/a11y acceptance, real merchant/OTP providers and staging/production validation; no screenshots, bank settlements or launch approval are claimed from code CI.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
 2. **Real providers**: activated Zarinpal account, HTTPS callback and verified IRR/IRT handling with a small authorized payment; real SMS OTP delivery configured and tested.
 3. **Security / E2E (#24)**: staging MySQL and real browser/device regression, payment callback duplicate/conflict/timeout, receipt rejection/retry, private file permissions, customer/staff isolation.
 4. **Operations / resilience (#25)**: target-DB customer count, guarded irreversible migration rehearsal, MySQL and private receipt backups, isolated restore, Runflare HTTPS/secrets/debug validation, supervised queue/schedule and alerts, documented rollback.
-5. **Real mobile/browser acceptance / business correctness**: Phase 4B code reduced checkout friction; validate actual iOS/Android, keyboard/zoom, gateway-return/cookie expiry, approved shipping tariff/support details, product availability and oversell policy.
+5. **Real mobile/browser acceptance / business correctness**: Phase 4B + subsequent store UI polish improved checkout consistency; validate actual iOS/Android, keyboard/zoom, gateway-return/cookie expiry, approved shipping tariff/support details, product availability and oversell policy.
 6. **Release approval (#11)**: record operator and owner GO/NO-GO with evidence; mark NO-GO until all criteria pass.
 
 ## P1 — after P0 or after controlled launch
