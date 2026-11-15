@@ -38,6 +38,10 @@ return [
     */
 
     'guards' => [
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -62,6 +66,10 @@ return [
     */
 
     'providers' => [
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => App\\Models\\Customer::class,
+        ],
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),

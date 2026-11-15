@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Customer extends Model
+class Customer extends Authenticatable
 {
-    protected $fillable = [
-        'telegram_user_id', 'telegram_chat_id', 'display_name', 'full_name', 'mobile',
-    ];
+    protected $fillable = ['mobile', 'mobile_verified_at', 'full_name'];
+
+    protected $hidden = ['remember_token'];
 
     protected function casts(): array
     {
-        return ['telegram_user_id' => 'integer', 'telegram_chat_id' => 'integer'];
+        return ['mobile_verified_at' => 'datetime'];
     }
 
     public function addresses(): HasMany
@@ -32,8 +32,8 @@ class Customer extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function telegramSession(): HasOne
+    public function notifications(): HasMany
     {
-        return $this->hasOne(TelegramSession::class);
+        return $this->hasMany(CustomerNotification::class);
     }
 }
