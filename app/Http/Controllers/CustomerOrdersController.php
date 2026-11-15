@@ -11,7 +11,7 @@ class CustomerOrdersController extends Controller
     {
         return view('store.orders.index', [
             'orders' => $request->user('customer')->orders()
-                ->with('shipment')
+                ->with(['shipment', 'gatewayAttempts'])
                 ->latest('id')
                 ->paginate(12),
         ]);

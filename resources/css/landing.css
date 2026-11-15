@@ -731,3 +731,19 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .store-shell *, .store-shell *::before, .store-shell *::after { transition: none !important; transform: none !important; }
 }
+
+/* Variant selection: native radio semantics with an obvious visual selection state. */
+.store-variant-card { position: relative; padding-inline-end: 2.7rem; }
+.store-variant-card::after {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    inset-inline-end: .95rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border: 2px solid #839b87;
+    border-radius: 50%;
+    background: #fff;
+}
+input:checked + .store-variant-card::after { border: 5px solid #245840; }
+.store-shell [hidden] { display: none !important; }

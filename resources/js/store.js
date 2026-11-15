@@ -34,3 +34,21 @@ document.addEventListener('submit', (event) => {
 });
 
 window.addEventListener('pageshow', resetPendingForms);
+
+
+// Copy controls are progressive enhancements; numbers remain visible/selectable without JS.
+if (navigator.clipboard?.writeText) {
+    document.querySelectorAll('[data-copy-value]').forEach((button) => {
+        button.hidden = false;
+        button.addEventListener('click', async () => {
+            const label = button.dataset.copyLabel || 'کپی';
+            try {
+                await navigator.clipboard.writeText(button.dataset.copyValue || '');
+                button.textContent = 'کپی شد ✓';
+            } catch {
+                button.textContent = 'امکان کپی نبود؛ شماره را انتخاب کنید';
+            }
+            window.setTimeout(() => { button.textContent = label; }, 2200);
+        });
+    });
+}

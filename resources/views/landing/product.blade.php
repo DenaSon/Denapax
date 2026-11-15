@@ -128,7 +128,7 @@
                                         <label class="block cursor-pointer">
                                             <input type="radio" name="variant_id" value="{{ $variant->id }}" required
                                                    class="peer sr-only" @checked($loop->first)>
-                                            <span class="flex min-h-28 flex-col justify-between rounded-2xl border-2 border-[#cbd4c7] bg-[#f8f7ef] p-4 transition peer-checked:border-[#245840] peer-checked:bg-[#e4eddf] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ae855a]">
+                                            <span class="store-variant-card flex min-h-28 flex-col justify-between rounded-2xl border-2 border-[#cbd4c7] bg-[#f8f7ef] p-4 transition peer-checked:border-[#245840] peer-checked:bg-[#e4eddf] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ae855a]">
                                                 <span class="flex items-start justify-between gap-3">
                                                     <span class="text-sm font-bold text-[#234835]">{{ $variant->title }}</span>
                                                     <span class="text-xs text-[#677c69]">{{ $quantity }} {{ $unit }}</span>
