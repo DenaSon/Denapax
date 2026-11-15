@@ -4,8 +4,9 @@
         $reviewing = $order->payment_status === 'under_review';
         $attempt = $order->gatewayAttempts->sortByDesc('id')->first();
         $receipt = $order->receipts->sortByDesc('id')->first();
-        $gatewayBusy = $attempt && in_array($attempt->status, ['initializing', 'redirected', 'verifying', 'verification_pending'], true)
-            && $attempt->created_at->greaterThan(now()->subMinutes(45));
+        $blockingAttempt = $order->gatewayAttempts->sortBy('id')->first(fn ($entry) => $entry->blocksNewPayment());
+        $gatewayBusy = $blockingAttempt !== null;
+        $attempt = $blockingAttempt ?: $attempt;
         $canPay = $order->order_status === 'awaiting_payment' && in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true);
         $canUploadReceipt = $canPay && ! $gatewayBusy;
         $card = $order->payment_instructions_snapshot['card_number'] ?? '';
@@ -43,16 +44,21 @@
                 @if ($attempt?->status === 'requires_review')
                     <p role="alert" class="mt-4 rounded-xl bg-[#fff2db] p-4 text-sm leading-7">پرداختی ثبت شده اما با وضعیت سفارش هم‌خوانی ندارد. لطفاً دوباره پرداخت نکنید و با پشتیبانی هماهنگ کنید.</p>
                 @elseif ($gatewayBusy)
-                    <p class="mt-4 text-sm leading-7 text-[#85581b]">درخواست درگاه در حال انجام یا بررسی است. برای جلوگیری از پرداخت تکراری، ابتدا نتیجه را بررسی کنید.</p>
+                    <p role="status" class="mt-4 text-sm leading-7 text-[#85581b]">نتیجه پرداخت قبلی هنوز قطعی نیست؛ ممکن است بانک وجه را دریافت کرده باشد. لطفاً تا روشن‌شدن نتیجه، دوباره پرداخت یا کارت‌به‌کارت نکنید.</p>
+                    @if ($supportContact)
+                        <p class="mt-2 text-sm leading-7">برای پیگیری با پشتیبانی فروشگاه تماس بگیرید: <span dir="ltr" class="inline-block">{{ $supportContact }}</span></p>
+                    @endif
                     <div class="mt-4 flex flex-wrap gap-3">
-                        @if ($attempt->status === 'redirected' && $gatewayEnabled && $attempt->authority)
+                        @if ($attempt->status === 'redirected' && $gatewayEnabled && $attempt->authority && $attempt->created_at->greaterThan(now()->subMinutes(45)))
                             <a href="{{ app(\App\Integrations\Payments\ZarinpalGateway::class)->paymentUrl($attempt->authority) }}"
                                rel="nofollow" class="rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">بازگشت به درگاه</a>
                         @endif
-                        <form action="{{ route('payments.zarinpal.recheck', $order->order_number) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="rounded-full border border-[#345944] px-6 py-3 text-sm font-bold">بررسی نتیجه پرداخت</button>
-                        </form>
+                        @if ($attempt->authority)
+                            <form action="{{ route('payments.zarinpal.recheck', $order->order_number) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="rounded-full border border-[#345944] px-6 py-3 text-sm font-bold">بررسی نتیجه پرداخت</button>
+                            </form>
+                        @endif
                     </div>
                 @else
                     @if ($gatewayEnabled)

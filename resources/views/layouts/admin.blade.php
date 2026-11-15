@@ -32,6 +32,7 @@
                 @endcan
                 @can('payments.view')
                     <li><a href="{{ route('admin.payments') }}">رسیدهای پرداخت</a></li>
+                    <li><a href="{{ route('admin.payments.gateway') }}">تراکنش‌های زرین‌پال</a></li>
                 @endcan
                 @can('shipping.manage')
                     <li><a href="{{ route('admin.shipping') }}">هزینه ارسال</a></li>

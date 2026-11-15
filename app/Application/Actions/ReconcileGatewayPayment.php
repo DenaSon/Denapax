@@ -91,7 +91,7 @@ class ReconcileGatewayPayment
             }
 
             if ($attempt->authority === null
-                && ($attempt->status !== 'request_unknown'
+                && (! in_array($attempt->status, ['request_unknown', 'failed', 'initializing', 'expired'], true)
                     || $attempt->created_at->greaterThan(now()->subHour()))) {
                 throw ValidationException::withMessages([
                     'payment' => 'درخواست بدون Authority باید حداقل یک ساعت منتظر بماند و سپس با گزارش پنل پذیرنده تطبیق داده شود.',

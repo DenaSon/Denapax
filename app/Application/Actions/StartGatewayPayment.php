@@ -37,7 +37,7 @@ class StartGatewayPayment
             // another charge. Only an auditable, bank-reconciled clearance does.
             $unsettled = $order->gatewayAttempts()
                 ->where('status', '!=', 'cleared_unpaid')
-                ->latest('id')
+                ->oldest('id')
                 ->first();
 
             if ($unsettled) {

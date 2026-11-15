@@ -34,17 +34,20 @@ class GatewayPaymentController extends Controller
             'requires_review' => redirect($target)->withErrors([
                 'payment' => 'وضعیت واریز با سفارش هم‌خوانی ندارد و نیازمند بررسی پشتیبانی است. مجدداً پرداخت نکنید.',
             ]),
-            'verification_pending', 'verifying' => redirect($target)->withErrors([
+            'verification_pending', 'verifying', 'redirected', 'request_unknown', 'failed', 'expired' => redirect($target)->withErrors([
                 'payment' => 'نتیجه پرداخت هنوز قطعی نیست. لطفاً در همین صفحه دوباره وضعیت پرداخت را بررسی کنید.',
             ]),
-            default => redirect($target)->withErrors(['payment' => 'پرداخت تأیید نشد. می‌توانید دوباره تلاش کنید.']),
+            default => redirect($target)->withErrors(['payment' => 'تراکنش هنوز تأیید نشده است؛ بدون بررسی بانک دوباره پرداخت نکنید.']),
         };
     }
 
     public function recheck(Request $request, string $orderNumber, VerifyGatewayPayment $verify): RedirectResponse
     {
         $order = $request->user('customer')->orders()->where('order_number', $orderNumber)->firstOrFail();
-        $attempt = $order->gatewayAttempts()->latest('id')->whereNotNull('authority')->first();
+        $attempt = $order->gatewayAttempts()
+            ->where('status', '!=', 'cleared_unpaid')
+            ->whereNotNull('authority')
+            ->latest('id')->first();
 
         if (! $attempt || $attempt->status === 'verified') {
             return redirect()->route('orders.confirmation', ['orderNumber' => $orderNumber]);
