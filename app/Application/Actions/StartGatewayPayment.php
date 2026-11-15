@@ -33,19 +33,23 @@ class StartGatewayPayment
                 throw ValidationException::withMessages(['payment' => 'این سفارش اکنون قابل پرداخت آنلاین نیست.']);
             }
 
-            $latest = $order->gatewayAttempts()->latest('id')->first();
+            // A timeout or an expired session must NEVER automatically authorize
+            // another charge. Only an auditable, bank-reconciled clearance does.
+            $unsettled = $order->gatewayAttempts()
+                ->where('status', '!=', 'cleared_unpaid')
+                ->latest('id')
+                ->first();
 
-            if ($latest && in_array($latest->status, ['initializing', 'redirected', 'verifying', 'verification_pending'], true)
-                && $latest->created_at->greaterThan(now()->subMinutes(45))) {
-                if ($latest->status === 'redirected' && $latest->authority) {
-                    return $latest;
+            if ($unsettled) {
+                if ($unsettled->status === 'redirected'
+                    && $unsettled->authority
+                    && $unsettled->created_at->greaterThan(now()->subMinutes(45))) {
+                    return $unsettled;
                 }
 
-                throw ValidationException::withMessages(['payment' => 'درخواست پرداخت در حال بررسی است. کمی بعد وضعیت سفارش را بررسی کنید.']);
-            }
-
-            if ($latest && in_array($latest->status, ['initializing', 'redirected', 'verifying', 'verification_pending'], true)) {
-                $latest->update(['status' => 'expired']);
+                throw ValidationException::withMessages([
+                    'payment' => 'نتیجه پرداخت قبلی هنوز قطعی نیست. برای جلوگیری از پرداخت تکراری، ابتدا وضعیت آن باید بررسی شود.',
+                ]);
             }
 
             return $order->gatewayAttempts()->create([
@@ -66,9 +70,15 @@ class StartGatewayPayment
                 $attempt->order->public_reference,
             );
         } catch (Throwable) {
-            $attempt->update(['status' => 'failed', 'last_error' => 'request_failed']);
+            // A request may have succeeded at the provider before our timeout.
+            // Do not expose a new payment button until an operator reconciles it.
+            GatewayPaymentAttempt::query()->whereKey($attempt->id)
+                ->where('status', 'initializing')
+                ->update(['status' => 'request_unknown', 'last_error' => 'request_outcome_unknown']);
 
-            throw ValidationException::withMessages(['payment' => 'درگاه پرداخت در دسترس نیست. دوباره تلاش کنید.']);
+            throw ValidationException::withMessages([
+                'payment' => 'پاسخ درگاه دریافت نشد. برای جلوگیری از پرداخت تکراری، وضعیت تراکنش بررسی می‌شود.',
+            ]);
         }
 
         DB::transaction(function () use ($attempt, $authority): void {
@@ -76,10 +86,11 @@ class StartGatewayPayment
             $locked = GatewayPaymentAttempt::query()->whereKey($attempt->id)->lockForUpdate()->firstOrFail();
 
             if ($order->order_status !== 'awaiting_payment'
-                || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)) {
-                $locked->update(['status' => 'expired']);
+                || ! in_array($order->payment_status, ['awaiting_receipt', 'rejected'], true)
+                || $locked->status !== 'initializing') {
+                $locked->update(['status' => 'requires_review', 'last_error' => 'request_order_state_conflict']);
 
-                throw ValidationException::withMessages(['payment' => 'وضعیت سفارش تغییر کرده است.']);
+                throw ValidationException::withMessages(['payment' => 'وضعیت سفارش تغییر کرده و نیاز به بررسی دارد.']);
             }
 
             $locked->update(['status' => 'redirected', 'authority' => $authority]);
