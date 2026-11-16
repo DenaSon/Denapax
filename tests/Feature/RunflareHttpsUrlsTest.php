@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Providers\AppServiceProvider;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
@@ -17,6 +19,7 @@ class RunflareHttpsUrlsTest extends TestCase
     protected function tearDown(): void
     {
         URL::forceScheme(null);
+        TrustProxies::flushState();
         parent::tearDown();
     }
 
@@ -55,6 +58,8 @@ class RunflareHttpsUrlsTest extends TestCase
             'app.trusted_proxies' => '10.0.0.0/8',
         ]);
 
+        app(AppServiceProvider::class)->boot();
+
         Route::get('/_test/forwarded-scheme', fn (Request $request) => response()->json([
             'secure' => $request->isSecure(),
         ]));
@@ -74,6 +79,8 @@ class RunflareHttpsUrlsTest extends TestCase
             'app.url' => 'http://store.example.test',
             'app.trusted_proxies' => '10.0.0.0/8',
         ]);
+
+        app(AppServiceProvider::class)->boot();
 
         Route::get('/_test/forwarded-scheme', fn (Request $request) => response()->json([
             'secure' => $request->isSecure(),
