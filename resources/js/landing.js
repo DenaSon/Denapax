@@ -20,6 +20,8 @@ Alpine.data('landingPage', () => ({
     previewVariantIndex: 0,
     previewQuantity: 1,
     cartSubmitting: false,
+    cartNotice: '',
+    cartError: '',
     previewReturnFocus: null,
     priorScrollLock: '',
     onScroll: null,
@@ -170,7 +172,42 @@ Alpine.data('landingPage', () => ({
         this.loadCatalog(target.href, true, isPagination);
     },
 
-    async loadCatalog(url, updateHistory = false, scrollToProducts = false) {
+    submitCatalogSearch(event) {
+        const form = event.currentTarget instanceof HTMLFormElement ? event.currentTarget : event.target?.form;
+        if (!form) return;
+
+        const url = new URL(form.action, window.location.href);
+        const params = new URLSearchParams();
+        const data = new FormData(form);
+        for (const [key, value] of data.entries()) {
+            const trimmed = String(value).trim();
+            if (trimmed !== '') params.set(key, trimmed);
+        }
+        params.delete('page');
+        url.search = params.toString();
+        url.hash = 'products';
+
+        this.loadCatalog(url.href, true, false, true, event.type === 'input');
+    },
+
+    submitPreviewCart() {
+        if (this.cartSubmitting) return;
+        const variant = this.preview?.variants?.[this.previewVariantIndex];
+        const variantId = Number(variant?.id);
+        const quantity = Number(this.previewQuantity);
+
+        if (!Number.isSafeInteger(variantId) || variantId < 1
+            || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 1000) {
+            this.cartError = 'تنوع یا تعداد انتخاب‌شده معتبر نیست.';
+            return;
+        }
+
+        this.cartError = '';
+        this.cartSubmitting = true;
+        window.Livewire.dispatch('cart-add-requested', { variantId, quantity });
+    },
+
+    async loadCatalog(url, updateHistory = false, scrollToProducts = false, preserveSearchFocus = false, replaceHistory = false) {
         this.catalogRequest?.abort();
         const request = new AbortController();
         this.catalogRequest = request;
@@ -197,16 +234,31 @@ Alpine.data('landingPage', () => ({
             if (!replacement || !previewPayload || !current) throw new Error('Invalid catalog response');
 
             const previews = JSON.parse(previewPayload.textContent);
+            const searchField = current.querySelector('#catalog-search');
+            const hadSearchFocus = preserveSearchFocus && document.activeElement === searchField;
+            const selectionStart = hadSearchFocus ? searchField.selectionStart : null;
+            const selectionEnd = hadSearchFocus ? searchField.selectionEnd : null;
+
             current.innerHTML = replacement.innerHTML;
             this.productPreviews = previews;
 
-            if (updateHistory) window.history.pushState({ denapaxCatalog: true }, '', url);
+            if (updateHistory) {
+                const method = replaceHistory ? 'replaceState' : 'pushState';
+                window.history[method]({ denapaxCatalog: true }, '', url);
+            }
 
             this.$nextTick(() => {
                 this.observeReveals();
+                if (hadSearchFocus) {
+                    const nextSearch = current.querySelector('#catalog-search');
+                    nextSearch?.focus({ preventScroll: true });
+                    if (selectionStart !== null && selectionEnd !== null) {
+                        nextSearch?.setSelectionRange(selectionStart, selectionEnd);
+                    }
+                }
                 if (scrollToProducts) {
                     current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-                } else if (updateHistory) {
+                } else if (updateHistory && !hadSearchFocus) {
                     current.querySelector('nav[aria-label="فیلتر دسته‌بندی محصولات"] a[aria-current="page"]')
                         ?.focus({ preventScroll: true });
                 }
@@ -241,6 +293,8 @@ Alpine.data('landingPage', () => ({
         this.previewVariantIndex = 0;
         this.previewQuantity = 1;
         this.cartSubmitting = false;
+        this.cartError = '';
+        this.cartNotice = '';
         this.previewReturnFocus = event?.currentTarget ?? document.activeElement;
 
         this.$nextTick(() => {

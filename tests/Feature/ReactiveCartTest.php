@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Store\AddToCart;
 use App\Livewire\Store\CartCount;
 use App\Livewire\Store\CartItems;
 use App\Models\Category;
@@ -65,6 +66,30 @@ class ReactiveCartTest extends TestCase
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 4]);
         Livewire::test(CartItems::class)->call('changeQuantity', 9999999, 1)->assertHasErrors('cart');
         $this->assertDatabaseMissing('cart_items', ['product_variant_id' => 9999999]);
+    }
+
+    public function test_landing_livewire_event_adds_selected_variant_without_redirect(): void
+    {
+        $variant = $this->variant();
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-add-requested', variantId: $variant->id, quantity: 2)
+            ->assertDispatched('cart-updated')
+            ->assertDispatched('cart-added');
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('گردوی دنا')
+            ->assertSee('1,000,000');
+    }
+
+    public function test_landing_cart_event_rejects_invalid_variant_without_cart_mutation(): void
+    {
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-add-requested', variantId: 9999999, quantity: 2)
+            ->assertDispatched('cart-add-failed')
+            ->assertNotDispatched('cart-added');
+
+        $this->get(route('cart.index'))->assertOk()->assertSee('سبد خرید شما خالی است.');
     }
 
     private function variant(): ProductVariant
