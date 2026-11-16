@@ -20,7 +20,7 @@
                     class="store-button store-button-outline mt-3 !min-h-10 !px-3 text-xs">کپی شماره سفارش</button>
             <p class="mt-2 text-sm text-[#687969]">ثبت‌شده در {{ $order->created_at->format('Y/m/d H:i') }}</p>
         </div>
-        <a href="{{ route('orders.index') }}" class="text-sm font-semibold underline underline-offset-4">همه سفارش‌های من</a>
+        <a wire:navigate href="{{ route('orders.index') }}" class="text-sm font-semibold underline underline-offset-4">همه سفارش‌های من</a>
     </div>
 
     <section class="store-card p-5 sm:p-8 md:p-10">
