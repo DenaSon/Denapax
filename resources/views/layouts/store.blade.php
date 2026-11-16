@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/landing.css', 'resources/js/store.js'])
+    @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
+    @livewireStyles
 </head>
 <body class="landing store-shell min-h-screen antialiased">
     @php
@@ -100,5 +101,6 @@
         <span>دناپکس · سوغات و خشکبار دنا</span>
         <a class="store-inline-link" href="{{ route('home') }}#products">بازگشت به فروشگاه</a>
     </footer>
+    @livewireScripts
 </body>
 </html>
