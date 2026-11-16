@@ -54,19 +54,32 @@
 
             <div class="hidden items-center gap-4 lg:flex">
                 <span class="text-xs tracking-[.04em] text-white/75">سوغات و خشکبار دنا</span>
-                <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">سبد خرید</a>
+                <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">
+                    سبد خرید
+                    @if ($cartQuantity > 0)
+                        <span class="landing-cart-count" aria-label="تعداد اقلام سبد خرید: {{ $cartQuantity }}">{{ $cartQuantity }}</span>
+                    @endif
+                </a>
             </div>
 
-            <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white lg:hidden" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
-                <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-                <svg x-show="menuOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
-            </button>
+            <div class="flex items-center gap-2 lg:hidden">
+                <a href="{{ route('cart.index') }}" class="landing-mobile-cart" aria-label="سبد خرید{{ $cartQuantity > 0 ? '، '.$cartQuantity.' قلم کالا' : '' }}">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.6L20 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    @if ($cartQuantity > 0)
+                        <span class="landing-cart-count" aria-hidden="true">{{ $cartQuantity }}</span>
+                    @endif
+                </a>
+                <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
+                    <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                    <svg x-show="menuOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
+                </button>
+            </div>
         </div>
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
             <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
             <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
-            <a x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید</a>
+            <a x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
@@ -453,10 +466,20 @@
                         </div>
                     </div>
 
-                    <a x-bind:href="preview.url" class="landing-button mt-4 w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]">انتخاب تنوع و افزودن به سبد خرید</a>
-                    <p class="mt-3 text-center text-xs leading-6 text-[#7b8a7a]">
-                        تنوع و تعداد موردنظر را در صفحه محصول انتخاب کنید.
-                    </p>
+                    <form method="POST" action="{{ route('cart.add') }}" class="mt-5 space-y-3" x-on:submit="cartSubmitting = true">
+                        @csrf
+                        <input type="hidden" name="variant_id" x-bind:value="preview.variants[previewVariantIndex].id">
+                        <label for="landing-cart-quantity" class="flex items-center justify-between gap-3 text-sm font-bold text-[#315642]">
+                            تعداد
+                            <input id="landing-cart-quantity" type="number" name="quantity" min="1" max="1000" step="1" required
+                                   class="landing-cart-quantity" x-model.number="previewQuantity">
+                        </label>
+                        <button type="submit"
+                                class="landing-button w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]"
+                                x-bind:disabled="cartSubmitting"
+                                x-text="cartSubmitting ? 'در حال افزودن...' : 'افزودن به سبد خرید'">افزودن به سبد خرید</button>
+                    </form>
+                    <a x-bind:href="preview.url" class="mt-3 block min-h-11 py-3 text-center text-xs font-bold text-[#42624e] underline underline-offset-4">مشاهده صفحه کامل محصول</a>
                 </div>
             </div>
         </template>
