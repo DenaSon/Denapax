@@ -1,6 +1,7 @@
 @import 'tailwindcss' source(none);
 @source '../views/landing/**/*.blade.php';
 @source '../views/store/**/*.blade.php';
+@source '../views/livewire/store/**/*.blade.php';
 @source '../views/layouts/store.blade.php';
 @source '../js/store.js';
 @source '../js/landing.js';
