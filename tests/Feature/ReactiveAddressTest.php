@@ -6,6 +6,7 @@ use App\Livewire\Store\AddressEditor;
 use App\Livewire\Store\AddressList;
 use App\Livewire\Store\AddressPicker;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -88,7 +89,7 @@ class ReactiveAddressTest extends TestCase
         $this->assertDatabaseHas('customer_addresses', ['id' => $second->id, 'is_default' => true]);
     }
 
-    private function address(string $label, bool $default): \App\Models\CustomerAddress
+    private function address(string $label, bool $default): CustomerAddress
     {
         return $this->customer->addresses()->create([
             'label' => $label,
