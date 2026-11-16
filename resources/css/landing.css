@@ -23,6 +23,12 @@
 }
 
 [x-cloak] { display: none !important; }
+
+/* Pointer cursor is reserved for actionable controls, not decorative elements. */
+@media (hover: hover) and (pointer: fine) {
+    .landing :is(a[href]:not([aria-disabled="true"]), button:not(:disabled):not([aria-disabled="true"]), summary, select:not(:disabled), input[type="checkbox"]:not(:disabled), input[type="radio"]:not(:disabled), input[type="submit"]:not(:disabled)) { cursor: pointer; }
+    .landing button:disabled, .landing [aria-disabled="true"] { cursor: not-allowed; }
+}
 ::selection { background: #c1b58e; color: #19392f; }
 
 body.landing { min-width: 320px; overflow-x: hidden; }
