@@ -14,8 +14,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Applied per HTTP request, after Laravel's proxy middleware.
-        // Force secure URL generation without redirecting internal proxy traffic.
+        // Trust only configured ingress peers. ForceHttpsUrls fixes generated links,
+        // but does not mark a forwarded HTTPS request as secure for cookies/CSRF.
+        // Do not trust X-Forwarded-Host or X-Forwarded-For from public clients.
+        $trustedProxies = trim((string) config('app.trusted_proxies', ''));
+        if ($trustedProxies !== '') {
+            $middleware->trustProxies(
+                at: $trustedProxies,
+                headers: Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_PORT,
+            );
+        }
+
+        // Keep HTTPS link generation for ingress configurations without a
+        // correct forwarded scheme; do not redirect internal HTTP proxy hops.
         $middleware->append(ForceHttpsUrls::class);
         $middleware->redirectGuestsTo(fn (Request $request): string => $request->is('checkout', 'checkout/*', 'orders/*', 'account/*')
             ? route('customer.login')
