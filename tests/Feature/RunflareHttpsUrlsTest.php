@@ -58,7 +58,7 @@ class RunflareHttpsUrlsTest extends TestCase
             'app.trusted_proxies' => '10.0.0.0/8',
         ]);
 
-        app(AppServiceProvider::class)->boot();
+        (new AppServiceProvider($this->app))->boot();
 
         Route::get('/_test/forwarded-scheme', fn (Request $request) => response()->json([
             'secure' => $request->isSecure(),
@@ -80,7 +80,7 @@ class RunflareHttpsUrlsTest extends TestCase
             'app.trusted_proxies' => '10.0.0.0/8',
         ]);
 
-        app(AppServiceProvider::class)->boot();
+        (new AppServiceProvider($this->app))->boot();
 
         Route::get('/_test/forwarded-scheme', fn (Request $request) => response()->json([
             'secure' => $request->isSecure(),
