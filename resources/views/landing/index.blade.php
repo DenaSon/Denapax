@@ -24,13 +24,17 @@
     @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
     @livewireStyles
 </head>
-<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)">
+<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)" x-on:cart-added.window="cartSubmitting = false; cartNotice = 'محصول به سبد خرید اضافه شد.'; closeProduct()" x-on:cart-add-failed.window="cartSubmitting = false; cartError = $event.detail.message">
     <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
     <nav class="landing-chapter-rail" aria-label="بخش‌های صفحه" x-cloak>
         <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" aria-label="بخش اول: محصولات" title="محصولات">01</a>
         <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="بخش دوم: روایت دنا" title="روایت دنا">02</a>
         <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="بخش سوم: سفارش" title="سفارش">03</a>
     </nav>
+    <div x-show="cartNotice" x-cloak role="status" class="fixed bottom-5 right-5 z-[90] flex max-w-[min(92vw,420px)] items-center gap-4 rounded-2xl border border-[#8ba991] bg-[#f2f8ee] px-5 py-3 text-sm font-bold text-[#1a4930] shadow-2xl">
+        <span x-text="cartNotice"></span>
+        <button type="button" x-on:click="cartNotice = ''" class="rounded-full border border-[#a4bda6] px-2 py-1" aria-label="بستن اعلان">×</button>
+    </div>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
     <header class="absolute inset-x-0 top-0 z-30 text-white">
@@ -161,13 +165,13 @@
                 </span>
             </div>
 
-            <form method="GET" action="{{ route('home') }}#products" role="search" class="mb-7 flex flex-wrap items-center gap-3">
+            <form method="GET" action="{{ route('home') }}#products" role="search" class="mb-7 flex flex-wrap items-center gap-3" x-on:submit.prevent="submitCatalogSearch($event)">
                 @if ($selectedCategory)
                     <input type="hidden" name="category" value="{{ $selectedCategory }}">
                 @endif
                 <label for="catalog-search" class="sr-only">جستجو در محصولات</label>
                 <input id="catalog-search" name="q" type="search" maxlength="80" value="{{ $search }}"
-                       placeholder="جستجو در سوغات و خشکبار دنا..."
+                       placeholder="جستجو در سوغات و خشکبار دنا..." x-on:input.debounce.450ms="submitCatalogSearch($event)"
                        class="landing-search-input min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
                 <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
                 @if ($search !== '')
@@ -463,7 +467,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('cart.add') }}" class="mt-5 space-y-3" x-on:submit="cartSubmitting = true">
+                    <form method="POST" action="{{ route('cart.add') }}" class="mt-5 space-y-3" x-on:submit.prevent="submitPreviewCart()">
                         @csrf
                         <input type="hidden" name="variant_id" x-bind:value="preview.variants[previewVariantIndex].id">
                         <label for="landing-cart-quantity" class="flex items-center justify-between gap-3 text-sm font-bold text-[#315642]">
@@ -476,11 +480,13 @@
                                 x-bind:disabled="cartSubmitting"
                                 x-text="cartSubmitting ? 'در حال افزودن...' : 'افزودن به سبد خرید'">افزودن به سبد خرید</button>
                     </form>
+                    <p x-show="cartError" x-cloak role="alert" class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700" x-text="cartError"></p>
                     <a x-bind:href="preview.url" class="mt-3 block min-h-11 py-3 text-center text-xs font-bold text-[#42624e] underline underline-offset-4">مشاهده صفحه کامل محصول</a>
                 </div>
             </div>
         </template>
     </dialog>
+    <livewire:store.add-to-cart />
     @livewireScripts
 </body>
 </html>
