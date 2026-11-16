@@ -93,6 +93,25 @@ class StoreCart
         })->filter()->values();
     }
 
+    /**
+     * Total units in the current guest or signed-in customer's cart.
+     * This read must not create an empty persistent cart for every page view.
+     */
+    public function quantity(?Customer $customer): int
+    {
+        if ($customer) {
+            $cart = $customer->cart()->first();
+
+            return $cart ? (int) $cart->items()->sum('quantity') : 0;
+        }
+
+        $items = session()->get(self::SESSION_KEY, []);
+
+        return is_array($items)
+            ? array_sum(array_map(static fn ($quantity): int => max(0, (int) $quantity), $items))
+            : 0;
+    }
+
     public function mergeGuestCart(Customer $customer): void
     {
         $items = session()->get(self::SESSION_KEY, []);
