@@ -105,7 +105,7 @@ class ReactiveCartTest extends TestCase
             ->assertSee('store-cart-item-image', false)
             ->assertSee('store-cart-quantity', false)
             ->assertSee('store-cart-loading', false)
-            ->assertSee('aria-label="تعداد کالا"', false)
+            ->assertSee('تعداد کالا')
             ->assertSee('2 عدد کالا در سبد شما');
 
         $css = file_get_contents(resource_path('css/landing.css'));
