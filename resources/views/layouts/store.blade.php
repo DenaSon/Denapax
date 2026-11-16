@@ -73,7 +73,7 @@
             </ol>
         </nav>
     @endif
-    <main id="store-main" class="landing-container store-main mx-auto py-8 sm:py-12">
+    <main id="store-main" class="landing-container store-main {{ request()->routeIs('cart.index') ? 'store-main-cart' : '' }} mx-auto py-8 sm:py-12">
         @if (session('status'))
             <div role="status" class="store-success mb-5 rounded-xl p-4 text-sm leading-7">{{ session('status') }}</div>
         @endif
