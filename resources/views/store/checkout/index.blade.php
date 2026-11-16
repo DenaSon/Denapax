@@ -8,7 +8,7 @@
     <section class="store-card mb-5 p-5 sm:p-7" aria-labelledby="delivery-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 id="delivery-title" class="text-lg font-extrabold">۱. نشانی تحویل</h2>
-            <a href="{{ route('addresses.create', ['return' => 'checkout']) }}"
+            <a wire:navigate href="{{ route('addresses.create', ['return' => 'checkout']) }}"
                class="store-button store-button-outline min-h-11 !px-4 !py-2 text-sm">+ نشانی جدید</a>
         </div>
 
@@ -16,7 +16,7 @@
             <p class="mt-4 rounded-xl bg-[#f4f1e6] p-4 text-sm leading-7">
                 برای محاسبه ارسال، ابتدا نشانی و گیرنده را وارد کنید. این اطلاعات برای خرید بعدی ذخیره می‌شوند.
             </p>
-            <a href="{{ route('addresses.create', ['return' => 'checkout']) }}"
+            <a wire:navigate href="{{ route('addresses.create', ['return' => 'checkout']) }}"
                class="store-button store-button-primary mt-4 w-full sm:w-auto">
                 ثبت نشانی تحویل
             </a>
@@ -32,7 +32,7 @@
                                 @endif
                             </p>
                             <div class="flex items-center gap-3">
-                                <a href="{{ route('addresses.edit', ['address' => $address->id, 'return' => 'checkout']) }}"
+                                <a wire:navigate href="{{ route('addresses.edit', ['address' => $address->id, 'return' => 'checkout']) }}"
                                    class="store-inline-link">ویرایش</a>
                                 @if ($selectedAddress?->id !== $address->id)
                                     <form method="GET" action="{{ route('checkout.index') }}">
@@ -54,7 +54,7 @@
     <section class="store-card p-5 sm:p-7" aria-labelledby="order-summary-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 id="order-summary-title" class="text-lg font-extrabold">۲. خلاصه سفارش</h2>
-            <a href="{{ route('cart.index') }}" class="store-inline-link">ویرایش سبد</a>
+            <a wire:navigate href="{{ route('cart.index') }}" class="store-inline-link">ویرایش سبد</a>
         </div>
         <div class="mt-3 divide-y divide-[#e0e8de]">
             @foreach ($lines as $line)
@@ -93,7 +93,7 @@
         @if ($quoteError)
             <div role="alert" class="store-error-summary mt-5 rounded-xl p-4 text-sm leading-7">
                 {{ $quoteError }}
-                <a href="{{ route('cart.index') }}" class="mr-2 font-bold underline underline-offset-4">اصلاح سبد خرید</a>
+                <a wire:navigate href="{{ route('cart.index') }}" class="mr-2 font-bold underline underline-offset-4">اصلاح سبد خرید</a>
             </div>
         @elseif ($quote !== null && $checkoutKey !== null)
             <p class="mt-5 text-sm leading-7 text-[#657967]">

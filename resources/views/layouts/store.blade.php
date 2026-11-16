@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/landing.css', 'resources/js/store.js'])
+    @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
+    @livewireStyles
 </head>
 <body class="landing store-shell min-h-screen antialiased">
     @php
@@ -18,7 +19,7 @@
     <a href="#store-main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به محتوای اصلی</a>
     <header class="store-header">
         <nav class="landing-container store-header-inner flex flex-wrap items-center justify-between gap-3 py-3" aria-label="ناوبری فروشگاه">
-            <a class="store-brand" href="{{ route('home') }}" aria-label="دناپکس، بازگشت به محصولات">
+            <a wire:navigate class="store-brand" href="{{ route('home') }}" aria-label="دناپکس، بازگشت به محصولات">
                 <svg class="store-brand-mark" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="currentColor"/>
@@ -30,8 +31,8 @@
                 </span>
             </a>
             <div class="store-header-nav">
-                <a href="{{ route('home') }}#products" class="store-header-link">محصولات</a>
-                <a href="{{ route('cart.index') }}" class="store-header-link store-header-cart"
+                <a wire:navigate href="{{ route('home') }}#products" class="store-header-link">محصولات</a>
+                <a wire:navigate href="{{ route('cart.index') }}" class="store-header-link store-header-cart"
                    @if (request()->routeIs('cart.index')) aria-current="page" @endif>
                     سبد خرید
                     @if ($cartQuantity > 0)
@@ -44,9 +45,9 @@
                             حساب من <span aria-hidden="true">⌄</span>
                         </summary>
                         <div class="store-account-dropdown">
-                            <a href="{{ route('orders.index') }}">سفارش‌های من</a>
-                            <a href="{{ route('addresses.index') }}">نشانی‌ها</a>
-                            <a href="{{ route('customer.notifications.index') }}">پیام‌ها</a>
+                            <a wire:navigate href="{{ route('orders.index') }}">سفارش‌های من</a>
+                            <a wire:navigate href="{{ route('addresses.index') }}">نشانی‌ها</a>
+                            <a wire:navigate href="{{ route('customer.notifications.index') }}">پیام‌ها</a>
                             <form method="POST" action="{{ route('customer.logout') }}">
                                 @csrf
                                 <button type="submit">خروج از حساب</button>
@@ -54,7 +55,7 @@
                         </div>
                     </details>
                 @else
-                    <a href="{{ route('customer.login') }}" class="store-header-link">ورود</a>
+                    <a wire:navigate href="{{ route('customer.login') }}" class="store-header-link">ورود</a>
                 @endauth
             </div>
         </nav>
@@ -98,7 +99,8 @@
     </main>
     <footer class="store-footer landing-container mx-auto flex flex-wrap items-center justify-between gap-2 py-6 text-xs">
         <span>دناپکس · سوغات و خشکبار دنا</span>
-        <a class="store-inline-link" href="{{ route('home') }}#products">بازگشت به فروشگاه</a>
+        <a wire:navigate class="store-inline-link" href="{{ route('home') }}#products">بازگشت به فروشگاه</a>
     </footer>
+    @livewireScripts
 </body>
 </html>

@@ -37,8 +37,11 @@ window.addEventListener('pageshow', resetPendingForms);
 
 
 // Copy controls are progressive enhancements; numbers remain visible/selectable without JS.
-if (navigator.clipboard?.writeText) {
+function initializeCopyControls() {
+    if (!navigator.clipboard?.writeText) return;
     document.querySelectorAll('[data-copy-value]').forEach((button) => {
+        if (button.dataset.copyInitialized === 'true') return;
+        button.dataset.copyInitialized = 'true';
         button.hidden = false;
         button.addEventListener('click', async () => {
             const label = button.dataset.copyLabel || 'کپی';
@@ -52,3 +55,8 @@ if (navigator.clipboard?.writeText) {
         });
     });
 }
+document.addEventListener('livewire:navigated', () => {
+    resetPendingForms();
+    initializeCopyControls();
+});
+initializeCopyControls();

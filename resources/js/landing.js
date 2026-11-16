@@ -1,4 +1,6 @@
-import Alpine from 'alpinejs';
+document.addEventListener('alpine:init', () => {
+    // Livewire 4 owns Alpine. Register once for all SPA-like visits.
+    const Alpine = window.Alpine;
 
 Alpine.data('landingPage', () => ({
     menuOpen: false,
@@ -304,5 +306,4 @@ Alpine.data('landingPage', () => ({
     },
 }));
 
-window.Alpine = Alpine;
-Alpine.start();
+});

@@ -2,14 +2,14 @@
     <section class="store-card p-5 sm:p-8">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h1 class="store-heading">سبد خرید</h1>
-            <a href="{{ route('home') }}#products"
+            <a wire:navigate href="{{ route('home') }}#products"
                class="store-inline-link">ادامه انتخاب محصولات</a>
         </div>
 
         @forelse ($lines as $line)
             <article class="flex flex-col justify-between gap-4 border-b border-[#d6ded4] py-5 sm:flex-row sm:items-center">
                 <div class="min-w-0">
-                    <a class="font-extrabold underline underline-offset-4" href="{{ route('products.show', $line['variant']->product->slug) }}">
+                    <a wire:navigate class="font-extrabold underline underline-offset-4" href="{{ route('products.show', $line['variant']->product->slug) }}">
                         {{ $line['variant']->product->title }}
                     </a>
                     <p class="mt-1 text-sm text-[#687c69]">{{ $line['variant']->title }}</p>
@@ -39,7 +39,7 @@
         @empty
             <div class="py-12 text-center">
                 <p class="text-base font-semibold">سبد خرید شما خالی است.</p>
-                <a href="{{ route('home') }}#products"
+                <a wire:navigate href="{{ route('home') }}#products"
                    class="store-button store-button-primary mt-5">دیدن محصولات دنا</a>
             </div>
         @endforelse
@@ -52,7 +52,7 @@
             @if ($lines->contains(fn ($line) => ! $line['available']))
                 <p role="alert" class="mt-5 rounded-xl bg-red-50 p-4 text-sm leading-7 text-red-800">پیش از ادامه، اقلام ناموجود را حذف کنید.</p>
             @else
-                <a href="{{ route('checkout.index') }}"
+                <a wire:navigate href="{{ route('checkout.index') }}"
                    class="store-button store-button-primary mt-6 min-h-14 w-full text-base">
                     @auth('customer')
                         ادامه به نشانی و پرداخت

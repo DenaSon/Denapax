@@ -35,6 +35,19 @@ class PublicLandingTest extends TestCase
             ->assertSee('href="#top"', false);
     }
 
+    public function test_public_layouts_use_one_livewire_navigation_runtime(): void
+    {
+        $this->get('/')->assertOk()->assertSee('wire:navigate', false)->assertSee('livewire', false);
+        $this->get(route('cart.index'))->assertOk()->assertSee('wire:navigate', false);
+
+        $this->assertStringContainsString('resources/js/storefront.js', file_get_contents(resource_path('views/landing/index.blade.php')));
+        $this->assertStringContainsString('resources/js/storefront.js', file_get_contents(resource_path('views/layouts/store.blade.php')));
+
+        $this->assertStringNotContainsString("import Alpine from 'alpinejs'", file_get_contents(resource_path('js/landing.js')));
+        $this->assertStringContainsString("document.addEventListener('alpine:init'", file_get_contents(resource_path('js/landing.js')));
+        $this->assertStringContainsString("document.addEventListener('livewire:navigated'", file_get_contents(resource_path('js/product-gallery.js')));
+    }
+
     public function test_chapter_navigation_matches_three_landing_menu_sections(): void
     {
         $html = $this->get('/')->assertOk()->getContent();
@@ -266,7 +279,8 @@ class PublicLandingTest extends TestCase
             ->assertViewHas('photos', fn ($photos): bool => $photos->count() === 3)
             ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$variant->id] === 2);
 
-        $this->assertStringContainsString('product-gallery.js', file_get_contents(base_path('vite.config.js')));
+        $this->assertStringContainsString('storefront.js', file_get_contents(base_path('vite.config.js')));
+        $this->assertStringContainsString("import './product-gallery';", file_get_contents(resource_path('js/storefront.js')));
         $this->assertStringContainsString(
             "@source '../js/product-gallery.js';",
             file_get_contents(resource_path('css/landing.css')),

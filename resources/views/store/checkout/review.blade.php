@@ -39,7 +39,7 @@
                 <input type="hidden" name="checkout_key" value="{{ $checkoutKey }}">
                 <button type="submit" class="rounded-full bg-[#19392f] px-8 py-4 font-bold text-white">ثبت سفارش و ادامه به پرداخت</button>
             </form>
-            <a href="{{ route('checkout.index') }}" class="text-sm font-bold underline underline-offset-4">تغییر نشانی یا سبد</a>
+            <a wire:navigate href="{{ route('checkout.index') }}" class="text-sm font-bold underline underline-offset-4">تغییر نشانی یا سبد</a>
         </div>
     </section>
 @endcomponent

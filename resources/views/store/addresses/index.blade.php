@@ -5,7 +5,7 @@
             <h1 class="store-heading mt-2">نشانی‌های تحویل</h1>
             <p class="mt-2 text-sm text-[#647565]">برای سفارش‌های بعدی می‌توانید چند نشانی ذخیره کنید.</p>
         </div>
-        <a href="{{ route('addresses.create') }}" class="store-button store-button-primary">افزودن نشانی جدید</a>
+        <a wire:navigate href="{{ route('addresses.create') }}" class="store-button store-button-primary">افزودن نشانی جدید</a>
     </div>
     <div class="grid gap-4 md:grid-cols-2">
         @forelse ($addresses as $address)
@@ -20,7 +20,7 @@
                 <p class="mt-2 text-sm leading-8 text-[#687969]">{{ $address->province }}، {{ $address->city }}، {{ $address->address_line }}</p>
                 <p class="mt-2 text-xs text-[#687969]">کد پستی: <span dir="ltr">{{ $address->postal_code }}</span></p>
                 <div class="mt-6 flex flex-wrap items-center gap-3 border-t border-[#e4e9e1] pt-4 text-sm">
-                    <a class="store-inline-link" href="{{ route('addresses.edit', $address->id) }}">ویرایش</a>
+                    <a wire:navigate class="store-inline-link" href="{{ route('addresses.edit', $address->id) }}">ویرایش</a>
                     @unless ($address->is_default)
                         <form action="{{ route('addresses.default', $address->id) }}" method="POST">
                             @csrf
@@ -39,5 +39,5 @@
             </div>
         @endforelse
     </div>
-    <a href="{{ route('checkout.index') }}" class="store-inline-link mt-8">بازگشت به تسویه‌حساب</a>
+    <a wire:navigate href="{{ route('checkout.index') }}" class="store-inline-link mt-8">بازگشت به تسویه‌حساب</a>
 @endcomponent

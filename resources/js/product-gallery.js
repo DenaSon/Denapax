@@ -1,6 +1,15 @@
 // Progressive gallery: native image links still work if JS is unavailable.
 // No third-party slider, DOM HTML injection or client-side pricing logic.
+// The script is evaluated only once by Vite. Remount for every wire:navigate
+// visit, and abort document-level handlers before Livewire swaps the page.
+const galleryControllers = new Set();
+
+function mountGalleries() {
 document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
+    if (gallery.dataset.galleryMounted === 'true') return;
+    gallery.dataset.galleryMounted = 'true';
+    const controller = new AbortController();
+    galleryControllers.add({ controller, gallery });
     const thumbs = Array.from(gallery.querySelectorAll('[data-gallery-thumb]'));
     const mainLink = gallery.querySelector('[data-gallery-open]');
     const mainImage = gallery.querySelector('[data-gallery-main]');
@@ -138,7 +147,7 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
         if (event.key === 'ArrowRight') { event.preventDefault(); step(-1); }
         if (event.key === '+' || event.key === '=') { event.preventDefault(); setZoom(zoom + 0.5); }
         if (event.key === '-') { event.preventDefault(); setZoom(zoom - 0.5); }
-    });
+    }, { signal: controller.signal });
 
     const touchDistance = (touches) => Math.hypot(
         touches[0].clientX - touches[1].clientX,
@@ -227,3 +236,15 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
     gallery.classList.add('is-ready');
     updateZoom();
 });
+}
+
+document.addEventListener('livewire:navigating', () => {
+    for (const { controller, gallery } of galleryControllers) {
+        const dialog = gallery.querySelector('[data-gallery-lightbox]');
+        if (dialog?.open) dialog.close();
+        controller.abort();
+    }
+    galleryControllers.clear();
+});
+document.addEventListener('livewire:navigated', mountGalleries);
+mountGalleries();
