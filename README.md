@@ -23,12 +23,16 @@ The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](d
 
 **Manual card-to-card transfer and private receipt upload are the primary payment UI when `ZARINPAL_ENABLED=false` (default).** Staff verify the actual bank deposit and approve/reject in `/admin/payments`. Zarinpal code remains integrated and switches to the primary online CTA automatically when `ZARINPAL_ENABLED=true` and a valid merchant ID are configured in the deployment environment, after live acceptance; manual receipts remain a fallback. No migration is needed to change this flag. The owner-reported live deployment is not proof of SMS OTP delivery or settlement checks; real checkout requires a configured SMS transport. See [manual-first rollout](docs/45-manual-receipt-first-rollout.md) and [release readiness](docs/38-web-phase4-release-readiness.md).
 
+## Customer landing and shopping polish — 2026-11-16
+
+Navigation and accessibility [#92](https://github.com/DenaSon/Denapax/pull/92): three editorial landing sections instead of the confusing four numbered rail entries, correct mobile cart route, pointer cursors for interactive controls. Premium landing polish [#93](https://github.com/DenaSon/Denapax/pull/93): centered Dena photo hero, factual value strip, consistent product-card visuals, clearer Dena story and final order CTA. Faster shopping [#94](https://github.com/DenaSon/Denapax/pull/94): the landing preview submits the chosen variant and quantity to the existing server-validated, CSRF-protected guest/customer cart route, and header badges show total units. All remain subject to actual Runflare deployment and mobile/keyboard acceptance. [Visual QA and scope](docs/47-landing-ui-ux-polish.md).
+
 ## Current web user journey
 
 1. Public `/` and `/products/{slug}` — search products and variants; mobile-first image gallery with swipe, selectable thumbnails, full-screen pinch zoom and photo switching by selected variant.
 2. `/cart` — guest/persisted cart; mobile OTP login at `/customer/login` when required.
 3. `/account/addresses`, `/checkout` — saved delivery address, authoritative delivery/shipping quote and exact total with **one-tap order confirmation on the same page**. Previous `/checkout/review` remains compatible but is not in the normal path.
-4. `/orders/{orderNumber}` — order hub: **Zarinpal primary**, manual card-to-card + image receipt fallback, payment/fulfillment status and tracking.
+4. `/orders/{orderNumber}` — order hub: **manual card-to-card and private receipt first** while `ZARINPAL_ENABLED=false`; Zarinpal becomes primary after real merchant activation, with manual fallback, payment/fulfillment status and tracking.
 5. `/orders` — customer-owned order history; `/account/notifications` — customer-owned inbox; `/admin` — separate staff-only admin.
 
 Payments are **not** proved by return-page parameters or uploaded receipt images. Only a server-verified Zarinpal transaction or staff-approved bank receipt can confirm an order. Receipt media is stored on the non-public `receipts` disk. The current database uses `is_available` product flags rather than numeric inventory reservations.

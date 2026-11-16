@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\Actions\StoreCart;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Money;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 
 class PublicLandingController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request, StoreCart $cart): View
     {
         $orderable = static fn ($query) => $query->where('is_available', true)->where('price_irr', '>', 0);
 
@@ -88,6 +89,7 @@ class PublicLandingController extends Controller
                     ->values()->all(),
                 'variants' => $product->variants
                     ->map(fn ($variant): array => [
+                        'id' => $variant->id,
                         'title' => $variant->title,
                         'size' => rtrim(rtrim((string) $variant->sale_quantity, '0'), '.').' '.match ($variant->sale_unit) {
                             'g' => 'گرم',
@@ -112,6 +114,8 @@ class PublicLandingController extends Controller
             'inLanguage' => 'fa-IR',
         ];
 
-        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'search', 'productPreviews', 'websiteSchema'));
+        $cartQuantity = $cart->quantity($request->user('customer'));
+
+        return view('landing.index', compact('categories', 'products', 'selectedCategory', 'search', 'productPreviews', 'websiteSchema', 'cartQuantity'));
     }
 }

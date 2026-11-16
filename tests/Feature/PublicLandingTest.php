@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -291,6 +292,54 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('/products/hidden', false);
 
         $this->get('/')->assertOk()->assertSee('href="'.route('products.show', ['slug' => $active->slug]).'"', false);
+    }
+
+    public function test_product_preview_posts_selected_variant_to_existing_guest_cart_endpoint(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردو دنا', 'dena-walnut', 500000);
+        $variantId = $product->variants()->firstOrFail()->id;
+
+        $this->get('/')->assertOk()
+            ->assertSee('action="'.route('cart.add').'"', false)
+            ->assertSee('x-bind:value="preview.variants[previewVariantIndex].id"', false)
+            ->assertSee('"id":'.$variantId, false)
+            ->assertSee('name="quantity"', false)
+            ->assertSee('افزودن به سبد خرید');
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variantId,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        $this->get('/')->assertOk()
+            ->assertViewHas('cartQuantity', 2)
+            ->assertSee('تعداد اقلام سبد خرید: 2');
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('تعداد اقلام سبد خرید: 2')
+            ->assertSee('گردو دنا');
+    }
+
+    public function test_signed_in_cart_quantity_uses_existing_cart_without_creating_empty_one(): void
+    {
+        $customer = Customer::create(['mobile' => '09120000091', 'mobile_verified_at' => now()]);
+        $this->actingAs($customer, 'customer');
+
+        $this->assertFalse($customer->cart()->exists());
+        $this->get('/')->assertOk()->assertViewHas('cartQuantity', 0);
+        $this->assertFalse($customer->cart()->exists());
+
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'مغز گردو دنا', 'dena-kernels', 790000);
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $product->variants()->firstOrFail()->id,
+            'quantity' => 3,
+        ])->assertRedirect(route('cart.index'));
+
+        $this->get('/')->assertOk()->assertViewHas('cartQuantity', 3);
+        $this->get(route('cart.index'))->assertOk()->assertSee('تعداد اقلام سبد خرید: 3');
     }
 
     public function test_public_catalog_has_web_cart_links_without_bot_dependencies(): void
