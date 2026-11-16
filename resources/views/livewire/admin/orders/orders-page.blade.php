@@ -42,7 +42,7 @@
                         <span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($order->order_status) }}">{{ \App\Support\AdminLabels::order($order->order_status) }}</span>
                         <span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($order->payment_status) }}">{{ \App\Support\AdminLabels::payment($order->payment_status) }}</span>
                     </div>
-                    <a class="btn btn-primary mt-4 w-full" href="{{ route('admin.orders.show', $order) }}">جزئیات و اقدامات</a>
+                    <a wire:navigate class="btn btn-primary mt-4 w-full" href="{{ route('admin.orders.show', $order) }}">جزئیات و اقدامات</a>
                 </article>
             @empty
                 <p class="py-7 text-center text-sm text-[#647568]">سفارشی با این فیلترها پیدا نشد.</p>
@@ -59,7 +59,7 @@
                             <td class="admin-money font-bold">{{ \App\Support\Money::formatToman($order->total_irr) }}</td>
                             <td><span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($order->order_status) }}">{{ \App\Support\AdminLabels::order($order->order_status) }}</span></td>
                             <td><span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($order->payment_status) }}">{{ \App\Support\AdminLabels::payment($order->payment_status) }}</span></td>
-                            <td><a class="btn btn-outline btn-sm" href="{{ route('admin.orders.show', $order) }}">جزئیات</a></td>
+                            <td><a wire:navigate class="btn btn-outline btn-sm" href="{{ route('admin.orders.show', $order) }}">جزئیات</a></td>
                         </tr>
                     @empty
                         <tr><td colspan="6" class="py-8 text-center">سفارشی با این فیلترها پیدا نشد.</td></tr>
