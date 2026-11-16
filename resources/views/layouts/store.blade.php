@@ -12,6 +12,7 @@
     @vite(['resources/css/landing.css', 'resources/js/store.js'])
 </head>
 <body class="landing store-shell min-h-screen antialiased">
+    @php($cartQuantity = app(\App\Application\Actions\StoreCart::class)->quantity(auth('customer')->user()))
     <a href="#store-main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به محتوای اصلی</a>
     <header class="store-header">
         <nav class="landing-container store-header-inner flex flex-wrap items-center justify-between gap-3 py-3" aria-label="ناوبری فروشگاه">
@@ -29,7 +30,12 @@
             <div class="store-header-nav">
                 <a href="{{ route('home') }}#products" class="store-header-link">محصولات</a>
                 <a href="{{ route('cart.index') }}" class="store-header-link store-header-cart"
-                   @if (request()->routeIs('cart.index')) aria-current="page" @endif>سبد خرید</a>
+                   @if (request()->routeIs('cart.index')) aria-current="page" @endif>
+                    سبد خرید
+                    @if ($cartQuantity > 0)
+                        <span class="store-cart-count" aria-label="تعداد اقلام سبد خرید: {{ $cartQuantity }}">{{ $cartQuantity }}</span>
+                    @endif
+                </a>
                 @auth('customer')
                     <details class="store-account-menu">
                         <summary class="store-header-link" aria-label="بازکردن منوی حساب مشتری">
