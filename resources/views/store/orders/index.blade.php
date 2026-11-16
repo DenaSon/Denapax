@@ -8,7 +8,7 @@
     <div class="space-y-4">
         @forelse ($orders as $order)
             @php($hasUnresolvedPayment = $order->gatewayAttempts->contains(fn ($attempt) => $attempt->blocksNewPayment()))
-            <a href="{{ route('orders.confirmation', $order->order_number) }}"
+            <a wire:navigate href="{{ route('orders.confirmation', $order->order_number) }}"
                class="store-card store-order-card block p-5 sm:p-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -38,7 +38,7 @@
         @empty
             <div class="store-card p-10 text-center">
                 <h2 class="text-lg font-bold">هنوز سفارشی ثبت نکرده‌اید.</h2>
-                <a href="{{ route('home') }}#products" class="store-button store-button-primary mt-5">دیدن محصولات</a>
+                <a wire:navigate href="{{ route('home') }}#products" class="store-button store-button-primary mt-5">دیدن محصولات</a>
             </div>
         @endforelse
     </div>
