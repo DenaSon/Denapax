@@ -93,7 +93,6 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 }
 .product-card:hover .product-card-image { transform: scale(1.055); }
 .product-card:focus-within .product-card-image { transform: scale(1.04); }
-.product-card-featured .product-card-image { aspect-ratio: 1.34 / 1; }
 .product-card::before {
     content: '';
     position: absolute;
@@ -115,7 +114,6 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 @media (min-width: 768px) {
     .landing-container { width: min(100% - 5rem, 1376px); }
     .landing-hero { border-radius: 0 0 3.75rem 3.75rem; }
-    .product-card-featured .product-card-image { aspect-ratio: 1.43 / 1; }
 }
 @media (max-width: 767px) {
     .landing-hero { min-height: 690px; }
@@ -123,7 +121,6 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .landing-hero::after {
         background: linear-gradient(180deg, rgba(14,42,35,.63), rgba(14,42,35,.74) 48%, rgba(14,42,35,.18) 100%);
     }
-    .product-card-featured .product-card-image { aspect-ratio: 1.14 / 1; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
@@ -489,6 +486,196 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     #products .product-card { transition: none; }
 }
 
+
+/* Premium editorial refresh: keep the nature-led palette, but prioritize
+   practical product information and a predictable purchase path. */
+.landing:not(.store-shell) .landing-hero {
+    box-shadow: 0 25px 75px -58px rgba(12, 39, 27, .8);
+}
+.landing:not(.store-shell) .landing-hero .landing-display {
+    text-wrap: balance;
+    text-shadow: 0 5px 32px rgba(5, 25, 18, .18);
+}
+.landing-hero-secondary {
+    display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    padding: .6rem .5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .62);
+    color: #f1ecdb;
+    transition: color .2s ease, border-color .2s ease;
+}
+.landing-hero-secondary:hover { color: #fff; border-color: #fff; }
+
+.landing-assurance {
+    border-bottom: 1px solid #e0e2d7;
+    background: #f4f1e8;
+}
+.landing-assurance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding-block: 1.45rem;
+}
+.landing-assurance-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: .9rem;
+}
+.landing-assurance-item:not(:last-child) {
+    border-inline-end: 1px solid #d8ddcd;
+}
+.landing-assurance-item strong, .landing-assurance-item small {
+    display: block;
+}
+.landing-assurance-item strong {
+    color: #254735;
+    font-size: .8rem;
+    font-weight: 800;
+    line-height: 1.7;
+}
+.landing-assurance-item small {
+    margin-top: .2rem;
+    color: #6b796a;
+    font-size: .72rem;
+    line-height: 1.65;
+}
+.landing-assurance-icon {
+    display: inline-grid;
+    width: 2.55rem;
+    height: 2.55rem;
+    flex: none;
+    place-items: center;
+    border: 1px solid #ccd5c5;
+    border-radius: 50%;
+    background: #e8ecdf;
+    color: #335a42;
+    font-size: 1.15rem;
+}
+.landing-search-input {
+    min-height: 50px;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+.landing-search-input:focus-visible { border-color: #567760; background: #fff; }
+.landing-search-button {
+    min-height: 50px;
+    box-shadow: 0 10px 24px -16px rgba(18, 50, 31, .65);
+    transition: background-color .2s ease, transform .2s ease;
+}
+.landing-search-button:hover { background-color: #315c43; transform: translateY(-1px); }
+
+.landing:not(.store-shell) .product-card {
+    border: 1px solid #dde1d6;
+    border-radius: 1.4rem;
+    box-shadow: 0 16px 42px -38px rgba(18, 49, 32, .55);
+    transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;
+}
+.landing:not(.store-shell) .product-card:hover {
+    border-color: #aebdab;
+    box-shadow: 0 22px 48px -33px rgba(18, 49, 32, .5);
+    transform: translateY(-3px);
+}
+.landing:not(.store-shell) .product-card-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+.landing:not(.store-shell) .product-card:hover .product-card-image { transform: scale(1.035); }
+.product-card-action { white-space: nowrap; }
+.product-card:focus-within { outline: 2px solid #315e48; outline-offset: 4px; }
+
+.landing-story-panel {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    max-width: 620px;
+    min-height: 370px;
+    aspect-ratio: 1.11;
+    overflow: hidden;
+    border: 8px solid rgba(246, 245, 231, .85);
+    border-radius: 2rem 2rem 7rem 2rem;
+    background: #264b38;
+    box-shadow: 0 28px 72px -45px rgba(17, 48, 31, .58);
+}
+.landing-story-image {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(0deg, rgba(10, 31, 24, .77), transparent 56%),
+        url('https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg'),
+        url('/images/dena-landscape.svg');
+    background-position: center, center 48%, center;
+    background-size: cover;
+    transition: transform .8s cubic-bezier(.19, 1, .22, 1);
+}
+.landing-story-panel:hover .landing-story-image { transform: scale(1.035); }
+.landing-story-caption {
+    position: absolute;
+    inset-inline: 1.65rem;
+    bottom: 1.7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .35rem;
+    color: #fff;
+    text-shadow: 0 3px 18px rgba(0, 0, 0, .38);
+}
+.landing-story-caption-kicker { font-size: .7rem; letter-spacing: .18em; color: #e8ead8; }
+.landing-story-caption-title { font-size: clamp(1.65rem, 3vw, 2.8rem); font-weight: 850; line-height: 1.5; }
+.landing-story-caption-detail { font-size: .85rem; color: #e4e8db; }
+
+.landing-order-section {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(3rem, 5vw, 5.6rem);
+}
+.landing-order-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .10;
+    background-image: url('/images/dena-contours.svg');
+    background-size: cover;
+    pointer-events: none;
+}
+.landing-order-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+.landing-order-button { flex: none; box-shadow: 0 12px 26px -18px rgba(0, 0, 0, .38); }
+
+@media (max-width: 767px) {
+    .landing-assurance-grid {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-block: 1.1rem;
+        scrollbar-width: thin;
+        scroll-snap-type: x proximity;
+    }
+    .landing-assurance-item { min-width: 215px; scroll-snap-align: start; }
+    .landing-assurance-item:not(:last-child) { padding-inline-end: .8rem; }
+    .landing-story-panel { min-height: 330px; aspect-ratio: 1.22; border-width: 6px; border-radius: 1.35rem 1.35rem 4rem 1.35rem; }
+    .landing-story-caption { bottom: 1.2rem; inset-inline: 1.2rem; }
+    .landing-order-content { flex-direction: column; align-items: stretch; text-align: center; gap: 1.4rem; }
+    .landing-order-button { width: 100%; }
+}
+@media (max-width: 380px) {
+    .product-card-action { font-size: .68rem; }
+    .product-card-action .product-arrow { width: 2.35rem; height: 2.35rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .landing:not(.store-shell) .product-card,
+    .landing-story-image, .landing-search-button { transition: none; }
+    .landing-story-panel:hover .landing-story-image,
+    .landing:not(.store-shell) .product-card:hover { transform: none; }
+}
 
 /* Web Store: customer-first design system, isolated from the public editorial landing. */
 .store-shell {
