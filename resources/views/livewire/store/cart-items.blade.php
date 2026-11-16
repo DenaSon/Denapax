@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <p class="store-cart-empty-kicker">هنوز چیزی انتخاب نکرده‌اید</p>
-            <h2>سبد خرید شما خالی است</h2>
+            <h2>سبد خرید شما خالی است.</h2>
             <p>محصولات محلی دنا را ببینید و هرچه دوست دارید به سبدتان اضافه کنید.</p>
             <a wire:navigate href="{{ route('home') }}#products" class="store-button store-button-primary store-cart-empty-cta">
                 مشاهده محصولات
