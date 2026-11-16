@@ -34,6 +34,32 @@ class PublicLandingTest extends TestCase
             ->assertSee('href="#top"', false);
     }
 
+    public function test_chapter_navigation_matches_three_landing_menu_sections(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertSame(1, preg_match('/<nav class="landing-chapter-rail"[^>]*>(.*?)<\\/nav>/s', $html, $matches));
+        $rail = $matches[1];
+
+        $this->assertSame(3, substr_count($rail, '<a href='));
+        $this->assertStringContainsString('href="#products"', $rail);
+        $this->assertStringContainsString('href="#story"', $rail);
+        $this->assertStringContainsString('href="#order"', $rail);
+        $this->assertStringNotContainsString('href="#top"', $rail);
+        $this->assertStringContainsString('href="'.route('cart.index').'"', $html);
+    }
+
+    public function test_interactive_buttons_have_pointer_styles_without_exposing_disabled_actions(): void
+    {
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('button:not(:disabled)', $css);
+        $this->assertStringContainsString('cursor: pointer', $css);
+        $this->assertStringContainsString('cursor: not-allowed', $css);
+
+        $adminCss = file_get_contents(resource_path('css/app.css'));
+        $this->assertStringContainsString('.admin-shell :is(a[href]', $adminCss);
+    }
+
     public function test_refreshed_landing_keeps_real_category_links_and_compact_static_sections(): void
     {
         $nuts = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
