@@ -21,33 +21,7 @@
                 ثبت نشانی تحویل
             </a>
         @else
-            <div class="mt-4 space-y-3">
-                @foreach ($addresses as $address)
-                    <div class="rounded-2xl border p-4 {{ $selectedAddress?->id === $address->id ? 'border-[#346349] bg-[#edf4eb]' : 'border-[#d8ddd3] bg-white' }}">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <p class="font-bold">
-                                {{ $address->label ?: $address->city }}
-                                @if ($selectedAddress?->id === $address->id)
-                                    <span class="mr-2 text-xs font-semibold text-[#38684b]">✓ انتخاب‌شده</span>
-                                @endif
-                            </p>
-                            <div class="flex items-center gap-3">
-                                <a wire:navigate href="{{ route('addresses.edit', ['address' => $address->id, 'return' => 'checkout']) }}"
-                                   class="store-inline-link">ویرایش</a>
-                                @if ($selectedAddress?->id !== $address->id)
-                                    <form method="GET" action="{{ route('checkout.index') }}">
-                                        <button type="submit" name="address_id" value="{{ $address->id }}"
-                                                class="store-button store-button-outline !min-h-11 !px-4 !py-2 text-sm">
-                                            انتخاب این نشانی
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                        <p class="mt-2 text-sm leading-7 text-[#657967]">{{ $address->recipient_name }} · {{ $address->province }}، {{ $address->city }}، {{ $address->address_line }}</p>
-                    </div>
-                @endforeach
-            </div>
+            <livewire:store.address-picker :selected-address-id="$selectedAddress?->id" />
         @endif
     </section>
 
@@ -106,7 +80,7 @@
                     ثبت سفارش و ادامه به پرداخت
                 </button>
             </form>
-            <p class="mt-3 text-center text-xs leading-6 text-[#728272]">در صفحه بعد می‌توانید زرین‌پال یا کارت‌به‌کارت را انتخاب کنید.</p>
+            <p class="mt-3 text-center text-xs leading-6 text-[#728272]">در صفحه بعد روش‌های پرداخت فعال فروشگاه و دستورالعمل ارسال رسید را مشاهده می‌کنید.</p>
         @endif
     </section>
 @endcomponent
