@@ -16,6 +16,8 @@ Alpine.data('landingPage', () => ({
     preview: null,
     previewImageIndex: 0,
     previewVariantIndex: 0,
+    previewQuantity: 1,
+    cartSubmitting: false,
     previewReturnFocus: null,
     priorScrollLock: '',
     onScroll: null,
@@ -235,6 +237,8 @@ Alpine.data('landingPage', () => ({
         this.preview = item;
         this.previewImageIndex = 0;
         this.previewVariantIndex = 0;
+        this.previewQuantity = 1;
+        this.cartSubmitting = false;
         this.previewReturnFocus = event?.currentTarget ?? document.activeElement;
 
         this.$nextTick(() => {
@@ -256,6 +260,8 @@ Alpine.data('landingPage', () => ({
         this.preview = null;
         this.previewImageIndex = 0;
         this.previewVariantIndex = 0;
+        this.previewQuantity = 1;
+        this.cartSubmitting = false;
         this.$nextTick(() => {
             this.previewReturnFocus?.focus?.();
             this.previewReturnFocus = null;
