@@ -36,7 +36,7 @@
 
     <header class="relative bg-[#17382d] text-[#f4f0e7]">
         <div class="landing-container flex min-h-22 flex-wrap items-center justify-between gap-4 py-4 md:min-h-26">
-            <a href="{{ route('home') }}" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e8d3b1]" aria-label="بازگشت به صفحه اصلی دناپکس">
+            <a wire:navigate href="{{ route('home') }}" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e8d3b1]" aria-label="بازگشت به صفحه اصلی دناپکس">
                 <svg class="h-9 w-11" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
@@ -45,18 +45,18 @@
                 <span class="text-xl font-extrabold tracking-tight" lang="en">DenaPax</span>
             </a>
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-5 text-xs font-semibold text-[#e6e8d4] sm:text-sm">
-                <a class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
-                <a class="transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
-                <a class="rounded-full border border-white/40 px-4 py-2 transition hover:bg-white hover:text-[#19392f]" href="{{ route('cart.index') }}">سبد خرید</a>
+                <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
+                <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
+                <a wire:navigate class="rounded-full border border-white/40 px-4 py-2 transition hover:bg-white hover:text-[#19392f]" href="{{ route('cart.index') }}">سبد خرید</a>
             </nav>
         </div>
     </header>
 
     <main id="product-content" class="landing-container pb-24 pt-8 md:pb-32 md:pt-12">
         <nav aria-label="مسیر صفحه" class="mb-10 flex flex-wrap items-center gap-2 text-xs text-[#627664]">
-            <a class="hover:text-[#1d4130]" href="{{ route('home') }}">خانه</a>
+            <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('home') }}">خانه</a>
             <span aria-hidden="true">/</span>
-            <a class="hover:text-[#1d4130]" href="{{ route('home') }}?category={{ urlencode($product->category->slug) }}#products">{{ $product->category->name }}</a>
+            <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('home') }}?category={{ urlencode($product->category->slug) }}#products">{{ $product->category->name }}</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page" class="font-semibold text-[#244633]">{{ $product->title }}</span>
         </nav>
@@ -215,7 +215,7 @@
                                 </button>
                             </div>
                         </form>
-                        <a href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[#315743] underline underline-offset-4">مشاهده سبد خرید</a>
+                        <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[#315743] underline underline-offset-4">مشاهده سبد خرید</a>
                     @else
                         <p class="mt-4 rounded-2xl bg-[#f8e9e4] p-5 text-sm leading-7 text-[#863c30]">فعلاً بسته‌ای برای سفارش این محصول موجود نیست.</p>
                     @endif
@@ -240,7 +240,7 @@
         </div>
 
         <div class="mt-15 border-t border-[#cbd5c4] pt-8">
-            <a class="inline-flex items-center gap-3 text-sm font-bold text-[#315743] hover:text-[#1b372b]" href="{{ route('home') }}#products">
+            <a wire:navigate class="inline-flex items-center gap-3 text-sm font-bold text-[#315743] hover:text-[#1b372b]" href="{{ route('home') }}#products">
                 <span aria-hidden="true">→</span>
                 بازگشت به همه محصولات
             </a>
@@ -249,7 +249,7 @@
 
     <footer class="bg-[#122e26] py-9 text-[#d6dfcf]">
         <div class="landing-container flex flex-wrap items-center justify-between gap-5">
-            <a href="{{ route('home') }}" class="text-xl font-extrabold text-white" lang="en">DenaPax.</a>
+            <a wire:navigate href="{{ route('home') }}" class="text-xl font-extrabold text-white" lang="en">DenaPax.</a>
             <span class="text-xs">سوغات و خشکبار؛ از دل دنا</span>
         </div>
     </footer>
