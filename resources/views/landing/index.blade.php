@@ -53,7 +53,7 @@
             </nav>
 
             <div class="hidden items-center gap-4 lg:flex">
-                <span class="text-xs tracking-[.25em] text-white/60" lang="en">NATURE • ORIGIN • TASTE</span>
+                <span class="text-xs tracking-[.04em] text-white/75">سوغات و خشکبار دنا</span>
                 <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">سبد خرید</a>
             </div>
 
@@ -90,21 +90,21 @@
                 <div class="mx-auto flex max-w-[760px] flex-col items-center" data-reveal>
                     <p class="landing-label mb-7 flex items-center justify-center gap-3 text-[#e3d4b7]">
                         <span class="h-px w-8 bg-[#ddc6a1]"></span>
-                        طعم‌هایی با ریشه در طبیعت
+                        سوغات و خشکبار از سرزمین دنا
                     </p>
                     <h1 id="hero-title" class="landing-display text-[clamp(4.25rem,9vw,8.3rem)]">
                         از دل
                         <span class="block landing-outline">دنا</span>
                     </h1>
                     <p class="mt-7 max-w-[460px] text-[15px] leading-8 text-white/85 md:mt-8 md:text-base md:leading-9">
-                        مجموعه‌ای از سوغات و خشکبار؛ با طعم‌ها و روایت‌هایی از سرزمین دنا.
+                        محصولاتی از دنا و نواحی پیرامونش؛ با مشخصات، وزن و قیمت روشن برای انتخابی ساده‌تر.
                     </p>
                     <div class="mt-8 flex flex-wrap items-center justify-center gap-5 md:mt-10">
                         <a href="#products" class="landing-button bg-[#e7e3d1] text-[#19392f] shadow-xl shadow-black/10 hover:bg-white">
                             محصولات را ببینید
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M5 19h14V5"/></svg>
                         </a>
-                        <span class="text-xs text-white/65">سوغات و خشکبار دناپکس</span>
+                        <a href="#story" class="landing-hero-secondary text-sm font-semibold">آشنایی با دنا</a>
                     </div>
                 </div>
                 <div class="absolute bottom-6 right-0 left-0 flex items-end justify-between text-[11px] text-white/70 md:bottom-8">
@@ -113,6 +113,23 @@
                         <span>برای دیدن محصولات اسکرول کنید</span>
                     </div>
                     <span class="tracking-[.25em]" lang="en">DENAPAX — 01</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-assurance" aria-label="ویژگی‌های خرید از دناپکس">
+            <div class="landing-container landing-assurance-grid">
+                <div class="landing-assurance-item">
+                    <span class="landing-assurance-icon" aria-hidden="true">✦</span>
+                    <span><strong>برگرفته از اقلیم دنا</strong><small>خشکبار و سوغات محلی</small></span>
+                </div>
+                <div class="landing-assurance-item">
+                    <span class="landing-assurance-icon" aria-hidden="true">◎</span>
+                    <span><strong>انتخاب آگاهانه</strong><small>وزن، مشخصات و قیمت به تومان</small></span>
+                </div>
+                <div class="landing-assurance-item">
+                    <span class="landing-assurance-icon" aria-hidden="true">↗</span>
+                    <span><strong>سفارش مستقیم</strong><small>سبد خرید، نشانی و تأیید پرداخت</small></span>
                 </div>
             </div>
         </section>
@@ -127,7 +144,7 @@
                     <h2 id="products-title" class="landing-display text-[clamp(2.9rem,6.2vw,6.1rem)]">
                         انتخاب‌های <span class="landing-outline-dark">دنا</span>
                     </h2>
-                    <p class="mt-5 text-sm leading-8 text-[#718276]">محصولات منتشرشده فروشگاه، مستقیم از کاتالوگ دناپکس</p>
+                    <p class="mt-5 text-sm leading-8 text-[#718276]">خشکبار و سوغات دنا را با تصویر، وزن و قیمت مشخص ببینید و انتخاب کنید.</p>
                 </div>
                 <span class="text-xs text-[#718276]" data-reveal>
                     {{ $products->total() }} محصول
@@ -141,8 +158,8 @@
                 <label for="catalog-search" class="sr-only">جستجو در محصولات</label>
                 <input id="catalog-search" name="q" type="search" maxlength="80" value="{{ $search }}"
                        placeholder="جستجو در سوغات و خشکبار دنا..."
-                       class="min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
-                <button type="submit" class="rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
+                       class="landing-search-input min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
+                <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
                 @if ($search !== '')
                     <a href="{{ route('home', $selectedCategory ? ['category' => $selectedCategory] : []) }}#products" class="text-xs font-semibold underline underline-offset-4">پاک‌کردن جستجو</a>
                 @endif
@@ -167,7 +184,7 @@
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7" aria-live="polite">
                 @forelse ($products as $product)
                     @php
-                        $isFeatured = $loop->first && $products->currentPage() === 1;
+                        // The newest database row is not implicitly a featured product.
                         $cover = $product->getFirstMedia('gallery');
                         if (! $cover) {
                             foreach ($product->variants as $variant) {
@@ -179,12 +196,12 @@
                         }
                         $startingPrice = (int) $product->variants->min('price_irr');
                     @endphp
-                    <article class="product-card group relative overflow-hidden bg-[#ebe9dd] {{ $isFeatured ? 'sm:col-span-2 lg:col-span-2 product-card-featured' : '' }}" data-reveal data-delay="{{ $loop->index % 3 }}">
+                    <article class="product-card group relative overflow-hidden bg-[#ebe9dd]" data-reveal data-delay="{{ $loop->index % 3 }}">
                         <a href="{{ route('products.show', ['slug' => $product->slug]) }}"
                            x-on:click="openProduct({{ $product->id }}, $event)"
                            aria-haspopup="dialog" aria-controls="denapax-product-preview"
                            class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
-                            <div class="product-photo relative overflow-hidden bg-[#c8cbb6] {{ $isFeatured ? 'max-h-[570px]' : '' }}">
+                            <div class="product-photo relative overflow-hidden bg-[#c8cbb6]">
                                 @if ($cover)
                                     <img class="product-card-image block w-full object-cover" src="{{ $cover->getUrl() }}"
                                          width="800" height="700" loading="lazy" decoding="async" alt="تصویر {{ $product->title }}">
@@ -197,9 +214,6 @@
                                     </div>
                                 @endif
                                 <span class="absolute top-5 right-5 rounded-full border border-white/60 bg-[#f3f0e4]/90 px-3 py-1.5 text-[11px] font-medium text-[#254736] backdrop-blur-sm">{{ $product->category->name }}</span>
-                                @if ($isFeatured)
-                                    <span class="absolute bottom-5 right-5 text-xs tracking-[.22em] text-white drop-shadow-sm" lang="en">DENAPAX / SELECTED</span>
-                                @endif
                             </div>
                             <div class="flex items-end justify-between gap-3 p-5 md:p-7">
                                 <div class="min-w-0">
@@ -213,8 +227,11 @@
                                         تومان
                                     </p>
                                 </div>
-                                <span class="product-arrow flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#91a08d] text-[#234635]" aria-hidden="true">
-                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                                <span class="product-card-action flex shrink-0 items-center gap-2 text-xs font-bold text-[#234635]" aria-hidden="true">
+                                    مشاهده
+                                    <span class="product-arrow flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#91a08d] text-[#234635]">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                                    </span>
                                 </span>
                             </div>
                         </a>
@@ -265,34 +282,35 @@
                         <span class="block landing-outline-dark">یک اقلیم</span>
                     </h2>
                     <p class="mt-8 max-w-[550px] text-base leading-10 text-[#536956]">
-                        دنا فقط یک نام روی نقشه نیست؛ کوهستان و شهرها و روستاهایی است که شیوه زندگی و طعم‌های محلی خود را دارند. دناپکس جایی برای آشنا شدن با بخشی از این محصولات است.
+                        کوهستان دنا و شهرها و روستاهای پیرامون آن، مجموعه‌ای از خوراکی‌ها و شیوه‌های تهیه محلی را در خود جای داده‌اند. در دناپکس می‌توانید بخشی از این محصولات را بشناسید و برای خرید انتخاب کنید.
                     </p>
                     <div class="mt-9 flex items-center gap-4 text-xs font-bold tracking-wider text-[#536956]">
                         <span class="h-px w-10 bg-[#536956]"></span>
                         الهام‌گرفته از طبیعت دنا
                     </div>
                 </div>
-                <div class="relative mx-auto flex aspect-square w-full max-w-[550px] items-center justify-center rounded-full border border-[#738e78]/35 p-7 md:p-12" data-reveal data-delay="1">
-                    <div class="absolute inset-8 rounded-full border border-[#738e78]/35 md:inset-15"></div>
-                    <div class="absolute inset-17 rounded-full border border-[#738e78]/25 md:inset-26"></div>
-                    <div class="relative flex h-[75%] w-[75%] flex-col items-center justify-center rounded-full bg-[#214536] text-[#ecedda] shadow-[0_35px_80px_-35px_rgba(25,57,47,.5)]">
-                        <svg class="h-20 w-20 md:h-26 md:w-26" viewBox="0 0 110 100" fill="none" aria-hidden="true">
-                            <path d="m5 76 36-54 20 31 15-22 30 45" stroke="#e1e5cc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="m31 37 10-15 14 22-15-8-10 12m42-11 5-6 12 17-12-6-7 8" fill="#e1e5cc"/>
-                            <path d="M7 84h96" stroke="#e1e5cc" stroke-width="2"/>
-                        </svg>
-                        <span class="mt-6 text-xl font-bold md:text-3xl">دناپکس</span>
-                        <span class="mt-2 text-[9px] tracking-[.3em] text-[#d5dbc2] md:text-xs" lang="en">ROOTED IN DENA</span>
+                <div class="landing-story-panel" data-reveal data-delay="1">
+                    <div class="landing-story-image" role="img" aria-label="نمایی از رشته‌کوه دنا"></div>
+                    <div class="landing-story-caption">
+                        <span class="landing-story-caption-kicker" lang="en">THE DENA LANDSCAPE</span>
+                        <span class="landing-story-caption-title">از کوهستان دنا</span>
+                        <span class="landing-story-caption-detail">طبیعت و زندگی محلی</span>
                     </div>
-                    <span class="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-[#e2e5d5] px-2 text-xs text-[#56705b]" lang="en">31 / NATURE</span>
                 </div>
             </div>
         </section>
 
-        <section id="order" data-chapter class="bg-[#17382d] py-9 text-[#f3f1e5] md:py-12" aria-labelledby="order-title">
-            <div class="landing-container flex justify-center">
-                <h2 id="order-title" class="sr-only">سبد خرید</h2>
-                <a href="{{ route('cart.index') }}" class="landing-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">مشاهده سبد خرید</a>
+        <section id="order" data-chapter class="landing-order-section bg-[#17382d] text-[#f3f1e5]" aria-labelledby="order-title">
+            <div class="landing-container landing-order-content">
+                <div>
+                    <p class="landing-label mb-3 text-[#c3d6be]">ORDER / 03</p>
+                    <h2 id="order-title" class="text-2xl font-extrabold leading-relaxed md:text-3xl">از انتخاب محصول تا ثبت سفارش</h2>
+                    <p class="mt-2 max-w-[580px] text-sm leading-8 text-white/75">محصولات دلخواهتان را انتخاب کنید؛ سپس نشانی، هزینه ارسال و روش پرداخت را در مراحل بعد ببینید.</p>
+                </div>
+                <a href="{{ route('cart.index') }}" class="landing-button landing-order-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
+                    مشاهده سبد خرید
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                </a>
             </div>
         </section>
     </main>
