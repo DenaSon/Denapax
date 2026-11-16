@@ -40,8 +40,8 @@ class PublicLandingTest extends TestCase
         $this->get('/')->assertOk()->assertSee('wire:navigate', false)->assertSee('livewire', false);
         $this->get(route('cart.index'))->assertOk()->assertSee('wire:navigate', false);
 
-        $this->assertStringContainsString("resources/js/storefront.js", file_get_contents(resource_path('views/landing/index.blade.php')));
-        $this->assertStringContainsString("resources/js/storefront.js", file_get_contents(resource_path('views/layouts/store.blade.php')));
+        $this->assertStringContainsString('resources/js/storefront.js', file_get_contents(resource_path('views/landing/index.blade.php')));
+        $this->assertStringContainsString('resources/js/storefront.js', file_get_contents(resource_path('views/layouts/store.blade.php')));
 
         $this->assertStringNotContainsString("import Alpine from 'alpinejs'", file_get_contents(resource_path('js/landing.js')));
         $this->assertStringContainsString("document.addEventListener('alpine:init'", file_get_contents(resource_path('js/landing.js')));
