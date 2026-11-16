@@ -26,6 +26,10 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 - Green GitHub CI (SQLite, mock HTTP) does not establish MySQL staging correctness, production runtime, bank settlement, RTL browser usability or recoverability.
 - No public launch/GO or closing release issues without formal operator/owner evidence. Open [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25). Post-MVP price history [#70](https://github.com/DenaSon/Denapax/issues/70) remains open.
 
+## Storefront UX refresh — 2026-11-16
+
+Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https://github.com/DenaSon/Denapax/pull/93) and [#94](https://github.com/DenaSon/Denapax/pull/94): three editorial **landing** chapter rail entries versus three independent **checkout** stages; consistent pointer/focus affordances; premium restrained photo-first design; no arbitrary featured product; and direct selected-variant + quantity POST from the native product-preview dialog to the existing CSRF-protected `cart.add` endpoint. Cart count works for guests and authenticated customers without creating empty persistent carts. Production device testing and locally optimized photo remain open. See [handoff and QA](docs/47-landing-ui-ux-polish.md).
+
 ## Payment-mode decision — 2026-11-16
 
 Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private receipt + authorized bank verification is the primary customer checkout payment UI**. Preserve the integrated gateway behind `ZARINPAL_ENABLED=false`; when enabled with a valid merchant ID, online payment becomes primary and receipt upload remains fallback. This is a presentation/configuration change only; preserve all unresolved-attempt bank safeguards and private receipts. Do not treat SMS OTP as deployed or receipts as bank proof. See [manual-first payment operation](docs/45-manual-receipt-first-rollout.md).
