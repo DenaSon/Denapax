@@ -97,9 +97,10 @@ class PublicLandingTest extends TestCase
             ->assertSee('x-on:submit.prevent="submitCatalogSearch($event)"', false)
             ->assertSee('x-on:input.debounce.450ms="submitCatalogSearch($event)"', false)
             ->assertSee('x-on:submit.prevent="submitPreviewCart()"', false)
-            ->assertSee('<livewire:store.add-to-cart', false)
             ->assertSee('method="GET"', false)
             ->assertSee('action="'.route('cart.add').'"', false);
+
+        $this->assertStringContainsString('<livewire:store.add-to-cart', file_get_contents(resource_path('views/landing/index.blade.php')));
 
         $script = file_get_contents(resource_path('js/landing.js'));
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
