@@ -7,6 +7,7 @@ use App\Livewire\Store\CartItems;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -66,7 +67,7 @@ class ReactiveCartTest extends TestCase
         $this->assertDatabaseMissing('cart_items', ['product_variant_id' => 9999999]);
     }
 
-    private function variant(): \App\Models\ProductVariant
+    private function variant(): ProductVariant
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $product = Product::create([
