@@ -21,7 +21,8 @@
     <link rel="preload" href="https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D9%87_%D8%A8%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" as="image">
     <title>دناپکس | از دل دنا</title>
     <script type="application/ld+json">@json($websiteSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
-    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
+    @livewireStyles
 </head>
 <body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)">
     <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
@@ -484,5 +485,6 @@
             </div>
         </template>
     </dialog>
+    @livewireScripts
 </body>
 </html>
