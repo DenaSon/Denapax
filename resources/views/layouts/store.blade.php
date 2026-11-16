@@ -12,7 +12,9 @@
     @vite(['resources/css/landing.css', 'resources/js/store.js'])
 </head>
 <body class="landing store-shell min-h-screen antialiased">
-    @php($cartQuantity = app(\App\Application\Actions\StoreCart::class)->quantity(auth('customer')->user()))
+    @php
+        $cartQuantity = app(\App\Application\Actions\StoreCart::class)->quantity(auth('customer')->user());
+    @endphp
     <a href="#store-main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به محتوای اصلی</a>
     <header class="store-header">
         <nav class="landing-container store-header-inner flex flex-wrap items-center justify-between gap-3 py-3" aria-label="ناوبری فروشگاه">
