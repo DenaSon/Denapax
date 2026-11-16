@@ -27,7 +27,8 @@
     @if ($photos->isNotEmpty())
         <link rel="preload" as="image" href="{{ $photos->first()['url'] }}">
     @endif
-    @vite(['resources/css/landing.css', 'resources/js/product-gallery.js'])
+    @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
+    @livewireStyles
     <script type="application/ld+json">@json($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
 </head>
 <body class="landing landing-shell antialiased">
@@ -252,5 +253,6 @@
             <span class="text-xs">سوغات و خشکبار؛ از دل دنا</span>
         </div>
     </footer>
+    @livewireScripts
 </body>
 </html>
