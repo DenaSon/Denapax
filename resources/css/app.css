@@ -14,6 +14,12 @@
     --font-sans: Tahoma, ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Staff actions should display a pointer on desktop without suggesting disabled buttons work. */
+@media (hover: hover) and (pointer: fine) {
+    .admin-shell :is(a[href]:not([aria-disabled="true"]), button:not(:disabled):not([aria-disabled="true"]), summary, select:not(:disabled), input[type="checkbox"]:not(:disabled), input[type="radio"]:not(:disabled)) { cursor: pointer; }
+    .admin-shell button:disabled, .admin-shell [aria-disabled="true"] { cursor: not-allowed; }
+}
+
 /* Staff operations theme, scoped separately from customer storefront. */
 .admin-shell { --admin-pine:#17382c; --admin-muted:#53685a; --admin-stroke:#d8e1d7; font-family:'Vazirmatn',Tahoma,ui-sans-serif,system-ui,sans-serif; background:radial-gradient(circle at 95% 0%,#e4eee4 0%,transparent 38%),#f5f5ef; color:#20392d; min-width:0; }
 .admin-shell :is(input,textarea,select,button) { font-family:inherit; }

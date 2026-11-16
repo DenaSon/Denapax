@@ -26,10 +26,9 @@
 <body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)">
     <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
     <nav class="landing-chapter-rail" aria-label="بخش‌های صفحه" x-cloak>
-        <a href="#top" x-bind:aria-current="activeSection === 'top' ? 'location' : null" aria-label="ابتدای صفحه">01</a>
-        <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" aria-label="محصولات">02</a>
-        <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="روایت دنا">03</a>
-        <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="سفارش">04</a>
+        <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" aria-label="بخش اول: محصولات" title="محصولات">01</a>
+        <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="بخش دوم: روایت دنا" title="روایت دنا">02</a>
+        <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="بخش سوم: سفارش" title="سفارش">03</a>
     </nav>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
@@ -66,7 +65,8 @@
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
             <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
-            <a x-on:click="closeMenu(true)" href="#order" class="block py-3 text-sm">سبد خرید</a>
+            <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
+            <a x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
@@ -85,7 +85,7 @@
                 <div class="absolute left-0 top-36 hidden flex-col items-end gap-3 lg:flex" aria-hidden="true">
                     <span class="text-xs tracking-[.32em] text-white/65" lang="en">THE DENA COLLECTION</span>
                     <span class="h-32 w-px bg-white/40"></span>
-                    <span class="text-xs text-white/60">۰۱ / ۰۴</span>
+                    <span class="text-xs text-white/60">DENA / ORIGIN</span>
                 </div>
                 <div class="mx-auto flex max-w-[760px] flex-col items-center" data-reveal>
                     <p class="landing-label mb-7 flex items-center justify-center gap-3 text-[#e3d4b7]">
@@ -259,7 +259,7 @@
             </svg>
             <div class="landing-container relative grid items-center gap-16 lg:grid-cols-2">
                 <div data-reveal>
-                    <p class="landing-label mb-6 text-[#8b6e54]">FROM THE LAND / 03</p>
+                    <p class="landing-label mb-6 text-[#8b6e54]">FROM THE LAND / 02</p>
                     <h2 id="story-title" class="landing-display text-[clamp(3rem,5.9vw,6.7rem)]">
                         یک نام،
                         <span class="block landing-outline-dark">یک اقلیم</span>

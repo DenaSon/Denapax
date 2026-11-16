@@ -4,7 +4,7 @@ Alpine.data('landingPage', () => ({
     menuOpen: false,
     hasScrolled: false,
     scrollProgress: 0,
-    activeSection: 'top',
+    activeSection: 'products',
     scrollFrame: null,
     pointerFrame: null,
     revealObserver: null,
