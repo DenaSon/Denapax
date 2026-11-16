@@ -677,6 +677,55 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .landing:not(.store-shell) .product-card:hover { transform: none; }
 }
 
+/* Shared cart affordances: both mobile and desktop expose real cart units. */
+.landing-mobile-cart {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: .25rem;
+    border: 1px solid rgba(255, 255, 255, .42);
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color .2s ease;
+}
+.landing-mobile-cart:hover { background: rgba(255, 255, 255, .12); }
+.landing-cart-count, .store-cart-count {
+    display: inline-grid;
+    min-width: 1.55rem;
+    min-height: 1.55rem;
+    place-items: center;
+    padding-inline: .25rem;
+    border-radius: 999px;
+    background: #e8ead8;
+    color: #214432;
+    font-size: .7rem;
+    font-weight: 850;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.store-cart-count { background: #f8f2e1; color: #19392f; }
+.landing-cart-quantity {
+    width: 88px;
+    min-height: 44px;
+    padding-inline: .7rem;
+    border: 1px solid #9daf9e;
+    border-radius: .7rem;
+    background: #fff;
+    color: #234b39;
+    font-size: 1rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.landing-cart-quantity:focus-visible {
+    border-color: #315943;
+    outline: 3px solid #c8ad83;
+    outline-offset: 2px;
+}
+.landing-product-dialog button:disabled { cursor: not-allowed; opacity: .66; }
+
 /* Web Store: customer-first design system, isolated from the public editorial landing. */
 .store-shell {
     --store-pine: #19392f;
