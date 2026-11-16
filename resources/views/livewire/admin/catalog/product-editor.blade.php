@@ -1,7 +1,7 @@
 <div class="space-y-5">
     <div class="flex flex-wrap justify-between gap-2">
         <h1 class="text-2xl font-bold">{{ $productId ? 'ویرایش محصول' : 'محصول جدید' }}</h1>
-        <a class="btn btn-ghost" href="{{ route('admin.products') }}">بازگشت</a>
+        <a wire:navigate class="btn btn-ghost" href="{{ route('admin.products') }}">بازگشت</a>
     </div>
     <form wire:submit="save" class="space-y-5">
         <x-card title="مشخصات محصول">
