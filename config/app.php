@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Explicitly trusted ingress peers only. Keep empty unless deployed behind
+    // a known HTTPS-terminating reverse proxy (e.g. Runflare).
+    'trusted_proxies' => env('TRUSTED_PROXIES', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
