@@ -57,18 +57,14 @@
                 <span class="text-xs tracking-[.04em] text-white/75">سوغات و خشکبار دنا</span>
                 <a wire:navigate class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">
                     سبد خرید
-                    @if ($cartQuantity > 0)
-                        <span class="landing-cart-count" aria-label="تعداد اقلام سبد خرید: {{ $cartQuantity }}">{{ $cartQuantity }}</span>
-                    @endif
+                    <livewire:store.cart-count />
                 </a>
             </div>
 
             <div class="flex items-center gap-2 lg:hidden">
                 <a wire:navigate href="{{ route('cart.index') }}" class="landing-mobile-cart" aria-label="سبد خرید{{ $cartQuantity > 0 ? '، '.$cartQuantity.' قلم کالا' : '' }}">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.6L20 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    @if ($cartQuantity > 0)
-                        <span class="landing-cart-count" aria-hidden="true">{{ $cartQuantity }}</span>
-                    @endif
+                    <livewire:store.cart-count />
                 </a>
                 <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
                     <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
