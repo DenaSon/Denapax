@@ -96,6 +96,7 @@
         <span>دناپکس · سوغات و خشکبار دنا</span>
         <a wire:navigate class="store-inline-link" href="{{ route('home') }}#products">بازگشت به فروشگاه</a>
     </footer>
+    <livewire:store.network-status />
     @livewireScripts
 </body>
 </html>
