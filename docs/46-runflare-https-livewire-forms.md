@@ -27,6 +27,35 @@ php artisan route:list --path=livewire
 
 The platform must forward `X-Forwarded-Proto: https` on HTTPS browser requests and must not allow client-supplied forwarded headers to bypass the edge. Do not treat `/up` as a Livewire form test.
 
+## Confirmed Livewire 4 JavaScript 404 — published asset fallback
+
+The admin browser trace on 2026-11-16 shows:
+
+```text
+GET /livewire-8ed8c6b4/livewire.js?id=a964a3c 404 Not Found
+```
+
+The project uses `livewire/livewire v4.4.8`. Its standard script endpoint is intentionally a **dynamic Laravel route** at `/livewire-{hash}/livewire.js`, with the hash derived from `APP_KEY`. The admin layout already includes `@livewireStyles` and `@livewireScripts`. This 404 therefore happens before any form submission: the browser never loads the Livewire runtime.
+
+The first likely cause is the ingress/web-server treating the `.js` URL as a static-file request rather than forwarding it to Laravel. Other possible causes are a stale route cache or inconsistent `APP_KEY` across app replicas. It is **not fixed by `TRUSTED_PROXIES`**; proxy trust affects forwarded request scheme, not route existence.
+
+To avoid dependence on dynamic `.js` routing, the app now publishes Livewire's official static assets during Composer's `post-autoload-dump`:
+
+```bash
+php artisan vendor:publish --tag=livewire:assets --ansi --force
+```
+
+Livewire detects `public/vendor/livewire/manifest.json` automatically and changes the script URL to `/vendor/livewire/livewire.min.js?id=...`, served as an ordinary static asset. Generated files are ignored by Git and recreated by Composer install/update. No manually copied JS, Vite bundling, or database migration is needed.
+
+After deploying this change:
+1. Confirm these files exist in the active release: `public/vendor/livewire/manifest.json` and `public/vendor/livewire/livewire.min.js`.
+2. Run `php artisan route:list --path=livewire` and confirm the hashed `POST .../update` route exists.
+3. Clear/rebuild only the deployment's route/config caches as appropriate, then restart all replicas. Keep the same `APP_KEY` across every replica; never rotate it to fix this issue.
+4. Reload the admin page with cache disabled. The JS request should now be `/vendor/livewire/livewire.min.js?id=...` and return HTTP 200 with JavaScript content.
+5. Submit a harmless admin form and inspect the POST update request. If it returns 404, investigate route registration, route cache and identical `APP_KEY` across replicas. If it returns 419, investigate the session/CSRF cookie and trusted proxy settings separately.
+
+The official Livewire 4 docs describe both the hashed endpoint and publishing assets as the supported alternative for environments that cannot route the dynamic script endpoint: https://livewire.laravel.com/docs/4.x/installation#publishing-livewires-assets-to-public-directory
+
 ## Browser diagnosis (authenticated staff)
 
 1. Open a staff admin form at `https://denapax.ir/admin/settings`, DevTools → Network, preserve log and filter `livewire`. Submit a **non-sensitive** temporary change only after confirming that a backup exists. Do not share card numbers, login cookies or request payloads.
