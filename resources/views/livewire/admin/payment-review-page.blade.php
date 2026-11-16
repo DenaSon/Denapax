@@ -6,7 +6,7 @@
     </div>
 
     @if($receiptId !== null)
-        <a class="admin-inline-link" href="{{ route('admin.payments') }}">بازگشت به همه رسیدها</a>
+        <a wire:navigate class="admin-inline-link" href="{{ route('admin.payments') }}">بازگشت به همه رسیدها</a>
     @endif
 
     <section class="admin-surface space-y-3" aria-label="فیلتر وضعیت رسید">
@@ -25,7 +25,7 @@
         <article class="admin-surface space-y-4" wire:key="receipt-{{ $receipt->id }}">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="space-y-2">
-                    <a class="admin-inline-link text-base" href="{{ route('admin.orders.show', $receipt->order) }}">سفارش {{ $receipt->order->public_reference }}</a>
+                    <a wire:navigate class="admin-inline-link text-base" href="{{ route('admin.orders.show', $receipt->order) }}">سفارش {{ $receipt->order->public_reference }}</a>
                     <p class="text-sm">ارسال رسید شماره {{ $receipt->attempt_number }} · {{ $receipt->submitted_at?->format('Y/m/d H:i') }}</p>
                     <p class="admin-money text-lg font-extrabold">{{ \App\Support\Money::formatToman($receipt->order->total_irr) }} تومان</p>
                     <span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($receipt->status) }}">{{ \App\Support\AdminLabels::receipt($receipt->status) }}</span>
