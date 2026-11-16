@@ -235,7 +235,7 @@ class WebCheckoutFlowTest extends TestCase
         $layout = file_get_contents(resource_path('views/layouts/store.blade.php'));
         $config = file_get_contents(base_path('vite.config.js'));
 
-        foreach (['resources/css/landing.css', 'resources/js/store.js'] as $entry) {
+        foreach (['resources/css/landing.css', 'resources/js/storefront.js'] as $entry) {
             $this->assertStringContainsString("'".$entry."'", $layout);
             $this->assertStringContainsString("'".$entry."'", $config);
         }
