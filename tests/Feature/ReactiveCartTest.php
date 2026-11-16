@@ -92,6 +92,28 @@ class ReactiveCartTest extends TestCase
         $this->get(route('cart.index'))->assertOk()->assertSee('سبد خرید شما خالی است.');
     }
 
+    public function test_cart_uses_responsive_product_list_and_fixed_loading_feedback(): void
+    {
+        $variant = $this->variant();
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 2]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('store-main-cart', false)
+            ->assertSee('store-cart-grid', false)
+            ->assertSee('store-cart-items-panel', false)
+            ->assertSee('store-cart-summary', false)
+            ->assertSee('store-cart-item-image', false)
+            ->assertSee('store-cart-quantity', false)
+            ->assertSee('store-cart-loading', false)
+            ->assertSee('تعداد کالا')
+            ->assertSee('2 عدد کالا در سبد شما');
+
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('.store-cart-loading { position:fixed', $css);
+        $this->assertStringContainsString('.store-cart-grid { display:grid', $css);
+        $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
+    }
+
     private function variant(): ProductVariant
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);

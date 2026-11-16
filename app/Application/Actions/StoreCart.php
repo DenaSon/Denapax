@@ -73,7 +73,8 @@ class StoreCart
             ? $this->carts->cart($customer)->items()->pluck('quantity', 'product_variant_id')->all()
             : session()->get(self::SESSION_KEY, []);
 
-        $variants = ProductVariant::query()->with('product.category')->whereIn('id', array_keys($items))->get()->keyBy('id');
+        $variants = ProductVariant::query()->with(['product.category', 'product.media', 'media'])
+            ->whereIn('id', array_keys($items))->get()->keyBy('id');
 
         return collect($items)->map(function ($quantity, $variantId) use ($variants): ?array {
             $variant = $variants->get((int) $variantId);

@@ -26,6 +26,7 @@ class CartItems extends Component
         return view('livewire.store.cart-items', [
             'lines' => $lines,
             'subtotal' => (int) $lines->sum('total_irr'),
+            'totalQuantity' => (int) $lines->sum('quantity'),
         ]);
     }
 }
