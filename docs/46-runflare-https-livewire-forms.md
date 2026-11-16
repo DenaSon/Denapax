@@ -13,23 +13,19 @@ APP_URL=https://denapax.ir
 SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
-SESSION_DOMAIN=
 TRUSTED_PROXIES=<actual-known-proxy-IP-or-CIDR>
 ```
 
 `TRUSTED_PROXIES` may be a comma-separated list of **known reverse proxy** IPs/CIDRs, or `REMOTE_ADDR` for a deployment in which **all direct connections to PHP are exclusively from the trusted platform ingress**. Do not automatically configure `*`, and do not set `REMOTE_ADDR` if the PHP service is directly accessible to arbitrary internet clients. Prefer platform-confirmed proxy addresses. The application trusts only `X-Forwarded-Proto` and `X-Forwarded-Port`, never forwarded host/IP headers. When unset, current behavior is unchanged. `SESSION_DOMAIN` should be unset (host-only cookie) unless using a planned multi-subdomain session; do not use a different hostname.
 
-Update environment settings, **redeploy/restart**, and rebuild config cache according to deployment process. If working inside the active deploy container, check effective values **without exposing secrets**:
+Leave `SESSION_DOMAIN` **unset** for the single `denapax.ir` host. Update environment settings and **redeploy/restart**, rebuilding Laravel's config cache as part of the deployment process. Inspect a small allowlist of effective values without printing secrets:
 
 ```bash
-php artisan config:show app --json
-php artisan config:show session --json
+php artisan tinker --execute='dump(["url" => config("app.url"), "env" => config("app.env"), "trusted_proxies" => config("app.trusted_proxies"), "session_driver" => config("session.driver"), "session_domain" => config("session.domain"), "secure_cookie" => config("session.secure"), "same_site" => config("session.same_site")]);'
 php artisan route:list --path=livewire
-php artisan optimize:clear
-php artisan config:cache
 ```
 
-Avoid posting full config command output publicly if it contains secrets. Inspect only `app.url`, `app.env`, `app.trusted_proxies`, `session.driver`, `session.domain`, `session.secure` and `session.same_site`. The platform must forward `X-Forwarded-Proto: https` on HTTPS browser requests and must not allow client-supplied forwarded headers to bypass the edge. Do not treat `/up` as a Livewire form test.
+The platform must forward `X-Forwarded-Proto: https` on HTTPS browser requests and must not allow client-supplied forwarded headers to bypass the edge. Do not treat `/up` as a Livewire form test.
 
 ## Browser diagnosis (authenticated staff)
 
