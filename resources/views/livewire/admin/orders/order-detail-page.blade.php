@@ -8,7 +8,7 @@
             <h1 class="admin-page-title admin-copy" dir="ltr">{{ $order->public_reference }}</h1>
             <p class="admin-description">{{ $order->created_at->format('Y/m/d H:i') }} · {{ $order->recipient_name }}</p>
         </div>
-        <a class="btn btn-outline" href="{{ route('admin.orders') }}">بازگشت به سفارش‌ها</a>
+        <a wire:navigate class="btn btn-outline" href="{{ route('admin.orders') }}">بازگشت به سفارش‌ها</a>
     </div>
 
     <section class="admin-surface space-y-4" aria-labelledby="order-summary">
@@ -32,7 +32,7 @@
         <div role="alert" class="admin-alert admin-alert-warning">
             وضعیت یکی از تراکنش‌های درگاه هنوز قطعی نیست. تا تطبیق بانکی، پرداخت مجدد یا لغو سفارش را پیشنهاد نکنید.
             @can('payments.view')
-                <a href="{{ route('admin.payments.gateway') }}" class="admin-inline-link mr-2">بررسی تراکنش درگاه</a>
+                <a wire:navigate href="{{ route('admin.payments.gateway') }}" class="admin-inline-link mr-2">بررسی تراکنش درگاه</a>
             @endcan
         </div>
     @endif
@@ -73,8 +73,8 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="order-payments" class="admin-section-title">سوابق پرداخت</h2>
                 <div class="flex flex-wrap gap-3 text-sm">
-                    <a href="{{ route('admin.payments') }}" class="admin-inline-link">رسیدها</a>
-                    <a href="{{ route('admin.payments.gateway') }}" class="admin-inline-link">تراکنش‌های درگاه</a>
+                    <a wire:navigate href="{{ route('admin.payments') }}" class="admin-inline-link">رسیدها</a>
+                    <a wire:navigate href="{{ route('admin.payments.gateway') }}" class="admin-inline-link">تراکنش‌های درگاه</a>
                 </div>
             </div>
             @forelse($order->receipts as $receipt)

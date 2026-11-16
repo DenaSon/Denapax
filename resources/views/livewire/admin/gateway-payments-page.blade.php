@@ -36,7 +36,7 @@
         <article class="admin-surface space-y-4" wire:key="gateway-attempt-{{ $attempt->id }}">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="min-w-0 space-y-2">
-                    <a class="admin-inline-link text-base" href="{{ route('admin.orders.show', $attempt->order->id) }}">
+                    <a wire:navigate class="admin-inline-link text-base" href="{{ route('admin.orders.show', $attempt->order->id) }}">
                         سفارش {{ $attempt->order->public_reference }}
                     </a>
                     <p class="text-xs text-[#687b69]">تلاش شماره {{ $attempt->id }} · {{ $attempt->created_at->format('Y/m/d H:i') }}</p>

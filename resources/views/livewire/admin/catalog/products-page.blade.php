@@ -1,7 +1,7 @@
 <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold">مدیریت محصولات</h1>
-        <x-button label="محصول جدید" link="{{ route('admin.products.create') }}" class="btn-primary" />
+        <x-button wire:navigate label="محصول جدید" link="{{ route('admin.products.create') }}" class="btn-primary" />
     </div>
     @error('publish') <div role="alert" class="alert alert-error">{{ $message }}</div> @enderror
     <x-card>
@@ -19,7 +19,7 @@
                         <td>{{ $product->variants->count() }}</td>
                         <td>{{ $product->is_active ? 'منتشرشده' : 'پیش‌نویس' }}</td>
                         <td class="flex gap-2">
-                            <x-button label="ویرایش" class="btn-sm" link="{{ route('admin.products.edit', $product) }}" />
+                            <x-button wire:navigate label="ویرایش" class="btn-sm" link="{{ route('admin.products.edit', $product) }}" />
                             <x-button label="{{ $product->is_active ? 'غیرفعال' : 'فعال' }}" class="btn-sm" wire:click="toggle({{ $product->id }})" />
                             <x-button label="بایگانی" class="btn-sm btn-error btn-outline" wire:confirm="از بایگانی محصول مطمئن هستید؟" wire:click="archive({{ $product->id }})" />
                         </td>

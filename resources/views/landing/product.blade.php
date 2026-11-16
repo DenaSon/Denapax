@@ -253,6 +253,7 @@
             <span class="text-xs">سوغات و خشکبار؛ از دل دنا</span>
         </div>
     </footer>
+    <livewire:store.network-status />
     @livewireScripts
 </body>
 </html>

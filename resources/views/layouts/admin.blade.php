@@ -15,7 +15,7 @@
     <a href="#admin-main" class="admin-skip-link">رفتن به محتوای اصلی</a>
     <header class="admin-header">
         <div class="mx-auto flex w-full max-w-[1500px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-7">
-            <a href="{{ route('admin.dashboard') }}" class="admin-brand" aria-label="دناپکس، داشبورد مدیریت">
+            <a wire:navigate href="{{ route('admin.dashboard') }}" class="admin-brand" aria-label="دناپکس، داشبورد مدیریت">
                 <span class="admin-brand-mark" aria-hidden="true">⌃</span>
                 <span class="flex flex-col"><span class="text-lg font-extrabold leading-tight">دناپکس</span><span class="text-xs font-medium text-[#c8d9cc]">مدیریت فروشگاه</span></span>
             </a>

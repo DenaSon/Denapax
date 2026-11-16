@@ -487,6 +487,7 @@
         </template>
     </dialog>
     <livewire:store.add-to-cart />
+    <livewire:store.network-status />
     @livewireScripts
 </body>
 </html>
