@@ -35,7 +35,7 @@
 
     <header class="absolute inset-x-0 top-0 z-30 text-white">
         <div class="landing-container flex h-22 items-center justify-between gap-5 border-b border-white/20 md:h-26">
-            <a href="{{ route('home') }}" aria-label="دناپکس، بازگشت به ابتدای صفحه" class="group inline-flex shrink-0 items-center gap-3" x-on:click="menuOpen = false">
+            <a wire:navigate href="{{ route('home') }}" aria-label="دناپکس، بازگشت به ابتدای صفحه" class="group inline-flex shrink-0 items-center gap-3" x-on:click="menuOpen = false">
                 <svg class="h-10 w-12 transition-transform duration-500 group-hover:-translate-y-1" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
@@ -55,7 +55,7 @@
 
             <div class="hidden items-center gap-4 lg:flex">
                 <span class="text-xs tracking-[.04em] text-white/75">سوغات و خشکبار دنا</span>
-                <a class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">
+                <a wire:navigate class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">
                     سبد خرید
                     @if ($cartQuantity > 0)
                         <span class="landing-cart-count" aria-label="تعداد اقلام سبد خرید: {{ $cartQuantity }}">{{ $cartQuantity }}</span>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="flex items-center gap-2 lg:hidden">
-                <a href="{{ route('cart.index') }}" class="landing-mobile-cart" aria-label="سبد خرید{{ $cartQuantity > 0 ? '، '.$cartQuantity.' قلم کالا' : '' }}">
+                <a wire:navigate href="{{ route('cart.index') }}" class="landing-mobile-cart" aria-label="سبد خرید{{ $cartQuantity > 0 ? '، '.$cartQuantity.' قلم کالا' : '' }}">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.6L20 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     @if ($cartQuantity > 0)
                         <span class="landing-cart-count" aria-hidden="true">{{ $cartQuantity }}</span>
@@ -80,7 +80,7 @@
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
             <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
             <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
-            <a x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
+            <a wire:navigate x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
@@ -175,18 +175,18 @@
                        class="landing-search-input min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
                 <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
                 @if ($search !== '')
-                    <a href="{{ route('home', $selectedCategory ? ['category' => $selectedCategory] : []) }}#products" class="text-xs font-semibold underline underline-offset-4">پاک‌کردن جستجو</a>
+                    <a wire:navigate href="{{ route('home', $selectedCategory ? ['category' => $selectedCategory] : []) }}#products" class="text-xs font-semibold underline underline-offset-4">پاک‌کردن جستجو</a>
                 @endif
             </form>
 
             @if ($categories->isNotEmpty())
                 <nav aria-label="فیلتر دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
-                    <a data-catalog-link href="{{ route('home', $search !== '' ? ['q' => $search] : []) }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
+                    <a wire:navigate data-catalog-link href="{{ route('home', $search !== '' ? ['q' => $search] : []) }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
                         class="{{ $selectedCategory === null ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                         همه محصولات
                     </a>
                     @foreach ($categories as $category)
-                        <a data-catalog-link href="{{ route('home', ['category' => $category->slug] + ($search !== '' ? ['q' => $search] : [])) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
+                        <a wire:navigate data-catalog-link href="{{ route('home', ['category' => $category->slug] + ($search !== '' ? ['q' => $search] : [])) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
                             class="{{ $selectedCategory === $category->slug ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                             {{ $category->name }}
                         </a>
@@ -211,7 +211,7 @@
                         $startingPrice = (int) $product->variants->min('price_irr');
                     @endphp
                     <article class="product-card group relative overflow-hidden bg-[#ebe9dd]" data-reveal data-delay="{{ $loop->index % 3 }}">
-                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}"
+                        <a wire:navigate href="{{ route('products.show', ['slug' => $product->slug]) }}"
                            x-on:click="openProduct({{ $product->id }}, $event)"
                            aria-haspopup="dialog" aria-controls="denapax-product-preview"
                            class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
@@ -256,7 +256,7 @@
                         <h3 class="text-2xl font-bold text-[#254736] md:text-3xl">محصولی برای نمایش پیدا نشد</h3>
                         <p class="mt-4 text-sm leading-8 text-[#637366]">محصولات منتشرشده و قابل سفارش به‌صورت خودکار در این بخش نمایش داده می‌شوند.</p>
                         @if ($selectedCategory || $search !== '')
-                            <a href="{{ route('home') }}#products" class="mt-6 inline-flex text-sm font-bold underline underline-offset-8">نمایش همه محصولات</a>
+                            <a wire:navigate href="{{ route('home') }}#products" class="mt-6 inline-flex text-sm font-bold underline underline-offset-8">نمایش همه محصولات</a>
                         @endif
                     </div>
                 @endforelse
@@ -321,7 +321,7 @@
                     <h2 id="order-title" class="text-2xl font-extrabold leading-relaxed md:text-3xl">از انتخاب محصول تا ثبت سفارش</h2>
                     <p class="mt-2 max-w-[580px] text-sm leading-8 text-white/75">محصولات دلخواهتان را انتخاب کنید؛ سپس نشانی، هزینه ارسال و روش پرداخت را در مراحل بعد ببینید.</p>
                 </div>
-                <a href="{{ route('cart.index') }}" class="landing-button landing-order-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
+                <a wire:navigate href="{{ route('cart.index') }}" class="landing-button landing-order-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
                     مشاهده سبد خرید
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
                 </a>
