@@ -14,8 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Applied per HTTP request, after Laravel's proxy middleware.
-        // Force secure URL generation without redirecting internal proxy traffic.
+        // Run after Laravel's proxy middleware: generate HTTPS URLs even
+        // when TLS terminates upstream of PHP-FPM.
         $middleware->append(ForceHttpsUrls::class);
         $middleware->redirectGuestsTo(fn (Request $request): string => $request->is('checkout', 'checkout/*', 'orders/*', 'account/*')
             ? route('customer.login')
