@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Application\Actions\SaveCustomerAddress;
 use App\Models\CustomerAddress;
-use App\Support\IranDigits;
-use App\Support\IranMobile;
+use App\Support\CustomerAddressInput;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,19 +76,6 @@ class CustomerAddressController extends Controller
 
     private function attributes(Request $request): array
     {
-        $data = $request->validate([
-            'label' => 'nullable|string|max:80',
-            'recipient_name' => 'required|string|max:220',
-            'recipient_mobile' => 'required|string|max:24',
-            'province' => 'required|string|max:100',
-            'city' => 'required|string|max:100',
-            'address_line' => 'required|string|min:8|max:2000',
-            'postal_code' => 'required|string|max:16',
-        ]);
-
-        $data['recipient_mobile'] = IranMobile::normalize($data['recipient_mobile']);
-        $data['postal_code'] = IranDigits::toAscii($data['postal_code']);
-
-        return $data;
+        return CustomerAddressInput::normalize($request->validate(CustomerAddressInput::rules()));
     }
 }
