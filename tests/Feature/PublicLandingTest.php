@@ -91,6 +91,22 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('به تلگرام.');
     }
 
+    public function test_catalog_search_is_debounced_with_ssr_form_fallback_and_live_cart_bridge(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('x-on:submit.prevent="submitCatalogSearch($event)"', false)
+            ->assertSee('x-on:input.debounce.450ms="submitCatalogSearch($event)"', false)
+            ->assertSee('x-on:submit.prevent="submitPreviewCart()"', false)
+            ->assertSee('<livewire:store.add-to-cart', false)
+            ->assertSee('method="GET"', false)
+            ->assertSee('action="'.route('cart.add').'"', false);
+
+        $script = file_get_contents(resource_path('js/landing.js'));
+        $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
+        $this->assertStringContainsString('replaceState', $script);
+        $this->assertStringContainsString('setSelectionRange', $script);
+    }
+
     public function test_editorial_landing_has_clear_customer_assurance_and_consistent_product_cards(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
