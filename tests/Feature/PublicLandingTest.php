@@ -77,6 +77,32 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('به تلگرام.');
     }
 
+    public function test_editorial_landing_has_clear_customer_assurance_and_consistent_product_cards(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $this->product($category, 'گردوی دنا', 'walnuts-new', 13890000);
+        $this->product($category, 'مغز گردوی دنا', 'walnut-kernels', 14800000);
+
+        $this->get('/')->assertOk()
+            ->assertSee('aria-label="ویژگی‌های خرید از دناپکس"', false)
+            ->assertSee('وزن، مشخصات و قیمت به تومان')
+            ->assertSee('class="landing-story-panel"', false)
+            ->assertSee('از انتخاب محصول تا ثبت سفارش')
+            ->assertSee('class="product-card-action', false)
+            ->assertDontSee('product-card-featured')
+            ->assertDontSee('DENAPAX / SELECTED');
+    }
+
+    public function test_editorial_styles_respect_mobile_and_reduced_motion(): void
+    {
+        $css = file_get_contents(resource_path('css/landing.css'));
+
+        $this->assertStringContainsString('.landing-assurance-grid', $css);
+        $this->assertStringContainsString('.landing-story-panel', $css);
+        $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
+        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+    }
+
     public function test_guest_sees_only_published_orderable_products_and_exact_toman_prices(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
