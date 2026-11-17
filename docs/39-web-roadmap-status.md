@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Source: code merged into `master`, GitHub PRs and [green baseline CI at SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`](https://github.com/DenaSon/Denapax/actions/runs/43726671634), plus the product-gallery PR. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
+**Last reviewed: 2026-11-17.** Current `master`: `adc85cf905acb45212ea5c7991aff34438c441e8`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44066864675) passed after SMS.ir configuration alignment. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. The owner has confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. No live Zarinpal settlement, production MySQL migration or isolated production restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -21,20 +21,21 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 
 **Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
-## P1 SMS.ir OTP adapter — code implemented in PR #130; staging acceptance pending
+## P1 SMS.ir OTP — implementation and owner operational acceptance complete
 
 - Uses the official `ipe/smsir-php` SDK through an adapter behind the existing `CustomerOtpSender` boundary; `CustomerOtpLogin` remains provider-independent.
 - Package auto-discovery is disabled because the SDK provider reads `env()` directly. The app binds the SDK from `config/services.php`, with a fixed HTTPS host, finite connect/request timeouts and redirects disabled.
+- Owner-confirmed Verify configuration: template ID `967976`, panel token `#HOURS#`, SDK parameter name `HOURS`.
 - Verify template ID and parameter name are config-driven. Success requires API `status = 1` and a positive `data.messageId`; exceptions and malformed/non-success responses fail closed.
 - The legacy plaintext OTP log driver has been removed. Existing OTP throttling, cooldown, expiry, attempt limit, hash storage and replay prevention are preserved.
-- Automated evidence: 132 tests / 945 assertions; Composer audit/validation, Pint and Vite build passed. [PR #130](https://github.com/DenaSon/Denapax/pull/130), [CI](https://github.com/DenaSon/Denapax/actions/runs/44064836790).
-- **External acceptance is not complete:** account API key, approved Verify template/parameter, active service line and one authorized HTTPS staging delivery/report must be verified. Keep `CUSTOMER_SMS_DRIVER=disabled` and leave issue #124 open until then. See [setup guide](49-smsir-otp-integration.md).
+- Automated evidence: 132 tests / 945 assertions; Composer audit/validation, Pint and Vite build passed. [PR #130](https://github.com/DenaSon/Denapax/pull/130), template alignment [PR #131](https://github.com/DenaSon/Denapax/pull/131), [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44066864675).
+- **Owner-reported operational acceptance (2026-11-17):** the real test OTP was delivered, the received code was accepted and the customer flow was tested through completion. The exact deployment tier (staging vs production) was not recorded. Issue [#124](https://github.com/DenaSon/Denapax/issues/124) is closed after owner acceptance. See [setup and acceptance record](49-smsir-otp-integration.md).
 
-## What is implemented but not activated
+## What is implemented and remaining external acceptance
 
 | Component | In code | Real environment / release evidence |
 | --- | --- | --- |
-| OTP authentication | Official SMS.ir Verify adapter, config-cache-safe SDK binding, configurable template parameter and bounded timeouts implemented in PR #130; provider default remains `disabled` | No verified account key/template configuration or real staging delivery; #124 remains open |
+| OTP authentication | Official SMS.ir Verify adapter, config-cache-safe SDK binding, template `967976` / parameter `HOURS`, bounded timeouts; implementation in PRs #130/#131 | Owner-confirmed real OTP delivery and successful customer login flow; exact deployment tier not recorded; #124 closed |
 | Zarinpal payment | Yes; `ZARINPAL_ENABLED=false` by default | No verified activated merchant, currency contract, live gateway callback or settlement |
 | Manual receipt processing | Yes; owner-scoped private storage and admin review | No current web production upload/reconciliation and backup/restore acceptance |
 | Order and shipment UI | Yes | No new web E2E customer/order/fulfillment test in production-like MySQL |
@@ -101,7 +102,7 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
-2. **Real providers**: activated Zarinpal account, HTTPS callback and verified IRR/IRT handling with a small authorized payment; real SMS OTP delivery configured and tested.
+2. **Real providers**: activated Zarinpal account, HTTPS callback and verified IRR/IRT handling with a small authorized payment. SMS.ir OTP delivery and successful customer login have owner-reported acceptance; the exact deployment tier is not recorded.
 3. **Security / E2E (#24)**: staging MySQL and real browser/device regression, payment callback duplicate/conflict/timeout, receipt rejection/retry, private file permissions, customer/staff isolation.
 4. **Operations / resilience (#25)**: target-DB customer count, guarded irreversible migration rehearsal, MySQL and private receipt backups, isolated restore, Runflare HTTPS/secrets/debug validation, supervised queue/schedule and alerts, documented rollback.
 5. **Real mobile/browser acceptance / business correctness**: Phase 4B + subsequent store UI polish improved checkout consistency; validate actual iOS/Android, keyboard/zoom, gateway-return/cookie expiry, approved shipping tariff/support details, product availability and oversell policy.
@@ -123,8 +124,8 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
 2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
-3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). The code portion of [#124](https://github.com/DenaSon/Denapax/issues/124) is implemented in [PR #130](https://github.com/DenaSon/Denapax/pull/130); keep the SMS driver disabled and #124 open until the owner-authorized HTTPS staging delivery and SMS.ir report are verified.
-4. In parallel, complete Phase 4A real bank/provider acceptance, Phase 4B physical mobile QA and Phase 4C MySQL/SMS/provider staging before any public-sales GO.
+3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). SMS.ir implementation and owner-reported OTP acceptance are complete in [PRs #130/#131](https://github.com/DenaSon/Denapax/pull/130); [#124](https://github.com/DenaSon/Denapax/issues/124) is closed. Keep the repository default fail-closed; deployment activation is controlled by the environment.
+4. Next, complete Phase 4A real Zarinpal merchant/currency/callback and settlement acceptance, Phase 4B physical mobile QA, and Phase 4C target-MySQL migration plus Phase 4D operations/restore checks before any public-sales GO.
 5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.
