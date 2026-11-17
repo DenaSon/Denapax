@@ -52,7 +52,7 @@
         </div>
     </header>
 
-    <main id="product-content" class="landing-container pb-24 pt-8 md:pb-32 md:pt-12">
+    <main id="product-content" class="landing-container pb-40 pt-8 md:pb-32 md:pt-12">
         <nav aria-label="مسیر صفحه" class="mb-10 flex flex-wrap items-center gap-2 text-xs text-[#627664]">
             <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('home') }}">خانه</a>
             <span aria-hidden="true">/</span>
@@ -148,7 +148,11 @@
                 @endif
             </div>
 
-            <article class="min-w-0 lg:pt-6">
+            <article class="min-w-0 lg:pt-6"
+                     x-data="productPurchase(@js($variantPurchaseData), @js($cartQuantities))"
+                     x-on:cart-added.window="handleCartAdded($event)"
+                     x-on:cart-add-failed.window="handleCartFailed($event)"
+                     x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)">
                 <div class="landing-label mb-5 text-[#a57c56]" lang="en">THE DENA COLLECTION / PRODUCT</div>
                 <h1 class="landing-display text-[clamp(2.35rem,4.6vw,4.9rem)] text-[#1b4231]">{{ $product->title }}</h1>
 
@@ -172,9 +176,10 @@
                 <section class="mt-8" aria-labelledby="product-variants">
                     <h2 id="product-variants" class="text-xl font-extrabold text-[#264c38]">انتخاب بسته و تعداد</h2>
                     @if ($product->variants->isNotEmpty())
-                        <form method="POST" action="{{ route('cart.add') }}" class="mt-5">
+                        <form method="POST" action="{{ route('cart.add') }}" class="product-purchase-form mt-5"
+                              x-on:submit="handleAddSubmit($event)">
                             @csrf
-                            <fieldset>
+                            <fieldset x-bind:disabled="busy || needsReconciliation">
                                 <legend class="mb-3 text-sm font-semibold text-[#627565]">یکی از بسته‌های زیر را انتخاب کنید:</legend>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     @foreach ($product->variants as $variant)
@@ -186,8 +191,10 @@
                                                 default => $variant->sale_unit,
                                             };
                                         @endphp
-                                        <label class="block cursor-pointer">
+                                        <label class="product-variant-option block cursor-pointer">
                                             <input type="radio" name="variant_id" value="{{ $variant->id }}" required
+                                                   x-model.number="selectedVariantId"
+                                                   x-on:change="clearFeedback()"
                                                    class="peer sr-only" data-variant-photo-index="{{ $variantPhotoIndexes[$variant->id] ?? '' }}" @checked($loop->first)>
                                             <span class="store-variant-card flex min-h-28 flex-col justify-between rounded-2xl border-2 border-[#cbd4c7] bg-[#f8f7ef] p-4 transition peer-checked:border-[#245840] peer-checked:bg-[#e4eddf] peer-focus-visible:outline peer-focus-visible:outline-4 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ae855a]">
                                                 <span class="flex items-start justify-between gap-3">
@@ -203,16 +210,69 @@
                                     @endforeach
                                 </div>
                             </fieldset>
-                            <div class="mt-5 flex flex-col gap-4 rounded-2xl border border-[#cbd4c7] bg-[#e6ebdd] p-4 sm:flex-row sm:items-end">
-                                <div class="flex items-center justify-between gap-4 sm:block">
-                                    <label for="product-quantity" class="block text-sm font-bold text-[#294936]">تعداد بسته</label>
-                                    <input id="product-quantity" name="quantity" type="number" min="1" max="1000"
-                                           inputmode="numeric" value="1" required
-                                           class="mt-1 min-h-12 w-24 rounded-xl border border-[#9eb19e] bg-white p-3 text-center font-bold">
-                                </div>
-                                <button type="submit" class="min-h-14 flex-1 rounded-xl bg-[#19392f] px-6 py-4 text-base font-extrabold text-white hover:bg-[#315844] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#ae855a]">
-                                    افزودن به سبد خرید
+
+                            <div class="product-purchase-quantity-input" x-show="!hasSelectedInCart">
+                                <label for="product-quantity" class="text-sm font-bold text-[#294936]">تعداد بسته</label>
+                                <input id="product-quantity" name="quantity" type="number" min="1" max="1000"
+                                       inputmode="numeric" value="1" required x-model.number="requestedQuantity"
+                                       x-bind:disabled="busy || needsReconciliation"
+                                       class="min-h-12 w-24 rounded-xl border border-[#9eb19e] bg-white p-3 text-center font-bold">
+                            </div>
+
+                            <p x-show="notice" x-cloak x-text="notice" role="status" class="product-purchase-feedback product-purchase-success"></p>
+                            <div x-show="error" x-cloak role="alert" class="product-purchase-feedback product-purchase-error">
+                                <p x-text="error"></p>
+                                <button type="button" x-show="needsReconciliation" x-cloak
+                                        x-on:click="refreshSelectedQuantity()" x-bind:disabled="busy"
+                                        class="mt-2 font-bold underline underline-offset-4">
+                                    بررسی وضعیت سبد خرید
                                 </button>
+                                <button type="button" x-show="requiresReload" x-cloak
+                                        x-on:click="window.location.reload()"
+                                        class="mt-2 font-bold underline underline-offset-4">
+                                    تازه‌سازی صفحه
+                                </button>
+                            </div>
+
+                            <div class="product-purchase-panel" data-product-purchase-panel
+                                 x-bind:aria-busy="busy.toString()">
+                                <div class="product-purchase-panel-meta">
+                                    <span class="product-purchase-panel-label">قیمت بسته انتخاب‌شده</span>
+                                    <strong class="product-purchase-panel-price">
+                                        <span x-text="selectedPriceLabel">{{ \App\Support\Money::formatToman((int) $product->variants->first()->price_irr) }}</span>
+                                        <small>تومان</small>
+                                    </strong>
+                                    <span x-show="hasSelectedInCart" x-cloak class="product-purchase-panel-quantity">
+                                        در سبد شما: <b x-text="selectedCartQuantity">0</b>
+                                    </span>
+                                </div>
+
+                                <div class="product-purchase-panel-actions">
+                                    <button type="submit" x-show="!hasSelectedInCart"
+                                            x-bind:disabled="busy || needsReconciliation"
+                                            x-text="busy ? 'در حال افزودن...' : 'افزودن به سبد خرید'"
+                                            class="product-purchase-add-button">
+                                        افزودن به سبد خرید
+                                    </button>
+
+                                    <details class="product-purchase-fallback" x-show="!hasSelectedInCart && !needsReconciliation">
+                                        <summary>مشکل در افزودن دارید؟</summary>
+                                        <button type="submit" x-on:click="useNativeFallback()">
+                                            افزودن با بارگذاری صفحه
+                                        </button>
+                                    </details>
+
+                                    <div class="product-purchase-stepper" x-show="hasSelectedInCart" x-cloak>
+                                        <button type="button" x-on:click="setSelectedQuantity(selectedCartQuantity - 1)"
+                                                x-bind:disabled="busy || needsReconciliation" aria-label="کم کردن تعداد از سبد خرید">−</button>
+                                        <output aria-label="تعداد فعلی در سبد خرید" x-text="selectedCartQuantity">0</output>
+                                        <button type="button" x-on:click="setSelectedQuantity(selectedCartQuantity + 1)"
+                                                x-bind:disabled="busy || needsReconciliation || selectedCartQuantity >= 1000"
+                                                aria-label="افزایش تعداد در سبد خرید">+</button>
+                                        <button type="button" x-on:click="setSelectedQuantity(0)"
+                                                x-bind:disabled="busy || needsReconciliation" class="product-purchase-remove">حذف</button>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                         <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[#315743] underline underline-offset-4">مشاهده سبد خرید</a>
@@ -254,6 +314,7 @@
             <span class="text-xs">سوغات و خشکبار؛ از دل دنا</span>
         </div>
     </footer>
+    <livewire:store.add-to-cart />
     <livewire:store.network-status />
     @livewireScripts
 </body>

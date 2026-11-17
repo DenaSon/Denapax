@@ -326,6 +326,98 @@ class PublicLandingTest extends TestCase
         $this->get('/')->assertOk()->assertSee('href="'.route('products.show', ['slug' => $active->slug]).'"', false);
     }
 
+    public function test_product_detail_shows_live_cart_state_and_keeps_native_post_fallback(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'product-live-cart', 5000000);
+        $firstVariant = $product->variants()->firstOrFail();
+        $secondVariant = $product->variants()->create([
+            'sku' => 'PRODUCT-LIVE-CART-ONE-KG',
+            'title' => 'بسته یک کیلویی',
+            'sale_quantity' => 1,
+            'sale_unit' => 'kg',
+            'price_irr' => 7200000,
+            'shipping_weight_grams' => 1050,
+            'is_available' => true,
+        ]);
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $firstVariant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertSee('x-data="productPurchase(', false)
+            ->assertSee('x-on:submit="handleAddSubmit($event)"', false)
+            ->assertSee('x-on:cart-added.window="handleCartAdded($event)"', false)
+            ->assertSee('x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)"', false)
+            ->assertSee('data-product-purchase-panel', false)
+            ->assertSee('x-show="hasSelectedInCart"', false)
+            ->assertSee('x-on:click="setSelectedQuantity(selectedCartQuantity + 1)"', false)
+            ->assertSee('name="variant_id"', false)
+            ->assertSee('name="quantity"', false)
+            ->assertSee('method="POST"', false)
+            ->assertSee('action="'.route('cart.add').'"', false)
+            ->assertSee('افزودن با بارگذاری صفحه')
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$firstVariant->id} ?? 0) === 2)
+            ->assertViewHas('variantPurchaseData', fn (array $variants): bool => count($variants) === 2
+                && $variants[0]['id'] === $firstVariant->id
+                && $variants[0]['priceLabel'] === '500,000'
+                && $variants[1]['id'] === $secondVariant->id
+                && $variants[1]['priceLabel'] === '720,000');
+
+        $this->assertStringContainsString('<livewire:store.add-to-cart />', file_get_contents(resource_path('views/landing/product.blade.php')));
+        $this->assertStringContainsString("import './product-purchase';", file_get_contents(resource_path('js/storefront.js')));
+
+        $script = file_get_contents(resource_path('js/product-purchase.js'));
+        $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
+        $this->assertStringContainsString("window.Livewire.dispatch('cart-quantity-requested'", $script);
+        $this->assertStringContainsString('window.Livewire.interceptRequest', $script);
+        $this->assertStringContainsString('onError(({ response, preventDefault }) =>', $script);
+        $this->assertStringContainsString('onFailure(() =>', $script);
+        $this->assertStringContainsString("window.Livewire.dispatch('cart-state-requested'", $script);
+        $this->assertStringContainsString('refreshSelectedQuantity()', $script);
+        $this->assertStringContainsString('cart-state-requested', $script);
+        $this->assertStringContainsString('x-cloak', file_get_contents(resource_path('views/landing/product.blade.php')));
+        $this->assertStringContainsString('نشست شما منقضی شده است.', $script);
+        $this->assertStringContainsString('destroy()', $script);
+
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('.product-purchase-panel { display:flex', $css);
+        $this->assertStringContainsString('env(safe-area-inset-bottom,0px)', $css);
+        $this->assertStringContainsString('.product-purchase-form .product-variant-option,', $css);
+        $this->assertStringContainsString('scroll-margin-bottom:11rem;', $css);
+    }
+
+    public function test_product_detail_reads_customer_cart_without_creating_an_empty_cart(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'customer-cart-read', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی مشتری', 'customer-cart-read', 5000000);
+        $variant = $product->variants()->firstOrFail();
+        $customer = Customer::create(['mobile' => '09120000085', 'mobile_verified_at' => now()]);
+        $this->actingAs($customer, 'customer');
+
+        $this->assertFalse($customer->cart()->exists());
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => count((array) $quantities) === 0);
+
+        $this->assertFalse($customer->cart()->exists());
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$variant->id} ?? 0) === 2);
+
+        $this->assertDatabaseCount('carts', 1);
+    }
+
     public function test_product_preview_posts_selected_variant_to_existing_guest_cart_endpoint(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
