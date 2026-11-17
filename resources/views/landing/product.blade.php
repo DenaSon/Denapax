@@ -236,7 +236,7 @@
                 @endif
 
                 <p class="mt-8 text-xs leading-7 text-[#728272]">هزینه ارسال در مرحله تکمیل سفارش مشخص می‌شود.</p>
-                <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" class="mt-3 text-xs leading-7" />
+                <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" :manual-available="$manualAvailable" class="mt-3 text-xs leading-7" />
             </article>
         </div>
 
