@@ -208,7 +208,7 @@ class OutboxNotificationLifecycleTest extends TestCase
         ]);
         $eventId = (string) Str::uuid();
 
-        \Illuminate\Support\Facades\DB::table('outbox_events')->insert([
+        DB::table('outbox_events')->insert([
             'id' => $eventId,
             'aggregate_type' => 'order',
             'aggregate_id' => $order->id,
