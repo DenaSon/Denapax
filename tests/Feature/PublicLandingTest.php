@@ -176,9 +176,19 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('php artisan vendor:publish --tag=livewire:assets --force', $script);
         $this->assertStringContainsString('storage/app/public/landing/denapax-kuhgol-1200x900.webp', $script);
         $this->assertStringContainsString('getimagesize', $script);
+        $this->assertStringContainsString('PHP_STORAGE_USER=www-data', $script);
+        $this->assertStringContainsString('chown -R "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$PUBLIC_STORAGE"', $script);
+        $this->assertStringContainsString('storage_uid=$(id -u "$PHP_STORAGE_USER")', $script);
+        $this->assertStringContainsString('denapax-kuhgol-1200x900_261117145040.webp', $script);
+        $this->assertStringContainsString('cp "$local_source" "$temp_file"', $script);
+        $this->assertLessThan(
+            strpos($script, 'mkdir -p "$PUBLIC_STORAGE/landing"'),
+            strpos($script, 'chown -R "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$PUBLIC_STORAGE"'),
+        );
         $this->assertStringNotContainsString('php artisan migrate', $script);
         $this->assertStringContainsString('Never expose storage/app/private', $script);
         $this->assertStringNotContainsString('php artisan storage:unlink', $script);
+        $this->assertDoesNotMatchRegularExpression('/^\\s*chmod\\s+777\\b/m', $script);
     }
 
     public function test_mobile_headers_remain_visible_and_reduce_brand_navigation(): void
