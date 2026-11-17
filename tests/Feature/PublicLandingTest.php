@@ -171,8 +171,9 @@ class PublicLandingTest extends TestCase
         $product = $this->product($category, 'گردوی دنا', 'sticky-header-walnut', 13890000);
 
         $this->get('/')->assertOk()
-            ->assertSee('<header class="fixed inset-x-0 top-0 z-50 text-white', false)
-            ->assertSee('headerCompact ? \'h-16 border-white/10 md:h-20\'', false)
+            ->assertSee('<header class="landing-header fixed inset-x-0 top-0 z-50 text-white', false)
+            ->assertSee('x-bind:class="headerCompact ? \'is-compact\' : \'is-transparent\'"', false)
+            ->assertSee('landing-header-inner', false)
             ->assertDontSee('x-on:click="closeMenu(true)" href="#story"', false);
 
         $this->get(route('products.show', $product->slug))->assertOk()
