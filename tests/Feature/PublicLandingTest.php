@@ -527,7 +527,9 @@ class PublicLandingTest extends TestCase
     {
         $this->get('/')->assertOk()
             ->assertSee(route('cart.index'))
-            ->assertDontSee('https://t.me/')
+            ->assertSee('https://t.me/m_asadix7', false)
+            ->assertDontSee('api.telegram.org')
+            ->assertDontSee('bot_token')
             ->assertDontSee('تلگرام');
 
         $this->get('/cart')->assertOk()->assertSee('سبد خرید');
