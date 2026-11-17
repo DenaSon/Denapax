@@ -6,7 +6,7 @@
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.
 
-**State evidence:** Web Phases 1–3, 4A and 4B are merged. Current `master` is `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 962 assertions, Composer audit/validation, Pint and Vite. The owner confirmed real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
+**State evidence:** Web Phases 1–3, 4A and 4B are merged. Current `master` is `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 973 assertions, Composer audit/validation, Pint and Vite. The owner confirmed real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
 
 ## What is implemented
 
