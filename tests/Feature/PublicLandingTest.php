@@ -312,7 +312,7 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('data-gallery-lightbox', false);
     }
 
-    public function test_single_photo_is_linkable_without_javascript_and_opens_native_lightbox_when_available(): void
+    public function test_single_photo_gallery_is_non_zoomable_and_keeps_a_plain_product_image(): void
     {
         Storage::fake('public');
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
@@ -322,9 +322,11 @@ class PublicLandingTest extends TestCase
 
         $this->get(route('products.show', $product->slug))
             ->assertOk()
-            ->assertSee('data-gallery-open', false)
-            ->assertSee('data-gallery-lightbox', false)
-            ->assertSee('product-gallery-single-fallback')
+            ->assertSee('data-gallery-main', false)
+            ->assertSee('data-gallery-thumb', false)
+            ->assertDontSee('data-gallery-open', false)
+            ->assertDontSee('data-gallery-lightbox', false)
+            ->assertDontSee('product-gallery-single-fallback')
             ->assertDontSee('data-gallery-step', false)
             ->assertDontSee('data-gallery-thumbs', false);
     }
@@ -353,9 +355,10 @@ class PublicLandingTest extends TestCase
             ->assertOk()
             ->assertSee('data-gallery-thumbs', false)
             ->assertSee('data-gallery-step="1"', false)
-            ->assertSee('data-lightbox-viewport', false)
-            ->assertSee('data-lightbox-zoom-in', false)
-            ->assertSee('data-image-full-url=', false)
+            ->assertSee('data-image-url=', false)
+            ->assertDontSee('data-gallery-lightbox', false)
+            ->assertDontSee('data-lightbox-zoom-in', false)
+            ->assertDontSee('data-image-full-url=', false)
             ->assertSee('data-gallery-index="2"', false)
             ->assertSee('data-variant-photo-index="2"', false)
             ->assertSee('aria-current="true"', false)
@@ -365,8 +368,10 @@ class PublicLandingTest extends TestCase
 
         $this->assertStringContainsString('storefront.js', file_get_contents(base_path('vite.config.js')));
         $galleryScript = file_get_contents(resource_path('js/product-gallery.js'));
-        $this->assertStringContainsString('function updateZoomBounds()', $galleryScript);
-        $this->assertStringContainsString('maxZoom = Number.isFinite(fitScale)', $galleryScript);
+        $this->assertStringContainsString('function show(index, scrollThumb = true)', $galleryScript);
+        $this->assertStringContainsString('touchstart', $galleryScript);
+        $this->assertStringNotContainsString('updateZoomBounds', $galleryScript);
+        $this->assertStringNotContainsString('pinch', $galleryScript);
         $this->assertStringContainsString('max-width:560px', str_replace(' ', '', file_get_contents(resource_path('css/landing.css'))));
 
         $this->assertStringContainsString("import './product-gallery';", file_get_contents(resource_path('js/storefront.js')));
@@ -424,6 +429,8 @@ class PublicLandingTest extends TestCase
             ->assertSee('x-on:cart-added.window="handleCartAdded($event)"', false)
             ->assertSee('x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)"', false)
             ->assertSee('data-product-purchase-panel', false)
+            ->assertSee('جمع قیمت برای', false)
+            ->assertSee('1,000,000')
             ->assertSee('x-show="hasSelectedInCart"', false)
             ->assertSee('x-on:click="setSelectedQuantity(selectedCartQuantity + 1)"', false)
             ->assertSee('name="variant_id"', false)
@@ -435,8 +442,10 @@ class PublicLandingTest extends TestCase
             ->assertViewHas('variantPurchaseData', fn (array $variants): bool => count($variants) === 2
                 && $variants[0]['id'] === $firstVariant->id
                 && $variants[0]['priceLabel'] === '500,000'
+                && $variants[0]['priceToman'] === '500000'
                 && $variants[1]['id'] === $secondVariant->id
-                && $variants[1]['priceLabel'] === '720,000');
+                && $variants[1]['priceLabel'] === '720,000'
+                && $variants[1]['priceToman'] === '720000');
 
         $this->assertStringContainsString('<livewire:store.add-to-cart />', file_get_contents(resource_path('views/landing/product.blade.php')));
         $this->assertStringContainsString("import './product-purchase';", file_get_contents(resource_path('js/storefront.js')));
@@ -444,6 +453,8 @@ class PublicLandingTest extends TestCase
         $script = file_get_contents(resource_path('js/product-purchase.js'));
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
         $this->assertStringContainsString("window.Livewire.dispatch('cart-quantity-requested'", $script);
+        $this->assertStringContainsString("new Intl.NumberFormat('en-US'", $script);
+        $this->assertStringContainsString('pendingPreviousQuantity', $script);
         $this->assertStringContainsString('window.Livewire.interceptRequest', $script);
         $this->assertStringContainsString('onError(({ response, preventDefault }) =>', $script);
         $this->assertStringContainsString('onFailure(() =>', $script);
