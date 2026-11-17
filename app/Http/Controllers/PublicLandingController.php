@@ -36,18 +36,25 @@ class PublicLandingController extends Controller
         $search = is_string($requestedSearch) && mb_strlen($requestedSearch) <= 80
             ? trim($requestedSearch)
             : '';
-        $normalizedSearch = str_replace(['%', '_'], '', PersianSearch::normalize($search));
+        $searchTerms = PersianSearch::terms($search);
 
         $products = Product::query()
             ->publiclyOrderable()
             ->when($selectedCategory !== null, fn (Builder $query) => $query
                 ->whereHas('category', fn (Builder $category) => $category->where('slug', $selectedCategory)))
-            ->when($normalizedSearch !== '', function (Builder $query) use ($normalizedSearch): void {
-                $query->where(function (Builder $match) use ($normalizedSearch): void {
-                    foreach (['title', 'summary', 'description'] as $column) {
-                        $match->orWhereRaw(PersianSearch::sql($column).' LIKE ?', ['%'.$normalizedSearch.'%']);
-                    }
-                });
+            ->when($searchTerms !== [], function (Builder $query) use ($searchTerms): void {
+                foreach ($searchTerms as $term) {
+                    $like = '%'.$term.'%';
+
+                    $query->where(function (Builder $match) use ($like): void {
+                        foreach (['title', 'summary', 'description', 'slug'] as $column) {
+                            $match->orWhereRaw(PersianSearch::sql($column).' LIKE ?', [$like]);
+                        }
+
+                        $match->orWhereHas('category', fn (Builder $category) => $category
+                            ->whereRaw(PersianSearch::sql('name').' LIKE ?', [$like]));
+                    });
+                }
             })
             ->with([
                 'category',

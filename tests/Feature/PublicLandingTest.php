@@ -107,6 +107,7 @@ class PublicLandingTest extends TestCase
         $script = file_get_contents(resource_path('js/landing.js'));
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
         $this->assertStringContainsString('loadCatalog(url.href, true, true, true, false)', $script);
+        $this->assertStringContainsString("target?.closest?.('form[role=\"search\"]')", $script);
         $this->assertStringContainsString('replaceState', $script);
         $this->assertStringContainsString('setSelectionRange', $script);
     }
@@ -117,7 +118,16 @@ class PublicLandingTest extends TestCase
         $product = $this->product($category, 'مغز گردوي دنا', 'walnut-arabic-yeh', 13890000);
 
         $this->get('/?q=گردو')->assertOk()->assertSee($product->title);
+        $this->get('/?q=گردوی')->assertOk()->assertSee($product->title);
         $this->get('/?q=گردوي')->assertOk()->assertSee($product->title);
+        $this->get('/?q=دنا')->assertOk()->assertSee($product->title);
+        $this->get('/?q=گردو%20دنا')->assertOk()->assertSee($product->title);
+        $this->get('/?q=walnut-arabic-yeh')->assertOk()->assertSee($product->title);
+        $this->get('/?q=خشکبار')->assertOk()->assertSee($product->title);
+
+        $catalog = app(BrowseCatalog::class);
+        $this->assertTrue($catalog->products(null, 'دنا')->getCollection()->contains('id', $product->id));
+        $this->assertTrue($catalog->products(null, 'گردو دنا')->getCollection()->contains('id', $product->id));
 
         $arabicKaf = $this->product($category, 'كاجوی دنا', 'cashew-arabic-kaf', 9800000);
         $this->get('/?q=کاجو')->assertOk()->assertSee($arabicKaf->title);
@@ -148,7 +158,9 @@ class PublicLandingTest extends TestCase
         $this->get('/')->assertOk()
             ->assertSee('Mohammad Asadi')
             ->assertSee('https://t.me/m_asadix7', false)
-            ->assertSee('Farid Atar · CC BY 3.0')
+            ->assertSee('طراحی و توسعه:')
+            ->assertDontSee('Farid Atar · CC BY 3.0')
+            ->assertDontSee('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', false)
             ->assertSee('tel:09120000000', false);
 
         $this->get(route('products.show', $product->slug))->assertOk()
@@ -171,7 +183,9 @@ class PublicLandingTest extends TestCase
             ->assertSee('aria-label="ویژگی‌های خرید از دناپکس"', false)
             ->assertSee('وزن، مشخصات و قیمت به تومان')
             ->assertSee('class="landing-story-panel"', false)
-            ->assertSee('از انتخاب محصول تا ثبت سفارش')
+            ->assertSee('مراحل سفارش')
+            ->assertSee('۱. انتخاب محصول · ۲. مشاهده سبد خرید · ۳. ورود و ثبت نشانی · ۴. انتخاب روش پرداخت')
+            ->assertDontSee('از انتخاب محصول تا ثبت سفارش')
             ->assertSee('class="product-card-action', false)
             ->assertDontSee('product-card-featured')
             ->assertDontSee('DENAPAX / SELECTED');
@@ -183,6 +197,7 @@ class PublicLandingTest extends TestCase
 
         $this->assertStringContainsString('.landing-assurance-grid', $css);
         $this->assertStringContainsString('.landing-story-panel', $css);
+        $this->assertStringNotContainsString('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', $css);
         $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
     }
