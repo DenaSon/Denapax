@@ -65,6 +65,14 @@ class WebCheckoutFlowTest extends TestCase
             ->assertSee('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.')
             ->assertDontSee('زرین‌پال');
 
+        config()->set('zarinpal.enabled', true);
+        config()->set('zarinpal.merchant_id', 'invalid-merchant-id');
+        $this->get(route('products.show', 'dena-prunes'))->assertOk()
+            ->assertDontSee('زرین‌پال');
+
+        config()->set('zarinpal.enabled', false);
+        config()->set('zarinpal.merchant_id', '');
+
         $address = $this->makeAddress();
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
         $this->post(route('checkout.preview'), ['address_id' => $address->id])
