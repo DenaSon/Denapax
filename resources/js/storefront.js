@@ -2,6 +2,7 @@
 // Livewire owns Alpine; modules own page-local setup and cleanup on navigation.
 import './landing';
 import './product-gallery';
+import './product-purchase';
 import './store';
 import './otp-challenge';
 import './navigation';
