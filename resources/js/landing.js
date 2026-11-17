@@ -24,6 +24,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('landingPage', () => ({
         menuOpen: false,
         hasScrolled: false,
+        headerCompact: false,
         scrollProgress: 0,
         activeSection: 'products',
         scrollFrame: null,
@@ -37,6 +38,7 @@ document.addEventListener('alpine:init', () => {
             const updateScroll = () => {
                 this.scrollFrame = null;
                 this.hasScrolled = window.scrollY > 400;
+                this.headerCompact = window.scrollY > 48;
 
                 const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
                 this.scrollProgress = scrollableHeight > 0
