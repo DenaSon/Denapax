@@ -64,7 +64,7 @@ Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private
 
 ## Next code backlog after #103
 
-Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Keep P0 release gates authoritative. The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir customer OTP, but it requires owner-provided provider credentials, HTTPS staging and real delivery acceptance; keep `CUSTOMER_SMS_DRIVER=disabled` until that evidence exists. Do not start provider activation or weaken the fail-closed default based on CI alone. This P2 code task does not reduce or replace the P0 release gates below.
+Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Keep P0 release gates authoritative. The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir customer OTP, but it requires owner-provided provider credentials, HTTPS staging and real delivery acceptance; keep `CUSTOMER_SMS_DRIVER=disabled` until that evidence exists. Do not start provider activation or weaken the fail-closed default based on CI alone. Provider integration does not reduce or replace the P0 release gates below.
 
 ## Next work: Web Phase 4
 
