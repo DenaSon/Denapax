@@ -94,6 +94,59 @@ class ReactiveCartTest extends TestCase
         $this->get(route('cart.index'))->assertOk()->assertSee('سبد خرید شما خالی است.');
     }
 
+    public function test_product_purchase_quantity_event_updates_guest_cart_and_keeps_sellability_authoritative(): void
+    {
+        $variant = $this->variant();
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-quantity-requested', variantId: $variant->id, quantity: 4)
+            ->assertDispatched('cart-updated')
+            ->assertDispatched('cart-quantity-updated');
+
+        $this->assertSame(4, app(StoreCart::class)->lines(null)->first()['quantity']);
+
+        $variant->update(['is_available' => false]);
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-quantity-requested', variantId: $variant->id, quantity: 5)
+            ->assertDispatched('cart-add-failed');
+
+        $this->assertSame(4, app(StoreCart::class)->lines(null)->first()['quantity']);
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-quantity-requested', variantId: $variant->id, quantity: 0)
+            ->assertDispatched('cart-quantity-updated');
+
+        $this->assertCount(0, app(StoreCart::class)->lines(null));
+    }
+
+    public function test_product_purchase_quantity_event_updates_customer_cart(): void
+    {
+        $variant = $this->variant('customer-purchase');
+        $customer = Customer::create(['mobile' => '09120000084', 'mobile_verified_at' => now()]);
+        $this->actingAs($customer, 'customer');
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-quantity-requested', variantId: $variant->id, quantity: 3)
+            ->assertDispatched('cart-updated')
+            ->assertDispatched('cart-quantity-updated');
+
+        $this->assertDatabaseHas('cart_items', [
+            'product_variant_id' => $variant->id,
+            'quantity' => 3,
+        ]);
+    }
+
     public function test_cart_uses_responsive_product_list_and_fixed_loading_feedback(): void
     {
         $variant = $this->variant();
