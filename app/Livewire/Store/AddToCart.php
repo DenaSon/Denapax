@@ -28,6 +28,16 @@ class AddToCart extends Component
         $this->dispatch('cart-added', variantId: $variantId, quantity: $quantity);
     }
 
+    #[On('cart-state-requested')]
+    public function refreshQuantity(int $variantId): void
+    {
+        $line = app(StoreCart::class)->lines(auth('customer')->user())
+            ->first(fn (array $line): bool => (int) $line['variant']->id === $variantId);
+
+        $this->dispatch('cart-updated');
+        $this->dispatch('cart-quantity-updated', variantId: $variantId, quantity: (int) ($line['quantity'] ?? 0));
+    }
+
     #[On('cart-quantity-requested')]
     public function setQuantity(int $variantId, int $quantity): void
     {
