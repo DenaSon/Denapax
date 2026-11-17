@@ -8,10 +8,13 @@ document.addEventListener('alpine:init', () => {
         expiresAt: null,
         resendAt: null,
         codeUsable: false,
+        serverOffset: 0,
         now: Date.now(),
         timer: null,
 
         init() {
+            const serverNow = Number(this.$root.dataset.otpServerNow) || Date.now();
+            this.serverOffset = serverNow - Date.now();
             this.currentMobile = this.$root.dataset.otpCurrentMobile || '';
             this.mobile = this.$root.dataset.otpEnteredMobile || this.currentMobile;
             this.expiresAt = Number(this.$root.dataset.otpExpiresAt) || null;
@@ -22,7 +25,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         tick() {
-            this.now = Date.now();
+            this.now = Date.now() + this.serverOffset;
         },
 
         get sameMobile() {
