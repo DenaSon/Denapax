@@ -26,6 +26,7 @@ class OutboxNotificationLifecycleTest extends TestCase
     {
         parent::setUp();
 
+        $this->withoutVite();
         $this->seed(RolesAndPermissionsSeeder::class);
     }
 
