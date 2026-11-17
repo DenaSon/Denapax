@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Current `master`: `c1468eed7aacd12ac95a56bf23ba3b93612a9ef5`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44070505820) passed with 132 tests / 945 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-17.** Current `master`: `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 962 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -24,6 +24,13 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 | Web inbox/outbox reliability | Atomic event claims, leased dispatch recovery, unique jobs, bounded retries, terminal failure visibility and authorized manual retry | [PR #126](https://github.com/DenaSon/Denapax/pull/126), merge `12283896d7f8a45c674ed91f5f9c8a81e935f374`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44049700399): 121 tests / 851 assertions |
 
 **Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
+
+## OTP expiry and resend UX — implemented (2026-11-17)
+
+- [PR #133](https://github.com/DenaSon/Denapax/pull/133) adds a visible server-timed five-minute OTP validity countdown and 60-second same-number resend countdown.
+- A changed destination number remains available; the UI countdown is guidance only and does not weaken server-side expiry, attempt limits or IP/mobile throttling.
+- Native POST forms remain functional without JavaScript. Focused feature coverage and CI passed (134 tests / 962 assertions on the merged master baseline).
+- Issue [#113](https://github.com/DenaSon/Denapax/issues/113) is closed. Real-device acceptance remains part of the wider Phase 4B checklist.
 
 ## P1 SMS.ir OTP — implementation and owner operational acceptance complete
 
