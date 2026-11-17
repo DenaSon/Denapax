@@ -13,7 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-class DeliverOutboxNotification implements ShouldQueue, ShouldBeUnique
+class DeliverOutboxNotification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -120,7 +120,7 @@ class DeliverOutboxNotification implements ShouldQueue, ShouldBeUnique
                 ->lockForUpdate()
                 ->first();
 
-            if (! $event || $event->processed_at !== null) {
+            if ($event === null || $event->processed_at !== null) {
                 return null;
             }
 
