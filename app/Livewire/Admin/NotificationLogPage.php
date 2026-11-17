@@ -27,7 +27,7 @@ class NotificationLogPage extends Component
         abort_unless($staff?->is_active, 403);
         Gate::forUser($staff)->authorize('orders.update');
 
-        $eventId = DB::transaction(function () use ($logId): ?string {
+        $eventId = DB::transaction(function () use ($logId, $staff): ?string {
             $log = NotificationLog::query()
                 ->where('channel', 'web')
                 ->whereKey($logId)
