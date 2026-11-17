@@ -76,7 +76,7 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('.admin-shell :is(a[href]', $adminCss);
     }
 
-    public function test_refreshed_landing_keeps_real_category_links_and_compact_static_sections(): void
+    public function test_refreshed_landing_uses_livewire_category_navigation_and_compact_static_sections(): void
     {
         $nuts = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $this->product($nuts, 'گردوی دنا', 'dena-walnuts', 450000);
@@ -84,8 +84,9 @@ class PublicLandingTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('گردوی دنا')
-            ->assertSee('data-catalog-link href="'.route('home', ['category' => 'nuts']).'#products"', false)
-            ->assertSee('x-on:click="handleCatalogClick($event)"', false)
+            ->assertSee('wire:navigate href="'.route('home', ['category' => 'nuts']).'#products"', false)
+            ->assertDontSee('data-catalog-link', false)
+            ->assertDontSee('handleCatalogClick', false)
             ->assertSee('id="products" data-chapter', false)
             ->assertSee('id="order" data-chapter', false)
             ->assertDontSee('هر محصول، روایتی از یک جاست.')
@@ -93,23 +94,21 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('به تلگرام.');
     }
 
-    public function test_catalog_search_runs_only_after_explicit_submit_and_keeps_native_get_fallback(): void
+    public function test_search_form_uses_a_dedicated_results_page_and_livewire_navigation(): void
     {
         $this->get('/')->assertOk()
-            ->assertSee('x-on:submit.prevent="submitCatalogSearch($event)"', false)
-            ->assertDontSee('x-on:input.debounce', false)
-            ->assertSee('x-on:submit.prevent="submitPreviewCart()"', false)
-            ->assertSee('method="GET"', false)
-            ->assertSee('action="'.route('cart.add').'"', false);
-
-        $this->assertStringContainsString('<livewire:store.add-to-cart', file_get_contents(resource_path('views/landing/index.blade.php')));
+            ->assertSee('action="'.route('search').'"', false)
+            ->assertSee('x-data="storeSearch"', false)
+            ->assertSee('x-on:submit.prevent="submit($event)"', false)
+            ->assertDontSee('denapax-product-preview', false)
+            ->assertDontSee('landing-product-data', false);
 
         $script = file_get_contents(resource_path('js/landing.js'));
-        $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
-        $this->assertStringContainsString('loadCatalog(url.href, true, true, true, false)', $script);
-        $this->assertStringContainsString("target?.closest?.('form[role=\"search\"]')", $script);
-        $this->assertStringContainsString('replaceState', $script);
-        $this->assertStringContainsString('setSelectionRange', $script);
+        $this->assertStringContainsString("Alpine.data('storeSearch'", $script);
+        $this->assertStringContainsString('window.Livewire.navigate(url.toString())', $script);
+        $this->assertStringNotContainsString('loadCatalog', $script);
+        $this->assertStringNotContainsString('innerHTML', $script);
+        $this->assertStringNotContainsString('openProduct', $script);
     }
 
     public function test_catalog_search_matches_persian_and_arabic_yah_and_kaf_forms_for_sellable_products(): void
@@ -117,31 +116,32 @@ class PublicLandingTest extends TestCase
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $product = $this->product($category, 'مغز گردوي دنا', 'walnut-arabic-yeh', 13890000);
 
-        $this->get('/?q=گردو')->assertOk()->assertSee($product->title);
-        $this->get('/?q=گردوی')->assertOk()->assertSee($product->title);
-        $this->get('/?q=گردوي')->assertOk()->assertSee($product->title);
-        $this->get('/?q=دنا')->assertOk()->assertSee($product->title);
-        $this->get('/?q=گردو%20دنا')->assertOk()->assertSee($product->title);
-        $this->get('/?q=walnut-arabic-yeh')->assertOk()->assertSee($product->title);
-        $this->get('/?q=خشکبار')->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'گردو']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'گردوی']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'گردوي']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'دنا']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'گردو دنا']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'walnut-arabic-yeh']))->assertOk()->assertSee($product->title);
+        $this->get(route('search', ['q' => 'خشکبار']))->assertOk()->assertSee($product->title);
 
         $catalog = app(BrowseCatalog::class);
         $this->assertTrue($catalog->products(null, 'دنا')->getCollection()->contains('id', $product->id));
         $this->assertTrue($catalog->products(null, 'گردو دنا')->getCollection()->contains('id', $product->id));
 
         $arabicKaf = $this->product($category, 'كاجوی دنا', 'cashew-arabic-kaf', 9800000);
-        $this->get('/?q=کاجو')->assertOk()->assertSee($arabicKaf->title);
+        $this->get(route('search', ['q' => 'کاجو']))->assertOk()->assertSee($arabicKaf->title);
     }
 
-    public function test_product_preview_primary_click_uses_dialog_without_livewire_navigation_and_keeps_real_link_fallback(): void
+    public function test_homepage_product_cards_navigate_directly_to_indexable_product_pages(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
-        $product = $this->product($category, 'گردوی دنا', 'preview-no-navigation', 13890000);
+        $product = $this->product($category, 'گردوی دنا', 'direct-product-navigation', 13890000);
 
         $this->get('/')->assertOk()
-            ->assertSee('x-on:click="openProduct('.$product->id.', $event)"', false)
-            ->assertSee('href="'.route('products.show', ['slug' => $product->slug]).'"', false)
-            ->assertDontSee('wire:navigate href="'.route('products.show', ['slug' => $product->slug]).'"', false);
+            ->assertSee('wire:navigate href="'.route('products.show', ['slug' => $product->slug]).'"', false)
+            ->assertDontSee('openProduct(', false)
+            ->assertDontSee('aria-haspopup="dialog"', false)
+            ->assertDontSee('denapax-product-preview', false);
     }
 
     public function test_storefront_footers_show_support_and_developer_credit_without_external_photo_attribution(): void
@@ -235,41 +235,22 @@ class PublicLandingTest extends TestCase
         $this->get('/?category=unknown')->assertOk()->assertSee('آلو بخارا');
     }
 
-    public function test_product_preview_contains_only_orderable_variants_and_safe_public_details(): void
+    public function test_homepage_does_not_render_product_preview_payload_or_dialog(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
-        $product = $this->product($category, 'گردوی دنا', 'dena-walnut', 13890000);
-        $product->update([
-            'summary' => 'گردوی طبیعی',
-            'description' => 'توضیحات </script><script>alert(1)</script>',
-        ]);
-        $product->features()->create([
-            'name' => 'خاستگاه', 'value' => 'سی‌سخت', 'sort_order' => 1,
-        ]);
-        $product->variants()->create([
-            'sku' => 'HIDDEN-VARIANT', 'title' => 'تنوع غیرقابل سفارش',
-            'sale_quantity' => 1, 'sale_unit' => 'kg', 'price_irr' => 100000,
-            'shipping_weight_grams' => 1000, 'is_available' => false,
-        ]);
+        $product = $this->product($category, 'گردوی دنا', 'no-home-preview-payload', 13890000);
+        $product->update(['description' => 'توضیحات </script><script>alert(1)</script>']);
 
-        $this->get('/')
+        $this->get('/')->assertOk()
+            ->assertSee('گردوی دنا')
+            ->assertDontSee('denapax-product-preview', false)
+            ->assertDontSee('landing-product-data', false)
+            ->assertDontSee('productPreviews', false)
+            ->assertDontSee('</script><script>alert(1)</script>', false);
+
+        $this->get(route('products.show', $product->slug))
             ->assertOk()
-            ->assertSee('id="denapax-product-preview"', false)
-            ->assertSee('x-on:click="openProduct(', false)
-            ->assertSee('id="landing-product-data"', false)
-            ->assertDontSee('</script><script>alert(1)</script>', false)
-            ->assertViewHas('productPreviews', function (array $previews) use ($product): bool {
-                $preview = $previews[$product->id] ?? null;
-
-                return $preview !== null
-                    && $preview['title'] === 'گردوی دنا'
-                    && $preview['description'] === 'توضیحات </script><script>alert(1)</script>'
-                    && $preview['features'] === [['name' => 'خاستگاه', 'value' => 'سی‌سخت']]
-                    && count($preview['variants']) === 1
-                    && $preview['variants'][0]['price'] === '1,389,000'
-                    && $preview['variants'][0]['size'] === '0.5 کیلوگرم'
-                    && $preview['images'] === [];
-            });
+            ->assertSee('توضیحات &lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;', false);
     }
 
     public function test_public_product_permalink_is_indexable_but_inactive_products_are_not(): void
@@ -581,9 +562,8 @@ class PublicLandingTest extends TestCase
             ->assertOk()
             ->assertSee('گردوی قابل سفارش')
             ->assertDontSee('محصول بدون وزن معتبر')
-            ->assertViewHas('productPreviews', function (array $previews) use ($visible): bool {
-                return count($previews[$visible->id]['variants'] ?? []) === 1;
-            });
+            ->assertDontSee('landing-product-data', false)
+            ->assertDontSee('denapax-product-preview', false);
 
         $this->get(route('products.show', $visible->slug))
             ->assertOk()
