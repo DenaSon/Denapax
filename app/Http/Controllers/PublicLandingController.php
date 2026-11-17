@@ -15,7 +15,7 @@ class PublicLandingController extends Controller
 {
     public function __invoke(Request $request, StoreCart $cart): View
     {
-        $orderable = static fn ($query) => $query->where('is_available', true)->where('price_irr', '>', 0);
+        $orderable = static fn ($query) => $query->availableForSale();
 
         // Only catalog is dynamic. Never expose unpublished or unsellable items.
         $categories = Category::query()
