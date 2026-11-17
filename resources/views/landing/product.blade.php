@@ -250,7 +250,7 @@
 
                                     <details class="product-purchase-fallback" x-show="!hasSelectedInCart">
                                         <summary>مشکل در افزودن دارید؟</summary>
-                                        <button type="submit" x-on:click="allowNativeSubmit = true">
+                                        <button type="submit" x-on:click="useNativeFallback()">
                                             افزودن با بارگذاری صفحه
                                         </button>
                                     </details>
