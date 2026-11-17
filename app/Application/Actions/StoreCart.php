@@ -71,9 +71,12 @@ class StoreCart
 
     public function lines(?Customer $customer): Collection
     {
-        $items = $customer
-            ? $this->carts->cart($customer)->items()->pluck('quantity', 'product_variant_id')->all()
-            : session()->get(self::SESSION_KEY, []);
+        if ($customer) {
+            $cart = $customer->cart()->first();
+            $items = $cart?->items()->pluck('quantity', 'product_variant_id')->all() ?? [];
+        } else {
+            $items = session()->get(self::SESSION_KEY, []);
+        }
 
         $variants = ProductVariant::query()->with(['product.category', 'product.media', 'media'])
             ->whereIn('id', array_keys($items))->get()->keyBy('id');
