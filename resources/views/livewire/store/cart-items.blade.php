@@ -1,4 +1,4 @@
-<section class="store-cart-page"
+<section class="store-cart-page{{ $lines->isNotEmpty() ? ' has-mobile-dock' : '' }}"
          wire:loading.class="is-updating"
          wire:loading.attr="aria-busy"
          wire:target="changeQuantity,remove">
@@ -197,6 +197,25 @@
                     <p>مبلغ‌ها به تومان نمایش داده می‌شوند.</p>
                 </div>
             </aside>
+        </div>
+
+        <div class="store-cart-mobile-dock" aria-label="خلاصه سبد خرید و ادامه سفارش">
+            <div class="store-cart-mobile-dock-summary">
+                <span>{{ $totalQuantity }} عدد کالا</span>
+                <strong>{{ \App\Support\Money::formatToman((int) $subtotal) }} <small>تومان</small></strong>
+            </div>
+            @if ($lines->contains(fn ($line) => ! $line['available']))
+                <button type="button" class="store-cart-mobile-dock-action" disabled>
+                    ابتدا کالای ناموجود را حذف کنید
+                </button>
+            @else
+                <a wire:navigate href="{{ route('checkout.index') }}"
+                   class="store-cart-mobile-dock-action"
+                   wire:loading.class="is-loading" wire:target="changeQuantity,remove">
+                    ادامه به نشانی و ارسال
+                    <span aria-hidden="true">←</span>
+                </a>
+            @endif
         </div>
     @endif
 </section>
