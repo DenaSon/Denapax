@@ -152,9 +152,7 @@
                      x-data="productPurchase(@js($variantPurchaseData), @js($cartQuantities))"
                      x-on:cart-added.window="handleCartAdded($event)"
                      x-on:cart-add-failed.window="handleCartFailed($event)"
-                     x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)"
-                     x-on:focusin.window="handleFocusIn($event)"
-                     x-on:focusout.window="handleFocusOut()">
+                     x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)">
                 <div class="landing-label mb-5 text-[#a57c56]" lang="en">THE DENA COLLECTION / PRODUCT</div>
                 <h1 class="landing-display text-[clamp(2.35rem,4.6vw,4.9rem)] text-[#1b4231]">{{ $product->title }}</h1>
 
@@ -178,7 +176,7 @@
                 <section class="mt-8" aria-labelledby="product-variants">
                     <h2 id="product-variants" class="text-xl font-extrabold text-[#264c38]">انتخاب بسته و تعداد</h2>
                     @if ($product->variants->isNotEmpty())
-                        <form method="POST" action="{{ route('cart.add') }}" class="mt-5"
+                        <form method="POST" action="{{ route('cart.add') }}" class="product-purchase-form mt-5"
                               x-on:submit="handleAddSubmit($event)">
                             @csrf
                             <fieldset x-bind:disabled="busy">
@@ -225,9 +223,6 @@
                             <p x-show="error" x-text="error" role="alert" class="product-purchase-feedback product-purchase-error"></p>
 
                             <div class="product-purchase-panel" data-product-purchase-panel
-                                 x-bind:class="{ 'is-hidden': dockHidden }"
-                                 x-bind:aria-hidden="dockHidden.toString()"
-                                 x-bind:inert="dockHidden"
                                  x-bind:aria-busy="busy.toString()">
                                 <div class="product-purchase-panel-meta">
                                     <span class="product-purchase-panel-label">قیمت بسته انتخاب‌شده</span>
