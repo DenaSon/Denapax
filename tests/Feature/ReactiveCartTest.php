@@ -125,6 +125,23 @@ class ReactiveCartTest extends TestCase
         $this->assertCount(0, app(StoreCart::class)->lines(null));
     }
 
+    public function test_product_purchase_state_refresh_returns_authoritative_cart_quantity(): void
+    {
+        $variant = $this->variant();
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        Livewire::test(AddToCart::class)
+            ->dispatch('cart-state-requested', variantId: $variant->id)
+            ->assertDispatched('cart-updated')
+            ->assertDispatched('cart-quantity-updated');
+
+        $this->assertSame(2, app(StoreCart::class)->lines(null)->first()['quantity']);
+    }
+
     public function test_product_purchase_quantity_event_updates_customer_cart(): void
     {
         $variant = $this->variant('customer-purchase');
