@@ -7,7 +7,6 @@ use App\Models\CustomerNotification;
 use App\Models\NotificationLog;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
-use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
