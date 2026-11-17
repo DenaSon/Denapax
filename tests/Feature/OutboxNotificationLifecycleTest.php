@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -116,7 +117,7 @@ class OutboxNotificationLifecycleTest extends TestCase
             'next_attempt_at' => null,
         ]);
         $this->assertDatabaseCount('customer_notifications', 0);
-        $this->assertNull(\Illuminate\Support\Facades\DB::table('outbox_events')->where('id', $eventId)->value('processed_at'));
+        $this->assertNull(DB::table('outbox_events')->where('id', $eventId)->value('processed_at'));
     }
 
     public function test_authorized_staff_can_manually_retry_a_failed_web_notification(): void
