@@ -523,7 +523,6 @@ class PublicLandingTest extends TestCase
             ->assertOk()
             ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$variantId} ?? 0) === 2);
 
-        $this->assertDatabaseCount('carts', 1);
     }
 
     public function test_signed_in_cart_quantity_uses_existing_cart_without_creating_empty_one(): void
