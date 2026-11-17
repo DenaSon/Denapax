@@ -15,6 +15,9 @@ document.addEventListener('alpine:init', () => {
         notice: '',
         error: '',
         unsubscribeRequest: null,
+        needsReconciliation: false,
+        requiresReload: false,
+        failedVariantId: null,
 
         init() {
             const selected = this.$root.querySelector('input[name="variant_id"]:checked');
@@ -26,15 +29,19 @@ document.addEventListener('alpine:init', () => {
                         if (!this.pendingAction) return;
 
                         preventDefault();
-                        this.handleTransportFailure(response?.status === 419
+                        const expired = response?.status === 419;
+                        this.handleTransportFailure(expired
                             ? 'نشست شما منقضی شده است. صفحه را تازه کنید و دوباره وارد شوید.'
-                            : 'ارتباط با سرور با خطا مواجه شد. دوباره تلاش کنید.');
+                            : 'ارتباط با سرور با خطا مواجه شد. وضعیت سبد را بررسی کنید.', {
+                                reconcile: !expired,
+                                reload: expired,
+                            });
                     });
 
                     onFailure(() => {
                         if (!this.pendingAction) return;
 
-                        this.handleTransportFailure('ارتباط با سرور قطع شد. پس از بازگشت اتصال دوباره تلاش کنید.');
+                        this.handleTransportFailure('ارتباط با سرور قطع شد. پس از بازگشت اتصال، وضعیت سبد را بررسی کنید.');
                     });
                 });
             }
@@ -62,6 +69,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleAddSubmit(event) {
+            if (this.needsReconciliation) {
+                event.preventDefault();
+                return;
+            }
+
             if (this.allowNativeSubmit || !window.Livewire?.dispatch) {
                 this.allowNativeSubmit = false;
                 return;
@@ -72,7 +84,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         addSelected() {
-            if (this.busy || this.hasSelectedInCart) return;
+            if (this.busy || this.needsReconciliation || this.hasSelectedInCart) return;
 
             const variantId = Number(this.selectedVariantId);
             const quantity = Number(this.requestedQuantity);
@@ -94,7 +106,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         setSelectedQuantity(quantity) {
-            if (this.busy || !this.hasSelectedInCart) return;
+            if (this.busy || this.needsReconciliation || !this.hasSelectedInCart) return;
 
             const variantId = Number(this.selectedVariantId);
             const nextQuantity = Number(quantity);
@@ -131,6 +143,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.finishRequest();
+            this.needsReconciliation = false;
+            this.requiresReload = false;
+            this.failedVariantId = null;
             this.notice = 'محصول به سبد خرید اضافه شد.';
         },
 
@@ -143,19 +158,53 @@ document.addEventListener('alpine:init', () => {
                 this.cartQuantities = { ...this.cartQuantities, [variantId]: quantity };
             }
 
+            const action = this.pendingAction;
             this.finishRequest();
-            this.notice = quantity === 0 ? 'محصول از سبد خرید حذف شد.' : 'تعداد سبد خرید به‌روزرسانی شد.';
+            this.needsReconciliation = false;
+            this.requiresReload = false;
+            this.failedVariantId = null;
+            this.notice = action === 'refresh'
+                ? 'وضعیت سبد خرید به‌روز شد.'
+                : (quantity === 0 ? 'محصول از سبد خرید حذف شد.' : 'تعداد سبد خرید به‌روزرسانی شد.');
         },
 
         handleCartFailed(event) {
             this.finishRequest();
+            this.needsReconciliation = false;
+            this.requiresReload = false;
+            this.failedVariantId = null;
             this.error = event?.detail?.message || 'به‌روزرسانی سبد خرید انجام نشد. دوباره تلاش کنید.';
         },
 
-        handleTransportFailure(message) {
+        handleTransportFailure(message, { reconcile = true, reload = false } = {}) {
+            const failedVariantId = Number(this.pendingVariantId || this.selectedVariantId || 0);
             this.finishRequest();
+            this.needsReconciliation = reconcile && failedVariantId > 0;
+            this.requiresReload = reload;
+            this.failedVariantId = this.needsReconciliation ? failedVariantId : null;
             this.notice = '';
             this.error = message;
+        },
+
+        refreshSelectedQuantity() {
+            if (this.busy || !this.needsReconciliation || !this.failedVariantId) return;
+
+            if (!window.Livewire?.dispatch) {
+                this.handleTransportFailure('برای بررسی وضعیت سبد، صفحه را تازه کنید.', {
+                    reconcile: false,
+                    reload: true,
+                });
+                return;
+            }
+
+            const variantId = this.failedVariantId;
+            this.busy = true;
+            this.pendingAction = 'refresh';
+            this.pendingVariantId = variantId;
+            this.pendingQuantity = null;
+            this.clearFeedback();
+
+            window.Livewire.dispatch('cart-state-requested', { variantId });
         },
 
         finishRequest() {
