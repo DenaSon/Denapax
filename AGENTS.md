@@ -52,6 +52,10 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 
 Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private receipt + authorized bank verification is the primary customer checkout payment UI**. Preserve the integrated gateway behind `ZARINPAL_ENABLED=false`; when enabled with a valid merchant ID, online payment becomes primary and receipt upload remains fallback. This is a presentation/configuration change only; preserve all unresolved-attempt bank safeguards and private receipts. Do not treat SMS OTP as deployed or receipts as bank proof. See [manual-first payment operation](docs/45-manual-receipt-first-rollout.md).
 
+## Next scoped code issue after outbox reliability — #103
+
+The next focused backlog item is [#103](https://github.com/DenaSon/Denapax/issues/103): enforce one shared sellability rule across the public catalog and guest/customer cart quantity changes. Preserve decrement/removal for unavailable lines; reject increases when variant, product, category, price or shipping weight is invalid. Do not add numeric stock reservation in this scope. This P2 code task does not reduce or replace the P0 release gates below.
+
 ## Next work: Web Phase 4
 
 1. **4A — code implemented, real provider validation pending:** conservative no-retry rule, Zarinpal inquiry, operator-visible exceptions, evidence-backed clearance, callback/timeout/late Authority tests. Must validate real merchant API/settlement/currency before enabling gateway.
