@@ -6,6 +6,7 @@
                 x-data="otpChallenge"
                 data-otp-current-mobile="{{ session('customer_otp_mobile') }}"
                 data-otp-entered-mobile="{{ old('mobile', session('customer_otp_mobile')) }}"
+                data-otp-server-now="{{ $otpServerNow }}"
                 data-otp-expires-at="{{ $otpExpiresAt ?? '' }}"
                 data-otp-resend-at="{{ $otpResendAt ?? '' }}"
                 data-otp-code-usable="{{ $otpCodeUsable ? '1' : '0' }}"
