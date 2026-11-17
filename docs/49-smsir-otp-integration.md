@@ -23,7 +23,7 @@ Set these in the deployment secret/environment manager. Do not commit real value
 | `CUSTOMER_SMS_DRIVER` | Before activation | Set to `smsir` only after staging acceptance; default remains `disabled` |
 | `SMSIR_API_KEY` | Yes | API key from SMS.ir developer panel |
 | `SMSIR_VERIFY_TEMPLATE_ID` | Yes | Numeric ID of the approved Verify template |
-| `SMSIR_VERIFY_PARAMETER` | Yes | Exact template parameter name without `#`; defaults to `Code` |
+| `SMSIR_VERIFY_PARAMETER` | Yes | Exact template parameter name without `#`; defaults to `HOURS` |
 | `SMSIR_TIMEOUT` | No | Request timeout in seconds; default `8` |
 | `SMSIR_CONNECT_TIMEOUT` | No | Connection timeout in seconds; default `3` |
 
@@ -34,7 +34,7 @@ After changing deployment variables, rebuild Laravel's cached configuration usin
 ## SMS.ir account acceptance checklist
 
 1. Confirm the account API key and an active service line in the SMS.ir panel.
-2. Confirm the approved Verify template ID, exact parameter name and final Persian message wording. The default parameter is `Code`, but use the actual panel value if it differs.
+2. Confirm the approved Verify template ID, exact parameter name and final Persian message wording. The current owner-provided Verify template is `967976`, with the panel token `#HOURS#`. The SDK parameter name must be sent as `HOURS` without the `#` delimiters. The application default is now `HOURS`.
 3. Confirm the template can deliver to the intended Iranian mobile networks and that the account has sufficient credit.
 4. On HTTPS staging, set the variables above and temporarily set `CUSTOMER_SMS_DRIVER=smsir`.
 5. Send one OTP to an owner-authorized test mobile. Confirm the SMS.ir response/message ID and delivery report in the SMS.ir panel.

@@ -31,8 +31,8 @@ class SmsIrCustomerOtpTest extends TestCase
                 $code = $parameters[0]['value'] ?? null;
 
                 return $mobile === '09120000021'
-                    && $templateId === 765432
-                    && $parameters === [['name' => 'LoginCode', 'value' => $code]]
+                    && $templateId === 967976
+                    && $parameters === [['name' => 'HOURS', 'value' => $code]]
                     && is_string($code)
                     && preg_match('/^[0-9]{6}$/D', $code) === 1;
             })
@@ -187,8 +187,8 @@ class SmsIrCustomerOtpTest extends TestCase
         config()->set('customer_auth.sms_driver', 'smsir');
         config()->set('services.smsir', [
             'api_key' => 'test-api-key',
-            'verify_template_id' => '765432',
-            'verify_parameter' => 'LoginCode',
+            'verify_template_id' => '967976',
+            'verify_parameter' => 'HOURS',
             'timeout' => 8.0,
             'connect_timeout' => 3.0,
         ]);
