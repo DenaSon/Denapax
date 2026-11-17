@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\Actions\BrowseCatalog;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
@@ -381,6 +382,49 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('تلگرام');
 
         $this->get('/cart')->assertOk()->assertSee('سبد خرید');
+    }
+
+    public function test_zero_weight_variants_are_excluded_from_public_catalog_and_browse_actions(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'sellability-nuts', 'is_active' => true]);
+        $visible = $this->product($category, 'گردوی قابل سفارش', 'sellable-walnuts', 13890000);
+        $visible->variants()->create([
+            'sku' => 'WALNUT-ZERO-WEIGHT',
+            'title' => 'تنوع بدون وزن ارسال',
+            'sale_quantity' => 1,
+            'sale_unit' => 'kg',
+            'price_irr' => 1000000,
+            'shipping_weight_grams' => 0,
+            'is_available' => true,
+        ]);
+
+        $hidden = $this->product($category, 'محصول بدون وزن معتبر', 'zero-weight-product', 790000);
+        $hidden->variants()->update(['shipping_weight_grams' => 0]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('گردوی قابل سفارش')
+            ->assertDontSee('محصول بدون وزن معتبر')
+            ->assertViewHas('productPreviews', function (array $previews) use ($visible): bool {
+                return count($previews[$visible->id]['variants'] ?? []) === 1;
+            });
+
+        $this->get(route('products.show', $visible->slug))
+            ->assertOk()
+            ->assertDontSee('تنوع بدون وزن ارسال');
+
+        $this->get(route('products.show', $hidden->slug))->assertNotFound();
+
+        $this->get('/sitemap.xml')
+            ->assertOk()
+            ->assertSee($visible->slug)
+            ->assertDontSee($hidden->slug);
+
+        $catalog = app(BrowseCatalog::class);
+        $this->assertTrue($catalog->products()->getCollection()->contains('id', $visible->id));
+        $this->assertFalse($catalog->products()->getCollection()->contains('id', $hidden->id));
+        $this->assertCount(1, $catalog->product($visible->id)->variants);
+        $this->assertNull($catalog->product($hidden->id));
     }
 
     private function product(Category $category, string $title, string $slug, int $price): Product

@@ -18,8 +18,7 @@ class PublicProductController extends Controller
                 'features',
                 'media',
                 'variants' => fn ($query) => $query
-                    ->where('is_available', true)
-                    ->where('price_irr', '>', 0)
+                    ->availableForSale()
                     ->orderBy('sort_order'),
                 'variants.media',
             ])

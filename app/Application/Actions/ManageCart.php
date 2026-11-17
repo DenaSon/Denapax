@@ -21,13 +21,9 @@ class ManageCart
 
         DB::transaction(function () use ($customer, $variantId, $quantity): void {
             Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
-            $variant = ProductVariant::query()->whereKey($variantId)
-                ->where('is_available', true)
-                ->where('price_irr', '>', 0)
-                ->whereHas('product', fn ($q) => $q->published())
-                ->first();
+            $variant = ProductVariant::query()->sellable()->whereKey($variantId)->first();
 
-            if (! $variant || $variant->shipping_weight_grams <= 0) {
+            if (! $variant) {
                 throw ValidationException::withMessages(['cart' => 'این تنوع اکنون قابل خرید نیست.']);
             }
 
@@ -55,7 +51,10 @@ class ManageCart
 
         DB::transaction(function () use ($customer, $variantId, $quantity): void {
             Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
-            $line = $this->cart($customer)->items()->where('product_variant_id', $variantId)->first();
+            $line = $this->cart($customer)->items()
+                ->where('product_variant_id', $variantId)
+                ->lockForUpdate()
+                ->first();
 
             if (! $line) {
                 throw ValidationException::withMessages(['cart' => 'این کالا در سبد شما نیست.']);
@@ -63,9 +62,16 @@ class ManageCart
 
             if ($quantity === 0) {
                 $line->delete();
-            } else {
-                $line->update(['quantity' => $quantity]);
+
+                return;
             }
+
+            if ($quantity > $line->quantity
+                && ! ProductVariant::query()->sellable()->whereKey($variantId)->lockForUpdate()->first()) {
+                throw ValidationException::withMessages(['cart' => 'این تنوع اکنون قابل خرید نیست؛ فقط می‌توانید تعداد آن را کاهش دهید یا حذف کنید.']);
+            }
+
+            $line->update(['quantity' => $quantity]);
         });
     }
 
