@@ -19,10 +19,24 @@ class DispatchDueNotifications extends Command
     public function handle(): int
     {
         $ids = DB::table('outbox_events')
-            ->whereNull('processed_at')
-            ->orderBy('occurred_at')
+            ->leftJoin('notification_logs', function ($join): void {
+                $join->on('notification_logs.outbox_event_id', '=', 'outbox_events.id')
+                    ->where('notification_logs.channel', '=', 'web');
+            })
+            ->whereNull('outbox_events.processed_at')
+            ->where(function ($query): void {
+                $query->whereNull('notification_logs.id')
+                    ->orWhere(function ($query): void {
+                        $query->whereIn('notification_logs.status', ['queued', 'sending'])
+                            ->where(function ($query): void {
+                                $query->whereNull('notification_logs.next_attempt_at')
+                                    ->orWhere('notification_logs.next_attempt_at', '<=', now());
+                            });
+                    });
+            })
+            ->orderBy('outbox_events.occurred_at')
             ->limit(min(500, max(1, (int) $this->option('limit'))))
-            ->pluck('id');
+            ->pluck('outbox_events.id');
 
         $claimed = 0;
 
