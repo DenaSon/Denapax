@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Current `master`: `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 973 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-17.** Current `master`: `16688997d7bcbdb5f84131e3f2a6cf5e1d089181`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44076598005) passed with 135 tests / 1,002 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -23,13 +23,13 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 | Shared catalog/cart sellability | Central variant availability/price/weight and product/category sellability; server-side guest/customer quantity-increase guard; safe decrement/removal | [PR #128](https://github.com/DenaSon/Denapax/pull/128), merge `ea72ef6c1bc84f242a9ab13ba6f10c6cdd34b789`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44051594401): 125 tests / 918 assertions |
 | Web inbox/outbox reliability | Atomic event claims, leased dispatch recovery, unique jobs, bounded retries, terminal failure visibility and authorized manual retry | [PR #126](https://github.com/DenaSon/Denapax/pull/126), merge `12283896d7f8a45c674ed91f5f9c8a81e935f374`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44049700399): 121 tests / 851 assertions |
 
-**Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
+**Historical pre-gallery baseline:** 84 passed / 580 assertions. Current master evidence is recorded at the top of this ledger. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
 ## OTP expiry and resend UX — implemented (2026-11-17)
 
 - [PR #133](https://github.com/DenaSon/Denapax/pull/133) adds a visible server-timed five-minute OTP validity countdown and 60-second same-number resend countdown.
 - A changed destination number remains available; the UI countdown is guidance only and does not weaken server-side expiry, attempt limits or IP/mobile throttling.
-- Native POST forms remain functional without JavaScript. Focused feature coverage and CI passed (134 tests / 962 assertions on the merged master baseline).
+- Native POST forms remain functional without JavaScript. Focused feature coverage is included in the current master baseline (135 tests / 1,002 assertions).
 - Issue [#113](https://github.com/DenaSon/Denapax/issues/113) is closed. Real-device acceptance remains part of the wider Phase 4B checklist.
 
 ## P1 SMS.ir OTP — implementation and owner operational acceptance complete
@@ -127,6 +127,17 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - Variant price revision history and audit ([#70](https://github.com/DenaSon/Denapax/issues/70)).
 - Refund/return procedures and automation, discounts, sophisticated delivery options, if agreed.
 
+## P2 UX backlog — remaining code work
+
+The following issues are open implementation work and can proceed independently of deferred merchant onboarding and production operations:
+
+- **Product purchase and discovery:** [#108](https://github.com/DenaSon/Denapax/issues/108) reactive product-detail add-to-cart/mobile purchase dock; [#117](https://github.com/DenaSon/Denapax/issues/117) product-preview click/navigation conflict; [#118](https://github.com/DenaSon/Denapax/issues/118) submit-driven search and Persian walnut matching; [#116](https://github.com/DenaSon/Denapax/issues/116) gallery sizing/source-resolution audit.
+- **Checkout/cart:** [#110](https://github.com/DenaSon/Denapax/issues/110) complete saved-address details; [#121](https://github.com/DenaSon/Denapax/issues/121) fixed mobile cart checkout dock; [#115](https://github.com/DenaSon/Denapax/issues/115) mobile cart-count badge.
+- **Admin:** [#111](https://github.com/DenaSon/Denapax/issues/111) responsive product/category lists; [#114](https://github.com/DenaSon/Denapax/issues/114) upload previews/progress and save feedback.
+- **Brand and trust:** [#112](https://github.com/DenaSon/Denapax/issues/112) support/policy destinations (policy copy requires owner approval); [#119](https://github.com/DenaSon/Denapax/issues/119) consistent wordmark; [#120](https://github.com/DenaSon/Denapax/issues/120) hero copy; [#122](https://github.com/DenaSon/Denapax/issues/122) approved story copy.
+
+[Issue #106](https://github.com/DenaSon/Denapax/issues/106) is resolved by this handoff refresh; close it after this documentation PR merges. [#70](https://github.com/DenaSon/Denapax/issues/70) and [#107](https://github.com/DenaSon/Denapax/issues/107) remain explicitly Post-MVP and should not be pulled into the current release.
+
 ## Explicitly retired / excluded
 
 The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group alerts, Telegram identity columns and Telegram-first order UX are retired. Do not reactivate them. Historical docs/01–34 and old issue histories explain decisions from that period but are **not the active web specification**. There is no Redis or Horizon launch requirement; database queue is the approved implementation.
@@ -136,7 +147,7 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
 2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
 3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). SMS.ir implementation and owner-reported OTP acceptance are complete in [PRs #130/#131](https://github.com/DenaSon/Denapax/pull/130); [#124](https://github.com/DenaSon/Denapax/issues/124) is closed. Keep the repository default fail-closed; deployment activation is controlled by the environment.
-4. Next, complete Phase 4A real Zarinpal merchant/currency/callback and settlement acceptance, Phase 4B physical mobile QA, and Phase 4C target-MySQL migration plus Phase 4D operations/restore checks before any public-sales GO.
+4. Continue the P2 storefront/admin backlog in focused PRs, starting with product-detail purchase UX [#108](https://github.com/DenaSon/Denapax/issues/108). Keep Zarinpal #81 deferred until merchant onboarding; independently complete real-device QA, target-MySQL migration, manual receipt-first E2E, backup/restore and operations checks before any public-sales GO.
 5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.

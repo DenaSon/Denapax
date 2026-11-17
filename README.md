@@ -4,24 +4,21 @@
 
 Denapax sells Dena-region souvenirs and dried products through a customer web storefront. **Telegram ordering, Nutgram, bot/webhook and group alerts were retired** in the November 2026 web cutover. The staff/admin Fortify guard, product catalog, shipping, manual payment review, fulfillment and transactional outbox remain. Currency in the database is **integer IRR**; prices visible to customers/staff are formatted in **toman**.
 
-## Current status — 2026-11-15
+## Current status — 2026-11-17
 
-**Web Phases 1–3 and Phase 4A (payment-reconciliation safeguards) / 4B (mobile shopping UX) are implemented and merged to `master`. Phase 4C/4D — real providers, actual-device QA, staging/restore/operations and release sign-off — are still pending. This is NOT an approved public web-sales launch.**
+**Web Phases 1–3, Phase 4A/4B foundations, SMS.ir OTP integration and the SPA-like storefront are implemented and merged.** Current `master`: `16688997d7bcbdb5f84131e3f2a6cf5e1d089181`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44076598005) passed **135 tests / 1,002 assertions**. This is automated code validation on SQLite, not production certification.
 
-- **P1 — identity and foundation:** independent customer guard, verified phone OTP with fail-closed SMS transport, guest and persistent cart merge, removal of Telegram, web outbox/inbox persistence. [PR #77](https://github.com/DenaSon/Denapax/pull/77).
-- **P2 — checkout:** Persian product search, cart, saved addresses, weight-based delivery quote, immutable order totals, idempotent confirmation. [PR #78](https://github.com/DenaSon/Denapax/pull/78).
-- **P3 — payments and account:** online-first Zarinpal v4 request/verify flow and attempt ledger, manual private receipt upload with staff approval, customer order history/tracking and web inbox UI. [PR #79](https://github.com/DenaSon/Denapax/pull/79).
-- **P4A — money-safety code:** unknown gateway payments now block duplicate charges/receipts until provider inquiry and authorized operator reconciliation; admin exception review and verification fencing are implemented in [PR #82](https://github.com/DenaSon/Denapax/pull/82). **Phase 4B mobile UX code:** one-page delivery/shipping/confirm checkout, single-variant picker, one-tap cart quantities, compact OTP and address return; see [PR #83](https://github.com/DenaSon/Denapax/pull/83). **Additional UI polish ([PR #85](https://github.com/DenaSon/Denapax/pull/85)):** Tailwind source correction for customer Blade pages, consistent RTL forest/stone cards, mobile focus/tap styles, visible buying steps, clearer ambiguous-payment text and progressive copy/pending-action helpers. [Polish handoff](docs/42-web-storefront-ui-ux-polish.md). **Still pending:** real mobile browser acceptance, live Zarinpal/SMS provider checks, real merchant settlement, negative/E2E staging, target MySQL migration, private-media backup/restore, workers/alerts, Runflare deployment and owner go/no-go. [Phase 4 release plan](docs/38-web-phase4-release-readiness.md).
-
-**Verified `master` baseline before this gallery PR:** SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`, [green GitHub Actions run](https://github.com/DenaSon/Denapax/actions/runs/43726671634), 84 tests / 580 assertions + Composer locked production audit/validation, Pint, Vite build. CI uses SQLite and fake gateway responses, not a real bank or production-like MySQL environment. No target production migration, actual OTP delivery, real Zarinpal payment or isolated restore has been confirmed.
+- **Identity and OTP:** customer-only guard, hashed/time-limited OTP, rate limits and official SMS.ir Verify adapter. The owner confirmed real OTP delivery and successful customer login on the configured deployment; the exact deployment tier was not recorded. See [SMS.ir handoff](docs/49-smsir-otp-integration.md).
+- **Catalog and checkout:** Persian catalog, sellable variant filtering, guest/customer cart, saved addresses, authoritative weight-based shipping quote, immutable order snapshots and idempotent confirmation.
+- **Payment:** manual card-to-card transfer + private receipt + staff bank verification is the active path while `ZARINPAL_ENABLED=false`. Zarinpal remains integrated but is deferred because the owner does not yet have a merchant account; keep [#81](https://github.com/DenaSon/Denapax/issues/81) open.
+- **SPA-like storefront:** Livewire 4 navigation, reactive cart controls, landing product preview, product gallery, customer address/checkout components and responsive cart/loading feedback ([PRs #95–#100](https://github.com/DenaSon/Denapax/pulls?q=is%3Apr+is%3Amerged+95..100)). OTP expiry/resend countdown UX is in [PR #133](https://github.com/DenaSon/Denapax/pull/133).
+- **Still pending:** target-MySQL migration rehearsal, manual receipt-first end-to-end acceptance, iOS/Android browser checks, private database/receipt backup and isolated restore, supervised production workers/monitoring, rollback and owner/operator GO/NO-GO. **Public web-sales launch remains NO-GO.** See release gates [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25).
 
 A financial-exception operator screen exists at `/admin/payments/gateway`; `payments.view` can inspect, while only `payments.review` can initiate inquiry and evidence-backed clearance. See [Phase 4A technical runbook](docs/40-web-phase4a-gateway-reconciliation.md).
 
-The authoritative **done / remaining** list is [docs/39-web-roadmap-status.md](docs/39-web-roadmap-status.md). Open launch issues: [#11](https://github.com/DenaSon/Denapax/issues/11) / [#24](https://github.com/DenaSon/Denapax/issues/24) / [#25](https://github.com/DenaSon/Denapax/issues/25).
-
 ## Current payment priority while merchant onboarding is pending (2026-11-16)
 
-**Manual card-to-card transfer and private receipt upload are the primary payment UI when `ZARINPAL_ENABLED=false` (default).** Staff verify the actual bank deposit and approve/reject in `/admin/payments`. Zarinpal code remains integrated and switches to the primary online CTA automatically when `ZARINPAL_ENABLED=true` and a valid merchant ID are configured in the deployment environment, after live acceptance; manual receipts remain a fallback. No migration is needed to change this flag. The owner-reported live deployment is not proof of SMS OTP delivery or settlement checks; real checkout requires a configured SMS transport. See [manual-first rollout](docs/45-manual-receipt-first-rollout.md) and [release readiness](docs/38-web-phase4-release-readiness.md).
+**Manual card-to-card transfer and private receipt upload are the primary payment UI when `ZARINPAL_ENABLED=false` (default).** Staff verify the actual bank deposit and approve/reject in `/admin/payments`. Zarinpal code remains integrated and switches to the primary online CTA automatically when `ZARINPAL_ENABLED=true` and a valid merchant ID are configured in the deployment environment, after live acceptance; manual receipts remain a fallback. No migration is needed to change this flag. The owner confirmed real SMS.ir OTP delivery and successful customer login; the exact deployment tier was not recorded. This does not prove Zarinpal settlement or full production acceptance. See [manual-first rollout](docs/45-manual-receipt-first-rollout.md) and [release readiness](docs/38-web-phase4-release-readiness.md).
 
 ## Customer landing and shopping polish — 2026-11-16
 
@@ -29,7 +26,7 @@ Navigation and accessibility [#92](https://github.com/DenaSon/Denapax/pull/92): 
 
 ## SPA-like shopping and Livewire 4 — 2026-11-16
 
-The public store now uses a **shared Livewire 4 / Alpine runtime** and `wire:navigate` for safe internal GET links, with browser History navigation and cleanup/rebinding for gallery and clipboard scripts ([#95](https://github.com/DenaSon/Denapax/pull/95)). Cart quantity/remove and shared header badges are Livewire events ([#96](https://github.com/DenaSon/Denapax/pull/96)); catalog search remains **SSR/SEO-first** and Alpine-enhanced with debounce/history, while quick-add in the product dialog uses a server-validated Livewire action ([#97](https://github.com/DenaSon/Denapax/pull/97)). Customer address forms and checkout address selection use guarded Livewire components without changing shipping quote/idempotency ([#98](https://github.com/DenaSon/Denapax/pull/98)); shared offline/keyboard-navigation states and staff GET links are [#99](https://github.com/DenaSon/Denapax/pull/99). Original native GET/POST/PUT/PATCH/DELETE endpoints remain functional without JavaScript. **OTP/session-changing POST, payment, private receipt upload and order confirmation deliberately stay native/server-authoritative.** Read [implementation and Runflare QA](docs/48-livewire-spa-upgrade.md). CI passing is not real-device approval.
+The public store now uses a **shared Livewire 4 / Alpine runtime** and `wire:navigate` for safe internal GET links, with browser History navigation and cleanup/rebinding for gallery and clipboard scripts ([#95](https://github.com/DenaSon/Denapax/pull/95)). Cart quantity/remove and shared header badges are Livewire events ([#96](https://github.com/DenaSon/Denapax/pull/96)); catalog search remains **SSR/SEO-first** and Alpine-enhanced with debounce/history, while quick-add in the product dialog uses a server-validated Livewire action ([#97](https://github.com/DenaSon/Denapax/pull/97)). Customer address forms and checkout address selection use guarded Livewire components without changing shipping quote/idempotency ([#98](https://github.com/DenaSon/Denapax/pull/98)); shared offline/keyboard-navigation states and staff GET links are [#99](https://github.com/DenaSon/Denapax/pull/99). [#100](https://github.com/DenaSon/Denapax/pull/100) completes the responsive cart redesign and fixed, non-layout-shifting Livewire loading feedback. Original native GET/POST/PUT/PATCH/DELETE endpoints remain functional without JavaScript. **OTP/session-changing POST, payment, private receipt upload and order confirmation deliberately stay native/server-authoritative.** Read [implementation and Runflare QA](docs/48-livewire-spa-upgrade.md). CI passing is not real-device approval.
 
 ## Current web user journey
 
@@ -57,11 +54,14 @@ Use only an activated real merchant identifier and a public HTTPS callback (`/pa
 
 ```env
 CUSTOMER_SMS_DRIVER=disabled
-CUSTOMER_SMS_URL=
-CUSTOMER_SMS_TOKEN=
+SMSIR_API_KEY=
+SMSIR_VERIFY_TEMPLATE_ID=
+SMSIR_VERIFY_PARAMETER=HOURS
+SMSIR_TIMEOUT=8
+SMSIR_CONNECT_TIMEOUT=3
 ```
 
-Production needs a trusted HTTPS Bearer-token SMS adapter (`CUSTOMER_SMS_DRIVER=webhook`) capable of accepting `{ "mobile": "...", "message": "..." }`. Do not put credentials in GitHub. OTP challenges are hashed, expire after five minutes, and have a resend cooldown, attempt cap and IP/mobile throttles. `log` transport is local/testing-only.
+The official SMS.ir Verify adapter is selected with `CUSTOMER_SMS_DRIVER=smsir`; keep the repository default `disabled` and store the API key only in deployment secrets. The owner-confirmed template is `967976` with parameter `HOURS`. OTP challenges are hashed, expire after five minutes, and have a resend cooldown, attempt cap and IP/mobile throttles. See [SMS.ir integration and acceptance](docs/49-smsir-otp-integration.md).
 
 ## Deployment and operational constraints
 
