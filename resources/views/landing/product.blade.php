@@ -310,8 +310,12 @@
 
     <footer class="bg-[#122e26] py-9 text-[#d6dfcf]">
         <div class="landing-container flex flex-wrap items-center justify-between gap-5">
-            <a wire:navigate href="{{ route('home') }}" class="text-xl font-extrabold text-white" lang="en">DenaPax.</a>
+            <a wire:navigate href="{{ route('home') }}" class="text-xl font-extrabold text-white" lang="en">DenaPax</a>
             <span class="text-xs">سوغات و خشکبار؛ از دل دنا</span>
+            @include('partials.store-support-contact')
+            <span class="text-xs">طراحی و توسعه:
+                <a href="https://t.me/m_asadix7" target="_blank" rel="noopener noreferrer" class="text-white hover:underline">Mohammad Asadi</a>
+            </span>
         </div>
     </footer>
     <livewire:store.add-to-cart />

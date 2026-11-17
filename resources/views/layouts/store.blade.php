@@ -92,9 +92,13 @@
         @endif
         {{ $slot }}
     </main>
-    <footer class="store-footer landing-container mx-auto flex flex-wrap items-center justify-between gap-2 py-6 text-xs">
+    <footer class="store-footer landing-container mx-auto flex flex-wrap items-center justify-between gap-3 py-6 text-xs">
         <span>دناپکس · سوغات و خشکبار دنا</span>
         <a wire:navigate class="store-inline-link" href="{{ route('home') }}#products">بازگشت به فروشگاه</a>
+        @include('partials.store-support-contact')
+        <span>طراحی و توسعه:
+            <a href="https://t.me/m_asadix7" target="_blank" rel="noopener noreferrer" class="store-inline-link">Mohammad Asadi</a>
+        </span>
     </footer>
     <livewire:store.network-status />
     @livewireScripts

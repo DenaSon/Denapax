@@ -31,6 +31,7 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
 
     let currentIndex = 0;
     let zoom = 1;
+    let maxZoom = 1;
     let panX = 0;
     let panY = 0;
     let drag = null;
@@ -51,13 +52,32 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
         panY = Math.min(maxY, Math.max(-maxY, panY));
         zoomImage.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
         viewport.classList.toggle('is-zoomed', zoom > 1);
-        dialog.querySelector('[data-lightbox-zoom-in]').disabled = zoom >= 4;
+        dialog.querySelector('[data-lightbox-zoom-in]').disabled = zoom >= maxZoom;
         dialog.querySelector('[data-lightbox-zoom-out]').disabled = zoom <= 1;
         dialog.querySelector('[data-lightbox-zoom-reset]').disabled = zoom <= 1;
     }
 
     function setZoom(value) {
-        zoom = Math.min(4, Math.max(1, Math.round(value * 100) / 100));
+        zoom = Math.min(maxZoom, Math.max(1, Math.round(value * 100) / 100));
+        updateZoom();
+    }
+
+    function updateZoomBounds() {
+        const naturalWidth = zoomImage.naturalWidth;
+        const naturalHeight = zoomImage.naturalHeight;
+        const width = viewport.clientWidth;
+        const height = viewport.clientHeight;
+
+        if (!naturalWidth || !naturalHeight || !width || !height) {
+            maxZoom = 1;
+        } else {
+            const fitScale = Math.min(width / naturalWidth, height / naturalHeight);
+            maxZoom = Number.isFinite(fitScale) && fitScale > 0
+                ? Math.max(1, Math.min(4, 1 / fitScale))
+                : 1;
+        }
+
+        if (zoom > maxZoom) zoom = maxZoom;
         updateZoom();
     }
 
@@ -96,6 +116,9 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
         show((currentIndex + offset + photos.length) % photos.length);
     }
 
+    zoomImage.addEventListener('load', updateZoomBounds, { signal: controller.signal });
+    window.addEventListener('resize', updateZoomBounds, { passive: true, signal: controller.signal });
+
     function openLightbox(event) {
         if (event && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
         if (typeof dialog.showModal !== 'function') return;
@@ -107,6 +130,7 @@ document.querySelectorAll('[data-product-gallery]').forEach((gallery) => {
         dialog.showModal();
         document.documentElement.style.overflow = 'hidden';
         setZoom(1);
+        if (zoomImage.complete && zoomImage.naturalWidth > 0) updateZoomBounds();
         dialog.querySelector('[data-lightbox-close]').focus();
     }
 

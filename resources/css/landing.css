@@ -1414,3 +1414,37 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 @media (prefers-reduced-motion:reduce) {
     .product-purchase-add-button,.product-purchase-panel { transition:none; }
 }
+
+
+/* Focused storefront refinements for the remaining mobile and product UX backlog. */
+.landing-mobile-cart { position:relative; flex:none; gap:0; }
+.landing-mobile-cart .store-cart-count {
+    position:absolute;
+    inset-block-start:-.2rem;
+    inset-inline-end:-.2rem;
+    min-width:1.18rem;
+    min-height:1.18rem;
+    padding-inline:.18rem;
+    border:2px solid #18352d;
+    font-size:.6rem;
+    line-height:1;
+}
+.store-footer-support {
+    display:inline-flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.35rem;
+    color:inherit;
+}
+.store-footer-support a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
+@media (min-width:1024px) {
+    .product-gallery-stage {
+        max-width:560px;
+        max-height:560px;
+        margin-inline:auto;
+    }
+    .product-gallery-thumbs {
+        max-width:560px;
+        margin-inline:auto;
+    }
+}
