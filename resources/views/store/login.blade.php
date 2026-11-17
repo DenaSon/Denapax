@@ -56,7 +56,7 @@
                         <button type="submit" data-busy-label="در حال ارسال..."
                                 class="store-button store-button-outline min-h-12 w-full disabled:cursor-not-allowed disabled:opacity-55"
                                 x-bind:disabled="requestDisabled">
-                            <span x-text="requestLabel">دریافت کد جدید</span>
+                            ارسال کد جدید
                         </button>
                     </form>
                 </details>
