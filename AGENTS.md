@@ -14,6 +14,7 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 - Public search/product/variant catalog, session guest and DB customer cart, merge after login; saved customer-owned addresses and **Phase 4B single-page** validated checkout (weight delivery quote, cart/price fingerprint, immutable order snapshots, idempotent checkout key). Product variants use one shared add-to-cart form, cart quantities have one-tap +/- controls, OTP and address forms are mobile-focused. The product permalink now includes a progressive responsive gallery with native image links, thumbnail carousel, touch swipe, native zoom dialog and variant-specific image switching. See [gallery handoff](docs/44-product-mobile-gallery.md); real device QA is still required.
 - Online-first Zarinpal v4 transport and attempt ledger, manual card-to-card receipt with protected private storage and authorized admin review; order list/detail, shipping tracking and customer **web inbox UI are implemented**. Transactional order SMS **is not**.
 - Staff admin catalogs/settings/orders/payment review/fulfillment, order state history and a reliable web inbox/outbox lifecycle: atomic dispatch claims, unique jobs, bounded retries, terminal failure reporting and authorized manual retry (PR #126). Use `QUEUE_CONNECTION=database`, supervised `notifications,default` workers and one-minute `denapax:notifications:dispatch`.
+- Shared catalog/cart sellability contract (PR #128): positive availability, price and shipping weight; active product/category; server-enforced quantity increases for guest and customer carts. Decrement/removal remain available for unsellable lines. No numeric stock reservation.
 - All financial values stored as integer **IRR**, displayed as exact **toman**. Catalog records have `is_available` but **no numeric stock reservations**. One nationwide weight-based shipping tariff.
 
 ## Repository governance and staff authorization — 2026-11-17
@@ -29,6 +30,15 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 - Terminal failures are excluded from automatic scheduler scans and can be retried only by active staff with `orders.update`; retries are activity-logged and preserve lifetime attempts.
 - Scope is strictly the customer web inbox. Do not add SMS or revive Telegram. CI passed 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build.
 - CI does not prove a production worker or scheduler is running. Verify the database queue worker and one-minute scheduler in the target environment; the operational release gate remains open until observed.
+
+## Cart/catalog sellability consistency — 2026-11-17
+
+- PR #128 centralizes variant-level `availableForSale` (available flag, positive price, positive shipping weight) and full `sellable` (also active product and category) predicates.
+- Homepage, product permalink, sitemap and `BrowseCatalog` now exclude invalid-weight variants/products and only expose variants that satisfy the same variant-level rule.
+- Guest session carts and authenticated database carts enforce the complete sellability rule on every quantity increase, including direct Livewire actions and native PATCH fallback. Decrement and removal are intentionally permitted after a product becomes unavailable.
+- Cart line availability feedback and checkout validation use the model-level predicate. Admin product publishing requires an active category and at least one variant with valid availability, price and weight.
+- No schema change and no numeric stock reservation; the catalog still uses the existing `is_available` flag.
+- CI passed: 125 tests / 918 assertions, Composer audit/validation, Pint and Vite build. [PR #128](https://github.com/DenaSon/Denapax/pull/128), merge `ea72ef6c1bc84f242a9ab13ba6f10c6cdd34b789`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44051594401).
 
 ## Critical safety / release invariants
 
@@ -52,9 +62,9 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 
 Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private receipt + authorized bank verification is the primary customer checkout payment UI**. Preserve the integrated gateway behind `ZARINPAL_ENABLED=false`; when enabled with a valid merchant ID, online payment becomes primary and receipt upload remains fallback. This is a presentation/configuration change only; preserve all unresolved-attempt bank safeguards and private receipts. Do not treat SMS OTP as deployed or receipts as bank proof. See [manual-first payment operation](docs/45-manual-receipt-first-rollout.md).
 
-## Next scoped code issue after outbox reliability — #103
+## Next code backlog after #103
 
-The next focused backlog item is [#103](https://github.com/DenaSon/Denapax/issues/103): enforce one shared sellability rule across the public catalog and guest/customer cart quantity changes. Preserve decrement/removal for unavailable lines; reject increases when variant, product, category, price or shipping weight is invalid. Do not add numeric stock reservation in this scope. This P2 code task does not reduce or replace the P0 release gates below.
+Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Keep P0 release gates authoritative. The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir customer OTP, but it requires owner-provided provider credentials, HTTPS staging and real delivery acceptance; keep `CUSTOMER_SMS_DRIVER=disabled` until that evidence exists. Do not start provider activation or weaken the fail-closed default based on CI alone. This P2 code task does not reduce or replace the P0 release gates below.
 
 ## Next work: Web Phase 4
 
