@@ -47,14 +47,14 @@ class DispatchDueNotifications extends Command
                     ->lockForUpdate()
                     ->first();
 
-                if (! $event || $event->processed_at !== null) {
+                if ($event === null || $event->processed_at !== null) {
                     return null;
                 }
 
                 $payload = json_decode($event->payload, true, 512, JSON_THROW_ON_ERROR);
                 $customerId = filter_var($payload['customer_id'] ?? null, FILTER_VALIDATE_INT);
 
-                if (! $customerId || $customerId < 1) {
+                if ($customerId === false || $customerId < 1) {
                     Log::warning('Outbox event has no valid customer recipient.', [
                         'outbox_event_id' => $event->id,
                     ]);
