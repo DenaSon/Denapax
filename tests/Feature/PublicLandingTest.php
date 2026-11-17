@@ -238,6 +238,11 @@ class PublicLandingTest extends TestCase
 
         $this->assertStringContainsString('.landing-assurance-grid', $css);
         $this->assertStringContainsString('.landing-story-panel', $css);
+        $this->assertStringContainsString("url('https://fm-9kyo-denapx.runflare.cloud/data/denapax-kuhgol-1200x900_261117145040.webp')", $css);
+        $this->assertStringContainsString('aspect-ratio: 1.11;', $css);
+        $this->assertStringContainsString('aspect-ratio: 1.22;', $css);
+        $this->assertStringContainsString('background-size: cover;', $css);
+        $this->assertStringNotContainsString('url(\'/images/dena-landscape.svg\')', $css);
         $this->assertStringNotContainsString('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', $css);
         $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
