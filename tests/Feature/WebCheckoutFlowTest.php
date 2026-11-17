@@ -362,9 +362,9 @@ class WebCheckoutFlowTest extends TestCase
             'is_available' => true,
         ]);
 
-        $this->get(route('home', ['q' => 'الو']))->assertOk()
+        $this->get(route('search', ['q' => 'الو']))->assertOk()
             ->assertSee('آلو بخارا دنا')->assertDontSee('مغز گردو دنا');
-        $this->get(route('home', ['q' => 'گردو']))->assertOk()
+        $this->get(route('search', ['q' => 'گردو']))->assertOk()
             ->assertSee('مغز گردو دنا')->assertDontSee('آلو بخارا دنا');
     }
 

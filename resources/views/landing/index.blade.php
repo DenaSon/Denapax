@@ -24,17 +24,13 @@
     @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
     @livewireStyles
 </head>
-<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)" x-on:click="handleCatalogClick($event)" x-on:cart-added.window="cartSubmitting = false; cartNotice = 'محصول به سبد خرید اضافه شد.'; closeProduct()" x-on:cart-add-failed.window="cartSubmitting = false; cartError = $event.detail.message">
+<body class="landing landing-shell antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
     <div class="landing-progress" x-cloak x-bind:style="'--landing-progress: ' + scrollProgress" aria-hidden="true"></div>
     <nav class="landing-chapter-rail" aria-label="بخش‌های صفحه" x-cloak>
         <a href="#products" x-bind:aria-current="activeSection === 'products' ? 'location' : null" aria-label="بخش اول: محصولات" title="محصولات">01</a>
         <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="بخش دوم: روایت دنا" title="روایت دنا">02</a>
         <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="بخش سوم: سفارش" title="سفارش">03</a>
     </nav>
-    <div x-show="cartNotice" x-cloak role="status" class="fixed bottom-5 right-5 z-[90] flex max-w-[min(92vw,420px)] items-center gap-4 rounded-2xl border border-[#8ba991] bg-[#f2f8ee] px-5 py-3 text-sm font-bold text-[#1a4930] shadow-2xl">
-        <span x-text="cartNotice"></span>
-        <button type="button" x-on:click="cartNotice = ''" class="rounded-full border border-[#a4bda6] px-2 py-1" aria-label="بستن اعلان">×</button>
-    </div>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
     <header class="absolute inset-x-0 top-0 z-30 text-white">
@@ -78,14 +74,12 @@
         </div>
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
-            <a x-on:click="closeMenu(true)" href="#story" class="block border-b border-white/15 py-3 text-sm">روایت دنا</a>
             <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
             <a wire:navigate x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
                 <a href="#products">محصولات</a>
-                <a href="#story">روایت دنا</a>
                 <a href="#order">سفارش</a>
             </nav>
         </noscript>
@@ -111,7 +105,7 @@
                         <span class="block landing-outline">دنا</span>
                     </h1>
                     <p class="mt-7 max-w-[460px] text-[15px] leading-8 text-white/85 md:mt-8 md:text-base md:leading-9">
-                        محصولاتی از دنا و نواحی پیرامونش؛ با مشخصات، وزن و قیمت روشن برای انتخابی ساده‌تر.
+                        طعم اصیل دنا، از دل طبیعت و دسترنج مردمانش؛ همراهی خوش‌طعم از کوهستان تا خانه شما.
                     </p>
                     <div class="mt-8 flex flex-wrap items-center justify-center gap-5 md:mt-10">
                         <a href="#products" class="landing-button bg-[#e7e3d1] text-[#19392f] shadow-xl shadow-black/10 hover:bg-white">
@@ -147,7 +141,7 @@
             </div>
         </section>
 
-        <section id="products" data-chapter class="landing-container scroll-mt-12 pt-14 pb-20 md:pt-19 md:pb-28" x-bind:aria-busy="catalogLoading.toString()" aria-labelledby="products-title">
+        <section id="products" data-chapter class="landing-container scroll-mt-12 pt-14 pb-20 md:pt-19 md:pb-28" aria-labelledby="products-title">
             <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
                 <div data-reveal>
                     <div class="mb-4 flex items-center gap-3 text-xs font-semibold tracking-widest text-clay">
@@ -164,28 +158,24 @@
                 </span>
             </div>
 
-            <form method="GET" action="{{ route('home') }}#products" role="search" class="mb-7 flex flex-wrap items-center gap-3" x-on:submit.prevent="submitCatalogSearch($event)">
-                @if ($selectedCategory)
-                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
-                @endif
+            <form method="GET" action="{{ route('search') }}" role="search"
+                  x-data="storeSearch" x-on:submit.prevent="submit($event)"
+                  class="mb-7 flex flex-wrap items-center gap-3">
                 <label for="catalog-search" class="sr-only">جستجو در محصولات</label>
-                <input id="catalog-search" name="q" type="search" maxlength="80" value="{{ $search }}"
+                <input id="catalog-search" name="q" type="search" maxlength="80"
                        placeholder="جستجو در سوغات و خشکبار دنا..."
                        class="landing-search-input min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
                 <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
-                @if ($search !== '')
-                    <a wire:navigate href="{{ route('home', $selectedCategory ? ['category' => $selectedCategory] : []) }}#products" class="text-xs font-semibold underline underline-offset-4">پاک‌کردن جستجو</a>
-                @endif
             </form>
 
             @if ($categories->isNotEmpty())
                 <nav aria-label="فیلتر دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
-                    <a wire:navigate data-catalog-link href="{{ route('home', $search !== '' ? ['q' => $search] : []) }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
+                    <a wire:navigate href="{{ route('home') }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
                         class="{{ $selectedCategory === null ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                         همه محصولات
                     </a>
                     @foreach ($categories as $category)
-                        <a wire:navigate data-catalog-link href="{{ route('home', ['category' => $category->slug] + ($search !== '' ? ['q' => $search] : [])) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
+                        <a wire:navigate href="{{ route('home', ['category' => $category->slug]) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
                             class="{{ $selectedCategory === $category->slug ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                             {{ $category->name }}
                         </a>
@@ -193,68 +183,15 @@
                 </nav>
             @endif
 
-            <p class="mb-5 text-center text-xs text-[#4d7055]" x-show="catalogLoading" x-cloak role="status" aria-live="polite">در حال بارگذاری محصولات…</p>
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7" aria-live="polite">
+             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
                 @forelse ($products as $product)
-                    @php
-                        // The newest database row is not implicitly a featured product.
-                        $cover = $product->getFirstMedia('gallery');
-                        if (! $cover) {
-                            foreach ($product->variants as $variant) {
-                                $cover = $variant->getFirstMedia('variant-image');
-                                if ($cover) {
-                                    break;
-                                }
-                            }
-                        }
-                        $startingPrice = (int) $product->variants->min('price_irr');
-                    @endphp
-                    <article class="product-card group relative overflow-hidden bg-[#ebe9dd]" data-reveal data-delay="{{ $loop->index % 3 }}">
-                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}"
-                           x-on:click="openProduct({{ $product->id }}, $event)"
-                           aria-haspopup="dialog" aria-controls="denapax-product-preview"
-                           class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
-                            <div class="product-photo relative overflow-hidden bg-[#c8cbb6]">
-                                @if ($cover)
-                                    <img class="product-card-image block w-full object-cover" src="{{ $cover->getUrl() }}"
-                                         width="800" height="700" loading="lazy" decoding="async" alt="تصویر {{ $product->title }}">
-                                @else
-                                    <div class="product-card-image organic-lines relative flex items-center justify-center bg-[#cdd1bd]">
-                                        <svg class="h-20 w-20 text-[#4b6f5a]/70" viewBox="0 0 90 90" fill="none" aria-hidden="true">
-                                            <path d="M8 68 32 24l15 25 12-17 23 36" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M13 74h65M28 34l7 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                    </div>
-                                @endif
-                                <span class="absolute top-5 right-5 rounded-full border border-white/60 bg-[#f3f0e4]/90 px-3 py-1.5 text-[11px] font-medium text-[#254736] backdrop-blur-sm">{{ $product->category->name }}</span>
-                            </div>
-                            <div class="flex items-end justify-between gap-3 p-5 md:p-7">
-                                <div class="min-w-0">
-                                    <h3 class="text-lg font-bold text-[#234635] md:text-xl">{{ $product->title }}</h3>
-                                    @if ($product->summary)
-                                        <p class="mt-2 line-clamp-2 text-xs leading-7 text-[#637366] md:text-sm">{{ $product->summary }}</p>
-                                    @endif
-                                    <p class="mt-4 text-sm font-semibold text-[#375642]">
-                                        <span class="font-normal text-[#778677]">از</span>
-                                        <span dir="ltr" class="inline-block">{{ \App\Support\Money::formatToman($startingPrice) }}</span>
-                                        تومان
-                                    </p>
-                                </div>
-                                <span class="product-card-action flex shrink-0 items-center gap-2 text-xs font-bold text-[#234635]" aria-hidden="true">
-                                    مشاهده
-                                    <span class="product-arrow flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#91a08d] text-[#234635]">
-                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-                                    </span>
-                                </span>
-                            </div>
-                        </a>
-                    </article>
+                    @include('landing.partials.product-card', ['product' => $product])
                 @empty
                     <div class="col-span-full organic-lines rounded-3xl border border-[#d6d9cc] bg-[#e9eadb] p-12 text-center md:p-24">
                         <p class="mb-4 text-sm font-semibold text-[#71816c]">COLLECTION / 00</p>
                         <h3 class="text-2xl font-bold text-[#254736] md:text-3xl">محصولی برای نمایش پیدا نشد</h3>
                         <p class="mt-4 text-sm leading-8 text-[#637366]">محصولات منتشرشده و قابل سفارش به‌صورت خودکار در این بخش نمایش داده می‌شوند.</p>
-                        @if ($selectedCategory || $search !== '')
+                        @if ($selectedCategory)
                             <a wire:navigate href="{{ route('home') }}#products" class="mt-6 inline-flex text-sm font-bold underline underline-offset-8">نمایش همه محصولات</a>
                         @endif
                     </div>
@@ -264,13 +201,13 @@
             @if ($products->hasPages())
                 <nav class="mt-12 flex items-center justify-between border-t border-[#c9cec0] pt-7 text-sm font-semibold" aria-label="صفحات محصولات">
                     @if ($products->previousPageUrl())
-                        <a class="transition hover:text-clay" data-catalog-link href="{{ $products->previousPageUrl() }}#products">صفحه قبل ←</a>
+                        <a wire:navigate class="transition hover:text-clay" href="{{ $products->previousPageUrl() }}#products">صفحه قبل ←</a>
                     @else
                         <span class="text-[#9da99c]">صفحه قبل</span>
                     @endif
                     <span class="text-xs text-[#718276]">صفحه {{ $products->currentPage() }} از {{ $products->lastPage() }}</span>
                     @if ($products->nextPageUrl())
-                        <a class="transition hover:text-clay" data-catalog-link href="{{ $products->nextPageUrl() }}#products">→ صفحه بعد</a>
+                        <a wire:navigate class="transition hover:text-clay" href="{{ $products->nextPageUrl() }}#products">→ صفحه بعد</a>
                     @else
                         <span class="text-[#9da99c]">صفحه بعد</span>
                     @endif
@@ -355,138 +292,6 @@
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
     </a>
 
-    {{-- Only the product catalog is dynamic; safely-escaped, page-limited public fields. --}}
-    <script id="landing-product-data" type="application/json">@json($productPreviews, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
-
-    {{-- Native dialog provides a top-layer backdrop, focus containment, Escape and mobile support. --}}
-    <dialog id="denapax-product-preview" x-ref="productDialog"
-        x-on:close="onProductClosed()" x-on:click.self="closeProduct()"
-        aria-labelledby="landing-preview-title"
-        class="landing-product-dialog">
-        <template x-if="preview">
-            <div class="landing-product-sheet">
-                <div class="landing-product-visual">
-                    <div class="landing-product-visual-main">
-                        <template x-if="preview.images.length">
-                            <img x-bind:src="preview.images[previewImageIndex].url"
-                                 x-bind:alt="preview.images[previewImageIndex].alt"
-                                 class="h-full w-full object-cover" width="720" height="720" decoding="async">
-                        </template>
-                        <template x-if="!preview.images.length">
-                            <div class="organic-lines flex h-full w-full items-center justify-center bg-[#cad0bb]">
-                                <svg viewBox="0 0 110 110" class="h-27 w-27 text-[#547560]" fill="none" aria-hidden="true">
-                                    <path d="m7 83 36-58 22 34 14-23 25 47M14 90h84" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </template>
-                        <span class="absolute right-5 top-5 rounded-full bg-[#f0eee2]/90 px-4 py-2 text-xs font-semibold text-[#355643]" x-text="preview.category"></span>
-                        <template x-if="preview.images.length > 1">
-                            <div class="landing-product-photo-nav">
-                                <button type="button" x-on:click="nextImage(-1)" aria-label="تصویر قبلی">→</button>
-                                <span dir="ltr" class="text-xs font-medium" x-text="(previewImageIndex + 1) + ' / ' + preview.images.length"></span>
-                                <button type="button" x-on:click="nextImage(1)" aria-label="تصویر بعدی">←</button>
-                            </div>
-                        </template>
-                    </div>
-                    <template x-if="preview.images.length > 1">
-                        <div class="landing-product-thumbnails" aria-label="انتخاب تصویر محصول">
-                            <template x-for="(image, index) in preview.images" x-bind:key="image.url">
-                                <button type="button" class="landing-product-thumbnail"
-                                    x-bind:class="{ 'is-selected': index === previewImageIndex }"
-                                    x-bind:aria-label="'تصویر ' + (index + 1) + ' محصول'"
-                                    x-bind:aria-pressed="(index === previewImageIndex).toString()"
-                                    x-on:click="selectImage(index)">
-                                    <img x-bind:src="image.url" x-bind:alt="image.alt"
-                                         width="72" height="72" loading="lazy" decoding="async">
-                                </button>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-
-                <div class="landing-product-info">
-                    <div class="flex items-start justify-between gap-4">
-                        <span class="landing-label text-[#9b7958]" lang="en">THE DENA COLLECTION</span>
-                        <button data-product-close type="button" x-on:click="closeProduct()"
-                            class="landing-product-close" aria-label="بستن جزئیات محصول">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
-                        </button>
-                    </div>
-
-                    <div class="mt-6">
-                        <h2 id="landing-preview-title" class="text-[clamp(1.75rem,3.8vw,2.8rem)] font-extrabold leading-[1.5] tracking-tight text-[#1d4130]" x-text="preview.title"></h2>
-                        <p class="mt-2 text-sm leading-8 text-[#6a7b6d]" x-show="preview.summary" x-text="preview.summary"></p>
-                        <p class="mt-4 whitespace-pre-line text-sm leading-8 text-[#3f5c49]" x-show="preview.description" x-text="preview.description"></p>
-                    </div>
-
-                    <div class="my-7 h-px bg-[#d5dbcc]"></div>
-
-                    <section aria-labelledby="landing-variants-title">
-                        <h3 id="landing-variants-title" class="mb-4 text-base font-bold text-[#234b39]">تنوع‌های قابل سفارش</h3>
-                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <template x-for="(variant, index) in preview.variants" x-bind:key="index">
-                                <button type="button" class="landing-variant-button"
-                                    x-bind:class="{ 'is-selected': previewVariantIndex === index }"
-                                    x-bind:aria-pressed="(previewVariantIndex === index).toString()"
-                                    x-on:click="selectVariant(index)">
-                                    <span class="flex items-center justify-between gap-2 text-right">
-                                        <span class="text-sm font-bold" x-text="variant.title"></span>
-                                        <span class="landing-variant-radio" aria-hidden="true"></span>
-                                    </span>
-                                    <span class="mt-2 block text-xs opacity-70" x-text="variant.size"></span>
-                                    <span class="mt-3 block text-sm font-bold">
-                                        <span dir="ltr" class="inline-block" x-text="variant.price"></span>
-                                        <span class="text-xs font-normal">تومان</span>
-                                    </span>
-                                </button>
-                            </template>
-                        </div>
-                    </section>
-
-                    <template x-if="preview.features.length">
-                        <section class="mt-8" aria-labelledby="landing-features-title">
-                            <h3 id="landing-features-title" class="mb-3 text-sm font-bold text-[#234b39]">ویژگی‌های محصول</h3>
-                            <dl class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                <template x-for="(feature, index) in preview.features" x-bind:key="index">
-                                    <div class="flex items-baseline justify-between gap-4 border-b border-[#d4dccd] py-2 text-xs">
-                                        <dt class="text-[#738474]" x-text="feature.name"></dt>
-                                        <dd class="text-left font-semibold text-[#294d3b]" x-text="feature.value"></dd>
-                                    </div>
-                                </template>
-                            </dl>
-                        </section>
-                    </template>
-
-                    <div class="mt-8 rounded-2xl bg-[#e8ebdf] p-4">
-                        <div class="flex items-baseline justify-between gap-2">
-                            <span class="text-sm text-[#637867]">قیمت تنوع انتخاب‌شده</span>
-                            <span class="text-xl font-extrabold text-[#1d4130]">
-                                <span dir="ltr" class="inline-block" x-text="preview.variants[previewVariantIndex].price"></span>
-                                <span class="text-xs font-medium">تومان</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <form method="POST" action="{{ route('cart.add') }}" class="mt-5 space-y-3" x-on:submit.prevent="submitPreviewCart()">
-                        @csrf
-                        <input type="hidden" name="variant_id" x-bind:value="preview.variants[previewVariantIndex].id">
-                        <label for="landing-cart-quantity" class="flex items-center justify-between gap-3 text-sm font-bold text-[#315642]">
-                            تعداد
-                            <input id="landing-cart-quantity" type="number" name="quantity" min="1" max="1000" step="1" required
-                                   class="landing-cart-quantity" x-model.number="previewQuantity">
-                        </label>
-                        <button type="submit"
-                                class="landing-button w-full bg-[#19392f] text-center text-white hover:bg-[#2b5642]"
-                                x-bind:disabled="cartSubmitting"
-                                x-text="cartSubmitting ? 'در حال افزودن...' : 'افزودن به سبد خرید'">افزودن به سبد خرید</button>
-                    </form>
-                    <p x-show="cartError" x-cloak role="alert" class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700" x-text="cartError"></p>
-                    <a x-bind:href="preview.url" class="mt-3 block min-h-11 py-3 text-center text-xs font-bold text-[#42624e] underline underline-offset-4">مشاهده صفحه کامل محصول</a>
-                </div>
-            </div>
-        </template>
-    </dialog>
-    <livewire:store.add-to-cart />
     <livewire:store.network-status />
     @livewireScripts
 </body>

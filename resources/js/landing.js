@@ -1,367 +1,172 @@
 document.addEventListener('alpine:init', () => {
-    // Livewire 4 owns Alpine. Register once for all SPA-like visits.
     const Alpine = window.Alpine;
+    if (!Alpine) return;
 
-Alpine.data('landingPage', () => ({
-    menuOpen: false,
-    hasScrolled: false,
-    scrollProgress: 0,
-    activeSection: 'products',
-    scrollFrame: null,
-    pointerFrame: null,
-    revealObserver: null,
-    sectionObserver: null,
-    productPreviews: {},
-    catalogLoading: false,
-    catalogRequest: null,
-    onCatalogPopState: null,
-    preview: null,
-    previewImageIndex: 0,
-    previewVariantIndex: 0,
-    previewQuantity: 1,
-    cartSubmitting: false,
-    cartNotice: '',
-    cartError: '',
-    previewReturnFocus: null,
-    priorScrollLock: '',
-    onScroll: null,
-    onResize: null,
+    Alpine.data('storeSearch', () => ({
+        submit(event) {
+            const form = event.currentTarget;
+            if (!(form instanceof HTMLFormElement)) return;
 
-    init() {
-        const catalog = document.getElementById('landing-product-data');
-        if (catalog?.textContent) this.productPreviews = JSON.parse(catalog.textContent);
+            const query = String(new FormData(form).get('q') ?? '').trim();
+            const url = new URL(form.action, window.location.href);
+            url.search = '';
 
-        const updateScroll = () => {
-            this.scrollFrame = null;
-            this.hasScrolled = window.scrollY > 400;
+            if (query) url.searchParams.set('q', query);
 
-            const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-            this.scrollProgress = scrollableHeight > 0
-                ? Math.min(1, Math.max(0, window.scrollY / scrollableHeight))
-                : 0;
-        };
-
-        this.onScroll = () => {
-            if (this.scrollFrame !== null) return;
-
-            this.scrollFrame = window.requestAnimationFrame(updateScroll);
-        };
-
-        this.onResize = () => {
-            this.onScroll();
-            if (window.innerWidth >= 1024) this.closeMenu();
-        };
-
-        updateScroll();
-        window.addEventListener('scroll', this.onScroll, { passive: true });
-        window.addEventListener('resize', this.onResize, { passive: true });
-        this.onCatalogPopState = () => this.loadCatalog(window.location.href);
-        window.addEventListener('popstate', this.onCatalogPopState);
-
-        this.$nextTick(() => {
-            this.observeReveals();
-            this.observeChapters();
-        });
-    },
-
-    observeReveals() {
-        this.revealObserver?.disconnect();
-        const elements = this.$root.querySelectorAll('[data-reveal], [data-topography]');
-
-        if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            elements.forEach((element) => element.classList.add('is-visible'));
-            return;
-        }
-
-        this.$root.classList.add('motion-ready');
-
-        this.revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    this.revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.08, rootMargin: '0px 0px 32px 0px' });
-
-        elements.forEach((element) => this.revealObserver.observe(element));
-    },
-
-    observeChapters() {
-        if (!('IntersectionObserver' in window)) return;
-
-        const chapters = this.$root.querySelectorAll('[data-chapter]');
-        this.sectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) this.activeSection = entry.target.id;
-            });
-        }, { rootMargin: '-10% 0px -72% 0px', threshold: 0 });
-
-        chapters.forEach((chapter) => this.sectionObserver.observe(chapter));
-    },
-
-    toggleMenu() {
-        if (this.menuOpen) {
-            this.closeMenu();
-            return;
-        }
-
-        this.menuOpen = true;
-        this.$nextTick(() => this.$refs.mobileNav?.querySelector('a')?.focus());
-    },
-
-    closeMenu(restoreFocus = false) {
-        if (!this.menuOpen) return;
-
-        this.menuOpen = false;
-        if (restoreFocus) this.$nextTick(() => this.$refs.menuToggle?.focus());
-    },
-
-    onMobileNavKeydown(event) {
-        if (event.key !== 'Tab') return;
-
-        const links = [...this.$refs.mobileNav.querySelectorAll('a[href]')];
-        if (!links.length) return;
-
-        if (event.shiftKey && document.activeElement === links[0]) {
-            event.preventDefault();
-            links[links.length - 1].focus();
-        } else if (!event.shiftKey && document.activeElement === links[links.length - 1]) {
-            event.preventDefault();
-            links[0].focus();
-        }
-    },
-
-    onHeroMove(event) {
-        if (event.pointerType === 'touch'
-            || window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches
-            || !this.$refs.landscape) return;
-
-        const rect = event.currentTarget.getBoundingClientRect();
-        const x = (((event.clientX - rect.left) / rect.width - 0.5) * 14).toFixed(1) + 'px';
-        const y = (((event.clientY - rect.top) / rect.height - 0.5) * 10).toFixed(1) + 'px';
-
-        if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
-
-        this.pointerFrame = window.requestAnimationFrame(() => {
-            this.$refs.landscape.style.setProperty('--landscape-x', x);
-            this.$refs.landscape.style.setProperty('--landscape-y', y);
-            this.pointerFrame = null;
-        });
-    },
-
-    resetHero() {
-        if (!this.$refs.landscape) return;
-        if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
-
-        this.pointerFrame = null;
-        this.$refs.landscape.style.setProperty('--landscape-x', '0px');
-        this.$refs.landscape.style.setProperty('--landscape-y', '0px');
-    },
-
-    handleCatalogClick(event) {
-        const link = event.target.closest?.('a[data-catalog-link]');
-        if (!link || event.defaultPrevented || event.button !== 0
-            || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-
-        const target = new URL(link.href, window.location.href);
-        if (target.origin !== window.location.origin || target.pathname !== window.location.pathname) return;
-
-        event.preventDefault();
-        const isPagination = Boolean(link.closest('nav[aria-label="صفحات محصولات"]'));
-        this.loadCatalog(target.href, true, isPagination);
-    },
-
-    submitCatalogSearch(event) {
-        const target = event?.target;
-        const form = target instanceof HTMLFormElement
-            ? target
-            : target?.closest?.('form[role="search"]')
-                ?? (event?.currentTarget instanceof HTMLFormElement ? event.currentTarget : null);
-        if (!form) return;
-
-        const url = new URL(form.action, window.location.href);
-        const params = new URLSearchParams();
-        const data = new FormData(form);
-        for (const [key, value] of data.entries()) {
-            const trimmed = String(value).trim();
-            if (trimmed !== '') params.set(key, trimmed);
-        }
-        params.delete('page');
-        url.search = params.toString();
-        url.hash = 'products';
-
-        this.loadCatalog(url.href, true, true, true, false);
-    },
-
-    submitPreviewCart() {
-        if (this.cartSubmitting) return;
-        const variant = this.preview?.variants?.[this.previewVariantIndex];
-        const variantId = Number(variant?.id);
-        const quantity = Number(this.previewQuantity);
-
-        if (!Number.isSafeInteger(variantId) || variantId < 1
-            || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 1000) {
-            this.cartError = 'تنوع یا تعداد انتخاب‌شده معتبر نیست.';
-            return;
-        }
-
-        this.cartError = '';
-        this.cartSubmitting = true;
-        window.Livewire.dispatch('cart-add-requested', { variantId, quantity });
-    },
-
-    async loadCatalog(url, updateHistory = false, scrollToProducts = false, preserveSearchFocus = false, replaceHistory = false) {
-        this.catalogRequest?.abort();
-        const request = new AbortController();
-        this.catalogRequest = request;
-        this.catalogLoading = true;
-
-        try {
-            // Fresh server-rendered catalog: includes the selected category,
-            // correct pagination, public prices and modal preview data.
-            const response = await fetch(url, {
-                signal: request.signal,
-                credentials: 'same-origin',
-                headers: { 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest' },
-            });
-            if (!response.ok) throw new Error('Catalog request failed');
-
-            const markup = await response.text();
-            if (request.signal.aborted) return;
-
-            const nextDocument = new DOMParser().parseFromString(markup, 'text/html');
-            const replacement = nextDocument.getElementById('products');
-            const previewPayload = nextDocument.getElementById('landing-product-data');
-            const current = this.$root.querySelector('#products');
-
-            if (!replacement || !previewPayload || !current) throw new Error('Invalid catalog response');
-
-            const previews = JSON.parse(previewPayload.textContent);
-            const searchField = current.querySelector('#catalog-search');
-            const hadSearchFocus = preserveSearchFocus && document.activeElement === searchField;
-            const selectionStart = hadSearchFocus ? searchField.selectionStart : null;
-            const selectionEnd = hadSearchFocus ? searchField.selectionEnd : null;
-
-            current.innerHTML = replacement.innerHTML;
-            this.productPreviews = previews;
-
-            if (updateHistory) {
-                const method = replaceHistory ? 'replaceState' : 'pushState';
-                window.history[method]({ denapaxCatalog: true }, '', url);
+            if (typeof window.Livewire?.navigate === 'function') {
+                window.Livewire.navigate(url.toString());
+            } else {
+                form.submit();
             }
+        },
+    }));
+
+    Alpine.data('landingPage', () => ({
+        menuOpen: false,
+        hasScrolled: false,
+        scrollProgress: 0,
+        activeSection: 'products',
+        scrollFrame: null,
+        pointerFrame: null,
+        revealObserver: null,
+        sectionObserver: null,
+        onScroll: null,
+        onResize: null,
+
+        init() {
+            const updateScroll = () => {
+                this.scrollFrame = null;
+                this.hasScrolled = window.scrollY > 400;
+
+                const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+                this.scrollProgress = scrollableHeight > 0
+                    ? Math.min(1, Math.max(0, window.scrollY / scrollableHeight))
+                    : 0;
+            };
+
+            this.onScroll = () => {
+                if (this.scrollFrame !== null) return;
+                this.scrollFrame = window.requestAnimationFrame(updateScroll);
+            };
+
+            this.onResize = () => {
+                this.onScroll();
+                if (window.innerWidth >= 1024) this.closeMenu();
+            };
+
+            updateScroll();
+            window.addEventListener('scroll', this.onScroll, { passive: true });
+            window.addEventListener('resize', this.onResize, { passive: true });
 
             this.$nextTick(() => {
                 this.observeReveals();
-                if (hadSearchFocus) {
-                    const nextSearch = current.querySelector('#catalog-search');
-                    nextSearch?.focus({ preventScroll: true });
-                    if (selectionStart !== null && selectionEnd !== null) {
-                        nextSearch?.setSelectionRange(selectionStart, selectionEnd);
-                    }
-                }
-                if (scrollToProducts) {
-                    current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-                } else if (updateHistory && !hadSearchFocus) {
-                    current.querySelector('nav[aria-label="فیلتر دسته‌بندی محصولات"] a[aria-current="page"]')
-                        ?.focus({ preventScroll: true });
-                }
-                this.onScroll?.();
+                this.observeChapters();
             });
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                // Network outages and unexpected HTML must not leave the
-                // catalog unusable. Real filter links are still navigable.
-                window.location.assign(url);
+        },
+
+        observeReveals() {
+            this.revealObserver?.disconnect();
+            const elements = this.$root.querySelectorAll('[data-reveal], [data-topography]');
+
+            if (!('IntersectionObserver' in window)
+                || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                elements.forEach((element) => element.classList.add('is-visible'));
+                return;
             }
-        } finally {
-            if (this.catalogRequest === request) {
-                this.catalogRequest = null;
-                this.catalogLoading = false;
+
+            this.$root.classList.add('motion-ready');
+
+            this.revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        this.revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px 32px 0px' });
+
+            elements.forEach((element) => this.revealObserver.observe(element));
+        },
+
+        observeChapters() {
+            if (!('IntersectionObserver' in window)) return;
+
+            const chapters = this.$root.querySelectorAll('[data-chapter]');
+            this.sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) this.activeSection = entry.target.id;
+                });
+            }, { rootMargin: '-10% 0px -72% 0px', threshold: 0 });
+
+            chapters.forEach((chapter) => this.sectionObserver.observe(chapter));
+        },
+
+        toggleMenu() {
+            if (this.menuOpen) {
+                this.closeMenu();
+                return;
             }
-        }
-    },
 
-    openProduct(id, event) {
-        const item = this.productPreviews[String(id)];
-        // Keep true links for crawlers, no-JS visitors, modifier clicks and
-        // browsers without native dialog support.
-        if (event && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
-        if (!item || !item.variants?.length || !this.$refs.productDialog
-            || typeof this.$refs.productDialog.showModal !== 'function') return;
+            this.menuOpen = true;
+            this.$nextTick(() => this.$refs.mobileNav?.querySelector('a')?.focus());
+        },
 
-        event?.preventDefault();
-        this.closeMenu();
-        this.preview = item;
-        this.previewImageIndex = 0;
-        this.previewVariantIndex = 0;
-        this.previewQuantity = 1;
-        this.cartSubmitting = false;
-        this.cartError = '';
-        this.cartNotice = '';
-        this.previewReturnFocus = event?.currentTarget ?? document.activeElement;
+        closeMenu(restoreFocus = false) {
+            if (!this.menuOpen) return;
 
-        this.$nextTick(() => {
-            const dialog = this.$refs.productDialog;
-            if (dialog.open) return;
-            this.priorScrollLock = document.documentElement.style.overflow;
-            dialog.showModal();
-            document.documentElement.style.overflow = 'hidden';
-            dialog.querySelector('[data-product-close]')?.focus();
-        });
-    },
+            this.menuOpen = false;
+            if (restoreFocus) this.$nextTick(() => this.$refs.menuToggle?.focus());
+        },
 
-    closeProduct() {
-        if (this.$refs.productDialog?.open) this.$refs.productDialog.close();
-    },
+        onMobileNavKeydown(event) {
+            if (event.key !== 'Tab') return;
 
-    onProductClosed() {
-        document.documentElement.style.overflow = this.priorScrollLock;
-        this.preview = null;
-        this.previewImageIndex = 0;
-        this.previewVariantIndex = 0;
-        this.previewQuantity = 1;
-        this.cartSubmitting = false;
-        this.$nextTick(() => {
-            this.previewReturnFocus?.focus?.();
-            this.previewReturnFocus = null;
-        });
-    },
+            const links = [...this.$refs.mobileNav.querySelectorAll('a[href]')];
+            if (!links.length) return;
 
-    selectVariant(index) {
-        const variant = this.preview?.variants?.[index];
-        if (!variant) return;
-        this.previewVariantIndex = index;
+            if (event.shiftKey && document.activeElement === links[0]) {
+                event.preventDefault();
+                links[links.length - 1].focus();
+            } else if (!event.shiftKey && document.activeElement === links[links.length - 1]) {
+                event.preventDefault();
+                links[0].focus();
+            }
+        },
 
-        if (variant.image) {
-            const imageIndex = this.preview.images.findIndex((photo) => photo.url === variant.image);
-            if (imageIndex !== -1) this.previewImageIndex = imageIndex;
-        }
-    },
+        onHeroMove(event) {
+            if (event.pointerType === 'touch'
+                || window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches
+                || !this.$refs.landscape) return;
 
-    selectImage(index) {
-        if (index >= 0 && index < (this.preview?.images?.length ?? 0)) this.previewImageIndex = index;
-    },
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = (((event.clientX - rect.left) / rect.width - 0.5) * 14).toFixed(1) + 'px';
+            const y = (((event.clientY - rect.top) / rect.height - 0.5) * 10).toFixed(1) + 'px';
 
-    nextImage(step) {
-        const count = this.preview?.images?.length ?? 0;
-        if (count > 1) this.previewImageIndex = (this.previewImageIndex + step + count) % count;
-    },
+            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
 
-    destroy() {
-        // A navigation/unmount must never leave a locked page behind.
-        if (this.$refs.productDialog?.open) this.$refs.productDialog.close();
-        document.documentElement.style.overflow = this.priorScrollLock;
-        window.removeEventListener('scroll', this.onScroll);
-        window.removeEventListener('resize', this.onResize);
-        window.removeEventListener('popstate', this.onCatalogPopState);
-        this.catalogRequest?.abort();
-        if (this.scrollFrame !== null) window.cancelAnimationFrame(this.scrollFrame);
-        if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
+            this.pointerFrame = window.requestAnimationFrame(() => {
+                this.$refs.landscape.style.setProperty('--landscape-x', x);
+                this.$refs.landscape.style.setProperty('--landscape-y', y);
+                this.pointerFrame = null;
+            });
+        },
 
-        this.revealObserver?.disconnect();
-        this.sectionObserver?.disconnect();
-    },
-}));
+        resetHero() {
+            if (!this.$refs.landscape) return;
+            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
 
+            this.pointerFrame = null;
+            this.$refs.landscape.style.setProperty('--landscape-x', '0px');
+            this.$refs.landscape.style.setProperty('--landscape-y', '0px');
+        },
+
+        destroy() {
+            window.removeEventListener('scroll', this.onScroll);
+            window.removeEventListener('resize', this.onResize);
+            if (this.scrollFrame !== null) window.cancelAnimationFrame(this.scrollFrame);
+            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
+            this.revealObserver?.disconnect();
+            this.sectionObserver?.disconnect();
+        },
+    }));
 });

@@ -9,6 +9,7 @@ use App\Http\Controllers\GatewayPaymentController;
 use App\Http\Controllers\PrivatePaymentReceiptController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
+use App\Http\Controllers\PublicSearchController;
 use App\Http\Controllers\PublicSitemapController;
 use App\Http\Controllers\StoreCartController;
 use App\Http\Controllers\WebCheckoutController;
@@ -27,6 +28,7 @@ use App\Livewire\Admin\ShippingSettingsPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', PublicLandingController::class)->name('home');
+Route::get('/search', PublicSearchController::class)->name('search');
 Route::get('/products/{slug}', PublicProductController::class)->name('products.show');
 Route::get('/sitemap.xml', PublicSitemapController::class)->name('sitemap');
 

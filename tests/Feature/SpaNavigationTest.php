@@ -23,6 +23,9 @@ class SpaNavigationTest extends TestCase
             ->assertSee('wire:navigate', false);
         $this->get(route('cart.index'))->assertOk()->assertSee('wire:offline', false)
             ->assertSee('wire:navigate', false);
+        $this->get(route('search', ['q' => 'گردو']))->assertOk()
+            ->assertSee('wire:offline', false)
+            ->assertSee('wire:navigate', false);
 
         $this->assertStringContainsString("import './navigation';", file_get_contents(resource_path('js/storefront.js')));
         $this->assertStringContainsString('livewire:navigated', file_get_contents(resource_path('js/navigation.js')));
