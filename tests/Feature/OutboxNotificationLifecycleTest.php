@@ -52,9 +52,10 @@ class OutboxNotificationLifecycleTest extends TestCase
         Queue::assertPushed(DeliverOutboxNotification::class, fn (DeliverOutboxNotification $job): bool => $job->eventId === $eventId);
     }
 
-    public function test_terminal_failure_is_not_requeued_by_the_scheduler(): void
+    public function test_terminal_failure_is_not_requeued_or_allowed_to_starve_later_events(): void
     {
-        [$eventId, $order] = $this->orderAndEvent();
+        [$eventId, $order] = $this->orderAndEvent(31);
+        [$laterEventId] = $this->orderAndEvent(32);
         NotificationLog::query()->create([
             'outbox_event_id' => $eventId,
             'customer_id' => $order->customer_id,
@@ -65,9 +66,10 @@ class OutboxNotificationLifecycleTest extends TestCase
         ]);
         Queue::fake();
 
-        $this->artisan('denapax:notifications:dispatch')->assertExitCode(0);
+        $this->artisan('denapax:notifications:dispatch --limit=1')->assertExitCode(0);
 
-        Queue::assertNothingPushed();
+        Queue::assertPushed(DeliverOutboxNotification::class, 1);
+        Queue::assertPushed(DeliverOutboxNotification::class, fn (DeliverOutboxNotification $job): bool => $job->eventId === $laterEventId);
         $this->assertDatabaseHas('notification_logs', [
             'outbox_event_id' => $eventId,
             'status' => 'failed',
@@ -172,17 +174,18 @@ class OutboxNotificationLifecycleTest extends TestCase
             ->call('retry', $log->id);
     }
 
-    private function orderAndEvent(): array
+    private function orderAndEvent(int $suffix = 31): array
     {
-        $customer = Customer::create(['mobile' => '09120000031', 'mobile_verified_at' => now()]);
+        $mobile = '091200000'.$suffix;
+        $customer = Customer::create(['mobile' => $mobile, 'mobile_verified_at' => now()]);
         $order = Order::create([
-            'order_number' => 'DN-WEB-1',
+            'order_number' => 'DN-WEB-'.$suffix,
             'checkout_key' => (string) Str::uuid(),
             'customer_id' => $customer->id,
             'order_status' => 'awaiting_payment',
             'payment_status' => 'awaiting_receipt',
             'recipient_name' => 'Dena Buyer',
-            'recipient_mobile' => '09120000031',
+            'recipient_mobile' => $mobile,
             'province' => 'Kohgiluyeh',
             'city' => 'Sisakht',
             'address_line' => 'Example test address 12',
