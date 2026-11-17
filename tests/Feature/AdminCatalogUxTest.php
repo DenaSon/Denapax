@@ -59,7 +59,7 @@ class AdminCatalogUxTest extends TestCase
     public function test_product_editor_previews_pending_images_and_exposes_upload_and_save_feedback(): void
     {
         $this->get(route('admin.products.create'))->assertOk()
-            ->assertSee('livewire-upload-progress', false)
+            ->assertSee('x-on:change="uploadFiles($event)"', false)
             ->assertSee('uploadMultiple(', false)
             ->assertSee('x-for="(file, index) in files"', false)
             ->assertSee('بارگذاری شد')
