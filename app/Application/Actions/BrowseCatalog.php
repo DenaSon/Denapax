@@ -19,8 +19,7 @@ class BrowseCatalog
         $term = PersianSearch::normalize((string) $term);
 
         return Product::query()
-            ->published()
-            ->whereHas('variants', fn ($q) => $q->where('is_available', true))
+            ->publiclyOrderable()
             ->when($categoryId !== null, fn ($q) => $q->where('category_id', $categoryId))
             ->when($term !== '', function ($q) use ($term): void {
                 $q->where(function ($inner) use ($term): void {
@@ -29,19 +28,18 @@ class BrowseCatalog
                     }
                 });
             })
-            ->with(['category', 'variants' => fn ($q) => $q->where('is_available', true)->orderBy('price_irr')])
+            ->with(['category', 'variants' => fn ($q) => $q->availableForSale()->orderBy('price_irr')])
             ->orderBy('id')
             ->paginate(perPage: 10, page: max(1, $page));
     }
 
     public function product(int $id): ?Product
     {
-        return Product::query()->published()
-            ->whereHas('variants', fn ($q) => $q->where('is_available', true))
+        return Product::query()->publiclyOrderable()
             ->with([
                 'features',
                 'media',
-                'variants' => fn ($q) => $q->where('is_available', true)->orderBy('sort_order'),
+                'variants' => fn ($q) => $q->availableForSale()->orderBy('sort_order'),
                 'variants.media',
             ])
             ->find($id);
