@@ -1231,7 +1231,6 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
     .store-cart-item-total { font-size:.78rem; }
     .store-cart-item-actions { grid-column:1 / -1; flex-direction:row; justify-content:space-between; padding-inline-start:.1rem; }
     .store-cart-remove { min-height:40px; }
-    .store-cart-loading { bottom:max(.8rem,env(safe-area-inset-bottom,0px) + .45rem); font-size:.73rem; }
 }
 @media (max-width:390px) {
     .store-cart-heading { gap:.5rem; }
