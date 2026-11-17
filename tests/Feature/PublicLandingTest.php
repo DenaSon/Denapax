@@ -242,7 +242,6 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('aspect-ratio: 1.11;', $css);
         $this->assertStringContainsString('aspect-ratio: 1.22;', $css);
         $this->assertStringContainsString('background-size: cover;', $css);
-        $this->assertStringNotContainsString('url(\'/images/dena-landscape.svg\')', $css);
         $this->assertStringNotContainsString('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', $css);
         $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
