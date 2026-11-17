@@ -378,7 +378,7 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('onFailure(() =>', $script);
         $this->assertStringContainsString("window.Livewire.dispatch('cart-state-requested'", $script);
         $this->assertStringContainsString('refreshSelectedQuantity()', $script);
-        $this->assertStringContainsString("cart-state-requested", $script);
+        $this->assertStringContainsString('cart-state-requested', $script);
         $this->assertStringContainsString('x-cloak', file_get_contents(resource_path('views/landing/product.blade.php')));
         $this->assertStringContainsString('نشست شما منقضی شده است.', $script);
         $this->assertStringContainsString('destroy()', $script);
