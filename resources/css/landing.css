@@ -1448,3 +1448,57 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
         margin-inline:auto;
     }
 }
+
+
+/* Compact, safe-area aware checkout action for the mobile cart. */
+.store-cart-mobile-dock { display:none; }
+.store-cart-mobile-dock-summary { display:grid; min-width:0; gap:.2rem; color:#70806f; font-size:.68rem; }
+.store-cart-mobile-dock-summary strong { color:#1b4432; font-size:1rem; font-weight:900; white-space:nowrap; }
+.store-cart-mobile-dock-summary small { font-size:.68rem; font-weight:750; }
+.store-cart-mobile-dock-action {
+    display:inline-flex;
+    min-width:0;
+    min-height:46px;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    padding:.65rem .9rem;
+    border:0;
+    border-radius:.85rem;
+    background:#19392f;
+    color:#fff;
+    font-size:.76rem;
+    font-weight:850;
+    text-align:center;
+    text-decoration:none;
+}
+.store-cart-mobile-dock-action:disabled { opacity:.5; cursor:not-allowed; }
+.store-cart-mobile-dock-action.is-loading { pointer-events:none; opacity:.6; }
+@media (max-width:700px) {
+    .store-cart-page.has-mobile-dock { padding-bottom:calc(7.25rem + env(safe-area-inset-bottom,0px)); }
+    .store-cart-mobile-dock {
+        position:fixed;
+        z-index:75;
+        inset-inline:0;
+        bottom:0;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.8rem;
+        padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom,0px));
+        border-top:1px solid #d4ddd0;
+        background:rgba(255,254,250,.97);
+        box-shadow:0 -12px 34px -24px rgba(16,48,33,.5);
+        backdrop-filter:blur(14px);
+        -webkit-backdrop-filter:blur(14px);
+    }
+    .store-cart-mobile-dock-action { flex:1; }
+    .store-cart-summary .store-cart-checkout,
+    .store-cart-summary .store-cart-summary-alert { display:none; }
+    .store-cart-loading { bottom:calc(6.25rem + env(safe-area-inset-bottom,0px)); }
+}
+@media (max-width:360px) {
+    .store-cart-mobile-dock { gap:.55rem; padding-inline:.7rem; }
+    .store-cart-mobile-dock-summary strong { font-size:.9rem; }
+    .store-cart-mobile-dock-action { padding-inline:.65rem; font-size:.7rem; }
+}
