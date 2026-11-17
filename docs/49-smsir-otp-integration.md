@@ -43,4 +43,4 @@ After changing deployment variables, rebuild Laravel's cached configuration usin
 
 ## Dependency note
 
-The project pins the official `ipe/smsir-php` SDK in `composer.lock`. Its Laravel package provider is intentionally not auto-discovered because it reads `env()` directly and hard-codes the API base URL. The application owns the SDK binding and timeout policy.
+The project pins the official `ipe/smsir-php` SDK in `composer.lock` (v1.0.1, published 2024-10-19). Its release history is old, so keep it isolated behind this adapter and review the upstream source and compatibility before any upgrade. Its Laravel package provider is intentionally not auto-discovered because it reads `env()` directly and hard-codes the API base URL. The application owns the SDK binding and timeout policy.
