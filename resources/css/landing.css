@@ -1103,8 +1103,6 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 .product-purchase-panel-label { color:#72816f; font-size:.68rem; font-weight:750; }
 .product-purchase-panel-price { display:flex; flex-wrap:wrap; align-items:baseline; gap:.35rem; color:#1d4433; font-size:1.25rem; font-weight:900; font-variant-numeric:tabular-nums; }
 .product-purchase-panel-price small { font-size:.72rem; font-weight:750; }
-.product-purchase-panel-unit-price { display:flex; align-items:baseline; gap:.35rem; color:#526c58; font-size:.85rem; font-weight:800; font-variant-numeric:tabular-nums; }
-.product-purchase-panel-unit-price small { font-size:.68rem; font-weight:700; }
 .product-purchase-panel-quantity { color:#536f57; font-size:.7rem; }
 .product-purchase-panel-quantity b { color:#1e4934; font-variant-numeric:tabular-nums; }
 .product-purchase-panel-actions { display:flex; flex:none; flex-direction:column; align-items:stretch; gap:.35rem; }
