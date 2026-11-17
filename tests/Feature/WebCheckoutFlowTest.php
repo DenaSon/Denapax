@@ -55,6 +55,57 @@ class WebCheckoutFlowTest extends TestCase
         ]);
     }
 
+    public function test_payment_method_copy_matches_effective_gateway_availability_on_product_checkout_and_order_pages(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+        config()->set('zarinpal.enabled', false);
+        config()->set('zarinpal.merchant_id', '');
+
+        $this->get(route('products.show', 'dena-prunes'))->assertOk()
+            ->assertSee('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.')
+            ->assertDontSee('زرین‌پال');
+
+        $address = $this->makeAddress();
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+        $this->post(route('checkout.preview'), ['address_id' => $address->id])
+            ->assertRedirect(route('checkout.review'));
+
+        $this->get(route('checkout.review'))->assertOk()
+            ->assertSee('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.')
+            ->assertDontSee('زرین‌پال');
+
+        $context = session('web_checkout_preview');
+        $this->post(route('checkout.confirm'), ['checkout_key' => $context['checkout_key']])
+            ->assertRedirect();
+        $order = Order::query()->sole();
+
+        $this->get(route('orders.confirmation', $order->order_number))->assertOk()
+            ->assertSee('روش پرداخت این سفارش از طریق کارت‌به‌کارت و ارسال رسید است.')
+            ->assertDontSee('زرین‌پال')
+            ->assertSee('ارسال رسید برای بررسی');
+
+        // A feature flag alone is insufficient: a valid merchant identifier
+        // is also required before any customer-facing page advertises Zarinpal.
+        config()->set('zarinpal.enabled', true);
+        config()->set('zarinpal.merchant_id', '11111111-2222-3333-4444-555555555555');
+
+        $this->get(route('products.show', 'dena-prunes'))->assertOk()
+            ->assertSee('پرداخت آنلاین با زرین‌پال')
+            ->assertSee('کارت‌به‌کارت و ارسال رسید');
+
+        $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
+        $this->post(route('checkout.preview'), ['address_id' => $address->id])
+            ->assertRedirect(route('checkout.review'));
+
+        $this->get(route('checkout.review'))->assertOk()
+            ->assertSee('پرداخت آنلاین با زرین‌پال')
+            ->assertSee('کارت‌به‌کارت و ارسال رسید');
+
+        $this->get(route('orders.confirmation', $order->order_number))->assertOk()
+            ->assertSee('پرداخت امن با زرین‌پال')
+            ->assertSee('روش جایگزین: کارت‌به‌کارت و ارسال رسید');
+    }
+
     public function test_guest_is_sent_to_customer_login_for_checkout(): void
     {
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1])
