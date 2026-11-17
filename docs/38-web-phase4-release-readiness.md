@@ -1,6 +1,6 @@
 # Denapax — Web Phase 4: release readiness, payment safety and mobile UX
 
-**Status: IN PROGRESS / LAUNCH NO-GO — 2026-11-15.** Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) were merged. Current verified `master` at `3ca052738bb5397f658306669f67ecb37375d55f` with [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/43723331966) green: 77 tests / 523 assertions, Composer locked dependency audit/validation, Pint and Vite. **Code CI does not prove deployment, actual merchant settlement, SMS delivery, isolated restore or real-device browser usability; Phase 4C/4D remain pending.**
+**Status: IN PROGRESS / LAUNCH NO-GO — 2026-11-17.** Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) are merged. Current verified `master` at `adc85cf905acb45212ea5c7991aff34438c441e8` with [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/44066864675) green: 132 tests / 945 assertions, Composer audit/validation, Pint and Vite. The owner has separately confirmed real SMS.ir OTP delivery and successful customer login flow; the exact deployment tier was not recorded. **Live Zarinpal settlement, target-MySQL migration, isolated restore and real-device browser acceptance remain unverified; Phase 4C/4D and the overall release gate remain pending.**
 
 This is the current **release playbook**, replacing Telegram-specific procedures in historical `docs/15` and `docs/16`. Existing release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24) and [#25](https://github.com/DenaSon/Denapax/issues/25) remain OPEN. Keep them open until evidence and owner go/no-go exist.
 
@@ -24,7 +24,8 @@ Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → 
 
 ### P0-B: OTP and web customer access
 
-- [ ] Select/connect a real, approved HTTPS SMS webhook adapter; securely configure `CUSTOMER_SMS_DRIVER=webhook`, URL and token in deployment secrets. `disabled` is the production default. Test sending/delivering a real SMS, expiry, resend cooldown, retry limits, Iranian mobile normalization, login/cart continuity and user-friendly delivery failure.
+- [x] SMS.ir Verify adapter is configured and owner-confirmed: real test OTP delivered and customer login/continuation flow completed on the configured deployment (2026-11-17). Template `967976`, panel token `#HOURS#`, SDK parameter `HOURS`. Exact deployment tier was not recorded; see [SMS.ir acceptance record](49-smsir-otp-integration.md).
+- [ ] Complete negative/security OTP checks on the target environment: wrong-code attempt limit, five-minute expiry, 60-second resend cooldown, IP/mobile throttling, provider timeout/failure behavior and absence of OTP/API-key data in logs.
 - [ ] Verify customer session/login redirect after the Zarinpal return when cookies expire or the payment page opens on another device. Successful gateway verification must remain server-side and the user must reach their own order after reauthentication.
 - [ ] Confirm staff Fortify web guard, `customer` guard separation, staff RBAC, rate-limits, no public staff registration and no customer cross-access.
 
@@ -52,7 +53,7 @@ Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → 
 | Journey | Evidence required (not yet recorded) | Status |
 | --- | --- | --- |
 | Mobile public catalog/search/product/variant/cart | Browser device checklist with screenshots or sanitized notes | Pending |
-| Mobile OTP/login/saved address | Real provider SMS send and verified account flow | Pending |
+| Mobile OTP/login/saved address | Owner-confirmed real SMS.ir OTP delivery and successful login; target-MySQL/browser/device and negative-case checks still required | Partially accepted |
 | Shipping quote/price stale replay/idempotency | Staging MySQL test + browser confirmation, price snapshot | Pending |
 | Zarinpal success and merchant reconciliation | Real authorized payment; matched amount, Authority/ref and panel transaction | Pending |
 | Failed/timeout/lost callback/duplicate/retry | Injected error test and operator reconciliation proof | Pending |
@@ -67,7 +68,7 @@ Launch a low-friction Persian RTL **web-only** storefront: catalog → cart → 
 
 1. **4A — code implemented in PR #82; release gate pending:** conservative no-double-payment state machine, inquiry, operator exception screen, late callback/fencing tests. Verify actual merchant account API/currency/refund/reconciliation in Phase 4C before any public activation. See [technical runbook](40-web-phase4a-gateway-reconciliation.md).
 2. **4B — mobile UX code implemented in PR #83; device QA pending:** one-page checkout, preselected address/shipping quote, one-tap cart quantity, concise OTP and product variants. Validate RTL/a11y/real-device/browser Back/Forward and payment recovery before approval. See [Phase 4B handoff](41-web-phase4b-mobile-checkout-ux.md).
-3. **4C — provider/staging integration:** SMS, activated Zarinpal credentials, actual merchant-currency and callback acceptance, real shipping/contact settings and MySQL migration rehearsal.
+3. **4C — provider/staging integration:** SMS.ir OTP delivery is owner-accepted; complete activated Zarinpal credentials, actual merchant-currency/callback/settlement acceptance, real shipping/contact settings and target-MySQL migration rehearsal.
 4. **4D — reliability and launch:** worker/schedule, alerting, backups + restore, security review, real web test order, release checklist, owner/operator go/no-go.
 
 A Phase 4 **code PR being merged is not itself a production GO**. Each gate needs dates, environment (no secrets), commit, scenario, result and operator/owner validation.
