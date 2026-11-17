@@ -54,9 +54,8 @@ jobs:
         with:
           node-version: '22'
 
-      # Bootstrap only: create the lockfile on GitHub's runner, where npm registry
-      # access is available. The generated file is committed in this PR; this
-      # step is removed in the final version in favor of a checked-in lockfile.
+      # Temporary bootstrap: generate the lockfile on GitHub's runner, commit it to
+      # this same-repository PR branch, then remove this block in the final CI.
       - name: Generate npm lockfile
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
