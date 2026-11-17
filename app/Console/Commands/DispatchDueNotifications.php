@@ -45,7 +45,7 @@ class DispatchDueNotifications extends Command
                         'outbox_event_id' => $event->id,
                     ]);
 
-                    return false;
+                    return null;
                 }
 
                 $log = NotificationLog::query()->firstOrCreate(
@@ -68,7 +68,7 @@ class DispatchDueNotifications extends Command
                 // Failed deliveries are terminal until an authorized staff member
                 // explicitly retries them. Sent rows are permanently idempotent.
                 if (in_array($log->status, ['sent', 'failed'], true)) {
-                    return false;
+                    return null;
                 }
 
                 // A queued job is durable in the database queue. The lease only
@@ -77,7 +77,7 @@ class DispatchDueNotifications extends Command
                 if ($log->next_attempt_at?->isFuture()
                     || ($log->status === 'sending'
                         && $log->claimed_at?->greaterThan(now()->subMinutes(self::DISPATCH_LEASE_MINUTES)))) {
-                    return false;
+                    return null;
                 }
 
                 $log->update([
