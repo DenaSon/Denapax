@@ -574,8 +574,9 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     cursor: not-allowed;
 }
 .store-header {
-    position: relative;
-    z-index: 20;
+    position: sticky;
+    top: 0;
+    z-index: 50;
     background: var(--store-pine-deep);
     color: #f8f5ec;
     box-shadow: 0 8px 28px rgba(17, 42, 32, .1);
@@ -780,11 +781,12 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 .store-order-card:active { transform: scale(.997); }
 .store-footer { border-top: 1px solid #d9dfd2; color: #687868; }
 @media (max-width: 639px) {
-    .store-header-inner { min-height: 72px; gap: .55rem; }
-    .store-brand-mark { width: 35px; height: 35px; }
-    .store-brand-name { font-size: 1.05rem; }
-    .store-brand-tagline { font-size: .63rem; }
-    .store-header-link { padding-inline: .65rem; font-size: .78rem; }
+    .store-header-inner { min-height: 64px; gap: .45rem; }
+    .store-brand { gap: .5rem; }
+    .store-brand-mark { width: 30px; height: 30px; }
+    .store-brand-name { font-size: .95rem; }
+    .store-brand-tagline { margin-top: .12rem; font-size: .58rem; }
+    .store-header-link { min-height: 40px; padding-inline: .55rem; font-size: .72rem; }
     .store-main { padding-top: 1.4rem; }
     .store-steps { margin-top: .85rem; }
     .store-steps li { font-size: .7rem; }
