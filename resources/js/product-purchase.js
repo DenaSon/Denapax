@@ -52,10 +52,6 @@ document.addEventListener('alpine:init', () => {
             return this.variants.find((variant) => Number(variant.id) === Number(this.selectedVariantId)) || null;
         },
 
-        get selectedUnitPriceLabel() {
-            return this.selectedVariant?.priceLabel || '';
-        },
-
         get selectedQuantity() {
             if (this.pendingAction === 'quantity' && this.pendingQuantity !== null) {
                 return this.pendingQuantity;
