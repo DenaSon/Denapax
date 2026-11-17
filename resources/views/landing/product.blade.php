@@ -219,8 +219,8 @@
                                        class="min-h-12 w-24 rounded-xl border border-[#9eb19e] bg-white p-3 text-center font-bold">
                             </div>
 
-                            <p x-show="notice" x-text="notice" role="status" class="product-purchase-feedback product-purchase-success"></p>
-                            <div x-show="error" role="alert" class="product-purchase-feedback product-purchase-error">
+                            <p x-show="notice" x-cloak x-text="notice" role="status" class="product-purchase-feedback product-purchase-success"></p>
+                            <div x-show="error" x-cloak role="alert" class="product-purchase-feedback product-purchase-error">
                                 <p x-text="error"></p>
                                 <button type="button" x-show="needsReconciliation" x-cloak
                                         x-on:click="refreshSelectedQuantity()" x-bind:disabled="busy"
@@ -242,7 +242,7 @@
                                         <span x-text="selectedPriceLabel">{{ \App\Support\Money::formatToman((int) $product->variants->first()->price_irr) }}</span>
                                         <small>تومان</small>
                                     </strong>
-                                    <span x-show="hasSelectedInCart" class="product-purchase-panel-quantity">
+                                    <span x-show="hasSelectedInCart" x-cloak class="product-purchase-panel-quantity">
                                         در سبد شما: <b x-text="selectedCartQuantity">0</b>
                                     </span>
                                 </div>
