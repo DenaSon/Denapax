@@ -204,11 +204,6 @@
                             <div class="product-purchase-panel" data-product-purchase-panel
                                  x-bind:aria-busy="busy.toString()">
                                 <div class="product-purchase-panel-meta">
-                                    <span class="product-purchase-panel-label">قیمت هر بسته</span>
-                                    <strong class="product-purchase-panel-unit-price">
-                                        <span x-text="selectedUnitPriceLabel">{{ \App\Support\Money::formatToman((int) $product->variants->first()->price_irr) }}</span>
-                                        <small>تومان</small>
-                                    </strong>
                                     <span class="product-purchase-panel-label mt-1">جمع قیمت برای <b x-text="selectedQuantity">{{ $initialQuantity }}</b> بسته</span>
                                     <strong class="product-purchase-panel-price">
                                         <span x-text="selectedPriceLabel">{{ $initialTotalPrice }}</span>
@@ -247,7 +242,7 @@
                                 </div>
                             </div>
                         </form>
-                        <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#315743] bg-white px-5 py-3 text-sm font-extrabold text-[#315743] shadow-sm transition hover:bg-[#edf2e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#315743]">
+                        <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 flex w-full min-h-12 items-center justify-center gap-2 rounded-xl border border-[#315743] bg-white px-5 py-3 text-sm font-extrabold text-[#315743] shadow-sm transition hover:bg-[#edf2e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#315743] md:inline-flex md:w-auto">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 4h2l2.2 11h10.9L21 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             مشاهده سبد خرید
                         </a>
