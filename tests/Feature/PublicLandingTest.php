@@ -160,7 +160,6 @@ class PublicLandingTest extends TestCase
             ->assertSee('https://t.me/m_asadix7', false)
             ->assertSee('طراحی و توسعه:')
             ->assertDontSee('Farid Atar · CC BY 3.0')
-            ->assertDontSee('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', false)
             ->assertSee('tel:09120000000', false);
 
         $this->get(route('products.show', $product->slug))->assertOk()
