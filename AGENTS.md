@@ -1,6 +1,6 @@
 # Denapax — web-only developer and project handoff
 
-**Updated: 2026-11-15. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md).**
+**Updated: 2026-11-17. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md).**
 
 ## Project and immutable decisions
 
@@ -13,8 +13,22 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 - Customer-only `customer` session guard and verified normalized Iranian mobile OTP; staff `web` Fortify guard/RBAC separate. OTP is hashed, time/attempt/IP/mobile limited and **disabled by default** until trusted HTTPS SMS provider integration.
 - Public search/product/variant catalog, session guest and DB customer cart, merge after login; saved customer-owned addresses and **Phase 4B single-page** validated checkout (weight delivery quote, cart/price fingerprint, immutable order snapshots, idempotent checkout key). Product variants use one shared add-to-cart form, cart quantities have one-tap +/- controls, OTP and address forms are mobile-focused. The product permalink now includes a progressive responsive gallery with native image links, thumbnail carousel, touch swipe, native zoom dialog and variant-specific image switching. See [gallery handoff](docs/44-product-mobile-gallery.md); real device QA is still required.
 - Online-first Zarinpal v4 transport and attempt ledger, manual card-to-card receipt with protected private storage and authorized admin review; order list/detail, shipping tracking and customer **web inbox UI are implemented**. Transactional order SMS **is not**.
-- Staff admin catalogs/settings/orders/payment review/fulfillment, order state history, outbox events, background web inbox persistence. Use `QUEUE_CONNECTION=database`, supervised `notifications,default` workers and one-minute `denapax:notifications:dispatch`.
+- Staff admin catalogs/settings/orders/payment review/fulfillment, order state history and a reliable web inbox/outbox lifecycle: atomic dispatch claims, unique jobs, bounded retries, terminal failure reporting and authorized manual retry (PR #126). Use `QUEUE_CONNECTION=database`, supervised `notifications,default` workers and one-minute `denapax:notifications:dispatch`.
 - All financial values stored as integer **IRR**, displayed as exact **toman**. Catalog records have `is_available` but **no numeric stock reservations**. One nationwide weight-based shipping tariff.
+
+## Repository governance and staff authorization — 2026-11-17
+
+- The active `master` ruleset requires pull requests, the `test` check with strict/up-to-date branches, blocks deletion and force-push, and has zero required approvals for the single-maintainer workflow. The bypass list is empty.
+- PR #123 stabilizes CI with the committed npm lockfile, Node.js 22 and deterministic `npm ci` installs.
+- PR #125 registers `EnsureActiveStaff` as Livewire 4 persistent middleware. A staff account deactivated while an admin page remains open is denied on the next Livewire update; regression coverage passed (116 tests / 812 assertions).
+- Issues #101, #104 and #105 are closed. Keep route-level authentication, role/permission checks and component/action authorization in place.
+
+## Web inbox/outbox reliability — 2026-11-17
+
+- PR #126 makes web inbox delivery recoverable without a schema migration: atomic event claims, a 10-minute dispatch lease, a seven-day `ShouldBeUnique` lock, real attempt counts, three bounded queue attempts (30s / 120s backoff), and terminal `failed` state.
+- Terminal failures are excluded from automatic scheduler scans and can be retried only by active staff with `orders.update`; retries are activity-logged and preserve lifetime attempts.
+- Scope is strictly the customer web inbox. Do not add SMS or revive Telegram. CI passed 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build.
+- CI does not prove a production worker or scheduler is running. Verify the database queue worker and one-minute scheduler in the target environment; the operational release gate remains open until observed.
 
 ## Critical safety / release invariants
 
@@ -37,6 +51,10 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 ## Payment-mode decision — 2026-11-16
 
 Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private receipt + authorized bank verification is the primary customer checkout payment UI**. Preserve the integrated gateway behind `ZARINPAL_ENABLED=false`; when enabled with a valid merchant ID, online payment becomes primary and receipt upload remains fallback. This is a presentation/configuration change only; preserve all unresolved-attempt bank safeguards and private receipts. Do not treat SMS OTP as deployed or receipts as bank proof. See [manual-first payment operation](docs/45-manual-receipt-first-rollout.md).
+
+## Next scoped code issue after outbox reliability — #103
+
+The next focused backlog item is [#103](https://github.com/DenaSon/Denapax/issues/103): enforce one shared sellability rule across the public catalog and guest/customer cart quantity changes. Preserve decrement/removal for unavailable lines; reject increases when variant, product, category, price or shipping weight is invalid. Do not add numeric stock reservation in this scope. This P2 code task does not reduce or replace the P0 release gates below.
 
 ## Next work: Web Phase 4
 
