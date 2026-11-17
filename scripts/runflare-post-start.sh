@@ -25,8 +25,36 @@ die() {
 [ -f artisan ] || die "Laravel artisan not found in $APP_DIR; run this hook in the Laravel service."
 command -v php >/dev/null 2>&1 || die "PHP CLI is unavailable; the selected service is not the Laravel container."
 
+# Runflare CephFS can mount with root:root / 755. PHP-FPM runs as www-data,
+# so an apparently healthy volume can reject Spatie Media Library mkdir().
+# Repair ONLY the public disk and only when its root ownership is incorrect.
+# A one-time recursive chown also repairs any existing root-owned media dirs.
+# Subsequent postStart runs do not traverse an already-correct volume.
+PUBLIC_STORAGE="$APP_DIR/storage/app/public"
+PHP_STORAGE_USER=www-data
+PHP_STORAGE_GROUP=www-data
+
+[ -d "$PUBLIC_STORAGE" ] || die "Public storage path is missing: $PUBLIC_STORAGE. Check the Runflare disk mount."
+command -v stat >/dev/null 2>&1 || die "stat is required for safe volume ownership inspection."
+storage_uid=$(id -u "$PHP_STORAGE_USER") || die "PHP-FPM user $PHP_STORAGE_USER does not exist."
+storage_gid=$(id -g "$PHP_STORAGE_USER") || die "PHP-FPM group for $PHP_STORAGE_USER could not be resolved."
+
+if [ "$(stat -c '%u' "$PUBLIC_STORAGE")" != "$storage_uid" ] ||
+   [ "$(stat -c '%g' "$PUBLIC_STORAGE")" != "$storage_gid" ]; then
+    [ "$(id -u)" = "0" ] || die "Public disk is not owned by www-data. Run postStart as root, or have an administrator repair its ownership."
+    log "Repairing root-owned public disk for PHP-FPM ($PHP_STORAGE_USER:$PHP_STORAGE_GROUP)."
+    chown -R "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$PUBLIC_STORAGE"
+fi
+
+# Ensure the worker can create the Spatie directories; never use chmod 777.
+[ -w "$PUBLIC_STORAGE" ] || die "Public storage is not writable by the current hook process."
+mkdir -p "$PUBLIC_STORAGE/landing"
+if [ "$(stat -c '%u' "$PUBLIC_STORAGE/landing")" != "$storage_uid" ]; then
+    [ "$(id -u)" = "0" ] || die "Landing image directory is not owned by $PHP_STORAGE_USER."
+    chown -R "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$PUBLIC_STORAGE/landing"
+fi
+
 # Link only the public disk. Never expose storage/app/private or payment receipts.
-mkdir -p storage/app/public/landing
 if [ -L public/storage ]; then
     link_target=$(readlink -f public/storage || true)
     public_target=$(readlink -f storage/app/public || true)
@@ -64,8 +92,29 @@ is_webp() {
     [ -f "$1" ] && php -r '$image = @getimagesize($argv[1]); exit($image && $image[2] === IMAGETYPE_WEBP ? 0 : 1);' "$1"
 }
 
+# The user already has a copy at the CephFS volume root. Prefer that
+# same-volume source over a fragile request to the external file-manager.
+if ! is_webp "$STORY_TARGET"; then
+    for local_source in \
+        "$PUBLIC_STORAGE/denapax-kuhgol-1200x900_261117145040.webp" \
+        "$PUBLIC_STORAGE/denapax-kuhgol-1200x900.webp"; do
+        if is_webp "$local_source"; then
+            temp_file=$(mktemp "$STORY_TARGET.part.XXXXXX")
+            if cp "$local_source" "$temp_file" && is_webp "$temp_file"; then
+                chmod 0644 "$temp_file"
+                mv -f "$temp_file" "$STORY_TARGET"
+                log "Dena story photo restored from the persistent public disk."
+            else
+                log "WARNING: Unable to copy a valid local Dena photo."
+            fi
+            rm -f "$temp_file"
+            break
+        fi
+    done
+fi
+
 if is_webp "$STORY_TARGET"; then
-    log "Dena story photo already cached on the public disk."
+    log "Dena story photo is available on the public disk."
 else
     case "$STORY_SOURCE" in
         https://*) ;;
