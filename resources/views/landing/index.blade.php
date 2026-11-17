@@ -342,7 +342,6 @@
         </div>
         <div class="landing-container mt-7 flex flex-wrap items-center justify-between gap-4 text-[11px] text-white/55">
             <span>دناپکس — معرفی محصولات محلی و خشکبار</span>
-            <span>دناپکس — معرفی محصولات محلی و خشکبار</span>
             <span>طراحی و توسعه:
                 <a href="https://t.me/m_asadix7" target="_blank" rel="noopener noreferrer" class="text-white hover:underline">Mohammad Asadi</a>
             </span>
