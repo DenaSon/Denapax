@@ -43,6 +43,9 @@ jobs:
       - name: Run tests
         run: php artisan test
 
+      - name: Validate Runflare postStart hook syntax
+        run: sh -n scripts/runflare-post-start.sh
+
       - name: Validate Composer manifest
         run: composer validate --no-check-publish
 

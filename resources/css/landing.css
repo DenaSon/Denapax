@@ -449,9 +449,10 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     inset: 0;
     background-image:
         linear-gradient(0deg, rgba(10, 31, 24, .77), transparent 56%),
-        url('https://fm-9kyo-denapx.runflare.cloud/data/denapax-kuhgol-1200x900_261117145040.webp');
-    background-position: center, center;
-    background-size: cover;
+        url('/storage/landing/denapax-kuhgol-1200x900.webp'),
+        url('/images/dena-landscape.svg');
+    background-position: center, center, center;
+    background-size: cover, cover, cover;
     transition: transform .8s cubic-bezier(.19, 1, .22, 1);
 }
 .landing-story-panel:hover .landing-story-image { transform: scale(1.035); }
