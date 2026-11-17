@@ -11,6 +11,7 @@ document.addEventListener('alpine:init', () => {
         pendingAction: null,
         pendingVariantId: null,
         pendingQuantity: null,
+        pendingPreviousQuantity: null,
         allowNativeSubmit: false,
         notice: '',
         error: '',
@@ -51,8 +52,21 @@ document.addEventListener('alpine:init', () => {
             return this.variants.find((variant) => Number(variant.id) === Number(this.selectedVariantId)) || null;
         },
 
-        get selectedPriceLabel() {
+        get selectedUnitPriceLabel() {
             return this.selectedVariant?.priceLabel || '';
+        },
+
+        get selectedQuantity() {
+            if (this.selectedCartQuantity > 0) return this.selectedCartQuantity;
+            const quantity = Number(this.requestedQuantity);
+            return Number.isSafeInteger(quantity) && quantity > 0 ? Math.min(1000, quantity) : 1;
+        },
+
+        get selectedPriceLabel() {
+            const unitPrice = Number(this.selectedVariant?.priceToman);
+            if (!Number.isFinite(unitPrice) || unitPrice < 0) return '';
+            return new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
+                .format(unitPrice * this.selectedQuantity);
         },
 
         get selectedCartQuantity() {
@@ -124,6 +138,8 @@ document.addEventListener('alpine:init', () => {
             this.pendingAction = 'quantity';
             this.pendingVariantId = variantId;
             this.pendingQuantity = nextQuantity;
+            this.pendingPreviousQuantity = this.selectedCartQuantity;
+            this.cartQuantities = { ...this.cartQuantities, [variantId]: nextQuantity };
             this.clearFeedback();
 
             window.Livewire.dispatch('cart-quantity-requested', {
@@ -163,12 +179,11 @@ document.addEventListener('alpine:init', () => {
             this.needsReconciliation = false;
             this.requiresReload = false;
             this.failedVariantId = null;
-            this.notice = action === 'refresh'
-                ? 'وضعیت سبد خرید به‌روز شد.'
-                : (quantity === 0 ? 'محصول از سبد خرید حذف شد.' : 'تعداد سبد خرید به‌روزرسانی شد.');
+            this.notice = action === 'refresh' ? 'وضعیت سبد خرید به‌روز شد.' : '';
         },
 
         handleCartFailed(event) {
+            this.rollbackPendingQuantity();
             this.finishRequest();
             this.needsReconciliation = false;
             this.requiresReload = false;
@@ -178,6 +193,7 @@ document.addEventListener('alpine:init', () => {
 
         handleTransportFailure(message, { reconcile = true, reload = false } = {}) {
             const failedVariantId = Number(this.pendingVariantId || this.selectedVariantId || 0);
+            this.rollbackPendingQuantity();
             this.finishRequest();
             this.needsReconciliation = reconcile && failedVariantId > 0;
             this.requiresReload = reload;
@@ -207,11 +223,22 @@ document.addEventListener('alpine:init', () => {
             window.Livewire.dispatch('cart-state-requested', { variantId });
         },
 
+        rollbackPendingQuantity() {
+            if (this.pendingAction !== 'quantity' || !this.pendingVariantId
+                || this.pendingPreviousQuantity === null) return;
+
+            this.cartQuantities = {
+                ...this.cartQuantities,
+                [this.pendingVariantId]: this.pendingPreviousQuantity,
+            };
+        },
+
         finishRequest() {
             this.busy = false;
             this.pendingAction = null;
             this.pendingVariantId = null;
             this.pendingQuantity = null;
+            this.pendingPreviousQuantity = null;
         },
 
         clearFeedback() {
