@@ -37,6 +37,11 @@ document.addEventListener('alpine:init', () => {
             return this.selectedCartQuantity > 0;
         },
 
+        useNativeFallback() {
+            this.allowNativeSubmit = true;
+            this.finishRequest();
+        },
+
         handleAddSubmit(event) {
             if (this.allowNativeSubmit || !window.Livewire?.dispatch) {
                 this.allowNativeSubmit = false;
