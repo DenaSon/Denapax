@@ -84,10 +84,16 @@ class WebCustomerFoundationTest extends TestCase
     {
         $this->travelTo(now()->startOfSecond());
 
+        $sentMobiles = [];
         $sender = Mockery::mock(CustomerOtpSender::class);
         $sender->shouldReceive('send')
-            ->once()
-            ->with('09120000016', Mockery::type('string'));
+            ->twice()
+            ->withArgs(function (string $mobile, string $code) use (&$sentMobiles): bool {
+                $sentMobiles[] = $mobile;
+
+                return in_array($mobile, ['09120000016', '09120000017'], true)
+                    && preg_match('/^[0-9]{6}$/D', $code) === 1;
+            });
         $this->app->instance(CustomerOtpSender::class, $sender);
 
         $this->from(route('customer.login'))
@@ -123,14 +129,12 @@ class WebCustomerFoundationTest extends TestCase
 
         // Changing the destination number is not blocked by the previous
         // number's 60-second cooldown; the IP rate limit still applies.
-        $sender->shouldReceive('send')
-            ->once()
-            ->with('09120000017', Mockery::type('string'));
-
         $this->from(route('customer.login'))
             ->post(route('customer.otp.request'), ['mobile' => '09120000017'])
             ->assertRedirect(route('customer.login'))
             ->assertSessionHas('customer_otp_mobile', '09120000017');
+
+        $this->assertSame(['09120000016', '09120000017'], $sentMobiles);
     }
 
     public function test_otp_screen_marks_expired_or_exhausted_challenges_unusable(): void
