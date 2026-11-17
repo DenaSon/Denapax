@@ -73,6 +73,12 @@ class WebCheckoutFlowTest extends TestCase
         config()->set('zarinpal.enabled', false);
         config()->set('zarinpal.merchant_id', '');
 
+        StoreSetting::query()->findOrFail(1)->update(['card_number' => '']);
+        $this->get(route('products.show', 'dena-prunes'))->assertOk()
+            ->assertSee('اطلاعات پرداخت برای این سفارش در دسترس نیست')
+            ->assertDontSee('کارت‌به‌کارت');
+        StoreSetting::query()->findOrFail(1)->update(['card_number' => '6037991234567890']);
+
         $address = $this->makeAddress();
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
         $this->post(route('checkout.preview'), ['address_id' => $address->id])
