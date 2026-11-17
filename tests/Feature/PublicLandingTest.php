@@ -165,6 +165,25 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('denapax-product-preview', false);
     }
 
+    public function test_mobile_headers_remain_visible_and_reduce_brand_navigation(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'sticky-header', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'sticky-header-walnut', 13890000);
+
+        $this->get('/')->assertOk()
+            ->assertSee('<header class="fixed inset-x-0 top-0 z-50 text-white', false)
+            ->assertSee('headerCompact ? \'h-16 border-white/10 md:h-20\'', false)
+            ->assertDontSee('x-on:click="closeMenu(true)" href="#story"', false);
+
+        $this->get(route('products.show', $product->slug))->assertOk()
+            ->assertSee('<header class="sticky top-0 z-50', false)
+            ->assertSee('class="hidden md:inline-flex transition hover:text-white" href="'.route('home').'#story"', false);
+
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('.store-header {\n    position: sticky;', $css);
+        $this->assertStringContainsString('.store-brand-mark { width: 30px; height: 30px; }', $css);
+    }
+
     public function test_storefront_footers_show_support_and_developer_credit_without_external_photo_attribution(): void
     {
         StoreSetting::create([
