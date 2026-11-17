@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-15.** Source: code merged into `master`, GitHub PRs and [green baseline CI at SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`](https://github.com/DenaSon/Denapax/actions/runs/43726671634), plus the product-gallery PR. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
+**Last reviewed: 2026-11-17.** Source: code merged into `master`, GitHub PRs and [green baseline CI at SHA `6edcfdad0c1691dc3771d4b5c63314ec4ec9883f`](https://github.com/DenaSon/Denapax/actions/runs/43726671634), plus the product-gallery PR. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** This ledger supersedes earlier Telegram-era scope/progress lists. No claim is made that a live web migration, real SMS, real gateway payment or production restore was run.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -15,7 +15,7 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 | Phase 3 — payments + orders | Zarinpal v4 request/verify adapter and attempt ledger; online-first order page; fallback manual receipt upload/private retrieval/approval/rejection; order list, shipment tracking and customer web inbox | [PR #79](https://github.com/DenaSon/Denapax/pull/79), `181793753b20dfd1cc4a0d7a5f41d306c433e589`, [docs/37](37-web-phase3-payments.md) |
 | Phase 4A — financial exception safety | No automatic timeout-based retry, inquiry and protected operator reconciliation, fenced verification, no competing manual payment; **real provider acceptance pending** | [PR #82](https://github.com/DenaSon/Denapax/pull/82), `7d9e93ce78a3cdbd4c9e19e257b0c18c6d79a7bc`, [docs/40](40-web-phase4a-gateway-reconciliation.md) |
 | Phase 4B — mobile-first purchase UX | Inline one-screen quote and confirmation, large +/- cart actions, one-form variant selection, simplified SMS code and recipient form; **physical mobile QA pending** | [PR #83](https://github.com/DenaSon/Denapax/pull/83), `3ca052738bb5397f658306669f67ecb37375d55f`, [docs/41](41-web-phase4b-mobile-checkout-ux.md) |
-| Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment, transactional outbox and database queue | Existing code + CI; still needs production-like acceptance |
+| Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment and database queue | Existing code + CI; production-like acceptance remains pending |\n| Web inbox/outbox reliability | Atomic event claims, leased dispatch recovery, unique jobs, bounded retries, terminal failure visibility and authorized manual retry | [PR #126](https://github.com/DenaSon/Denapax/pull/126), merge `12283896d7f8a45c674ed91f5f9c8a81e935f374`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44049700399): 121 tests / 851 assertions |
 
 **Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
@@ -66,6 +66,16 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 - Core regressions cover no-image/one-image/multiple-image and correct variant-to-photo mapping. [Gallery implementation and device QA](44-product-mobile-gallery.md).
 - **Still required:** actually inspect iOS/Android gestures, performance/long names and screenshot-based UX sign-off before declaring mobile acceptance.
 
+## P1 web inbox/outbox reliability — implemented in PR #126 (code-level)
+
+- The dispatcher now locks each outbox event, creates/reuses its unique `web` notification log and claims it before dispatch. The query excludes sent/terminal-failed rows and future leases, so old failures cannot starve later events.
+- Database queue jobs remain durable while workers are offline. A 10-minute lease recovers the commit-before-dispatch gap, and a seven-day Laravel `ShouldBeUnique` lock prevents repeated scheduler runs from amplifying an active job.
+- The job records actual execution attempts, uses three bounded attempts with 30s / 120s backoff, and writes a terminal `failed` state plus a short last-error summary after exhaustion.
+- Active staff with `orders.update` can explicitly retry a failed web notification from the admin report. The action is audited and preserves lifetime attempt history.
+- Reuses the existing `notification_logs` fields and unique event/customer/channel constraint; no migration or new table. It is **web inbox only**, not SMS or Telegram.
+- Automated evidence: 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build all passed. [PR #126](https://github.com/DenaSon/Denapax/pull/126).
+- **Still unverified:** production scheduler cadence, supervised `notifications,default` workers, worker-offline recovery and manual retry in the target runtime. Do not mark this operational acceptance complete from CI alone.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
@@ -89,9 +99,10 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 ## Next start point in a new conversation
 
-1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md).
-2. Inspect `master` + latest CI and real open release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25).
-3. Review **Phase 4A PR #82** and [reconciliation operator runbook](40-web-phase4a-gateway-reconciliation.md), then validate **Phase 4B mobile UX on real devices** and start **4C real provider/MySQL staging**; confirm real bank acceptance before production enablement.
-4. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
+1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
+2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
+3. The next focused code backlog item is [#103](https://github.com/DenaSon/Denapax/issues/103): enforce one shared sellability rule across public catalog and guest/customer cart quantity changes. Preserve decrement/removal for unavailable lines; do not add numeric stock reservation in this scope.
+4. In parallel with code backlog, complete Phase 4A real bank/provider acceptance, Phase 4B physical mobile QA and Phase 4C MySQL/SMS/provider staging before any public-sales GO.
+5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.
