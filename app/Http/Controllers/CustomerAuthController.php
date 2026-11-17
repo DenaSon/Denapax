@@ -29,6 +29,7 @@ class CustomerAuthController extends Controller
         $lastSentAt = $challenge?->last_sent_at?->timestamp;
 
         return view('store.login', [
+            'otpServerNow' => now()->timestamp * 1000,
             'otpExpiresAt' => $expiresAt === null ? null : $expiresAt * 1000,
             'otpResendAt' => $lastSentAt === null ? null : ($lastSentAt + 60) * 1000,
             'otpCodeUsable' => $challenge !== null
