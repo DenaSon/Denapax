@@ -33,17 +33,21 @@
     </nav>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
-    <header class="absolute inset-x-0 top-0 z-30 text-white">
-        <div class="landing-container flex h-22 items-center justify-between gap-5 border-b border-white/20 md:h-26">
+    <header class="landing-header fixed inset-x-0 top-0 z-50 text-white"
+             x-bind:class="headerCompact ? 'is-compact' : 'is-transparent'">
+        <div class="landing-container landing-header-inner flex items-center justify-between gap-4 border-b border-white/20 md:gap-5"
+             x-bind:class="headerCompact ? 'is-compact' : ''">
             <a wire:navigate href="{{ route('home') }}" aria-label="دناپکس، بازگشت به ابتدای صفحه" class="group inline-flex shrink-0 items-center gap-3" x-on:click="menuOpen = false">
-                <svg class="h-10 w-12 transition-transform duration-500 group-hover:-translate-y-1" viewBox="0 0 70 48" fill="none" aria-hidden="true">
+                <svg x-bind:class="headerCompact ? 'is-compact' : ''"
+                     class="landing-header-mark transition-all duration-300 group-hover:-translate-y-1" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
                     <path d="M3 46h64" stroke="#E6E8D4" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span class="text-right">
-                    <span class="block text-lg font-bold leading-none tracking-tight md:text-xl" lang="en">DenaPax</span>
-                    <span class="mt-1 block text-[10px] tracking-[.18em] text-white/65">از دل دنا</span>
+                    <span x-bind:class="headerCompact ? 'is-compact' : ''"
+                          class="landing-header-wordmark block font-bold leading-none tracking-tight" lang="en">DenaPax</span>
+                    <span x-show="!headerCompact" x-cloak class="mt-1 block text-[10px] tracking-[.18em] text-white/65">از دل دنا</span>
                 </span>
             </a>
 
@@ -66,7 +70,8 @@
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.6L20 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <livewire:store.cart-count />
                 </a>
-                <button type="button" x-ref="menuToggle" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
+                <button type="button" x-ref="menuToggle" x-bind:class="headerCompact ? 'is-compact' : ''"
+                        class="landing-header-toggle inline-flex items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
                     <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                     <svg x-show="menuOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
                 </button>
@@ -141,7 +146,7 @@
             </div>
         </section>
 
-        <section id="products" data-chapter class="landing-container scroll-mt-12 pt-14 pb-20 md:pt-19 md:pb-28" aria-labelledby="products-title">
+        <section id="products" data-chapter class="landing-container scroll-mt-24 pt-14 pb-20 md:pt-19 md:pb-28" aria-labelledby="products-title">
             <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
                 <div data-reveal>
                     <div class="mb-4 flex items-center gap-3 text-xs font-semibold tracking-widest text-clay">
@@ -215,7 +220,7 @@
             @endif
         </section>
 
-        <section id="story" data-chapter class="relative overflow-hidden bg-[#e2e5d5] py-23 md:py-36" aria-labelledby="story-title">
+        <section id="story" data-chapter class="relative scroll-mt-24 overflow-hidden bg-[#e2e5d5] py-23 md:py-36" aria-labelledby="story-title">
             <div class="pointer-events-none absolute inset-y-0 left-0 w-full opacity-60 organic-lines lg:w-[65%]" aria-hidden="true"></div>
             <svg data-topography class="topographic-signature" viewBox="0 0 700 560" fill="none" aria-hidden="true">
                 <path pathLength="1" d="M-60 80C30 10 130 20 220 75s185 68 280 3 175-75 265-10"/>
@@ -250,7 +255,7 @@
             </div>
         </section>
 
-        <section id="order" data-chapter class="landing-order-section bg-[#17382d] text-[#f3f1e5]" aria-labelledby="order-title">
+        <section id="order" data-chapter class="landing-order-section scroll-mt-24 bg-[#17382d] text-[#f3f1e5]" aria-labelledby="order-title">
             <div class="landing-container landing-order-content">
                 <div>
                     <p class="landing-label mb-3 text-[#c3d6be]">ORDER / 03</p>
