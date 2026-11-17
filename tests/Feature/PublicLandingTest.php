@@ -381,6 +381,34 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('scroll-margin-bottom:11rem;', $css);
     }
 
+    public function test_product_detail_reads_customer_cart_without_creating_an_empty_cart(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'customer-cart-read', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی مشتری', 'customer-cart-read', 5000000);
+        $variant = $product->variants()->firstOrFail();
+        $customer = Customer::create(['mobile' => '09120000085', 'mobile_verified_at' => now()]);
+        $this->actingAs($customer, 'customer');
+
+        $this->assertFalse($customer->cart()->exists());
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => count((array) $quantities) === 0);
+
+        $this->assertFalse($customer->cart()->exists());
+
+        $this->post(route('cart.add'), [
+            'variant_id' => $variant->id,
+            'quantity' => 2,
+        ])->assertRedirect(route('cart.index'));
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$variant->id} ?? 0) === 2);
+
+        $this->assertDatabaseCount('carts', 1);
+    }
+
     public function test_product_preview_posts_selected_variant_to_existing_guest_cart_endpoint(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
