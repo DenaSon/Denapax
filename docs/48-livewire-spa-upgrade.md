@@ -47,3 +47,15 @@ A smooth storefront must not fake financial success. **Native POST/redirect** re
 - Product data curation, content strategy and inventory tracking are separate from this SPA-like refactor.
 
 **Project invariants:** no Telegram bot return, all monetary amounts persisted in integer IRR and displayed in toman, independent customer and staff guards, real bank verification before receipt approval, unknown gateway attempts block charge retries.
+
+
+## Product-detail purchase reactivity — 2026-11-17 (PR #137)
+
+The product permalink now reuses the Livewire cart bridge. Alpine reflects the selected variant's server-seeded cart quantity and price; add, increment, decrement and remove actions stay on the product page and refresh the header count. A native CSRF-protected POST remains available when JavaScript/Livewire is unavailable. Transport errors clear the busy state; ambiguous results request authoritative cart state before retry to avoid duplicate additions. The mobile purchase dock respects safe-area insets. Issue #108 is closed; real iOS/Android and keyboard/focus acceptance remains part of #24.
+
+## Catalog discovery and mobile purchase follow-ups — 2026-11-17 (PRs #138–#139)
+
+- Product-preview primary clicks open the dialog without Livewire navigation intercepting the real product URL; modifier clicks and no-JavaScript navigation retain the link.
+- Catalog search is submit-driven rather than input-debounced and preserves the native GET fallback, query and category.
+- The cart has a fixed mobile checkout dock with server-rendered count/subtotal and an unavailable-line block; its CTA distinguishes guest SMS login from authenticated address/delivery continuation (PR #142). The checkout address picker shows recipient mobile/postal code and separate default/selected markers.
+- Gallery desktop width is capped and lightbox zoom is bounded by source pixel resolution. These changes do not replace real-device acceptance.
