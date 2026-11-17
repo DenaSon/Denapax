@@ -297,8 +297,6 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 }
 .landing-hero-glow { opacity: .24; }
 #products { position: relative; }
-#products[aria-busy="true"] .product-card { opacity: .56; pointer-events: none; }
-#products .product-card { transition: opacity .22s ease; }
 @media (min-width: 768px) {
     .landing-hero { border-radius: 0 0 3rem 3rem; }
 }
@@ -308,9 +306,6 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .landing-hero::after {
         background: linear-gradient(180deg, rgba(13,38,31,.52) 0%, rgba(12,37,30,.72) 68%, rgba(12,37,30,.85) 100%);
     }
-}
-@media (prefers-reduced-motion: reduce) {
-    #products .product-card { transition: none; }
 }
 
 
