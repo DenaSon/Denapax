@@ -3,4 +3,5 @@
 import './landing';
 import './product-gallery';
 import './store';
+import './otp-challenge';
 import './navigation';
