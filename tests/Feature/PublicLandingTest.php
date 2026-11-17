@@ -457,6 +457,9 @@ class PublicLandingTest extends TestCase
             ->assertSee('x-on:cart-quantity-updated.window="handleCartQuantityUpdated($event)"', false)
             ->assertSee('data-product-purchase-panel', false)
             ->assertSee('جمع قیمت برای', false)
+            ->assertDontSee('قیمت هر بسته')
+            ->assertSee('class="mt-4 flex w-full min-h-12', false)
+            ->assertSee('md:inline-flex md:w-auto', false)
             ->assertSee('1,000,000')
             ->assertSee('x-show="hasSelectedInCart"', false)
             ->assertSee('x-on:click="setSelectedQuantity(selectedCartQuantity + 1)"', false)
@@ -481,6 +484,7 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
         $this->assertStringContainsString("window.Livewire.dispatch('cart-quantity-requested'", $script);
         $this->assertStringContainsString("new Intl.NumberFormat('en-US'", $script);
+        $this->assertStringNotContainsString('selectedUnitPriceLabel', $script);
         $this->assertStringContainsString('pendingPreviousQuantity', $script);
         $this->assertStringContainsString('window.Livewire.interceptRequest', $script);
         $this->assertStringContainsString('onError(({ response, preventDefault }) =>', $script);
