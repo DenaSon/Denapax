@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Integrations\Payments\ZarinpalGateway;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -56,6 +57,8 @@ class PublicProductController extends Controller
         $description = (string) ($product->summary ?: $product->description ?: $product->title);
         $metaDescription = mb_substr(trim(strip_tags($description)), 0, 155);
         $minimumPrice = (int) $product->variants->min('price_irr');
+        $storeSetting = StoreSetting::query()->find(1);
+        $manualAvailable = preg_match('/^[0-9]{16}$/D', (string) ($storeSetting?->card_number ?? '')) === 1;
 
         // Structured-data offers are priced in actual DB currency (IRR), not
         // display currency (toman). No fake reviews, inventory quantities or ratings.
@@ -85,6 +88,9 @@ class PublicProductController extends Controller
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
             'minimumPrice', 'schema', 'variantPhotoIndexes'
-        ) + ['gatewayEnabled' => $gateway->enabled()]);
+        ) + [
+            'gatewayEnabled' => $gateway->enabled(),
+            'manualAvailable' => $manualAvailable,
+        ]);
     }
 }
