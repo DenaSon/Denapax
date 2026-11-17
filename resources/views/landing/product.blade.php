@@ -34,15 +34,15 @@
 <body class="landing landing-shell antialiased">
     <a href="#product-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به جزئیات محصول</a>
 
-    <header class="relative bg-[#17382d] text-[#f4f0e7]">
-        <div class="landing-container flex min-h-22 flex-wrap items-center justify-between gap-4 py-4 md:min-h-26">
+    <header class="sticky top-0 z-50 bg-[#17382d] text-[#f4f0e7] shadow-lg">
+        <div class="landing-container flex min-h-16 items-center justify-between gap-3 py-2 md:min-h-20 md:gap-4 md:py-3">
             <a wire:navigate href="{{ route('home') }}" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e8d3b1]" aria-label="بازگشت به صفحه اصلی دناپکس">
-                <svg class="h-9 w-11" viewBox="0 0 70 48" fill="none" aria-hidden="true">
+                <svg class="h-7 w-8 md:h-9 md:w-11" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
                     <path d="M3 46h64" stroke="#E6E8D4" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span class="text-xl font-extrabold tracking-tight" lang="en">DenaPax</span>
+                <span class="text-base font-extrabold tracking-tight md:text-xl" lang="en">DenaPax</span>
             </a>
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-5 text-xs font-semibold text-[#e6e8d4] sm:text-sm">
                 <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
