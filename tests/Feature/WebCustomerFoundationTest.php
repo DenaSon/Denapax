@@ -80,6 +80,80 @@ class WebCustomerFoundationTest extends TestCase
         $this->assertSame(1, Customer::query()->sole()->cart->items()->sole()->quantity);
     }
 
+    public function test_otp_screen_shows_server_timed_expiry_and_resend_feedback(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+
+        $sentMobiles = [];
+        $sender = Mockery::mock(CustomerOtpSender::class);
+        $sender->shouldReceive('send')
+            ->twice()
+            ->withArgs(function (string $mobile, string $code) use (&$sentMobiles): bool {
+                $sentMobiles[] = $mobile;
+
+                return in_array($mobile, ['09120000016', '09120000017'], true)
+                    && preg_match('/^[0-9]{6}$/D', $code) === 1;
+            });
+        $this->app->instance(CustomerOtpSender::class, $sender);
+
+        $this->from(route('customer.login'))
+            ->post(route('customer.otp.request'), ['mobile' => '09120000016'])
+            ->assertRedirect(route('customer.login'))
+            ->assertSessionHas('customer_otp_mobile', '09120000016');
+
+        $expiresAt = (now()->addMinutes(5)->timestamp) * 1000;
+        $resendAt = (now()->addSeconds(60)->timestamp) * 1000;
+
+        $this->get(route('customer.login'))->assertOk()
+            ->assertSee('data-otp-current-mobile="09120000016"', false)
+            ->assertSee('data-otp-server-now="'.(now()->timestamp * 1000).'"', false)
+            ->assertSee('data-otp-expires-at="'.$expiresAt.'"', false)
+            ->assertSee('data-otp-resend-at="'.$resendAt.'"', false)
+            ->assertSee('data-otp-code-usable="1"', false)
+            ->assertSee('x-data="otpChallenge"', false)
+            ->assertSee('x-bind:disabled="requestDisabled"', false)
+            ->assertSee('x-text="expiryMessage"', false)
+            ->assertSee('x-text="resendMessage"', false)
+            ->assertSee('ارسال مجدد', false);
+
+        // The server remains authoritative even when the client countdown is
+        // used to prevent an early repeat request for the same mobile.
+        $this->travel(30)->seconds();
+        $this->from(route('customer.login'))
+            ->post(route('customer.otp.request'), ['mobile' => '09120000016'])
+            ->assertRedirect(route('customer.login'))
+            ->assertSessionHasErrors('mobile');
+
+        $this->get(route('customer.login'))->assertOk()
+            ->assertSee('data-otp-resend-at="'.$resendAt.'"', false);
+
+        // Changing the destination number is not blocked by the previous
+        // number's 60-second cooldown; the IP rate limit still applies.
+        $this->from(route('customer.login'))
+            ->post(route('customer.otp.request'), ['mobile' => '09120000017'])
+            ->assertRedirect(route('customer.login'))
+            ->assertSessionHas('customer_otp_mobile', '09120000017');
+
+        $this->assertSame(['09120000016', '09120000017'], $sentMobiles);
+    }
+
+    public function test_otp_screen_marks_expired_or_exhausted_challenges_unusable(): void
+    {
+        CustomerLoginCode::query()->create([
+            'mobile' => '09120000018',
+            'code_hash' => Hash::make('123456'),
+            'attempts' => 5,
+            'expires_at' => now()->subMinute(),
+            'last_sent_at' => now()->subMinutes(2),
+        ]);
+
+        $this->withSession(['customer_otp_mobile' => '09120000018'])
+            ->get(route('customer.login'))
+            ->assertOk()
+            ->assertSee('data-otp-code-usable="0"', false)
+            ->assertSee('کد فعلی منقضی یا قابل استفاده نیست؛ کد تازه دریافت کنید.');
+    }
+
     public function test_invalid_otp_attempts_are_persisted_and_block_replay(): void
     {
         CustomerLoginCode::query()->create([
