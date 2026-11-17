@@ -377,7 +377,7 @@ class PublicLandingTest extends TestCase
         $css = file_get_contents(resource_path('css/landing.css'));
         $this->assertStringContainsString('.product-purchase-panel { display:flex', $css);
         $this->assertStringContainsString('env(safe-area-inset-bottom,0px)', $css);
-        $this->assertStringContainsString('.product-purchase-panel.is-hidden', $css);
+        $this->assertStringContainsString('.product-purchase-form .store-variant-card { scroll-margin-bottom:11rem; }', $css);
     }
 
     public function test_product_preview_posts_selected_variant_to_existing_guest_cart_endpoint(): void
