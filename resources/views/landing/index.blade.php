@@ -31,10 +31,6 @@
         <a href="#story" x-bind:aria-current="activeSection === 'story' ? 'location' : null" aria-label="بخش دوم: روایت دنا" title="روایت دنا">02</a>
         <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" aria-label="بخش سوم: سفارش" title="سفارش">03</a>
     </nav>
-    <div x-show="cartNotice" x-cloak role="status" class="fixed bottom-5 right-5 z-[90] flex max-w-[min(92vw,420px)] items-center gap-4 rounded-2xl border border-[#8ba991] bg-[#f2f8ee] px-5 py-3 text-sm font-bold text-[#1a4930] shadow-2xl">
-        <span x-text="cartNotice"></span>
-        <button type="button" x-on:click="cartNotice = ''" class="rounded-full border border-[#a4bda6] px-2 py-1" aria-label="بستن اعلان">×</button>
-    </div>
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
     <header class="absolute inset-x-0 top-0 z-30 text-white">
@@ -78,13 +74,13 @@
         </div>
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
-             <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
+            <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
             <a wire:navigate x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">
                 <a href="#products">محصولات</a>
-                 <a href="#order">سفارش</a>
+                <a href="#order">سفارش</a>
             </nav>
         </noscript>
     </header>
