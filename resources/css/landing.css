@@ -37,6 +37,29 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 .landing-shell { background: radial-gradient(circle at 90% 36%, #f9f6ed 0, #f4f0e7 50%, #eae9dc 100%); }
 .landing-container { width: min(100% - 2.5rem, 1376px); margin-inline: auto; }
 
+.landing-header {
+    background: rgba(23, 56, 45, .96);
+    box-shadow: 0 8px 28px rgba(12, 35, 27, .18);
+    transition: background-color .28s ease, box-shadow .28s ease, backdrop-filter .28s ease;
+}
+.landing-header.is-transparent { background: transparent; box-shadow: none; backdrop-filter: none; }
+.landing-header.is-compact { background: rgba(23, 56, 45, .96); backdrop-filter: blur(12px); }
+.landing-header-inner { height: 5.5rem; transition: height .28s ease; }
+.landing-header-inner.is-compact { height: 4rem; }
+.landing-header-mark { width: 3rem; height: 2.5rem; }
+.landing-header-mark.is-compact { width: 2rem; height: 1.75rem; }
+.landing-header-wordmark { font-size: 1.125rem; transition: font-size .28s ease; }
+.landing-header-wordmark.is-compact { font-size: 1rem; }
+.landing-header-toggle { width: 2.75rem; height: 2.75rem; transition: width .28s ease, height .28s ease; }
+.landing-header-toggle.is-compact { width: 2.5rem; height: 2.5rem; }
+@media (min-width: 768px) {
+    .landing-header-inner { height: 6.5rem; }
+    .landing-header-inner.is-compact { height: 5rem; }
+    .landing-header-mark.is-compact { width: 2.5rem; height: 2rem; }
+    .landing-header-wordmark { font-size: 1.25rem; }
+    .landing-header-wordmark.is-compact { font-size: 1.125rem; }
+}
+
 .landing-hero {
     position: relative;
     min-height: min(860px, 92svh);
