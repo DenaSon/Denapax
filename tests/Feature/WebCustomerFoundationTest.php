@@ -100,6 +100,7 @@ class WebCustomerFoundationTest extends TestCase
 
         $this->get(route('customer.login'))->assertOk()
             ->assertSee('data-otp-current-mobile="09120000016"', false)
+            ->assertSee('data-otp-server-now="'.(now()->timestamp * 1000).'"', false)
             ->assertSee('data-otp-expires-at="'.$expiresAt.'"', false)
             ->assertSee('data-otp-resend-at="'.$resendAt.'"', false)
             ->assertSee('data-otp-code-usable="1"', false)
