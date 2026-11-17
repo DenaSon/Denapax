@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\Product;
-use App\\Support\\PersianSearch;
-use Illuminate\\Contracts\\View\\View;
-use Illuminate\\Database\\Eloquent\\Builder;
-use Illuminate\\Http\\Request;
+use App\Models\Product;
+use App\Support\PersianSearch;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class PublicSearchController extends Controller
 {
