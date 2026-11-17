@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,14 +48,13 @@ class Product extends Model implements HasMedia
      * Shared indexability and sellability contract for the homepage,
      * product permalinks and XML sitemap. Never index archived/unavailable items.
      */
-    public function scopePubliclyOrderable($query)
+    public function scopePubliclyOrderable(Builder $query): Builder
     {
-        return $query->published()->whereHas('variants', fn ($variantQuery) => $variantQuery
-            ->where('is_available', true)
-            ->where('price_irr', '>', 0));
+        return $query->published()
+            ->whereHas('variants', fn (Builder $variantQuery) => $variantQuery->availableForSale());
     }
 
-    public function scopePublished($query)
+    public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_active', true)
             ->whereHas('category', fn ($q) => $q->where('is_active', true));
