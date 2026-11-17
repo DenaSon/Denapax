@@ -69,9 +69,7 @@ class NotificationLogPage extends Component
             return;
         }
 
-        DeliverOutboxNotification::dispatch($eventId)
-            ->onQueue('notifications')
-            ->afterCommit();
+        DeliverOutboxNotification::dispatch($eventId)->onQueue('notifications');
 
         session()->flash('status', 'اعلان برای تلاش مجدد به صف ثبت در حساب مشتری فرستاده شد.');
     }
