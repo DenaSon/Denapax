@@ -179,7 +179,7 @@
                         <form method="POST" action="{{ route('cart.add') }}" class="product-purchase-form mt-5"
                               x-on:submit="handleAddSubmit($event)">
                             @csrf
-                            <fieldset x-bind:disabled="busy">
+                            <fieldset x-bind:disabled="busy || needsReconciliation">
                                 <legend class="mb-3 text-sm font-semibold text-[#627565]">یکی از بسته‌های زیر را انتخاب کنید:</legend>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     @foreach ($product->variants as $variant)
@@ -215,12 +215,24 @@
                                 <label for="product-quantity" class="text-sm font-bold text-[#294936]">تعداد بسته</label>
                                 <input id="product-quantity" name="quantity" type="number" min="1" max="1000"
                                        inputmode="numeric" value="1" required x-model.number="requestedQuantity"
-                                       x-bind:disabled="busy"
+                                       x-bind:disabled="busy || needsReconciliation"
                                        class="min-h-12 w-24 rounded-xl border border-[#9eb19e] bg-white p-3 text-center font-bold">
                             </div>
 
                             <p x-show="notice" x-text="notice" role="status" class="product-purchase-feedback product-purchase-success"></p>
-                            <p x-show="error" x-text="error" role="alert" class="product-purchase-feedback product-purchase-error"></p>
+                            <div x-show="error" role="alert" class="product-purchase-feedback product-purchase-error">
+                                <p x-text="error"></p>
+                                <button type="button" x-show="needsReconciliation" x-cloak
+                                        x-on:click="refreshSelectedQuantity()" x-bind:disabled="busy"
+                                        class="mt-2 font-bold underline underline-offset-4">
+                                    بررسی وضعیت سبد خرید
+                                </button>
+                                <button type="button" x-show="requiresReload" x-cloak
+                                        x-on:click="window.location.reload()"
+                                        class="mt-2 font-bold underline underline-offset-4">
+                                    تازه‌سازی صفحه
+                                </button>
+                            </div>
 
                             <div class="product-purchase-panel" data-product-purchase-panel
                                  x-bind:aria-busy="busy.toString()">
@@ -237,13 +249,13 @@
 
                                 <div class="product-purchase-panel-actions">
                                     <button type="submit" x-show="!hasSelectedInCart"
-                                            x-bind:disabled="busy"
+                                            x-bind:disabled="busy || needsReconciliation"
                                             x-text="busy ? 'در حال افزودن...' : 'افزودن به سبد خرید'"
                                             class="product-purchase-add-button">
                                         افزودن به سبد خرید
                                     </button>
 
-                                    <details class="product-purchase-fallback" x-show="!hasSelectedInCart">
+                                    <details class="product-purchase-fallback" x-show="!hasSelectedInCart && !needsReconciliation">
                                         <summary>مشکل در افزودن دارید؟</summary>
                                         <button type="submit" x-on:click="useNativeFallback()">
                                             افزودن با بارگذاری صفحه
@@ -252,13 +264,13 @@
 
                                     <div class="product-purchase-stepper" x-show="hasSelectedInCart" x-cloak>
                                         <button type="button" x-on:click="setSelectedQuantity(selectedCartQuantity - 1)"
-                                                x-bind:disabled="busy" aria-label="کم کردن تعداد از سبد خرید">−</button>
+                                                x-bind:disabled="busy || needsReconciliation" aria-label="کم کردن تعداد از سبد خرید">−</button>
                                         <output aria-label="تعداد فعلی در سبد خرید" x-text="selectedCartQuantity">0</output>
                                         <button type="button" x-on:click="setSelectedQuantity(selectedCartQuantity + 1)"
-                                                x-bind:disabled="busy || selectedCartQuantity >= 1000"
+                                                x-bind:disabled="busy || needsReconciliation || selectedCartQuantity >= 1000"
                                                 aria-label="افزایش تعداد در سبد خرید">+</button>
                                         <button type="button" x-on:click="setSelectedQuantity(0)"
-                                                x-bind:disabled="busy" class="product-purchase-remove">حذف</button>
+                                                x-bind:disabled="busy || needsReconciliation" class="product-purchase-remove">حذف</button>
                                     </div>
                                 </div>
                             </div>
