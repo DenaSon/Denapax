@@ -54,7 +54,7 @@ class NotificationLogPage extends Component
             $log->update([
                 'status' => 'queued',
                 'claimed_at' => now(),
-                'next_attempt_at' => now(),
+                'next_attempt_at' => now()->addMinutes(10),
                 'sent_at' => null,
             ]);
 
