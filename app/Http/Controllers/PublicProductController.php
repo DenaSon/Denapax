@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Integrations\Payments\ZarinpalGateway;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class PublicProductController extends Controller
 {
-    public function __invoke(Request $request, string $slug): View
+    public function __invoke(Request $request, ZarinpalGateway $gateway, string $slug): View
     {
         $product = Product::query()
             ->publiclyOrderable()
@@ -84,6 +85,6 @@ class PublicProductController extends Controller
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
             'minimumPrice', 'schema', 'variantPhotoIndexes'
-        ));
+        ) + ['gatewayEnabled' => $gateway->enabled()]);
     }
 }
