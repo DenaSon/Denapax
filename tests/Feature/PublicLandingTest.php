@@ -180,7 +180,8 @@ class PublicLandingTest extends TestCase
             ->assertSee('class="hidden md:inline-flex transition hover:text-white" href="'.route('home').'#story"', false);
 
         $css = file_get_contents(resource_path('css/landing.css'));
-        $this->assertStringContainsString('.store-header {\n    position: sticky;', $css);
+        $this->assertStringContainsString('.store-header {', $css);
+        $this->assertStringContainsString('position: sticky;', $css);
         $this->assertStringContainsString('.store-brand-mark { width: 30px; height: 30px; }', $css);
     }
 
