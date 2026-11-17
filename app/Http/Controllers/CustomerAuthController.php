@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\\Http\\Controllers;
 
-use App\Application\Actions\CustomerOtpLogin;
-use App\Application\Actions\StoreCart;
-use App\Support\IranDigits;
-use App\Support\IranMobile;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\\Application\\Actions\\CustomerOtpLogin;
+use App\\Application\\Actions\\StoreCart;
+use App\\Models\\CustomerLoginCode;
+use App\\Support\\IranDigits;
+use App\\Support\\IranMobile;
+use Illuminate\\Contracts\\View\\View;
+use Illuminate\\Http\\RedirectResponse;
+use Illuminate\\Http\\Request;
+use Illuminate\\Support\\Facades\\Auth;
 
 class CustomerAuthController extends Controller
 {
@@ -19,7 +20,21 @@ class CustomerAuthController extends Controller
             return redirect()->route('cart.index');
         }
 
-        return view('store.login');
+        $mobile = $request->session()->get('customer_otp_mobile');
+        $challenge = is_string($mobile)
+            ? CustomerLoginCode::query()->find($mobile)
+            : null;
+
+        $expiresAt = $challenge?->expires_at?->timestamp;
+        $lastSentAt = $challenge?->last_sent_at?->timestamp;
+
+        return view('store.login', [
+            'otpExpiresAt' => $expiresAt === null ? null : $expiresAt * 1000,
+            'otpResendAt' => $lastSentAt === null ? null : ($lastSentAt + 60) * 1000,
+            'otpCodeUsable' => $challenge !== null
+                && $challenge->attempts < 5
+                && $challenge->expires_at->isFuture(),
+        ]);
     }
 
     public function requestCode(Request $request, CustomerOtpLogin $login): RedirectResponse
