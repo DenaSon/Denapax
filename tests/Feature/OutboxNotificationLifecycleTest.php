@@ -51,7 +51,7 @@ class OutboxNotificationLifecycleTest extends TestCase
         $this->assertNotNull($log->claimed_at);
         $this->assertTrue($log->next_attempt_at->isFuture());
 
-        $queuedJob = \Illuminate\Support\Facades\DB::table('jobs')->sole();
+        $queuedJob = DB::table('jobs')->sole();
         $this->assertStringContainsString($eventId, $queuedJob->payload);
     }
 
