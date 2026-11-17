@@ -1368,7 +1368,8 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 
 
 /* Product purchase panel: static on desktop, safe-area aware dock on mobile. */
-.product-purchase-form .store-variant-card { scroll-margin-bottom:11rem; }
+.product-purchase-form .product-variant-option,
+.product-purchase-form input[type="radio"],
 .product-purchase-quantity-input input { scroll-margin-bottom:11rem; }
 .product-purchase-quantity-input { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.1rem; padding:.9rem 1rem; border:1px solid #cbd4c7; border-radius:1rem; background:#e6ebdd; }
 .product-purchase-panel { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:.75rem; padding:1rem; border:1px solid #cbd4c7; border-radius:1.15rem; background:#e6ebdd; }
