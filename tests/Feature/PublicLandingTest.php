@@ -144,7 +144,7 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('wire:navigate href="'.route('products.show', ['slug' => $product->slug]).'"', false);
     }
 
-    public function test_storefront_footers_show_configured_support_and_preserve_approved_credits(): void
+    public function test_storefront_footers_show_support_and_developer_credit_without_external_photo_attribution(): void
     {
         StoreSetting::create([
             'store_name' => 'دناپکس',
