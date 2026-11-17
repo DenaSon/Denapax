@@ -14,7 +14,7 @@ class SmsIrOtpSender
     {
         $apiKey = trim((string) config('services.smsir.api_key', ''));
         $templateId = filter_var(config('services.smsir.verify_template_id'), FILTER_VALIDATE_INT);
-        $parameterName = trim((string) config('services.smsir.verify_parameter', 'Code'));
+        $parameterName = trim((string) config('services.smsir.verify_parameter', 'HOURS'));
 
         if ($apiKey === ''
             || $templateId === false
