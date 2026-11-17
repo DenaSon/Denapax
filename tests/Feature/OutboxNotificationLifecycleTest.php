@@ -34,11 +34,14 @@ class OutboxNotificationLifecycleTest extends TestCase
     public function test_dispatcher_claims_an_event_once_while_the_database_queue_worker_is_offline(): void
     {
         [$eventId] = $this->orderAndEvent();
-        Queue::fake();
+        config(['queue.default' => 'database', 'cache.default' => 'database']);
 
         $this->artisan('denapax:notifications:dispatch')->assertExitCode(0);
+        $this->assertDatabaseCount('jobs', 1);
         $this->travel(11)->minutes();
         $this->artisan('denapax:notifications:dispatch')->assertExitCode(0);
+        $this->assertDatabaseCount('jobs', 1);
+        $this->assertDatabaseHas('jobs', ['queue' => 'notifications']);
 
         $log = NotificationLog::query()->sole();
 
@@ -48,8 +51,8 @@ class OutboxNotificationLifecycleTest extends TestCase
         $this->assertNotNull($log->claimed_at);
         $this->assertTrue($log->next_attempt_at->isFuture());
 
-        Queue::assertPushed(DeliverOutboxNotification::class, 1);
-        Queue::assertPushed(DeliverOutboxNotification::class, fn (DeliverOutboxNotification $job): bool => $job->eventId === $eventId);
+        $queuedJob = \Illuminate\Support\Facades\DB::table('jobs')->sole();
+        $this->assertStringContainsString($eventId, $queuedJob->payload);
     }
 
     public function test_terminal_failure_is_not_requeued_or_allowed_to_starve_later_events(): void
