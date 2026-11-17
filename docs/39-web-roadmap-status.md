@@ -138,7 +138,7 @@ The remaining P2 items are no longer code implementation batches:
 - [#112](https://github.com/DenaSon/Denapax/issues/112): configured support contact and requested developer credit are implemented in the shared storefront footers; the CC BY 3.0 photo attribution is preserved. Delivery, payment, returns/cancellation, privacy/terms and FAQ destinations remain open until the owner approves actual policy copy and confirms the business routes.
 - [#118](https://github.com/DenaSon/Denapax/issues/118): search now runs only on explicit submit, retains the GET fallback and category/query state, and has Persian/Arabic Yeh/Kaf fixture coverage. The exact existing walnut product row still needs target-MySQL verification for product publication, active category, variant availability, positive price and positive shipping weight.
 
-All other P2 UX issues #108, #110–#117, #119–#122 are closed by PRs #137–#140. [#70](https://github.com/DenaSon/Denapax/issues/70) and [#107](https://github.com/DenaSon/Denapax/issues/107) remain explicitly Post-MVP.
+The following P2 UX issues are closed: #108, #110, #111, #113, #114, #115, #116, #117, #119, #120, #121 and #122. #112 and #118 remain open for owner-approved policy content and target-database product verification. [#70](https://github.com/DenaSon/Denapax/issues/70) and [#107](https://github.com/DenaSon/Denapax/issues/107) remain explicitly Post-MVP.
 
 ## Explicitly retired / excluded
 
