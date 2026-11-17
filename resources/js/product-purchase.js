@@ -14,7 +14,6 @@ document.addEventListener('alpine:init', () => {
         allowNativeSubmit: false,
         notice: '',
         error: '',
-        dockHidden: false,
 
         init() {
             const selected = this.$root.querySelector('input[name="variant_id"]:checked');
@@ -145,21 +144,5 @@ document.addEventListener('alpine:init', () => {
             this.error = '';
         },
 
-        handleFocusIn(event) {
-            if (!window.matchMedia('(max-width: 700px)').matches) return;
-
-            const panel = this.$root.querySelector('[data-product-purchase-panel]');
-            if (panel && !panel.contains(event.target)) this.dockHidden = true;
-        },
-
-        handleFocusOut() {
-            if (!window.matchMedia('(max-width: 700px)').matches) return;
-
-            window.requestAnimationFrame(() => {
-                const panel = this.$root.querySelector('[data-product-purchase-panel]');
-                const active = document.activeElement;
-                this.dockHidden = Boolean(panel && active?.matches('input, select, textarea') && !panel.contains(active));
-            });
-        },
     }));
 });
