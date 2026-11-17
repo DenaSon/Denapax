@@ -165,7 +165,7 @@ class ReactiveCartTest extends TestCase
         ]);
     }
 
-    public function test_cart_uses_responsive_product_list_and_fixed_loading_feedback(): void
+    public function test_cart_uses_responsive_product_list_without_intrusive_loading_feedback(): void
     {
         $variant = $this->variant();
         $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 2]);
@@ -177,7 +177,9 @@ class ReactiveCartTest extends TestCase
             ->assertSee('store-cart-summary', false)
             ->assertSee('store-cart-item-image', false)
             ->assertSee('store-cart-quantity', false)
-            ->assertSee('store-cart-loading', false)
+            ->assertSee('wire:loading.attr="aria-busy"', false)
+            ->assertDontSee('store-cart-loading', false)
+            ->assertDontSee('در حال به‌روزرسانی سبد خرید')
             ->assertSee('store-cart-mobile-dock', false)
             ->assertSee('store-cart-mobile-dock-action', false)
             ->assertSee('ثبت سفارش')
@@ -186,7 +188,8 @@ class ReactiveCartTest extends TestCase
             ->assertSee('2 عدد کالا در سبد شما');
 
         $css = file_get_contents(resource_path('css/landing.css'));
-        $this->assertStringContainsString('.store-cart-loading { position:fixed', $css);
+        $this->assertStringNotContainsString('.store-cart-loading', $css);
+        $this->assertStringNotContainsString('.store-cart-spinner', $css);
         $this->assertStringContainsString('.store-cart-mobile-dock {', $css);
         $this->assertStringContainsString('safe-area-inset-bottom', $css);
         $this->assertStringContainsString('.store-cart-grid { display:grid', $css);
