@@ -97,6 +97,22 @@ class ProductEditor extends Component
         $this->features = array_values($this->features);
     }
 
+    public function removeGalleryUpload(string $filename): void
+    {
+        Gate::authorize('catalog.manage');
+
+        $this->galleryUploads = array_values(array_filter(
+            $this->galleryUploads,
+            fn ($upload): bool => $upload->getFilename() !== $filename,
+        ));
+    }
+
+    public function removeVariantUpload(int $index): void
+    {
+        Gate::authorize('catalog.manage');
+        unset($this->variantUploads[$index]);
+    }
+
     public function addVariant(): void
     {
         Gate::authorize('catalog.manage');

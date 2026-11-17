@@ -7,8 +7,35 @@
     <x-card>
         <x-input label="جستجو در نام محصولات" wire:model.live.debounce.300ms="search" />
     </x-card>
+
+    <div class="grid gap-3 md:hidden">
+        @forelse($products as $product)
+            <article wire:key="mobile-product-{{ $product->id }}" class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <h2 class="break-words font-bold leading-7">{{ $product->title }}</h2>
+                        <p class="mt-1 text-sm opacity-70">{{ $product->category->name }}</p>
+                    </div>
+                    <span class="badge {{ $product->is_active ? 'badge-success' : 'badge-ghost' }} flex-none">
+                        {{ $product->is_active ? 'منتشرشده' : 'پیش‌نویس' }}
+                    </span>
+                </div>
+                <p class="mt-3 text-xs opacity-70">تنوع‌های فروش: <strong class="text-base-content">{{ $product->variants->count() }}</strong></p>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <x-button wire:navigate label="ویرایش" class="btn-sm" link="{{ route('admin.products.edit', $product) }}" />
+                    <x-button label="{{ $product->is_active ? 'غیرفعال‌کردن' : 'فعال‌کردن' }}" class="btn-sm"
+                              wire:click="toggle({{ $product->id }})" />
+                    <x-button label="بایگانی محصول" class="btn-sm btn-error btn-outline col-span-2"
+                              wire:confirm="از بایگانی محصول مطمئن هستید؟" wire:click="archive({{ $product->id }})" />
+                </div>
+            </article>
+        @empty
+            <div class="rounded-2xl border border-dashed border-base-300 p-6 text-center text-sm opacity-70">محصولی یافت نشد.</div>
+        @endforelse
+    </div>
+
     <x-card>
-        <div class="overflow-x-auto">
+        <div class="hidden overflow-x-auto md:block">
             <table class="table">
                 <thead><tr><th>نام</th><th>دسته</th><th>تنوع‌ها</th><th>وضعیت</th><th>اقدام</th></tr></thead>
                 <tbody>

@@ -4,6 +4,18 @@
         <a wire:navigate class="btn btn-ghost" href="{{ route('admin.products') }}">بازگشت</a>
     </div>
     <form wire:submit="save" class="space-y-5">
+        @if ($errors->any())
+            <div role="alert" class="alert alert-error" tabindex="-1">
+                <div>
+                    <p class="font-bold">ذخیره محصول انجام نشد؛ موارد زیر را بررسی کنید:</p>
+                    <ul class="mt-2 list-disc space-y-1 pr-5 text-sm">
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
         <x-card title="مشخصات محصول">
             <div class="grid gap-4 md:grid-cols-2">
                 <label class="form-control"><span class="label">دسته‌بندی</span>
@@ -66,14 +78,39 @@
                         <label class="label mt-2 cursor-pointer justify-start gap-3">
                             <input type="checkbox" class="checkbox" wire:model="variants.{{ $index }}.is_available"> قابل سفارش
                         </label>
-                        <label class="form-control mt-3">
-                            <span class="label">تصویر اختصاصی (اختیاری)</span>
-                            <input type="file" wire:model="variantUploads.{{ $index }}" accept="image/jpeg,image/png,image/webp" class="file-input w-full">
-                        </label>
+                        <div class="mt-3"
+                             x-data="{ uploading: false, progress: 0 }"
+                             x-on:livewire-upload-start="uploading = true; progress = 0"
+                             x-on:livewire-upload-finish="uploading = false; progress = 100"
+                             x-on:livewire-upload-error="uploading = false"
+                             x-on:livewire-upload-progress="progress = $event.detail.progress">
+                            <label class="form-control">
+                                <span class="label">تصویر اختصاصی (اختیاری)</span>
+                                <input type="file" wire:model="variantUploads.{{ $index }}" accept="image/jpeg,image/png,image/webp" class="file-input w-full">
+                            </label>
+                            <div x-show="uploading" x-cloak class="mt-2 space-y-1" role="status" aria-live="polite">
+                                <div class="flex justify-between text-xs"><span>در حال بارگذاری تصویر تنوع…</span><span x-text="Math.round(progress) + '%'"></span></div>
+                                <progress class="progress progress-primary w-full" max="100" x-bind:value="progress"></progress>
+                            </div>
+                            @if (isset($variantUploads[$index]))
+                                <div class="mt-3 flex items-center gap-3 rounded-xl border border-dashed border-primary/40 p-3">
+                                    <img src="{{ $variantUploads[$index]->temporaryUrl() }}" alt="پیش‌نمایش تصویر انتخاب‌شده" class="h-20 w-20 rounded-lg object-cover">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-semibold">تصویر انتخاب‌شده</p>
+                                        <p class="text-xs opacity-70">پس از ذخیره محصول اضافه می‌شود.</p>
+                                    </div>
+                                    <x-button type="button" label="حذف" class="btn-sm btn-error btn-outline"
+                                              wire:click="removeVariantUpload({{ $index }})" />
+                                </div>
+                            @endif
+                        </div>
                         @if($product && !empty($variant['id']))
                             @php($savedVariant = $product->variants->firstWhere('id', $variant['id']))
                             @if($savedVariant && $savedVariant->getFirstMediaUrl('variant-image'))
-                                <img src="{{ $savedVariant->getFirstMediaUrl('variant-image') }}" alt="" class="mt-2 h-20 w-20 rounded object-cover">
+                                <div class="mt-2 flex items-center gap-2">
+                                    <img src="{{ $savedVariant->getFirstMediaUrl('variant-image') }}" alt="" class="h-16 w-16 rounded object-cover">
+                                    <span class="text-xs opacity-70">تصویر ذخیره‌شده</span>
+                                </div>
                             @endif
                         @endif
                         <x-button type="button" label="{{ !empty($variant['id']) ? 'غیرفعال‌کردن تنوع' : 'حذف ردیف' }}" wire:click="removeVariant({{ $index }})" class="btn-error btn-outline mt-3" />
@@ -99,11 +136,37 @@
                     @endforeach
                 </div>
             @endif
-            <input type="file" wire:model="galleryUploads" multiple accept="image/jpeg,image/png,image/webp" class="file-input w-full">
+            <div x-data="{ uploading: false, progress: 0 }"
+                 x-on:livewire-upload-start="uploading = true; progress = 0"
+                 x-on:livewire-upload-finish="uploading = false; progress = 100"
+                 x-on:livewire-upload-error="uploading = false"
+                 x-on:livewire-upload-progress="progress = $event.detail.progress">
+                <input type="file" wire:model="galleryUploads" multiple accept="image/jpeg,image/png,image/webp" class="file-input w-full">
+                <div x-show="uploading" x-cloak class="mt-2 space-y-1" role="status" aria-live="polite">
+                    <div class="flex justify-between text-xs"><span>در حال بارگذاری تصاویر گالری…</span><span x-text="Math.round(progress) + '%'"></span></div>
+                    <progress class="progress progress-primary w-full" max="100" x-bind:value="progress"></progress>
+                </div>
+            </div>
+            @if (!empty($galleryUploads))
+                <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    @foreach ($galleryUploads as $upload)
+                        <div wire:key="pending-gallery-{{ $upload->getFilename() }}" class="rounded-xl border border-dashed border-primary/40 p-2">
+                            <img src="{{ $upload->temporaryUrl() }}" alt="پیش‌نمایش تصویر جدید" class="aspect-square w-full rounded-lg object-cover">
+                            <p class="mt-2 text-xs font-semibold">تصویر جدید · در انتظار ذخیره</p>
+                            <x-button type="button" label="حذف تصویر" class="btn-error btn-outline btn-sm mt-2 w-full"
+                                      wire:click="removeGalleryUpload('{{ $upload->getFilename() }}')" />
+                        </div>
+                    @endforeach
+                </div>
+            @endif
             @error('galleryUploads.*') <p class="text-error text-sm">{{ $message }}</p> @enderror
         </x-card>
-        <div class="flex justify-end">
-            <x-button type="submit" label="ذخیره محصول" class="btn-primary btn-lg" />
+        <div class="flex flex-wrap items-center justify-end gap-3">
+            <span wire:loading wire:target="save" role="status" class="text-sm font-semibold text-base-content/70">
+                در حال ذخیره محصول…
+            </span>
+            <x-button type="submit" label="ذخیره محصول" class="btn-primary btn-lg"
+                      wire:loading.attr="disabled" wire:target="save,galleryUploads,variantUploads" />
         </div>
     </form>
 </div>
