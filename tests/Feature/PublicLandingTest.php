@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Application\Actions\BrowseCatalog;
 use App\Models\Category;
 use App\Models\Customer;
-use App\Application\Actions\BrowseCatalog;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -383,7 +383,6 @@ class PublicLandingTest extends TestCase
 
         $this->get('/cart')->assertOk()->assertSee('سبد خرید');
     }
-
 
     public function test_zero_weight_variants_are_excluded_from_public_catalog_and_browse_actions(): void
     {
