@@ -32,7 +32,7 @@
                 <dd>{{ \App\Support\Money::formatToman((int) $quote['total_irr']) }} تومان</dd>
             </div>
         </dl>
-        <p class="mt-7 rounded-xl bg-[#f5eee0] p-4 text-sm leading-7">پس از ثبت سفارش، به صفحه پرداخت منتقل می‌شوید. زرین‌پال روش اصلی و کارت‌به‌کارت روش جایگزین است؛ فقط پس از تأیید پرداخت، سفارش وارد مرحله آماده‌سازی می‌شود.</p>
+        <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" :manual-available="$manualAvailable" class="mt-7" />
         <div class="mt-7 flex flex-wrap items-center gap-4">
             <form method="POST" action="{{ route('checkout.confirm') }}">
                 @csrf

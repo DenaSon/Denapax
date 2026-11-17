@@ -104,7 +104,7 @@ class WebCheckoutController extends Controller
         return redirect()->route('checkout.review');
     }
 
-    public function review(Request $request, PrepareCheckout $checkout): View|RedirectResponse
+    public function review(Request $request, PrepareCheckout $checkout, ZarinpalGateway $gateway): View|RedirectResponse
     {
         $context = $this->validContext($request);
 
@@ -131,6 +131,8 @@ class WebCheckoutController extends Controller
         return view('store.checkout.review', [
             'quote' => $quote,
             'checkoutKey' => $context['checkout_key'],
+            'gatewayEnabled' => $gateway->enabled(),
+            'manualAvailable' => preg_match('/^[0-9]{16}$/D', (string) ($quote['payment_instructions_snapshot']['card_number'] ?? '')) === 1,
         ]);
     }
 

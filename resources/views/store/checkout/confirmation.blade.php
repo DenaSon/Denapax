@@ -11,6 +11,7 @@
         $canUploadReceipt = $canPay && ! $gatewayBusy;
         $card = $order->payment_instructions_snapshot['card_number'] ?? '';
         $cardHolder = $order->payment_instructions_snapshot['card_holder_name'] ?? '';
+        $manualAvailable = preg_match('/^[0-9]{16}$/D', (string) $card) === 1;
     @endphp
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -66,6 +67,9 @@
                         @endif
                     </div>
                 @else
+                    @if ($gatewayEnabled || $manualAvailable)
+                        <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" :manual-available="$manualAvailable" stage="after-order" class="mt-4" />
+                    @endif
                     @if ($gatewayEnabled)
                         <form action="{{ route('payments.zarinpal.start', $order->order_number) }}" method="POST" class="mt-5" data-submit-once>
                             @csrf
@@ -75,7 +79,7 @@
                         </form>
                         <p class="mt-3 text-xs text-[#6c7c6c]">پس از پرداخت به همین فروشگاه برمی‌گردید؛ وضعیت پرداخت به‌صورت خودکار استعلام می‌شود.</p>
                     @endif
-                    @if ($canUploadReceipt && preg_match('/^[0-9]{16}$/', $card))
+                    @if ($canUploadReceipt && $manualAvailable)
                         @if ($gatewayEnabled)
                             <details class="store-payment-choice mt-6 bg-white p-4 sm:p-5">
                                 <summary class="text-sm font-bold text-[#315740]">روش جایگزین: کارت‌به‌کارت و ارسال رسید</summary>
