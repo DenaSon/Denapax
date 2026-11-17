@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\EnsureActiveStaff;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Re-apply the staff activity check to every Livewire update originating
+        // from an admin route, not only to the initial page request.
+        Livewire::addPersistentMiddleware([
+            EnsureActiveStaff::class,
+        ]);
+
         // UTF8MB4 indexed varchar(255) exceeds some managed MySQL/MariaDB
         // key-size limits (including Runflare's 1000-byte limit).
         Schema::defaultStringLength(191);
