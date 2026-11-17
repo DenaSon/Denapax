@@ -172,7 +172,9 @@
                     },
                 }">
                 <input type="file" multiple accept="image/jpeg,image/png,image/webp"
-                       x-on:change="uploadFiles($event)" class="file-input w-full">
+                       x-on:change="uploadFiles($event)"
+                       x-bind:disabled="files.some((file) => file.status === 'uploading')"
+                       class="file-input w-full">
                 <div x-show="files.length > 0" x-cloak class="mt-3 space-y-2" role="status" aria-live="polite">
                     <template x-for="(file, index) in files" :key="index">
                         <div class="rounded-xl border border-base-300 p-3">
