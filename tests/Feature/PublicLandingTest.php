@@ -177,7 +177,8 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('storage/app/public/landing/denapax-kuhgol-1200x900.webp', $script);
         $this->assertStringContainsString('getimagesize', $script);
         $this->assertStringNotContainsString('php artisan migrate', $script);
-        $this->assertStringNotContainsString('storage/app/private', $script);
+        $this->assertStringContainsString('Never expose storage/app/private', $script);
+        $this->assertStringNotContainsString('php artisan storage:unlink', $script);
     }
 
     public function test_mobile_headers_remain_visible_and_reduce_brand_navigation(): void
