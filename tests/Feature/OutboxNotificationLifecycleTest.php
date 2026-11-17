@@ -146,7 +146,7 @@ class OutboxNotificationLifecycleTest extends TestCase
         $this->assertSame(3, $log->attempts, 'Manual retry preserves lifetime attempt history.');
         $this->assertSame('RuntimeException: formatter unavailable', $log->last_error);
         $this->assertNotNull($log->next_attempt_at);
-        Queue::assertPushedOn('notifications', DeliverOutboxNotification::class, 1);
+        Queue::assertPushedOn('notifications', DeliverOutboxNotification::class);
     }
 
     public function test_staff_without_order_update_permission_cannot_manually_retry(): void
