@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Livewire\Store\AddToCart;
 use App\Livewire\Store\CartCount;
+use App\Application\Actions\StoreCart;
 use App\Livewire\Store\CartItems;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -114,19 +116,125 @@ class ReactiveCartTest extends TestCase
         $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
     }
 
-    private function variant(): ProductVariant
+
+    public function test_guest_cart_rejects_increases_to_unsellable_lines_but_allows_decrease_and_removal(): void
     {
-        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $variant = $this->variant();
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 2])
+            ->assertRedirect(route('cart.index'));
+
+        $variant->update(['is_available' => false]);
+
+        Livewire::test(CartItems::class)
+            ->call('changeQuantity', $variant->id, 3)
+            ->assertHasErrors('cart');
+
+        $this->assertSame(2, session('denapax_cart')[$variant->id]);
+
+        $this->patch(route('cart.update', $variant->id), ['quantity' => 3])
+            ->assertSessionHasErrors('cart');
+
+        $this->assertSame(2, session('denapax_cart')[$variant->id]);
+
+        Livewire::test(CartItems::class)
+            ->call('changeQuantity', $variant->id, 1)
+            ->assertHasNoErrors();
+
+        $this->assertSame(1, session('denapax_cart')[$variant->id]);
+
+        $this->patch(route('cart.update', $variant->id), ['quantity' => 0])
+            ->assertRedirect(route('cart.index'));
+
+        $this->assertArrayNotHasKey($variant->id, session('denapax_cart', []));
+    }
+
+    public function test_customer_cart_rejects_increases_to_unsellable_lines_but_allows_decrease_and_removal(): void
+    {
+        $variant = $this->variant();
+        $customer = Customer::create(['mobile' => '09120000084', 'mobile_verified_at' => now()]);
+        $this->actingAs($customer, 'customer');
+
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 2])
+            ->assertRedirect(route('cart.index'));
+
+        $variant->update(['is_available' => false]);
+
+        Livewire::test(CartItems::class)
+            ->call('changeQuantity', $variant->id, 3)
+            ->assertHasErrors('cart');
+
+        $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 2]);
+
+        $this->patch(route('cart.update', $variant->id), ['quantity' => 3])
+            ->assertSessionHasErrors('cart');
+
+        $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 2]);
+
+        Livewire::test(CartItems::class)
+            ->call('changeQuantity', $variant->id, 1)
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 1]);
+
+        $this->patch(route('cart.update', $variant->id), ['quantity' => 0])
+            ->assertRedirect(route('cart.index'));
+
+        $this->assertDatabaseMissing('cart_items', ['product_variant_id' => $variant->id]);
+    }
+
+    public function test_shared_sellability_rule_rejects_invalid_variant_and_unpublished_parent_for_both_cart_types(): void
+    {
+        $customer = Customer::create(['mobile' => '09120000085', 'mobile_verified_at' => now()]);
+        $cart = app(StoreCart::class);
+        $invalidators = [
+            'unavailable' => fn (ProductVariant $variant) => $variant->update(['is_available' => false]),
+            'zero-price' => fn (ProductVariant $variant) => $variant->update(['price_irr' => 0]),
+            'zero-weight' => fn (ProductVariant $variant) => $variant->update(['shipping_weight_grams' => 0]),
+            'inactive-product' => fn (ProductVariant $variant) => $variant->product->update(['is_active' => false]),
+            'inactive-category' => fn (ProductVariant $variant) => $variant->product->category->update(['is_active' => false]),
+        ];
+
+        foreach ($invalidators as $case => $invalidate) {
+            $variant = $this->variant($case);
+            $invalidate($variant);
+            $variant = $variant->fresh()->load('product.category');
+
+            $this->assertFalse($variant->isSellable(), $case);
+            $this->assertFalse(ProductVariant::query()->sellable()->whereKey($variant->id)->exists(), $case);
+            $this->assertFalse(Product::query()->publiclyOrderable()->whereKey($variant->product_id)->exists(), $case);
+
+            try {
+                $cart->add(null, $variant->id, 1);
+                $this->fail("Guest cart accepted {$case} variant.");
+            } catch (ValidationException $exception) {
+                $this->assertArrayHasKey('cart', $exception->errors());
+            }
+
+            try {
+                $cart->add($customer, $variant->id, 1);
+                $this->fail("Customer cart accepted {$case} variant.");
+            } catch (ValidationException $exception) {
+                $this->assertArrayHasKey('cart', $exception->errors());
+            }
+        }
+    }
+
+    private function variant(string $suffix = ''): ProductVariant
+    {
+        $categorySlug = $suffix === '' ? 'nuts' : 'nuts-'.$suffix;
+        $productSlug = $suffix === '' ? 'dena-walnuts' : 'dena-walnuts-'.$suffix;
+        $sku = $suffix === '' ? 'DENA-NUTS-500' : 'DENA-NUTS-500-'.$suffix;
+        $category = Category::create(['name' => 'خشکبار', 'slug' => $categorySlug, 'is_active' => true]);
         $product = Product::create([
             'category_id' => $category->id,
             'title' => 'گردوی دنا',
-            'slug' => 'dena-walnuts',
+            'slug' => $productSlug,
             'summary' => 'گردوی طبیعی دنا',
             'is_active' => true,
         ]);
 
         return $product->variants()->create([
-            'sku' => 'DENA-NUTS-500',
+            'sku' => $sku,
             'title' => 'بسته ۵۰۰ گرمی',
             'sale_quantity' => 500,
             'sale_unit' => 'g',
