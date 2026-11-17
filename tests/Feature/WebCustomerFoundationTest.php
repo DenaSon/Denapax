@@ -105,7 +105,8 @@ class WebCustomerFoundationTest extends TestCase
             ->assertSee('data-otp-code-usable="1"', false)
             ->assertSee('x-data="otpChallenge"', false)
             ->assertSee('x-bind:disabled="requestDisabled"', false)
-            ->assertSee('اعتبار کد', false)
+            ->assertSee('x-text="expiryMessage"', false)
+            ->assertSee('x-text="resendMessage"', false)
             ->assertSee('ارسال مجدد', false);
 
         // The server remains authoritative even when the client countdown is
