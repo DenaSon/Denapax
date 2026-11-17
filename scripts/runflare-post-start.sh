@@ -53,6 +53,8 @@ if [ "$(stat -c '%u' "$PUBLIC_STORAGE/landing")" != "$storage_uid" ]; then
     [ "$(id -u)" = "0" ] || die "Landing image directory is not owned by $PHP_STORAGE_USER."
     chown -R "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$PUBLIC_STORAGE/landing"
 fi
+# Only grant the owner the directory rights it needs, never world write.
+chmod u+rwx "$PUBLIC_STORAGE" "$PUBLIC_STORAGE/landing"
 
 # Link only the public disk. Never expose storage/app/private or payment receipts.
 if [ -L public/storage ]; then
@@ -102,6 +104,7 @@ if ! is_webp "$STORY_TARGET"; then
             temp_file=$(mktemp "$STORY_TARGET.part.XXXXXX")
             if cp "$local_source" "$temp_file" && is_webp "$temp_file"; then
                 chmod 0644 "$temp_file"
+                chown "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$temp_file"
                 mv -f "$temp_file" "$STORY_TARGET"
                 log "Dena story photo restored from the persistent public disk."
             else
@@ -128,6 +131,7 @@ else
             --connect-timeout 4 --max-time 15 --max-filesize 8000000 \
             --output "$temp_file" "$STORY_SOURCE" && is_webp "$temp_file"; then
             chmod 0644 "$temp_file"
+            chown "$PHP_STORAGE_USER:$PHP_STORAGE_GROUP" "$temp_file"
             mv -f "$temp_file" "$STORY_TARGET"
             log "Dena story photo saved to the public disk."
         else
