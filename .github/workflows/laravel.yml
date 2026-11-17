@@ -49,8 +49,15 @@ jobs:
       - name: Check formatting
         run: vendor/bin/pint --test
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+
       - name: Install frontend dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Compile admin assets
         run: npm run build
