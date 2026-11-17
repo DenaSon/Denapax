@@ -36,7 +36,7 @@
                 @endif
                 <p class="mt-4 text-sm font-semibold text-[#375642]">
                     <span class="font-normal text-[#778677]">از</span>
-                    <span dir="ltr" class="inline-block">{{ \\App\\Support\\Money::formatToman($startingPrice) }}</span>
+                    <span dir="ltr" class="inline-block">{{ \App\Support\Money::formatToman($startingPrice) }}</span>
                     تومان
                 </p>
             </div>
