@@ -10,6 +10,7 @@ use App\Models\NotificationLog;
 use App\Models\Order;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -17,6 +18,7 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Mockery;
 use RuntimeException;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class OutboxNotificationLifecycleTest extends TestCase
@@ -91,7 +93,7 @@ class OutboxNotificationLifecycleTest extends TestCase
 
         foreach ([1, 2, 3] as $attempt) {
             $job = new DeliverOutboxNotification($eventId);
-            $queueJob = Mockery::mock(\Illuminate\Contracts\Queue\Job::class);
+            $queueJob = Mockery::mock(QueueJob::class);
             $queueJob->shouldReceive('attempts')->andReturn($attempt);
             $job->setJob($queueJob);
 
@@ -166,7 +168,7 @@ class OutboxNotificationLifecycleTest extends TestCase
             'attempts' => 3,
         ]);
         $staff = User::factory()->create();
-        $role = \Spatie\Permission\Models\Role::findOrCreate('notification-viewer', 'web');
+        $role = Role::findOrCreate('notification-viewer', 'web');
         $role->givePermissionTo('orders.view');
         $staff->assignRole($role);
 
