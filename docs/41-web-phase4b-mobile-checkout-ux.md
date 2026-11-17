@@ -38,3 +38,13 @@ Automated feature tests added for default quote without extra preview, exact del
 ## Decisions / future improvements
 
 Keep checkout progressive and server-rendered rather than adding fragile client-side payment state. Address title is optional; no extra account/profile fields. Numeric inventory reservation, checkout analytics and automated browser testing may be considered after the release P0 gates. **Phase 4C/4D remains NO-GO** until validated provider credentials, live bank settlement, secure deployment/restore, monitoring and owner sign-off.
+
+
+## Follow-up UX additions requiring device acceptance — 2026-11-17
+
+The following code changes are merged but must be included in the physical-device walkthrough before #24 can close:
+
+- Product detail (PR #137): add a selected variant, switch between variants already/not already in cart, increment/decrement/remove, confirm header count and selected price update without document navigation; exercise Livewire timeout/419 recovery and native POST fallback.
+- Mobile cart (PR #139/#142): verify the fixed bottom dock at 320–430px widths, safe-area inset, last-item visibility, live toman subtotal/count, guest SMS-login label, authenticated delivery label and disabled checkout while an unavailable line remains.
+- Checkout address picker (PR #139): verify recipient mobile and postal code are readable LTR, and the default address marker remains distinct from the selected address.
+- Admin catalog/upload changes (PR #140) are separate admin acceptance: verify mobile cards at 320–390px and upload progress, temporary previews, remove-pending controls and save feedback.

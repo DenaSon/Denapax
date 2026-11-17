@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Current `master`: `16688997d7bcbdb5f84131e3f2a6cf5e1d089181`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44076598005) passed with 135 tests / 1,002 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-17.** Current `master`: `8caa3f5cc197a2c5934479790a57aa2f26a84b75`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44089769498) passed with 147 tests / 1,132 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -22,6 +22,10 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 | Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment and database queue | Existing code + CI; production-like acceptance remains pending |
 | Shared catalog/cart sellability | Central variant availability/price/weight and product/category sellability; server-side guest/customer quantity-increase guard; safe decrement/removal | [PR #128](https://github.com/DenaSon/Denapax/pull/128), merge `ea72ef6c1bc84f242a9ab13ba6f10c6cdd34b789`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44051594401): 125 tests / 918 assertions |
 | Web inbox/outbox reliability | Atomic event claims, leased dispatch recovery, unique jobs, bounded retries, terminal failure visibility and authorized manual retry | [PR #126](https://github.com/DenaSon/Denapax/pull/126), merge `12283896d7f8a45c674ed91f5f9c8a81e935f374`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44049700399): 121 tests / 851 assertions |
+| Product-detail reactive cart | Livewire/Alpine cart add and per-variant quantity controls, server-authoritative reconciliation, mobile purchase dock, native POST fallback | [PR #137](https://github.com/DenaSon/Denapax/pull/137), merge `09db75fa827202dfe9744a0597e4bc9313f760ec`, closes #108; CI: 139 tests / 1,050 assertions |
+| Storefront discovery and brand polish | Submit-driven search, modal navigation fix, source-resolution-aware gallery zoom, compact mobile badge, approved homepage copy, footer support contact/developer credit with image attribution preserved | [PR #138](https://github.com/DenaSon/Denapax/pull/138), merge `194fae0e81239d180814d0e52a12ad73d2cba8d3`, closes #115/#116/#117/#119/#120/#122; CI: 143 tests / 1,092 assertions |
+| Mobile cart and checkout address UX | Fixed mobile cart checkout dock with live toman totals and unavailable-line blocking; recipient mobile/postal code and independent default/selected address states; auth-aware guest/customer CTA follow-up | [PR #139](https://github.com/DenaSon/Denapax/pull/139), merge `b95e20fb77b4c8e8c0d34dd7158e93df10a26180`, closes #110/#121; follow-up [PR #142](https://github.com/DenaSon/Denapax/pull/142), merge `8caa3f5cc197a2c5934479790a57aa2f26a84b75`; final master CI: 147 tests / 1,132 assertions |
+| Admin catalog and upload UX | Mobile product/category cards with desktop tables retained; per-upload progress, pending previews/removal, save-state and validation summary | [PR #140](https://github.com/DenaSon/Denapax/pull/140), merge `4112ae9acc08af7dd2bf470e6da99edc852d2bfe`, closes #111/#114; CI: 147 tests / 1,129 assertions |
 
 **Historical pre-gallery baseline:** 84 passed / 580 assertions. Current master evidence is recorded at the top of this ledger. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
@@ -127,16 +131,14 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - Variant price revision history and audit ([#70](https://github.com/DenaSon/Denapax/issues/70)).
 - Refund/return procedures and automation, discounts, sophisticated delivery options, if agreed.
 
-## P2 UX backlog — remaining code work
+## P2 UX backlog — remaining owner/data acceptance
 
-The following issues are open implementation work and can proceed independently of deferred merchant onboarding and production operations:
+The remaining P2 items are no longer code implementation batches:
 
-- **Product purchase and discovery:** [#108](https://github.com/DenaSon/Denapax/issues/108) reactive product-detail add-to-cart/mobile purchase dock; [#117](https://github.com/DenaSon/Denapax/issues/117) product-preview click/navigation conflict; [#118](https://github.com/DenaSon/Denapax/issues/118) submit-driven search and Persian walnut matching; [#116](https://github.com/DenaSon/Denapax/issues/116) gallery sizing/source-resolution audit.
-- **Checkout/cart:** [#110](https://github.com/DenaSon/Denapax/issues/110) complete saved-address details; [#121](https://github.com/DenaSon/Denapax/issues/121) fixed mobile cart checkout dock; [#115](https://github.com/DenaSon/Denapax/issues/115) mobile cart-count badge.
-- **Admin:** [#111](https://github.com/DenaSon/Denapax/issues/111) responsive product/category lists; [#114](https://github.com/DenaSon/Denapax/issues/114) upload previews/progress and save feedback.
-- **Brand and trust:** [#112](https://github.com/DenaSon/Denapax/issues/112) support/policy destinations (policy copy requires owner approval); [#119](https://github.com/DenaSon/Denapax/issues/119) consistent wordmark; [#120](https://github.com/DenaSon/Denapax/issues/120) hero copy; [#122](https://github.com/DenaSon/Denapax/issues/122) approved story copy.
+- [#112](https://github.com/DenaSon/Denapax/issues/112): configured support contact and requested developer credit are implemented in the shared storefront footers; the CC BY 3.0 photo attribution is preserved. Delivery, payment, returns/cancellation, privacy/terms and FAQ destinations remain open until the owner approves actual policy copy and confirms the business routes.
+- [#118](https://github.com/DenaSon/Denapax/issues/118): search now runs only on explicit submit, retains the GET fallback and category/query state, and has Persian/Arabic Yeh/Kaf fixture coverage. The exact existing walnut product row still needs target-MySQL verification for product publication, active category, variant availability, positive price and positive shipping weight.
 
-[Issue #106](https://github.com/DenaSon/Denapax/issues/106) is resolved by this handoff refresh; close it after this documentation PR merges. [#70](https://github.com/DenaSon/Denapax/issues/70) and [#107](https://github.com/DenaSon/Denapax/issues/107) remain explicitly Post-MVP and should not be pulled into the current release.
+The following P2 UX issues are closed: #108, #110, #111, #113, #114, #115, #116, #117, #119, #120, #121 and #122. #112 and #118 remain open for owner-approved policy content and target-database product verification. [#70](https://github.com/DenaSon/Denapax/issues/70) and [#107](https://github.com/DenaSon/Denapax/issues/107) remain explicitly Post-MVP.
 
 ## Explicitly retired / excluded
 
@@ -147,7 +149,7 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
 2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
 3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). SMS.ir implementation and owner-reported OTP acceptance are complete in [PRs #130/#131](https://github.com/DenaSon/Denapax/pull/130); [#124](https://github.com/DenaSon/Denapax/issues/124) is closed. Keep the repository default fail-closed; deployment activation is controlled by the environment.
-4. Continue the P2 storefront/admin backlog in focused PRs, starting with product-detail purchase UX [#108](https://github.com/DenaSon/Denapax/issues/108). Keep Zarinpal #81 deferred until merchant onboarding; independently complete real-device QA, target-MySQL migration, manual receipt-first E2E, backup/restore and operations checks before any public-sales GO.
+4. P2 implementation PRs #137–#140 are merged. Resolve only the remaining #112 owner-approved policy content and #118 production walnut row verification. Keep Zarinpal #81 deferred until merchant onboarding; independently complete real-device QA, target-MySQL migration, manual receipt-first E2E, backup/restore and operations checks before any public-sales GO.
 5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.

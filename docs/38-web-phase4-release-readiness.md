@@ -1,8 +1,17 @@
 # Denapax — Web Phase 4: release readiness, payment safety and mobile UX
 
-**Status: IN PROGRESS / LAUNCH NO-GO — 2026-11-17.** Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) are merged. Current verified `master` at `16688997d7bcbdb5f84131e3f2a6cf5e1d089181` with [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/44076598005) green: 135 tests / 1,002 assertions. The responsive cart/loading feedback from PR #100 and OTP expiry/resend UX from PR #133 are merged. SMS.ir OTP delivery/login were owner-confirmed (deployment tier not recorded); Zarinpal remains disabled and deferred pending merchant onboarding. **Target-MySQL migration, manual receipt-first E2E, isolated restore and real-device browser acceptance remain unverified; the overall release gate remains pending.**
+**Status: IN PROGRESS / LAUNCH NO-GO — 2026-11-17.** Phase 4A [PR #82](https://github.com/DenaSon/Denapax/pull/82) and 4B [PR #83](https://github.com/DenaSon/Denapax/pull/83) are merged. The follow-up P2 UX batches [PRs #137–#140](https://github.com/DenaSon/Denapax/pull/137) are also merged. Current verified `master` is `8caa3f5cc197a2c5934479790a57aa2f26a84b75`; [GitHub CI](https://github.com/DenaSon/Denapax/actions/runs/44089769498) is green with 147 tests / 1,132 assertions. SMS.ir OTP delivery/login were owner-confirmed (deployment tier not recorded); Zarinpal remains disabled and deferred pending merchant onboarding. **Target-MySQL migration, manual receipt-first E2E, isolated restore and real-device browser acceptance remain unverified; the overall release gate remains pending.**
 
 This is the current **release playbook**, replacing Telegram-specific procedures in historical `docs/15` and `docs/16`. Existing release issues [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24) and [#25](https://github.com/DenaSon/Denapax/issues/25) remain OPEN. Keep them open until evidence and owner go/no-go exist.
+
+## P2 UX implementation update — 2026-11-17
+
+- [PR #137](https://github.com/DenaSon/Denapax/pull/137): product-detail add-to-cart and per-variant cart quantity are reactive; native POST fallback and server-authoritative reconciliation remain intact. Issue #108 is closed.
+- [PR #138](https://github.com/DenaSon/Denapax/pull/138): submit-driven catalog search, product preview navigation fix, gallery sizing/source-resolution zoom cap, mobile cart badge, approved homepage copy, shared footer support contact and credits. Issues #115–#117, #119, #120 and #122 are closed.
+- [PR #139](https://github.com/DenaSon/Denapax/pull/139): mobile cart checkout dock and complete checkout address details. Issues #110 and #121 are closed. Follow-up [PR #142](https://github.com/DenaSon/Denapax/pull/142) ensures guest customers see the SMS-login continuation label while signed-in customers see address/delivery continuation.
+- [PR #140](https://github.com/DenaSon/Denapax/pull/140): responsive admin catalog lists and product image upload progress/previews/save feedback. Issues #111 and #114 are closed.
+- Remaining P2 acceptance: #112 needs owner-approved policy/FAQ content; #118 needs target-MySQL inspection of the actual walnut product row.
+- These code merges do not satisfy P0 device, MySQL, bank, backup/restore or production-operation acceptance.
 
 ## Mission and boundaries
 
