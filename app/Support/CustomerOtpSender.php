@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
+use App\Integrations\Sms\SmsIrOtpSender;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class CustomerOtpSender
@@ -12,9 +12,8 @@ class CustomerOtpSender
     {
         $driver = (string) config('customer_auth.sms_driver', 'disabled');
 
-        if ($driver === 'log' && app()->environment(['local', 'testing'])) {
-            // Explicitly development-only; never enable on production.
-            Log::debug('Local customer sign-in code', ['mobile' => $mobile, 'code' => $code]);
+        if ($driver === 'smsir') {
+            app(SmsIrOtpSender::class)->send($mobile, $code);
 
             return;
         }
