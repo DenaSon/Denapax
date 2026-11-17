@@ -6,7 +6,7 @@
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.
 
-**State evidence:** Web Phases 1–3, 4A/4B, SPA-like navigation and the P2 storefront/cart/admin UX batches are merged. PR #137 made product-detail cart controls reactive; PR #138 completed catalog/brand polish; PR #139 added the mobile cart dock and complete checkout address details; PR #140 added mobile admin catalog cards and upload feedback. Current `master` is `8caa3f5cc197a2c5934479790a57aa2f26a84b75`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44089769498) passed with 147 tests / 1,132 assertions. The owner confirmed real SMS.ir OTP delivery and successful customer login; exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
+**State evidence:** Web Phases 1–3, 4A/4B, SPA-like navigation and the P2 storefront/cart/admin UX batches are merged. PR #137 made product-detail cart controls reactive; PR #138 completed catalog/brand polish; PR #139 added the mobile cart dock and complete checkout address details; PR #140 added mobile admin catalog cards and upload feedback; PR #143 completed per-file gallery progress and PR #144 prevents a second file selection from racing the active upload batch. Current `master` is `3ada90c8dbc19a48bd4ba2d1d82d6a23a7b17b6f`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44091219496) passed with 147 tests / 1,136 assertions. The owner confirmed real SMS.ir OTP delivery and successful customer login; exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
 
 ## What is implemented
 
@@ -63,9 +63,9 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 - [PR #137](https://github.com/DenaSon/Denapax/pull/137) merged product-detail reactive cart behavior and closed [#108](https://github.com/DenaSon/Denapax/issues/108).
 - [PR #138](https://github.com/DenaSon/Denapax/pull/138) closed #115, #116, #117, #119, #120 and #122. It also implemented configured support contact/footer credit for #112 and submit-driven catalog search plus normalized-character regression coverage for #118.
 - [PR #139](https://github.com/DenaSon/Denapax/pull/139) closed #110 and #121 with a mobile cart dock and complete checkout address details. Follow-up [PR #142](https://github.com/DenaSon/Denapax/pull/142) aligns the dock CTA with guest SMS-login vs authenticated delivery flow.
-- [PR #140](https://github.com/DenaSon/Denapax/pull/140) closed #111 and #114 with mobile admin catalog cards and Livewire upload progress/previews/save feedback.
+- [PR #140](https://github.com/DenaSon/Denapax/pull/140) closed #111 and delivered mobile admin catalog cards, pending previews and save feedback. Follow-up [PR #143](https://github.com/DenaSon/Denapax/pull/143) completed per-file gallery progress and closed #114; [PR #144](https://github.com/DenaSon/Denapax/pull/144) prevents overlapping gallery selections during a sequential upload batch.
 - **Only P2 issues still open:** #112 awaits owner-approved delivery/payment/returns/privacy/terms/FAQ content; #118 awaits inspection of the actual walnut product/category/variant row in target MySQL. Do not close either based only on the code fixtures.
-- Automated CI after the batch and cart CTA follow-up: 147 tests / 1,132 assertions on current master. Real-device QA remains part of #24/#25 and is not implied by CI.
+- Automated CI after the batch, cart CTA and per-file upload follow-ups: 147 tests / 1,136 assertions on current master. Real-device QA remains part of #24/#25 and is not implied by CI.
 
 ## Payment-mode decision — 2026-11-17
 
