@@ -132,6 +132,7 @@ class WebCheckoutController extends Controller
             'quote' => $quote,
             'checkoutKey' => $context['checkout_key'],
             'gatewayEnabled' => $gateway->enabled(),
+            'manualAvailable' => preg_match('/^[0-9]{16}$/D', (string) ($quote['payment_instructions_snapshot']['card_number'] ?? '')) === 1,
         ]);
     }
 
