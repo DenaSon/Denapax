@@ -1,13 +1,6 @@
 <section class="store-cart-page{{ $lines->isNotEmpty() ? ' has-mobile-dock' : '' }}"
-         wire:loading.class="is-updating"
          wire:loading.attr="aria-busy"
          wire:target="changeQuantity,remove">
-    <div class="store-cart-loading" wire:loading.delay.short wire:target="changeQuantity,remove"
-         role="status" aria-live="polite">
-        <span class="store-cart-spinner" aria-hidden="true"></span>
-        <span>در حال به‌روزرسانی سبد خرید…</span>
-    </div>
-
     <header class="store-cart-heading">
         <div class="store-cart-heading-copy">
             <p class="store-cart-eyebrow">خرید از دل دنا</p>
