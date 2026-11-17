@@ -212,7 +212,13 @@
                 <a wire:navigate href="{{ route('checkout.index') }}"
                    class="store-cart-mobile-dock-action"
                    wire:loading.class="is-loading" wire:target="changeQuantity,remove">
-                    ادامه به نشانی و ارسال
+                    <span>
+                        @auth('customer')
+                            ادامه به نشانی و ارسال
+                        @else
+                            ادامه خرید با ورود پیامکی
+                        @endauth
+                    </span>
                     <span aria-hidden="true">←</span>
                 </a>
             @endif
