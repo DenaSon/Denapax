@@ -373,6 +373,11 @@ class PublicLandingTest extends TestCase
         $script = file_get_contents(resource_path('js/product-purchase.js'));
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
         $this->assertStringContainsString("window.Livewire.dispatch('cart-quantity-requested'", $script);
+        $this->assertStringContainsString('window.Livewire.interceptRequest', $script);
+        $this->assertStringContainsString('onError(({ response, preventDefault }) =>', $script);
+        $this->assertStringContainsString('onFailure(() =>', $script);
+        $this->assertStringContainsString('نشست شما منقضی شده است.', $script);
+        $this->assertStringContainsString('destroy()', $script);
 
         $css = file_get_contents(resource_path('css/landing.css'));
         $this->assertStringContainsString('.product-purchase-panel { display:flex', $css);
