@@ -63,6 +63,7 @@ class PublicProductController extends Controller
             'id' => (int) $variant->id,
             'title' => $variant->title,
             'priceLabel' => Money::formatToman((int) $variant->price_irr),
+            'priceToman' => Money::tomanInput((int) $variant->price_irr),
         ])->values()->all();
         $cartQuantities = $cart->lines($request->user('customer'))
             ->filter(fn (array $line): bool => (int) $line['variant']->product_id === (int) $product->id)

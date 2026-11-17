@@ -46,7 +46,7 @@
             </a>
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-5 text-xs font-semibold text-[#e6e8d4] sm:text-sm">
                 <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
-                <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
+                <a wire:navigate class="hidden md:inline-flex transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
                 <a wire:navigate class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 transition hover:bg-white hover:text-[#19392f]" href="{{ route('cart.index') }}">سبد خرید <livewire:store.cart-count /></a>
             </nav>
         </div>
@@ -64,15 +64,12 @@
         <div class="grid items-start gap-9 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] lg:gap-15">
             <div class="min-w-0" data-product-gallery aria-label="گالری تصاویر {{ $product->title }}">
                 @if ($photos->isNotEmpty())
-                    <div class="product-gallery-stage">
-                        <a href="{{ $photos->first()['full_url'] }}" target="_blank" rel="noopener noreferrer"
-                           data-gallery-open class="product-gallery-main-link"
-                           aria-label="نمایش بزرگ تصویر {{ $product->title }}">
+                    <div class="product-gallery-stage" data-gallery-stage>
+                        <div class="product-gallery-main">
                             <img data-gallery-main class="product-gallery-main-image"
                                  src="{{ $photos->first()['url'] }}" alt="تصویر ۱ از {{ $product->title }}"
                                  width="960" height="960" fetchpriority="high" decoding="async">
-                            <span class="product-gallery-zoom-hint" aria-hidden="true">⌕ <span>بزرگ‌نمایی</span></span>
-                        </a>
+                        </div>
                         <span class="product-gallery-category">{{ $product->category->name }}</span>
                         @if ($photos->count() > 1)
                             <button type="button" class="product-gallery-arrow product-gallery-prev"
@@ -85,57 +82,21 @@
                     @if ($photos->count() > 1)
                         <div class="product-gallery-thumbs" aria-label="انتخاب تصویر محصول" data-gallery-thumbs>
                             @foreach ($photos as $photo)
-                                <a href="{{ $photo['full_url'] }}" target="_blank" rel="noopener noreferrer"
-                                   class="product-gallery-thumb"
-                                   data-gallery-thumb data-gallery-index="{{ $loop->index }}"
-                                   data-image-url="{{ $photo['url'] }}"
-                                   data-image-full-url="{{ $photo['full_url'] }}"
-                                   data-image-alt="تصویر {{ $loop->iteration }} از {{ $product->title }}"
-                                   aria-label="نمایش تصویر {{ $loop->iteration }} از {{ $photos->count() }}"
-                                   @if ($loop->first) aria-current="true" @endif>
+                                <button type="button" class="product-gallery-thumb"
+                                        data-gallery-thumb data-gallery-index="{{ $loop->index }}"
+                                        data-image-url="{{ $photo['url'] }}"
+                                        data-image-alt="تصویر {{ $loop->iteration }} از {{ $product->title }}"
+                                        aria-label="انتخاب تصویر {{ $loop->iteration }} از {{ $photos->count() }}"
+                                        @if ($loop->first) aria-current="true" @endif>
                                     <img src="{{ $photo['url'] }}" alt="" width="120" height="120" loading="lazy" decoding="async">
-                                </a>
+                                </button>
                             @endforeach
                         </div>
                     @else
-                        <a class="product-gallery-single-fallback" href="{{ $photos->first()['full_url'] }}"
-                           target="_blank" rel="noopener noreferrer">مشاهده تصویر در اندازه اصلی</a>
-                        <a href="{{ $photos->first()['full_url'] }}" target="_blank" rel="noopener noreferrer"
-                           data-gallery-thumb data-gallery-index="0"
-                           data-image-url="{{ $photos->first()['url'] }}"
-                           data-image-full-url="{{ $photos->first()['full_url'] }}"
-                           data-image-alt="تصویر ۱ از {{ $product->title }}" hidden></a>
+                        <button type="button" data-gallery-thumb data-gallery-index="0"
+                                data-image-url="{{ $photos->first()['url'] }}"
+                                data-image-alt="تصویر ۱ از {{ $product->title }}" hidden></button>
                     @endif
-
-                    <dialog class="product-lightbox" data-gallery-lightbox aria-label="نمایش تمام‌صفحه تصاویر {{ $product->title }}">
-                        <div class="product-lightbox-header">
-                            <span class="product-lightbox-title">{{ $product->title }}</span>
-                            <button type="button" class="product-lightbox-control product-lightbox-close"
-                                    data-lightbox-close aria-label="بستن نمایش تمام‌صفحه">✕</button>
-                        </div>
-                        <div class="product-lightbox-view" data-lightbox-viewport>
-                            <img data-lightbox-image class="product-lightbox-image"
-                                 alt="تصویر ۱ از {{ $product->title }}" width="1280" height="1280"
-                                 decoding="async">
-                        </div>
-                        <div class="product-lightbox-toolbar">
-                            <div class="product-lightbox-group">
-                                @if ($photos->count() > 1)
-                                    <button type="button" class="product-lightbox-control" data-lightbox-step="-1"
-                                            aria-label="تصویر قبلی">›</button>
-                                    <span class="product-lightbox-count" data-lightbox-counter aria-live="polite">۱ / {{ $photos->count() }}</span>
-                                    <button type="button" class="product-lightbox-control" data-lightbox-step="1"
-                                            aria-label="تصویر بعدی">‹</button>
-                                @endif
-                            </div>
-                            <div class="product-lightbox-group">
-                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-out aria-label="کوچک‌نمایی">−</button>
-                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-reset aria-label="بازگشت به اندازه اصلی">۱:۱</button>
-                                <button type="button" class="product-lightbox-control" data-lightbox-zoom-in aria-label="بزرگ‌نمایی">+</button>
-                            </div>
-                        </div>
-                        <p class="product-lightbox-help">برای بزرگ‌نمایی از دو انگشت یا دکمه‌های + و − استفاده کنید.</p>
-                    </dialog>
                 @else
                     <div class="product-gallery-stage product-gallery-empty">
                         <div class="organic-lines flex h-full w-full items-center justify-center" aria-label="تصویر این محصول هنوز ثبت نشده است">
@@ -147,7 +108,6 @@
                     </div>
                 @endif
             </div>
-
             <article class="min-w-0 lg:pt-6"
                      x-data="productPurchase(@js($variantPurchaseData), @js($cartQuantities))"
                      x-on:cart-added.window="handleCartAdded($event)"
@@ -175,6 +135,13 @@
 
                 <section class="mt-8" aria-labelledby="product-variants">
                     <h2 id="product-variants" class="text-xl font-extrabold text-[#264c38]">انتخاب بسته و تعداد</h2>
+                    @php
+                        $firstVariant = $product->variants->first();
+                        $initialQuantity = $firstVariant ? max(1, (int) ($cartQuantities->{(string) $firstVariant->id} ?? 0)) : 1;
+                        $initialTotalPrice = $firstVariant
+                            ? \App\Support\Money::formatToman((int) $firstVariant->price_irr * $initialQuantity)
+                            : '0';
+                    @endphp
                     @if ($product->variants->isNotEmpty())
                         <form method="POST" action="{{ route('cart.add') }}" class="product-purchase-form mt-5"
                               x-on:submit="handleAddSubmit($event)">
@@ -237,9 +204,14 @@
                             <div class="product-purchase-panel" data-product-purchase-panel
                                  x-bind:aria-busy="busy.toString()">
                                 <div class="product-purchase-panel-meta">
-                                    <span class="product-purchase-panel-label">قیمت بسته انتخاب‌شده</span>
+                                    <span class="product-purchase-panel-label">قیمت هر بسته</span>
+                                    <strong class="product-purchase-panel-unit-price">
+                                        <span x-text="selectedUnitPriceLabel">{{ \App\Support\Money::formatToman((int) $product->variants->first()->price_irr) }}</span>
+                                        <small>تومان</small>
+                                    </strong>
+                                    <span class="product-purchase-panel-label mt-1">جمع قیمت برای <b x-text="selectedQuantity">{{ $initialQuantity }}</b> بسته</span>
                                     <strong class="product-purchase-panel-price">
-                                        <span x-text="selectedPriceLabel">{{ \App\Support\Money::formatToman((int) $product->variants->first()->price_irr) }}</span>
+                                        <span x-text="selectedPriceLabel">{{ $initialTotalPrice }}</span>
                                         <small>تومان</small>
                                     </strong>
                                     <span x-show="hasSelectedInCart" x-cloak class="product-purchase-panel-quantity">
@@ -250,7 +222,7 @@
                                 <div class="product-purchase-panel-actions">
                                     <button type="submit" x-show="!hasSelectedInCart"
                                             x-bind:disabled="busy || needsReconciliation"
-                                            x-text="busy ? 'در حال افزودن...' : 'افزودن به سبد خرید'"
+
                                             class="product-purchase-add-button">
                                         افزودن به سبد خرید
                                     </button>
@@ -275,7 +247,10 @@
                                 </div>
                             </div>
                         </form>
-                        <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-[#315743] underline underline-offset-4">مشاهده سبد خرید</a>
+                        <a wire:navigate href="{{ route('cart.index') }}" class="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#315743] bg-white px-5 py-3 text-sm font-extrabold text-[#315743] shadow-sm transition hover:bg-[#edf2e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#315743]">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 4h2l2.2 11h10.9L21 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            مشاهده سبد خرید
+                        </a>
                     @else
                         <p class="mt-4 rounded-2xl bg-[#f8e9e4] p-5 text-sm leading-7 text-[#863c30]">فعلاً بسته‌ای برای سفارش این محصول موجود نیست.</p>
                     @endif
