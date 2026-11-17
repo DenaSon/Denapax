@@ -37,6 +37,7 @@ class OutboxNotificationLifecycleTest extends TestCase
         Queue::fake();
 
         $this->artisan('denapax:notifications:dispatch')->assertExitCode(0);
+        $this->travel(11)->minutes();
         $this->artisan('denapax:notifications:dispatch')->assertExitCode(0);
 
         $log = NotificationLog::query()->sole();
