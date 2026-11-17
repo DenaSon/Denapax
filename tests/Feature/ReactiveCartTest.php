@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Application\Actions\StoreCart;
 use App\Livewire\Store\AddToCart;
 use App\Livewire\Store\CartCount;
-use App\Application\Actions\StoreCart;
 use App\Livewire\Store\CartItems;
 use App\Models\Category;
 use App\Models\Customer;
@@ -115,7 +115,6 @@ class ReactiveCartTest extends TestCase
         $this->assertStringContainsString('.store-cart-grid { display:grid', $css);
         $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
     }
-
 
     public function test_guest_cart_rejects_increases_to_unsellable_lines_but_allows_decrease_and_removal(): void
     {
