@@ -177,13 +177,30 @@ class ReactiveCartTest extends TestCase
             ->assertSee('store-cart-item-image', false)
             ->assertSee('store-cart-quantity', false)
             ->assertSee('store-cart-loading', false)
+            ->assertSee('store-cart-mobile-dock', false)
+            ->assertSee('store-cart-mobile-dock-action', false)
             ->assertSee('تعداد کالا')
             ->assertSee('2 عدد کالا در سبد شما');
 
         $css = file_get_contents(resource_path('css/landing.css'));
         $this->assertStringContainsString('.store-cart-loading { position:fixed', $css);
+        $this->assertStringContainsString('.store-cart-mobile-dock {', $css);
+        $this->assertStringContainsString('safe-area-inset-bottom', $css);
         $this->assertStringContainsString('.store-cart-grid { display:grid', $css);
         $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
+    }
+
+    public function test_mobile_cart_dock_disables_checkout_when_a_cart_line_is_unavailable(): void
+    {
+        $variant = $this->variant('mobile-dock-unavailable');
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 2])
+            ->assertRedirect(route('cart.index'));
+        $variant->update(['is_available' => false]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('store-cart-mobile-dock', false)
+            ->assertSee('class="store-cart-mobile-dock-action" disabled', false)
+            ->assertSee('ابتدا کالای ناموجود را حذف کنید');
     }
 
     public function test_guest_cart_rejects_increases_to_unsellable_lines_but_allows_decrease_and_removal(): void

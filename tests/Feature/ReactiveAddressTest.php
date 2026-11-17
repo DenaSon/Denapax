@@ -50,6 +50,24 @@ class ReactiveAddressTest extends TestCase
         ]);
     }
 
+    public function test_checkout_address_cards_show_mobile_postal_code_and_default_independently_from_selection(): void
+    {
+        $default = $this->address('خانه', true);
+        $selected = $this->address('دفتر', false);
+
+        Livewire::test(AddressPicker::class, ['selectedAddressId' => $selected->id])
+            ->assertSee('نشانی پیش‌فرض')
+            ->assertSee('انتخاب‌شده')
+            ->assertSee('موبایل:')
+            ->assertSee('کد پستی:')
+            ->assertSee('09120000085')
+            ->assertSee('1234567890')
+            ->assertSee('dir="ltr"', false);
+
+        $this->assertTrue($default->fresh()->is_default);
+        $this->assertFalse($selected->fresh()->is_default);
+    }
+
     public function test_checkout_address_selection_uses_navigation_redirect_and_enforces_owner(): void
     {
         $first = $this->address('خانه', true);
