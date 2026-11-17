@@ -376,6 +376,8 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('window.Livewire.interceptRequest', $script);
         $this->assertStringContainsString('onError(({ response, preventDefault }) =>', $script);
         $this->assertStringContainsString('onFailure(() =>', $script);
+        $this->assertStringContainsString("window.Livewire.dispatch('cart-state-requested'", $script);
+        $this->assertStringContainsString('refreshSelectedQuantity()', $script);
         $this->assertStringContainsString('نشست شما منقضی شده است.', $script);
         $this->assertStringContainsString('destroy()', $script);
 
