@@ -10,7 +10,7 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 
 ## What is implemented
 
-- Customer-only `customer` session guard and verified normalized Iranian mobile OTP; staff `web` Fortify guard/RBAC separate. OTP is hashed, time/attempt/IP/mobile limited and **disabled by default** until trusted HTTPS SMS provider integration.
+- Customer-only `customer` session guard and verified normalized Iranian mobile OTP; staff `web` Fortify guard/RBAC separate. OTP is hashed, time/attempt/IP/mobile limited. The official SMS.ir Verify adapter is implemented in PR #130, but actual account/template configuration and HTTPS delivery remain unverified; keep `CUSTOMER_SMS_DRIVER=disabled`.
 - Public search/product/variant catalog, session guest and DB customer cart, merge after login; saved customer-owned addresses and **Phase 4B single-page** validated checkout (weight delivery quote, cart/price fingerprint, immutable order snapshots, idempotent checkout key). Product variants use one shared add-to-cart form, cart quantities have one-tap +/- controls, OTP and address forms are mobile-focused. The product permalink now includes a progressive responsive gallery with native image links, thumbnail carousel, touch swipe, native zoom dialog and variant-specific image switching. See [gallery handoff](docs/44-product-mobile-gallery.md); real device QA is still required.
 - Online-first Zarinpal v4 transport and attempt ledger, manual card-to-card receipt with protected private storage and authorized admin review; order list/detail, shipping tracking and customer **web inbox UI are implemented**. Transactional order SMS **is not**.
 - Staff admin catalogs/settings/orders/payment review/fulfillment, order state history and a reliable web inbox/outbox lifecycle: atomic dispatch claims, unique jobs, bounded retries, terminal failure reporting and authorized manual retry (PR #126). Use `QUEUE_CONNECTION=database`, supervised `notifications,default` workers and one-minute `denapax:notifications:dispatch`.
@@ -28,7 +28,7 @@ A Persian RTL web store for Dena souvenirs, dried fruit and local products. The 
 
 - PR #126 makes web inbox delivery recoverable without a schema migration: atomic event claims, a 10-minute dispatch lease, a seven-day `ShouldBeUnique` lock, real attempt counts, three bounded queue attempts (30s / 120s backoff), and terminal `failed` state.
 - Terminal failures are excluded from automatic scheduler scans and can be retried only by active staff with `orders.update`; retries are activity-logged and preserve lifetime attempts.
-- Scope is strictly the customer web inbox. Do not add SMS or revive Telegram. CI passed 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build.
+- Scope is strictly the customer web inbox. Do not add transactional/order SMS to this outbox scope or revive Telegram; customer OTP delivery is a separate integration (PR #130). CI passed 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build.
 - CI does not prove a production worker or scheduler is running. Verify the database queue worker and one-minute scheduler in the target environment; the operational release gate remains open until observed.
 
 ## Cart/catalog sellability consistency — 2026-11-17
@@ -62,15 +62,21 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 
 Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private receipt + authorized bank verification is the primary customer checkout payment UI**. Preserve the integrated gateway behind `ZARINPAL_ENABLED=false`; when enabled with a valid merchant ID, online payment becomes primary and receipt upload remains fallback. This is a presentation/configuration change only; preserve all unresolved-attempt bank safeguards and private receipts. Do not treat SMS OTP as deployed or receipts as bank proof. See [manual-first payment operation](docs/45-manual-receipt-first-rollout.md).
 
+## SMS.ir customer OTP — adapter implemented, acceptance pending
+
+- PR #130 adds the official `ipe/smsir-php` Verify adapter behind `CustomerOtpSender`, config-cache-safe SDK binding, fixed HTTPS API host, bounded timeouts and response validation.
+- CI passed 132 tests / 945 assertions, Composer audit/validation, Pint and Vite build. See [PR #130](https://github.com/DenaSon/Denapax/pull/130) and [setup/acceptance guide](docs/49-smsir-otp-integration.md).
+- No API key, approved template ID/parameter or real delivery has been verified. Keep `CUSTOMER_SMS_DRIVER=disabled`; issue #124 remains open until an owner-authorized HTTPS staging delivery and SMS.ir report are confirmed.
+
 ## Next code backlog after #103
 
-Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Keep P0 release gates authoritative. The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir customer OTP, but it requires owner-provided provider credentials, HTTPS staging and real delivery acceptance; keep `CUSTOMER_SMS_DRIVER=disabled` until that evidence exists. Do not start provider activation or weaken the fail-closed default based on CI alone. Provider integration does not reduce or replace the P0 release gates below.
+Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. The code portion of [#124](https://github.com/DenaSon/Denapax/issues/124) is implemented in PR #130; its external acceptance remains pending. Keep P0 release gates authoritative, do not activate SMS based on CI alone, and do not weaken the fail-closed default.
 
 ## Next work: Web Phase 4
 
 1. **4A — code implemented, real provider validation pending:** conservative no-retry rule, Zarinpal inquiry, operator-visible exceptions, evidence-backed clearance, callback/timeout/late Authority tests. Must validate real merchant API/settlement/currency before enabling gateway.
 2. **4B — mobile-first UX and design polish code implemented, device acceptance pending:** product variant picker, one-tap cart quantity, compact OTP, prefilled receiver phone, saved address selection, one-page quote+order confirmation and clear toman/shipping total; preserve server-side fingerprint validation. An additional [PR #85](https://github.com/DenaSon/Denapax/pull/85) fixes Tailwind's previously missing customer Blade scanning and standardizes CTA/form/error states, payment status, number copy and navigation. **Physical iOS/Android, a11y and browser Back/Forward testing still required.** See [Phase 4B handoff](docs/41-web-phase4b-mobile-checkout-ux.md) and [UI polish handoff](docs/42-web-storefront-ui-ux-polish.md).
-3. **4C — configure and test staging providers:** real SMS OTP, active Zarinpal merchant and official account IRR/IRT compatibility, callback HTTPS, real low-value authorized payment, settings/stock availability policy, MySQL migration rehearsal.
+3. **4C — configure and test staging providers:** SMS.ir OTP adapter code is implemented in PR #130, but account credentials, approved Verify template and real delivery remain pending; also validate active Zarinpal merchant and official account IRR/IRT compatibility, callback HTTPS, real low-value authorized payment, settings/stock availability policy and MySQL migration rehearsal.
 4. **Admin UI polish (PR #86):** action-oriented RBAC dashboard, mobile navigation, Persian order/gateway states, receipt rejection form scoped to a receipt, accurate web notification report. No finance permissions were added. Actual staff phone/browser QA is still pending; see [admin handoff](docs/43-admin-ui-ux-polish.md).
 5. **4D — release/security/ops:** end-to-end and negative browser tests, storage ACL, backup + isolated restore, monitored queue/scheduler, Runflare HTTPS/secrets/debug checks, rollback rehearsal, owner/operator GO/NO-GO. Detailed acceptance matrix in [docs/38](docs/38-web-phase4-release-readiness.md).
 
