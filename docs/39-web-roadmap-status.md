@@ -21,11 +21,20 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 
 **Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
 
+## P1 SMS.ir OTP adapter — code implemented in PR #130; staging acceptance pending
+
+- Uses the official `ipe/smsir-php` SDK through an adapter behind the existing `CustomerOtpSender` boundary; `CustomerOtpLogin` remains provider-independent.
+- Package auto-discovery is disabled because the SDK provider reads `env()` directly. The app binds the SDK from `config/services.php`, with a fixed HTTPS host, finite connect/request timeouts and redirects disabled.
+- Verify template ID and parameter name are config-driven. Success requires API `status = 1` and a positive `data.messageId`; exceptions and malformed/non-success responses fail closed.
+- The legacy plaintext OTP log driver has been removed. Existing OTP throttling, cooldown, expiry, attempt limit, hash storage and replay prevention are preserved.
+- Automated evidence: 132 tests / 945 assertions; Composer audit/validation, Pint and Vite build passed. [PR #130](https://github.com/DenaSon/Denapax/pull/130), [CI](https://github.com/DenaSon/Denapax/actions/runs/44064836790).
+- **External acceptance is not complete:** account API key, approved Verify template/parameter, active service line and one authorized HTTPS staging delivery/report must be verified. Keep `CUSTOMER_SMS_DRIVER=disabled` and leave issue #124 open until then. See [setup guide](49-smsir-otp-integration.md).
+
 ## What is implemented but not activated
 
 | Component | In code | Real environment / release evidence |
 | --- | --- | --- |
-| OTP authentication | Yes; provider default `disabled` | No verified configured SMS adapter or actual delivery |
+| OTP authentication | Official SMS.ir Verify adapter, config-cache-safe SDK binding, configurable template parameter and bounded timeouts implemented in PR #130; provider default remains `disabled` | No verified account key/template configuration or real staging delivery; #124 remains open |
 | Zarinpal payment | Yes; `ZARINPAL_ENABLED=false` by default | No verified activated merchant, currency contract, live gateway callback or settlement |
 | Manual receipt processing | Yes; owner-scoped private storage and admin review | No current web production upload/reconciliation and backup/restore acceptance |
 | Order and shipment UI | Yes | No new web E2E customer/order/fulfillment test in production-like MySQL |
@@ -114,7 +123,7 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
 2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
-3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir OTP, subject to owner-provided credentials and real HTTPS staging delivery; keep the SMS driver disabled until verified.
+3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). The code portion of [#124](https://github.com/DenaSon/Denapax/issues/124) is implemented in [PR #130](https://github.com/DenaSon/Denapax/pull/130); keep the SMS driver disabled and #124 open until the owner-authorized HTTPS staging delivery and SMS.ir report are verified.
 4. In parallel, complete Phase 4A real bank/provider acceptance, Phase 4B physical mobile QA and Phase 4C MySQL/SMS/provider staging before any public-sales GO.
 5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
