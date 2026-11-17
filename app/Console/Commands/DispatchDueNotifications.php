@@ -27,14 +27,14 @@ class DispatchDueNotifications extends Command
         $claimed = 0;
 
         foreach ($ids as $id) {
-            $scheduled = DB::transaction(function () use ($id): bool {
+            $eventId = DB::transaction(function () use ($id): ?string {
                 $event = DB::table('outbox_events')
                     ->where('id', $id)
                     ->lockForUpdate()
                     ->first();
 
                 if (! $event || $event->processed_at !== null) {
-                    return false;
+                    return null;
                 }
 
                 $payload = json_decode($event->payload, true, 512, JSON_THROW_ON_ERROR);
@@ -86,14 +86,11 @@ class DispatchDueNotifications extends Command
                     'next_attempt_at' => now()->addMinutes(self::DISPATCH_LEASE_MINUTES),
                 ]);
 
-                DeliverOutboxNotification::dispatch((string) $event->id)
-                    ->onQueue('notifications')
-                    ->afterCommit();
-
-                return true;
+                return (string) $event->id;
             }, 3);
 
-            if ($scheduled) {
+            if ($eventId !== null) {
+                DeliverOutboxNotification::dispatch($eventId)->onQueue('notifications');
                 $claimed++;
             }
         }
