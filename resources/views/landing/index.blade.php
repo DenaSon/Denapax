@@ -255,7 +255,7 @@
             </div>
         </section>
 
-        <section id="order" data-chapter class="landing-order-section scroll-mt-24 bg-[#17382d] text-[#f3f1e5] aria-labelledby="order-title">
+        <section id="order" data-chapter class="landing-order-section scroll-mt-24 bg-[#17382d] text-[#f3f1e5]" aria-labelledby="order-title">
             <div class="landing-container landing-order-content">
                 <div>
                     <p class="landing-label mb-3 text-[#c3d6be]">ORDER / 03</p>
