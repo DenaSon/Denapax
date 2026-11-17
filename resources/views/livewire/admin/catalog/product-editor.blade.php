@@ -83,6 +83,7 @@
                              x-on:livewire-upload-start="uploading = true; progress = 0"
                              x-on:livewire-upload-finish="uploading = false; progress = 100"
                              x-on:livewire-upload-error="uploading = false"
+                             x-on:livewire-upload-cancel="uploading = false"
                              x-on:livewire-upload-progress="progress = $event.detail.progress">
                             <label class="form-control">
                                 <span class="label">تصویر اختصاصی (اختیاری)</span>
@@ -136,15 +137,52 @@
                     @endforeach
                 </div>
             @endif
-            <div x-data="{ uploading: false, progress: 0 }"
-                 x-on:livewire-upload-start="uploading = true; progress = 0"
-                 x-on:livewire-upload-finish="uploading = false; progress = 100"
-                 x-on:livewire-upload-error="uploading = false"
-                 x-on:livewire-upload-progress="progress = $event.detail.progress">
-                <input type="file" wire:model="galleryUploads" multiple accept="image/jpeg,image/png,image/webp" class="file-input w-full">
-                <div x-show="uploading" x-cloak class="mt-2 space-y-1" role="status" aria-live="polite">
-                    <div class="flex justify-between text-xs"><span>در حال بارگذاری تصاویر گالری…</span><span x-text="Math.round(progress) + '%'"></span></div>
-                    <progress class="progress progress-primary w-full" max="100" x-bind:value="progress"></progress>
+            <div x-data="{
+                    files: [],
+                    uploadFiles(event) {
+                        const selected = Array.from(event.target.files);
+                        if (!selected.length) return;
+
+                        this.files = selected.map((file) => ({ name: file.name, progress: 0, status: 'queued' }));
+
+                        const uploadNext = (index) => {
+                            if (index >= selected.length) return;
+
+                            this.files[index].status = 'uploading';
+                            this.$wire.uploadMultiple(
+                                'galleryUploads',
+                                [selected[index]],
+                                () => {
+                                    this.files[index].progress = 100;
+                                    this.files[index].status = 'complete';
+                                    uploadNext(index + 1);
+                                },
+                                () => {
+                                    this.files[index].status = 'error';
+                                    uploadNext(index + 1);
+                                },
+                                (progressEvent) => {
+                                    this.files[index].progress = progressEvent.detail.progress;
+                                },
+                            );
+                        };
+
+                        uploadNext(0);
+                        event.target.value = '';
+                    },
+                }">
+                <input type="file" multiple accept="image/jpeg,image/png,image/webp"
+                       x-on:change="uploadFiles($event)" class="file-input w-full">
+                <div x-show="files.length > 0" x-cloak class="mt-3 space-y-2" role="status" aria-live="polite">
+                    <template x-for="(file, index) in files" :key="index">
+                        <div class="rounded-xl border border-base-300 p-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                                <span class="min-w-0 break-all font-semibold" x-text="file.name"></span>
+                                <span x-text="file.status === 'complete' ? 'بارگذاری شد' : (file.status === 'error' ? 'خطا در بارگذاری' : Math.round(file.progress) + '%')"></span>
+                            </div>
+                            <progress class="progress progress-primary mt-2 w-full" max="100" x-bind:value="file.progress"></progress>
+                        </div>
+                    </template>
                 </div>
             </div>
             @if (!empty($galleryUploads))
