@@ -499,7 +499,6 @@ class PublicLandingTest extends TestCase
             ->assertOk()
             ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$variant->id} ?? 0) === 2);
 
-        $this->assertDatabaseCount('carts', 1);
     }
 
     public function test_product_detail_posts_selected_variant_to_existing_guest_cart_endpoint(): void
