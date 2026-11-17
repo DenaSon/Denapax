@@ -49,7 +49,7 @@ class DeliverOutboxNotification implements ShouldQueue, ShouldBeUnique
                     ->lockForUpdate()
                     ->first();
 
-                if (! $event || $event->processed_at !== null) {
+                if ($event === null || $event->processed_at !== null) {
                     return;
                 }
 
@@ -59,7 +59,7 @@ class DeliverOutboxNotification implements ShouldQueue, ShouldBeUnique
                     ->lockForUpdate()
                     ->first();
 
-                if (! $log || $log->status !== 'sending') {
+                if ($log === null || $log->status !== 'sending') {
                     return;
                 }
 
