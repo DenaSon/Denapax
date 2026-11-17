@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Application\Actions\CustomerOtpLogin;
 use App\Integrations\Sms\ConfiguredSmsIrService;
-use App\Models\CustomerHOURS;
+use App\Models\CustomerLoginCode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -39,14 +39,14 @@ class SmsIrCustomerOtpTest extends TestCase
             ->andReturn((object) [
                 'status' => 1,
                 'message' => 'موفق',
-                'data' => ['messageId' => 989679761, 'cost' => 1.0],
+                'data' => ['messageId' => 987654321, 'cost' => 1.0],
             ]);
 
         $this->app->instance(SmsIrService::class, $sdk);
 
         app(CustomerOtpLogin::class)->request('09120000021', '127.0.0.1');
 
-        $challenge = CustomerHOURS::query()->sole();
+        $challenge = CustomerLoginCode::query()->sole();
 
         $this->assertIsString($code);
         $this->assertTrue(Hash::check($code, $challenge->code_hash));
