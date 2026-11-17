@@ -191,7 +191,7 @@
                                                 default => $variant->sale_unit,
                                             };
                                         @endphp
-                                        <label class="block cursor-pointer">
+                                        <label class="product-variant-option block cursor-pointer">
                                             <input type="radio" name="variant_id" value="{{ $variant->id }}" required
                                                    x-model.number="selectedVariantId"
                                                    x-on:change="clearFeedback()"
