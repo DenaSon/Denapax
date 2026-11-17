@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class PublicProductController extends Controller
 {
-    public function __invoke(Request $request, ZarinpalGateway $gateway, string $slug): View
+    public function __invoke(Request $request, ZarinpalGateway $gateway, StoreCart $cart, string $slug): View
     {
         $product = Product::query()
             ->publiclyOrderable()
@@ -57,6 +57,15 @@ class PublicProductController extends Controller
         $description = (string) ($product->summary ?: $product->description ?: $product->title);
         $metaDescription = mb_substr(trim(strip_tags($description)), 0, 155);
         $minimumPrice = (int) $product->variants->min('price_irr');
+        $variantPurchaseData = $product->variants->map(fn ($variant): array => [
+            'id' => (int) $variant->id,
+            'title' => $variant->title,
+            'priceLabel' => Money::formatToman((int) $variant->price_irr),
+        ])->values()->all();
+        $cartQuantities = $cart->lines($request->user('customer'))
+            ->filter(fn (array $line): bool => (int) $line['variant']->product_id === (int) $product->id)
+            ->mapWithKeys(fn (array $line): array => [(string) $line['variant']->id => (int) $line['quantity']])
+            ->all();
         $storeSetting = StoreSetting::query()->find(1);
         $manualAvailable = preg_match('/^[0-9]{16}$/D', (string) ($storeSetting?->card_number ?? '')) === 1;
 
@@ -87,8 +96,9 @@ class PublicProductController extends Controller
 
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
-            'minimumPrice', 'schema', 'variantPhotoIndexes'
+            'minimumPrice', 'schema', 'variantPhotoIndexes', 'variantPurchaseData'
         ) + [
+            'cartQuantities' => (object) $cartQuantities,
             'gatewayEnabled' => $gateway->enabled(),
             'manualAvailable' => $manualAvailable,
         ]);
