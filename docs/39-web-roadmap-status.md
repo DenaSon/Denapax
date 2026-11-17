@@ -16,6 +16,7 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 | Phase 4A — financial exception safety | No automatic timeout-based retry, inquiry and protected operator reconciliation, fenced verification, no competing manual payment; **real provider acceptance pending** | [PR #82](https://github.com/DenaSon/Denapax/pull/82), `7d9e93ce78a3cdbd4c9e19e257b0c18c6d79a7bc`, [docs/40](40-web-phase4a-gateway-reconciliation.md) |
 | Phase 4B — mobile-first purchase UX | Inline one-screen quote and confirmation, large +/- cart actions, one-form variant selection, simplified SMS code and recipient form; **physical mobile QA pending** | [PR #83](https://github.com/DenaSon/Denapax/pull/83), `3ca052738bb5397f658306669f67ecb37375d55f`, [docs/41](41-web-phase4b-mobile-checkout-ux.md) |
 | Preserved staff foundations | Staff Fortify/RBAC, catalog/prices, shipping configuration, immutable order amounts, receipt review, fulfillment and database queue | Existing code + CI; production-like acceptance remains pending |
+| Shared catalog/cart sellability | Central variant availability/price/weight and product/category sellability; server-side guest/customer quantity-increase guard; safe decrement/removal | [PR #128](https://github.com/DenaSon/Denapax/pull/128), merge `ea72ef6c1bc84f242a9ab13ba6f10c6cdd34b789`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44051594401): 125 tests / 918 assertions |
 | Web inbox/outbox reliability | Atomic event claims, leased dispatch recovery, unique jobs, bounded retries, terminal failure visibility and authorized manual retry | [PR #126](https://github.com/DenaSon/Denapax/pull/126), merge `12283896d7f8a45c674ed91f5f9c8a81e935f374`, [CI](https://github.com/DenaSon/Denapax/actions/runs/44049700399): 121 tests / 851 assertions |
 
 **Verified master baseline before gallery PR:** 84 passed / 580 assertions; Composer production dependency audit and validation, Laravel Pint and Vite build green. Test runner uses SQLite; **staging MySQL and real provider behavior remain unverified**.
@@ -77,6 +78,17 @@ The next release uses **manual card-to-card transfer and private receipt upload 
 - Automated evidence: 121 tests / 851 assertions, Composer audit/validation, Pint and Vite build all passed. [PR #126](https://github.com/DenaSon/Denapax/pull/126).
 - **Still unverified:** production scheduler cadence, supervised `notifications,default` workers, worker-offline recovery and manual retry in the target runtime. Do not mark this operational acceptance complete from CI alone.
 
+## P2 cart/catalog sellability consistency — implemented in PR #128
+
+- Added `ProductVariant::availableForSale()` for the variant's availability flag, positive IRR price and positive shipping weight; `ProductVariant::sellable()` additionally requires a publicly published product and active category.
+- `Product::publiclyOrderable()`, homepage, product permalink, sitemap and `BrowseCatalog` now use the same valid variant-level requirements. A zero-weight variant is no longer advertised as purchasable.
+- Guest session cart and authenticated customer cart both reject a quantity increase if the existing line is no longer sellable. Direct Livewire actions and native `PATCH /cart/items/{variantId}` fallback are covered for both customer types.
+- Customers may still decrease or remove unavailable lines. Cart line status and checkout validation use the same model-level sellability predicate.
+- Admin cannot publish a product without an active category and at least one variant with valid availability, price and weight.
+- No migration and no numeric stock reservation; only the existing `is_available` flag is used.
+- CI evidence: 125 tests / 918 assertions; Composer audit/validation, Pint and Vite build passed. [PR #128](https://github.com/DenaSon/Denapax/pull/128).
+- This is code-level/automated-test completion only. It does not replace the P0 MySQL staging, provider, real browser or production acceptance gates.
+
 ## Remaining P0 — block public web-sales launch
 
 1. **Payment reconciliation live acceptance**: no-double-charge/inquiry/operator-review code is implemented in PR #82; verify this against an activated provider and bank panel, reconcile actual merchant settlements, document manual conflict/refund escalation and ensure no public activation on code CI alone.
@@ -102,8 +114,8 @@ The Telegram customer bot, Nutgram dependency, Telegram webhook, chat-group aler
 
 1. Read [AGENTS.md](../AGENTS.md), this ledger and [Phase 4 plan](38-web-phase4-release-readiness.md); verify the latest `master` SHA and CI.
 2. Keep P0 launch blockers [#11](https://github.com/DenaSon/Denapax/issues/11), [#24](https://github.com/DenaSon/Denapax/issues/24), [#25](https://github.com/DenaSon/Denapax/issues/25) authoritative. The outbox code in #102 is merged, but production worker/scheduler acceptance is still part of #25.
-3. The next focused code backlog item is [#103](https://github.com/DenaSon/Denapax/issues/103): enforce one shared sellability rule across public catalog and guest/customer cart quantity changes. Preserve decrement/removal for unavailable lines; do not add numeric stock reservation in this scope.
-4. In parallel with code backlog, complete Phase 4A real bank/provider acceptance, Phase 4B physical mobile QA and Phase 4C MySQL/SMS/provider staging before any public-sales GO.
+3. Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is complete in [PR #128](https://github.com/DenaSon/Denapax/pull/128). The next integration candidate is [#124](https://github.com/DenaSon/Denapax/issues/124) for SMS.ir OTP, subject to owner-provided credentials and real HTTPS staging delivery; keep the SMS driver disabled until verified.
+4. In parallel, complete Phase 4A real bank/provider acceptance, Phase 4B physical mobile QA and Phase 4C MySQL/SMS/provider staging before any public-sales GO.
 5. Keep tests focused, require green CI before merge, and do not claim a deployment or provider settlement without proof.
 
 Whenever this ledger is updated, distinguish **implemented / unit-tested / staging-verified / production-verified / owner-approved**; never mark unchecked items completed from code inspection alone.
