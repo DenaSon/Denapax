@@ -60,6 +60,9 @@ class AdminCatalogUxTest extends TestCase
     {
         $this->get(route('admin.products.create'))->assertOk()
             ->assertSee('livewire-upload-progress', false)
+            ->assertSee('uploadMultiple(', false)
+            ->assertSee('x-for="(file, index) in files"', false)
+            ->assertSee('بارگذاری شد')
             ->assertSee('در حال ذخیره محصول…')
             ->assertSee('wire:loading.attr="disabled"', false);
 
