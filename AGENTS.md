@@ -6,7 +6,7 @@
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.
 
-**State evidence:** Web Phases 1–3, 4A and 4B are merged. Current `master` is `c1468eed7aacd12ac95a56bf23ba3b93612a9ef5`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44070505820) passed with 132 tests / 945 assertions, Composer audit/validation, Pint and Vite. The owner confirmed real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
+**State evidence:** Web Phases 1–3, 4A and 4B are merged. Current `master` is `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 962 assertions, Composer audit/validation, Pint and Vite. The owner confirmed real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
 
 ## What is implemented
 
@@ -70,7 +70,7 @@ Until the owner obtains an active Zarinpal merchant ID, **card-to-card + private
 
 ## Next code backlog after SMS.ir acceptance
 
-Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Issue [#124](https://github.com/DenaSon/Denapax/issues/124) is closed after owner-confirmed OTP delivery/login; PR #132 records the acceptance. The next focused UX improvement is [#113](https://github.com/DenaSon/Denapax/issues/113), visible OTP expiry and resend feedback. Keep the server-side cooldown, expiry and attempt limits authoritative.
+Issue [#103](https://github.com/DenaSon/Denapax/issues/103) is implemented and closed by PR #128. Issue [#124](https://github.com/DenaSon/Denapax/issues/124) is closed after owner-confirmed OTP delivery/login; PR #132 records the acceptance. OTP expiry/resend UX [#113](https://github.com/DenaSon/Denapax/issues/113) is implemented in [PR #133](https://github.com/DenaSon/Denapax/pull/133) and closed. The server-side cooldown, expiry and attempt limits remain authoritative.
 
 ## Next work: Web Phase 4
 
