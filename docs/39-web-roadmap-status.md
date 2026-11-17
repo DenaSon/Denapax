@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Current `master`: `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 962 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-17.** Current `master`: `b7ea5bd6024d56ad91ae1386a7a8337a3714b7aa`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44074473680) passed with 134 tests / 973 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
