@@ -57,6 +57,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         get selectedQuantity() {
+            if (this.pendingAction === 'quantity' && this.pendingQuantity !== null) {
+                return this.pendingQuantity;
+            }
             if (this.selectedCartQuantity > 0) return this.selectedCartQuantity;
             const quantity = Number(this.requestedQuantity);
             return Number.isSafeInteger(quantity) && quantity > 0 ? Math.min(1000, quantity) : 1;
