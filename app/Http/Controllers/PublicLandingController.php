@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Application\\Actions\\StoreCart;
-use App\\Models\\Category;
-use App\\Models\\Product;
-use Illuminate\\Contracts\\View\\View;
-use Illuminate\\Database\\Eloquent\\Builder;
-use Illuminate\\Http\\Request;
+use App\Application\Actions\StoreCart;
+use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class PublicLandingController extends Controller
 {
