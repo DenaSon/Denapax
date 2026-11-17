@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\Admin\SettingsPage;
 use App\Models\StoreSetting;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
