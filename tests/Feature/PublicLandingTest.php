@@ -165,6 +165,21 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('denapax-product-preview', false);
     }
 
+    public function test_runflare_post_start_hook_rebuilds_laravel_caches_and_preserves_private_storage(): void
+    {
+        $script = file_get_contents(base_path('scripts/runflare-post-start.sh'));
+
+        $this->assertNotFalse($script);
+        $this->assertStringContainsString('php artisan storage:link', $script);
+        $this->assertStringContainsString('php artisan optimize', $script);
+        $this->assertStringContainsString('php artisan config:clear', $script);
+        $this->assertStringContainsString('php artisan vendor:publish --tag=livewire:assets --force', $script);
+        $this->assertStringContainsString('storage/app/public/landing/denapax-kuhgol-1200x900.webp', $script);
+        $this->assertStringContainsString('getimagesize', $script);
+        $this->assertStringNotContainsString('php artisan migrate', $script);
+        $this->assertStringNotContainsString('storage/app/private', $script);
+    }
+
     public function test_mobile_headers_remain_visible_and_reduce_brand_navigation(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'sticky-header', 'is_active' => true]);
@@ -238,10 +253,12 @@ class PublicLandingTest extends TestCase
 
         $this->assertStringContainsString('.landing-assurance-grid', $css);
         $this->assertStringContainsString('.landing-story-panel', $css);
-        $this->assertStringContainsString("url('https://fm-9kyo-denapx.runflare.cloud/data/denapax-kuhgol-1200x900_261117145040.webp')", $css);
+        $this->assertStringContainsString("url('/storage/landing/denapax-kuhgol-1200x900.webp')", $css);
+        $this->assertStringContainsString("url('/images/dena-landscape.svg')", $css);
+        $this->assertStringNotContainsString("url('https://fm-9kyo-denapx.runflare.cloud/data/", $css);
         $this->assertStringContainsString('aspect-ratio: 1.11;', $css);
         $this->assertStringContainsString('aspect-ratio: 1.22;', $css);
-        $this->assertStringContainsString('background-size: cover;', $css);
+        $this->assertStringContainsString('background-size: cover, cover, cover;', $css);
         $this->assertStringNotContainsString('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', $css);
         $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
