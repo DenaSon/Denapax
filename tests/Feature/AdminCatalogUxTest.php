@@ -62,6 +62,7 @@ class AdminCatalogUxTest extends TestCase
             ->assertSee('x-on:change="uploadFiles($event)"', false)
             ->assertSee('uploadMultiple(', false)
             ->assertSee('x-for="(file, index) in files"', false)
+            ->assertSee("x-bind:disabled=\"files.some((file) => file.status === 'uploading')\"", false)
             ->assertSee('بارگذاری شد')
             ->assertSee('در حال ذخیره محصول…')
             ->assertSee('wire:loading.attr="disabled"', false);
