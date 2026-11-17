@@ -37,15 +37,6 @@ document.addEventListener('alpine:init', () => {
             return this.sameMobile && this.resendRemaining > 0;
         },
 
-        get requestLabel() {
-            if (!this.sameMobile) return 'ارسال کد به شماره جدید';
-            if (this.resendRemaining > 0) {
-                return 'ارسال مجدد (' + this.formatRemaining(this.resendRemaining) + ')';
-            }
-
-            return 'دریافت کد جدید';
-        },
-
         get expiryMessage() {
             if (!this.codeUsable || !this.expiresAt) {
                 return 'کد فعلی منقضی یا قابل استفاده نیست؛ کد تازه دریافت کنید.';
