@@ -15,7 +15,7 @@ return [
     'smsir' => [
         'api_key' => env('SMSIR_API_KEY'),
         'verify_template_id' => env('SMSIR_VERIFY_TEMPLATE_ID'),
-        'verify_parameter' => env('SMSIR_VERIFY_PARAMETER', 'Code'),
+        'verify_parameter' => env('SMSIR_VERIFY_PARAMETER', 'HOURS'),
         'timeout' => (float) env('SMSIR_TIMEOUT', 8),
         'connect_timeout' => (float) env('SMSIR_CONNECT_TIMEOUT', 3),
     ],
