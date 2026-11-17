@@ -6,6 +6,7 @@ use App\Application\Actions\BrowseCatalog;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -92,11 +93,11 @@ class PublicLandingTest extends TestCase
             ->assertDontSee('به تلگرام.');
     }
 
-    public function test_catalog_search_is_debounced_with_ssr_form_fallback_and_live_cart_bridge(): void
+    public function test_catalog_search_runs_only_after_explicit_submit_and_keeps_native_get_fallback(): void
     {
         $this->get('/')->assertOk()
             ->assertSee('x-on:submit.prevent="submitCatalogSearch($event)"', false)
-            ->assertSee('x-on:input.debounce.450ms="submitCatalogSearch($event)"', false)
+            ->assertDontSee('x-on:input.debounce', false)
             ->assertSee('x-on:submit.prevent="submitPreviewCart()"', false)
             ->assertSee('method="GET"', false)
             ->assertSee('action="'.route('cart.add').'"', false);
@@ -105,8 +106,59 @@ class PublicLandingTest extends TestCase
 
         $script = file_get_contents(resource_path('js/landing.js'));
         $this->assertStringContainsString("window.Livewire.dispatch('cart-add-requested'", $script);
+        $this->assertStringContainsString('loadCatalog(url.href, true, true, true, false)', $script);
         $this->assertStringContainsString('replaceState', $script);
         $this->assertStringContainsString('setSelectionRange', $script);
+    }
+
+    public function test_catalog_search_matches_persian_and_arabic_yah_and_kaf_forms_for_sellable_products(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'مغز گردوي دنا', 'walnut-arabic-yeh', 13890000);
+
+        $this->get('/?q=گردو')->assertOk()->assertSee($product->title);
+        $this->get('/?q=گردوي')->assertOk()->assertSee($product->title);
+
+        $arabicKaf = $this->product($category, 'كاجوی دنا', 'cashew-arabic-kaf', 9800000);
+        $this->get('/?q=کاجو')->assertOk()->assertSee($arabicKaf->title);
+    }
+
+    public function test_product_preview_primary_click_uses_dialog_without_livewire_navigation_and_keeps_real_link_fallback(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'preview-no-navigation', 13890000);
+
+        $this->get('/')->assertOk()
+            ->assertSee('x-on:click="openProduct('.$product->id.', $event)"', false)
+            ->assertSee('href="'.route('products.show', ['slug' => $product->slug]).'"', false)
+            ->assertDontSee('wire:navigate href="'.route('products.show', ['slug' => $product->slug]).'"', false);
+    }
+
+    public function test_storefront_footers_show_configured_support_and_preserve_approved_credits(): void
+    {
+        StoreSetting::create([
+            'store_name' => 'دناپکس',
+            'support_contact' => '09120000000',
+            'card_number' => '6037991234567890',
+            'card_holder_name' => 'مدیر دناپکس',
+        ]);
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
+        $product = $this->product($category, 'گردوی دنا', 'footer-walnut', 13890000);
+
+        $this->get('/')->assertOk()
+            ->assertSee('Mohammad Asadi')
+            ->assertSee('https://t.me/m_asadix7', false)
+            ->assertSee('Farid Atar · CC BY 3.0')
+            ->assertSee('tel:09120000000', false);
+
+        $this->get(route('products.show', $product->slug))->assertOk()
+            ->assertSee('DenaPax')
+            ->assertDontSee('DenaPax.')
+            ->assertSee('tel:09120000000', false);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('tel:09120000000', false)
+            ->assertSee('Mohammad Asadi');
     }
 
     public function test_editorial_landing_has_clear_customer_assurance_and_consistent_product_cards(): void
@@ -298,6 +350,11 @@ class PublicLandingTest extends TestCase
             ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$variant->id] === 2);
 
         $this->assertStringContainsString('storefront.js', file_get_contents(base_path('vite.config.js')));
+        $galleryScript = file_get_contents(resource_path('js/product-gallery.js'));
+        $this->assertStringContainsString('function updateZoomBounds()', $galleryScript);
+        $this->assertStringContainsString('maxZoom = Number.isFinite(fitScale)', $galleryScript);
+        $this->assertStringContainsString('max-width:560px', str_replace(' ', '', file_get_contents(resource_path('css/landing.css'))));
+
         $this->assertStringContainsString("import './product-gallery';", file_get_contents(resource_path('js/storefront.js')));
         $this->assertStringContainsString(
             "@source '../js/product-gallery.js';",
@@ -470,7 +527,9 @@ class PublicLandingTest extends TestCase
     {
         $this->get('/')->assertOk()
             ->assertSee(route('cart.index'))
-            ->assertDontSee('https://t.me/')
+            ->assertSee('https://t.me/m_asadix7', false)
+            ->assertDontSee('api.telegram.org')
+            ->assertDontSee('bot_token')
             ->assertDontSee('تلگرام');
 
         $this->get('/cart')->assertOk()->assertSee('سبد خرید');

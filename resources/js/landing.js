@@ -187,7 +187,7 @@ Alpine.data('landingPage', () => ({
         url.search = params.toString();
         url.hash = 'products';
 
-        this.loadCatalog(url.href, true, false, true, event.type === 'input');
+        this.loadCatalog(url.href, true, true, true, false);
     },
 
     submitPreviewCart() {

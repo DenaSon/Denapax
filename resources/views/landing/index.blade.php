@@ -115,8 +115,7 @@
                     </p>
                     <div class="mt-8 flex flex-wrap items-center justify-center gap-5 md:mt-10">
                         <a href="#products" class="landing-button bg-[#e7e3d1] text-[#19392f] shadow-xl shadow-black/10 hover:bg-white">
-                            محصولات را ببینید
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M5 19h14V5"/></svg>
+                            محصولات
                         </a>
                         <a href="#story" class="landing-hero-secondary text-sm font-semibold">آشنایی با دنا</a>
                     </div>
@@ -124,9 +123,9 @@
                 <div class="absolute bottom-6 right-0 left-0 flex items-end justify-between text-[11px] text-white/70 md:bottom-8">
                     <div class="flex items-center gap-4">
                         <span class="inline-block h-7 w-px bg-white/60"></span>
-                        <span>برای دیدن محصولات اسکرول کنید</span>
+                        <span>محصولاتی از قلب دنا</span>
                     </div>
-                    <span class="tracking-[.25em]" lang="en">DENAPAX — 01</span>
+                    <span class="tracking-[.08em]" lang="en">DenaPax</span>
                 </div>
             </div>
         </section>
@@ -171,7 +170,7 @@
                 @endif
                 <label for="catalog-search" class="sr-only">جستجو در محصولات</label>
                 <input id="catalog-search" name="q" type="search" maxlength="80" value="{{ $search }}"
-                       placeholder="جستجو در سوغات و خشکبار دنا..." x-on:input.debounce.450ms="submitCatalogSearch($event)"
+                       placeholder="جستجو در سوغات و خشکبار دنا..."
                        class="landing-search-input min-w-0 flex-1 rounded-full border border-[#cbd3c3] bg-white/70 px-5 py-3 text-sm text-[#244534] outline-offset-2 sm:max-w-xl">
                 <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
                 @if ($search !== '')
@@ -211,7 +210,7 @@
                         $startingPrice = (int) $product->variants->min('price_irr');
                     @endphp
                     <article class="product-card group relative overflow-hidden bg-[#ebe9dd]" data-reveal data-delay="{{ $loop->index % 3 }}">
-                        <a wire:navigate href="{{ route('products.show', ['slug' => $product->slug]) }}"
+                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}"
                            x-on:click="openProduct({{ $product->id }}, $event)"
                            aria-haspopup="dialog" aria-controls="denapax-product-preview"
                            class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
@@ -296,7 +295,7 @@
                         <span class="block landing-outline-dark">یک اقلیم</span>
                     </h2>
                     <p class="mt-8 max-w-[550px] text-base leading-10 text-[#536956]">
-                        کوهستان دنا و شهرها و روستاهای پیرامون آن، مجموعه‌ای از خوراکی‌ها و شیوه‌های تهیه محلی را در خود جای داده‌اند. در دناپکس می‌توانید بخشی از این محصولات را بشناسید و برای خرید انتخاب کنید.
+                        دنا فقط یک کوهستان نیست؛ اقلیمی است که در طعم محصولات، شیوه‌های تهیه و زندگی مردمش جریان دارد. دناپکس مجموعه‌ای از سوغات و خوراکی‌های این سرزمین را گرد هم آورده تا شناخت و انتخاب آن‌ها ساده‌تر باشد.
                     </p>
                     <div class="mt-9 flex items-center gap-4 text-xs font-bold tracking-wider text-[#536956]">
                         <span class="h-px w-10 bg-[#536956]"></span>
@@ -332,7 +331,7 @@
     <footer class="bg-[#122e26] py-10 text-white/75 md:py-13">
         <div class="landing-container flex flex-col justify-between gap-8 border-b border-white/15 pb-9 md:flex-row md:items-center">
             <div>
-                <span class="block text-2xl font-bold tracking-tight text-white" lang="en">DenaPax.</span>
+                <span class="block text-2xl font-bold tracking-tight text-white" lang="en">DenaPax</span>
                 <p class="mt-2 text-xs">سوغات و خشکبار؛ از دل دنا</p>
             </div>
             <nav aria-label="پیوندهای پایین صفحه" class="flex flex-wrap gap-6 text-sm">
@@ -341,11 +340,15 @@
                 <a href="#order" class="hover:text-white">ثبت سفارش</a>
             </nav>
         </div>
-        <div class="landing-container mt-7 flex flex-wrap justify-between gap-4 text-[11px] text-white/50">
+        <div class="landing-container mt-7 flex flex-wrap items-center justify-between gap-4 text-[11px] text-white/55">
             <span>دناپکس — معرفی محصولات محلی و خشکبار</span>
+            <span>طراحی و توسعه:
+                <a href="https://t.me/m_asadix7" target="_blank" rel="noopener noreferrer" class="text-white hover:underline">Mohammad Asadi</a>
+            </span>
             <a href="https://commons.wikimedia.org/wiki/File:Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" target="_blank" rel="noopener noreferrer" class="hover:text-white">
-                عکس کوهستان دنا: Farid Atar · CC BY 3.0
+                اعتبار تصویر: Farid Atar · CC BY 3.0
             </a>
+            @include('partials.store-support-contact')
         </div>
     </footer>
 
