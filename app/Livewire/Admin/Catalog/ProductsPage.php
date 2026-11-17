@@ -23,8 +23,8 @@ class ProductsPage extends Component
     {
         Gate::authorize('catalog.manage');
         $product = Product::with('category')->findOrFail($id);
-        if (! $product->is_active && (! $product->category->is_active || ! $product->variants()->exists())) {
-            throw ValidationException::withMessages(['publish' => 'برای انتشار، دسته‌بندی فعال و دست‌کم یک تنوع لازم است.']);
+        if (! $product->is_active && (! $product->category->is_active || ! $product->variants()->availableForSale()->exists())) {
+            throw ValidationException::withMessages(['publish' => 'برای انتشار، دسته‌بندی فعال و دست‌کم یک تنوع با موجودی، قیمت و وزن معتبر لازم است.']);
         }
 
         $product->update(['is_active' => ! $product->is_active]);
