@@ -167,11 +167,15 @@ class OutboxNotificationLifecycleTest extends TestCase
         $role->givePermissionTo('orders.view');
         $staff->assignRole($role);
 
-        $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
-
         Livewire::actingAs($staff, 'web')
             ->test(NotificationLogPage::class)
-            ->call('retry', $log->id);
+            ->call('retry', $log->id)
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('notification_logs', [
+            'id' => $log->id,
+            'status' => 'failed',
+        ]);
     }
 
     private function orderAndEvent(int $suffix = 31): array
