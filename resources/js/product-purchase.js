@@ -14,10 +14,30 @@ document.addEventListener('alpine:init', () => {
         allowNativeSubmit: false,
         notice: '',
         error: '',
+        unsubscribeRequest: null,
 
         init() {
             const selected = this.$root.querySelector('input[name="variant_id"]:checked');
             if (selected) this.selectedVariantId = Number(selected.value);
+
+            if (typeof window.Livewire?.interceptRequest === 'function') {
+                this.unsubscribeRequest = window.Livewire.interceptRequest(({ onError, onFailure }) => {
+                    onError(({ response, preventDefault }) => {
+                        if (!this.pendingAction) return;
+
+                        preventDefault();
+                        this.handleTransportFailure(response?.status === 419
+                            ? 'نشست شما منقضی شده است. صفحه را تازه کنید و دوباره وارد شوید.'
+                            : 'ارتباط با سرور با خطا مواجه شد. دوباره تلاش کنید.');
+                    });
+
+                    onFailure(() => {
+                        if (!this.pendingAction) return;
+
+                        this.handleTransportFailure('ارتباط با سرور قطع شد. پس از بازگشت اتصال دوباره تلاش کنید.');
+                    });
+                });
+            }
         },
 
         get selectedVariant() {
@@ -132,6 +152,12 @@ document.addEventListener('alpine:init', () => {
             this.error = event?.detail?.message || 'به‌روزرسانی سبد خرید انجام نشد. دوباره تلاش کنید.';
         },
 
+        handleTransportFailure(message) {
+            this.finishRequest();
+            this.notice = '';
+            this.error = message;
+        },
+
         finishRequest() {
             this.busy = false;
             this.pendingAction = null;
@@ -144,5 +170,9 @@ document.addEventListener('alpine:init', () => {
             this.error = '';
         },
 
+        destroy() {
+            if (typeof this.unsubscribeRequest === 'function') this.unsubscribeRequest();
+            this.unsubscribeRequest = null;
+        },
     }));
 });
