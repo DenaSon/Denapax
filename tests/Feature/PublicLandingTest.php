@@ -502,31 +502,29 @@ class PublicLandingTest extends TestCase
         $this->assertDatabaseCount('carts', 1);
     }
 
-    public function test_product_preview_posts_selected_variant_to_existing_guest_cart_endpoint(): void
+    public function test_product_detail_posts_selected_variant_to_existing_guest_cart_endpoint(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $product = $this->product($category, 'گردو دنا', 'dena-walnut', 500000);
         $variantId = $product->variants()->firstOrFail()->id;
 
-        $this->get('/')->assertOk()
+        $this->get(route('products.show', $product->slug))->assertOk()
             ->assertSee('action="'.route('cart.add').'"', false)
-            ->assertSee('x-bind:value="preview.variants[previewVariantIndex].id"', false)
-            ->assertSee('"id":'.$variantId, false)
+            ->assertSee('name="variant_id" value="'.$variantId.'"', false)
             ->assertSee('name="quantity"', false)
-            ->assertSee('افزودن به سبد خرید');
+            ->assertSee('افزودن به سبد خرید')
+            ->assertDontSee('denapax-product-preview', false);
 
         $this->post(route('cart.add'), [
             'variant_id' => $variantId,
             'quantity' => 2,
         ])->assertRedirect(route('cart.index'));
 
-        $this->get('/')->assertOk()
-            ->assertViewHas('cartQuantity', 2)
-            ->assertSee('تعداد اقلام سبد خرید: 2');
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertViewHas('cartQuantities', fn ($quantities): bool => (int) ($quantities->{$variantId} ?? 0) === 2);
 
-        $this->get(route('cart.index'))->assertOk()
-            ->assertSee('تعداد اقلام سبد خرید: 2')
-            ->assertSee('گردو دنا');
+        $this->assertDatabaseCount('carts', 1);
     }
 
     public function test_signed_in_cart_quantity_uses_existing_cart_without_creating_empty_one(): void
