@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Ipe\Sdk\SmsIrService;
-use RuntimeException;
 use Livewire\Livewire;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
