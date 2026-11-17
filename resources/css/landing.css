@@ -785,7 +785,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     .store-brand { gap: .5rem; }
     .store-brand-mark { width: 30px; height: 30px; }
     .store-brand-name { font-size: .95rem; }
-    .store-brand-tagline { margin-top: .12rem; font-size: .58rem; }
+    .store-brand-tagline { display: none; }
     .store-header-link { min-height: 40px; padding-inline: .55rem; font-size: .72rem; }
     .store-main { padding-top: 1.4rem; }
     .store-steps { margin-top: .85rem; }
