@@ -449,7 +449,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     inset: 0;
     background-image:
         linear-gradient(0deg, rgba(10, 31, 24, .77), transparent 56%),
-        url('/images/dena-landscape.svg');
+        url('https://fm-9kyo-denapx.runflare.cloud/data/denapax-kuhgol-1200x900_261117145040.webp');
     background-position: center, center;
     background-size: cover;
     transition: transform .8s cubic-bezier(.19, 1, .22, 1);
