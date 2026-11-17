@@ -32,7 +32,7 @@
                 <dd>{{ \App\Support\Money::formatToman((int) $quote['total_irr']) }} تومان</dd>
             </div>
         </dl>
-        <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" class="mt-7" />
+        <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" :manual-available="$manualAvailable" class="mt-7" />
         <div class="mt-7 flex flex-wrap items-center gap-4">
             <form method="POST" action="{{ route('checkout.confirm') }}">
                 @csrf
