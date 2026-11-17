@@ -111,7 +111,7 @@ class PublicLandingTest extends TestCase
         $this->assertStringNotContainsString('openProduct', $script);
     }
 
-    public function test_catalog_search_matches_persian_and_arabic_yah_and_kaf_forms_for_sellable_products(): void
+    public function test_dedicated_search_matches_persian_and_arabic_yah_and_kaf_forms_for_sellable_products(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $product = $this->product($category, 'مغز گردوي دنا', 'walnut-arabic-yeh', 13890000);
@@ -130,6 +130,27 @@ class PublicLandingTest extends TestCase
 
         $arabicKaf = $this->product($category, 'كاجوی دنا', 'cashew-arabic-kaf', 9800000);
         $this->get(route('search', ['q' => 'کاجو']))->assertOk()->assertSee($arabicKaf->title);
+
+        $this->get(route('search'))
+            ->assertOk()
+            ->assertSee('جستجوی خود را شروع کنید')
+            ->assertDontSee($product->title);
+    }
+
+    public function test_dedicated_search_excludes_unpublished_and_unorderable_products(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'search-orderable', 'is_active' => true]);
+        $visible = $this->product($category, 'گردوی قابل سفارش دنا', 'search-visible-walnut', 13890000);
+        $hidden = $this->product($category, 'گردوی منتشرنشده دنا', 'search-hidden-walnut', 13890000);
+        $hidden->update(['is_active' => false]);
+        $soldOut = $this->product($category, 'گردوی ناموجود دنا', 'search-sold-out-walnut', 13890000);
+        $soldOut->variants()->update(['is_available' => false]);
+
+        $this->get(route('search', ['q' => 'گردو']))
+            ->assertOk()
+            ->assertSee($visible->title)
+            ->assertDontSee($hidden->title)
+            ->assertDontSee($soldOut->title);
     }
 
     public function test_homepage_product_cards_navigate_directly_to_indexable_product_pages(): void
