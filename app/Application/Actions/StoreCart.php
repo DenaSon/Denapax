@@ -16,22 +16,17 @@ class StoreCart
     public function add(?Customer $customer, int $variantId, int $quantity): void
     {
         $this->carts->checkQuantity($quantity);
-        $variant = ProductVariant::query()
-            ->whereKey($variantId)
-            ->where('is_available', true)
-            ->where('price_irr', '>', 0)
-            ->where('shipping_weight_grams', '>', 0)
-            ->whereHas('product', fn ($query) => $query->publiclyOrderable())
-            ->first();
-
-        if (! $variant) {
-            throw ValidationException::withMessages(['cart' => 'این تنوع اکنون قابل خرید نیست.']);
-        }
 
         if ($customer) {
             $this->carts->add($customer, $variantId, $quantity);
 
             return;
+        }
+
+        $variant = ProductVariant::query()->sellable()->whereKey($variantId)->first();
+
+        if (! $variant) {
+            throw ValidationException::withMessages(['cart' => 'این تنوع اکنون قابل خرید نیست.']);
         }
 
         $items = session()->get(self::SESSION_KEY, []);
@@ -56,6 +51,13 @@ class StoreCart
         $items = session()->get(self::SESSION_KEY, []);
         if (! isset($items[$variantId])) {
             throw ValidationException::withMessages(['cart' => 'این کالا در سبد شما نیست.']);
+        }
+
+        $currentQuantity = (int) $items[$variantId];
+
+        if ($quantity > $currentQuantity
+            && ! ProductVariant::query()->sellable()->whereKey($variantId)->exists()) {
+            throw ValidationException::withMessages(['cart' => 'این تنوع اکنون قابل خرید نیست؛ فقط می‌توانید تعداد آن را کاهش دهید یا حذف کنید.']);
         }
 
         if ($quantity === 0) {
@@ -87,9 +89,7 @@ class StoreCart
                 'variant' => $variant,
                 'quantity' => (int) $quantity,
                 'total_irr' => (int) $variant->price_irr * (int) $quantity,
-                'available' => $variant->is_available && $variant->price_irr > 0
-                    && $variant->shipping_weight_grams > 0 && $variant->product->is_active
-                    && $variant->product->category?->is_active,
+                'available' => $variant->isSellable(),
             ];
         })->filter()->values();
     }
