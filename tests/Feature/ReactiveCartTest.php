@@ -64,7 +64,7 @@ class ReactiveCartTest extends TestCase
 
         Livewire::test(CartItems::class)->call('changeQuantity', $variant->id, 4)->assertHasNoErrors();
         Livewire::test(CartCount::class)->dispatch('cart-updated')->assertSee('تعداد اقلام سبد خرید: 4');
-        $this->get(route('cart.index'))->assertOk()->assertSee('ادامه به نشانی و ارسال');
+        $this->get(route('cart.index'))->assertOk()->assertSee('ثبت سفارش')->assertDontSee('ادامه به نشانی و ارسال');
 
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 4]);
         Livewire::test(CartItems::class)->call('changeQuantity', 9999999, 1)->assertHasErrors('cart');
@@ -180,7 +180,8 @@ class ReactiveCartTest extends TestCase
             ->assertSee('store-cart-loading', false)
             ->assertSee('store-cart-mobile-dock', false)
             ->assertSee('store-cart-mobile-dock-action', false)
-            ->assertSee('ادامه خرید با ورود پیامکی')
+            ->assertSee('ثبت سفارش')
+            ->assertDontSee('ادامه خرید با ورود پیامکی')
             ->assertSee('تعداد کالا')
             ->assertSee('2 عدد کالا در سبد شما');
 

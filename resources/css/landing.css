@@ -460,9 +460,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     border-radius: 0 0 2.25rem 2.25rem;
 }
 .landing-landscape {
-    background-image:
-        url('https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg'),
-        url('/images/dena-landscape.svg');
+    background-image: url('/images/dena-landscape.svg');
     background-position: center 47%;
     background-size: cover;
     background-repeat: no-repeat;
@@ -606,9 +604,8 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     inset: 0;
     background-image:
         linear-gradient(0deg, rgba(10, 31, 24, .77), transparent 56%),
-        url('https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg'),
         url('/images/dena-landscape.svg');
-    background-position: center, center 48%, center;
+    background-position: center, center;
     background-size: cover;
     transition: transform .8s cubic-bezier(.19, 1, .22, 1);
 }

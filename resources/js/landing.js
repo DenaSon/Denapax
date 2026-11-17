@@ -173,7 +173,11 @@ Alpine.data('landingPage', () => ({
     },
 
     submitCatalogSearch(event) {
-        const form = event.currentTarget instanceof HTMLFormElement ? event.currentTarget : event.target?.form;
+        const target = event?.target;
+        const form = target instanceof HTMLFormElement
+            ? target
+            : target?.closest?.('form[role="search"]')
+                ?? (event?.currentTarget instanceof HTMLFormElement ? event.currentTarget : null);
         if (!form) return;
 
         const url = new URL(form.action, window.location.href);

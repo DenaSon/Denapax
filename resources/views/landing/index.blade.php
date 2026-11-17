@@ -317,8 +317,8 @@
             <div class="landing-container landing-order-content">
                 <div>
                     <p class="landing-label mb-3 text-[#c3d6be]">ORDER / 03</p>
-                    <h2 id="order-title" class="text-2xl font-extrabold leading-relaxed md:text-3xl">از انتخاب محصول تا ثبت سفارش</h2>
-                    <p class="mt-2 max-w-[580px] text-sm leading-8 text-white/75">محصولات دلخواهتان را انتخاب کنید؛ سپس نشانی، هزینه ارسال و روش پرداخت را در مراحل بعد ببینید.</p>
+                    <h2 id="order-title" class="text-2xl font-extrabold leading-relaxed md:text-3xl">مراحل سفارش</h2>
+                    <p class="mt-2 max-w-[580px] text-sm leading-8 text-white/75">۱. انتخاب محصول · ۲. مشاهده سبد خرید · ۳. ورود و ثبت نشانی · ۴. انتخاب روش پرداخت</p>
                 </div>
                 <a wire:navigate href="{{ route('cart.index') }}" class="landing-button landing-order-button bg-[#e8e8d7] text-[#183b2e] hover:bg-white">
                     مشاهده سبد خرید
@@ -345,9 +345,6 @@
             <span>طراحی و توسعه:
                 <a href="https://t.me/m_asadix7" target="_blank" rel="noopener noreferrer" class="text-white hover:underline">Mohammad Asadi</a>
             </span>
-            <a href="https://commons.wikimedia.org/wiki/File:Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" target="_blank" rel="noopener noreferrer" class="hover:text-white">
-                اعتبار تصویر: Farid Atar · CC BY 3.0
-            </a>
             @include('partials.store-support-contact')
         </div>
     </footer>

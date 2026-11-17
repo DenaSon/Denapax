@@ -175,15 +175,15 @@
                 @if ($lines->contains(fn ($line) => ! $line['available']))
                     <p role="alert" class="store-cart-summary-alert">برای ادامه خرید، ابتدا تنوع‌های ناموجود را از سبد حذف کنید.</p>
                     <button type="button" class="store-button store-button-primary store-cart-checkout" disabled>
-                        ادامه به نشانی و ارسال
+                        ثبت سفارش
                     </button>
                 @else
                     <a wire:navigate href="{{ route('checkout.index') }}" class="store-button store-button-primary store-cart-checkout">
                         <span>
                             @auth('customer')
-                                ادامه به نشانی و ارسال
+                                ثبت سفارش
                             @else
-                                ادامه خرید با ورود پیامکی
+                                ثبت سفارش
                             @endauth
                         </span>
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -214,9 +214,9 @@
                    wire:loading.class="is-loading" wire:target="changeQuantity,remove">
                     <span>
                         @auth('customer')
-                            ادامه به نشانی و ارسال
+                            ثبت سفارش
                         @else
-                            ادامه خرید با ورود پیامکی
+                            ثبت سفارش
                         @endauth
                     </span>
                     <span aria-hidden="true">←</span>

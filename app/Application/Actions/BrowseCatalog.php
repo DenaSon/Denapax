@@ -16,17 +16,24 @@ class BrowseCatalog
 
     public function products(?int $categoryId = null, ?string $term = null, int $page = 1): LengthAwarePaginator
     {
-        $term = PersianSearch::normalize((string) $term);
+        $terms = PersianSearch::terms((string) $term);
 
         return Product::query()
             ->publiclyOrderable()
             ->when($categoryId !== null, fn ($q) => $q->where('category_id', $categoryId))
-            ->when($term !== '', function ($q) use ($term): void {
-                $q->where(function ($inner) use ($term): void {
-                    foreach (['title', 'summary', 'description'] as $column) {
-                        $inner->orWhereRaw(PersianSearch::sql($column).' LIKE ?', ['%'.$term.'%']);
-                    }
-                });
+            ->when($terms !== [], function ($q) use ($terms): void {
+                foreach ($terms as $term) {
+                    $like = '%'.$term.'%';
+
+                    $q->where(function ($inner) use ($like): void {
+                        foreach (['title', 'summary', 'description', 'slug'] as $column) {
+                            $inner->orWhereRaw(PersianSearch::sql($column).' LIKE ?', [$like]);
+                        }
+
+                        $inner->orWhereHas('category', fn ($category) => $category
+                            ->whereRaw(PersianSearch::sql('name').' LIKE ?', [$like]));
+                    });
+                }
             })
             ->with(['category', 'variants' => fn ($q) => $q->availableForSale()->orderBy('price_irr')])
             ->orderBy('id')
