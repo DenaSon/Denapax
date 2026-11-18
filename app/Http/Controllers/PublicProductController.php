@@ -29,26 +29,41 @@ class PublicProductController extends Controller
         // Keep the product's first gallery photo as the cover, but include
         // every sellable variant's own image so choosing a package can always
         // select its matching photograph. Thumbnail images load lazily.
+        $photoFor = static function ($media): array {
+            $displayUrl = $media->hasGeneratedConversion('product-square')
+                ? $media->getUrl('product-square')
+                : $media->getUrl();
+
+            return [
+                'media_id' => (int) $media->id,
+                'url' => $displayUrl,
+                'thumb_url' => $media->hasGeneratedConversion('product-thumb')
+                    ? $media->getUrl('product-thumb')
+                    : $displayUrl,
+                'full_url' => $media->getFullUrl(),
+            ];
+        };
+
         $photos = $product->getMedia('gallery')
             ->take(8)
-            ->map(fn ($media): array => ['url' => $media->getUrl(), 'full_url' => $media->getFullUrl()])
+            ->map($photoFor)
             ->concat(
                 $product->variants
                     ->map(fn ($variant) => $variant->getFirstMedia('variant-image'))
                     ->filter()
-                    ->map(fn ($media): array => ['url' => $media->getUrl(), 'full_url' => $media->getFullUrl()])
+                    ->map($photoFor)
             )
-            ->unique('url')
+            ->unique('media_id')
             ->values();
 
         $variantPhotoIndexes = $product->variants->mapWithKeys(function ($variant) use ($photos): array {
-            $url = $variant->getFirstMedia('variant-image')?->getUrl();
+            $mediaId = $variant->getFirstMedia('variant-image')?->id;
 
-            if ($url === null) {
+            if ($mediaId === null) {
                 return [];
             }
 
-            $index = $photos->search(fn (array $photo): bool => $photo['url'] === $url);
+            $index = $photos->search(fn (array $photo): bool => $photo['media_id'] === (int) $mediaId);
 
             return $index === false ? [] : [$variant->id => $index];
         })->all();

@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Support\Money;
+use App\Support\ProductImageNormalizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -278,9 +279,12 @@ class ProductEditor extends Component
             return $product;
         });
 
+        $normalizer = app(ProductImageNormalizer::class);
+
         foreach ($this->galleryUploads as $image) {
             $product->addMedia($image->getRealPath())
                 ->usingFileName($image->getClientOriginalName())
+                ->withManipulations($normalizer->manipulationsFor($image->getRealPath()))
                 ->toMediaCollection('gallery', 'public');
         }
         foreach ($this->variantUploads as $i => $image) {
@@ -288,6 +292,7 @@ class ProductEditor extends Component
             if ($variant) {
                 $variant->addMedia($image->getRealPath())
                     ->usingFileName($image->getClientOriginalName())
+                    ->withManipulations($normalizer->manipulationsFor($image->getRealPath()))
                     ->toMediaCollection('variant-image', 'public');
             }
         }
