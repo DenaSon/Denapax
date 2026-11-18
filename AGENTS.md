@@ -1,5 +1,13 @@
 # Denapax — web-only developer and project handoff
 
+## Public SEO foundation — 2026-11-19
+
+- Public `/categories/{slug}` pages are indexable only for active categories with publicly orderable products; legacy `/?category=slug` URLs 301-redirect to the new route, preserving valid pagination. Product breadcrumbs and homepage category chips use category permalinks; the sitemap lists only active/sellable categories and products.
+- Homepage uses factual WebSite/OnlineStore structured data and a square asset matching the existing mountain brand mark. Product pages retain actual IRR offer prices, current sellable variants, product imagery, category breadcrumbs and descriptions from stored catalog text; no fabricated ratings, shipping durations/fees or return policies.
+- Category pages use canonical + Open Graph metadata; all sensitive account/cart/search pages stay noindex. Pagination uses self-canonical URLs; empty out-of-range category pages 404. Removed unused Wikimedia hero preload; actual CSS hero SVG is preloaded.
+- Code CI is **not** Search Console verification or live index coverage. Owner must add `denapax.ir` as a Search Console property, verify domain, submit `https://denapax.ir/sitemap.xml`, inspect category and product URLs, then monitor indexing/rich results and mobile Core Web Vitals. Public shipping/returns schema requires approved factual policies. Handoff: [docs/58](docs/58-technical-seo-search-console.md).
+
+
 ## Mediana and four-digit OTP — 2026-11-18
 
 - Added an isolated Mediana HTTPS OTP adapter with fixed endpoint, X-API-KEY, strict send acceptance, no redirects/retries and sanitized provider failures; SMS.ir remains available as fallback. Repository default stays `disabled`.
