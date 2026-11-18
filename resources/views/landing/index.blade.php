@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('images/denapax-mark.svg') }}">
     <meta name="theme-color" content="#19392f">
     <meta name="enamad" content="45504479" />
     <meta name="robots" content="index,follow,max-image-preview:large">

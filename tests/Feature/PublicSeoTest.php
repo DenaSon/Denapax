@@ -26,6 +26,7 @@ class PublicSeoTest extends TestCase
             ->assertSee('"@type":"OnlineStore"', false)
             ->assertSee('"@type":"WebSite"', false)
             ->assertSee('denapax-mark.svg')
+            ->assertSee('rel="icon" type="image/svg+xml" sizes="any"', false)
             ->assertDontSee('upload.wikimedia.org');
     }
 

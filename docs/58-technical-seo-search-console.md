@@ -5,7 +5,7 @@
 ## Implemented
 
 - Homepage <title>, meta description and Open Graph describe the real offering: Dena souvenirs, dried fruits, regional goods and Sisyakht. Existing visual headline «از دل دنا» is unchanged.
-- Brand identity data: WebSite and OnlineStore/Organization JSON-LD on homepage; square, self-hosted mountain-mark SVG based on the existing header mark. No unsupported social profiles or ratings are claimed.
+- Brand identity data: WebSite and OnlineStore/Organization JSON-LD on homepage; square, self-hosted mountain-mark SVG based on the existing header mark. No unsupported social profiles or ratings are claimed. The SVG is also linked as the explicit site favicon on all storefront page heads; Google may update its search-result favicon only after recrawling.
 - Public categories: \`/categories/{slug}\` with server-rendered product cards, internal links, indexable canonical/meta/Open Graph, CollectionPage + BreadcrumbList JSON-LD, pagination and 404 for inactive/empty/exhausted categories.
 - Legacy \`/?category=slug\` links 301 redirect to the category permalink (retaining a valid page number). New homepage navigation and product breadcrumbs link directly to public categories.
 - Product pages: product-specific titles and description meta based on stored summary/description; IRR prices in Offer JSON-LD (displayed site pricing remains in toman), seller reference and visible-category breadcrumbs. Image labels reflect stored product/variant data instead of unrelated keywords.
