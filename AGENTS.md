@@ -1,5 +1,13 @@
 # Denapax — web-only developer and project handoff
 
+## Final prelaunch mobile cart polish — 2026-11-19
+
+- Mobile cart renders selected items before the financial summary (desktop grid unchanged), with tighter panel spacing and a single sticky mobile checkout CTA. Redundant mobile summary total and informational footer were removed; prices/quantities are still sourced from the existing authoritative StoreCart lines.
+- CTA now reflects the next real step: guests see «ورود و ادامه خرید» and signed-in customers see «ادامه به نشانی و ارسال»; both retain the protected checkout route and intended OTP redirect. Unavailable-item checkout remains disabled.
+- Prefer the exact selected variant's image over the product's general gallery image; prefer generated thumbnail conversions and fall back to original files. If no image exists, render explicit «بدون تصویر»; do not fabricate product photos. Owner should supply missing actual photos before launch.
+- Keep existing Livewire changeQuantity/remove and native PATCH/DELETE fallback. Responsive layout needs real iOS/Android browser review, sticky-dock/safe-area check, 320px width, cart update/recovery and upload-media availability in deployed storage. See [cart polish handoff](docs/59-mobile-cart-prelaunch-polish.md).
+
+
 ## Public SEO foundation — 2026-11-19
 
 - Public `/categories/{slug}` pages are indexable only for active categories with publicly orderable products; legacy `/?category=slug` URLs 301-redirect to the new route, preserving valid pagination. Product breadcrumbs and homepage category chips use category permalinks; the sitemap lists only active/sellable categories and products.
