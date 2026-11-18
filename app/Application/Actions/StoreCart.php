@@ -5,6 +5,7 @@ namespace App\Application\Actions;
 use App\Models\Customer;
 use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class StoreCart
@@ -104,9 +105,11 @@ class StoreCart
     public function quantity(?Customer $customer): int
     {
         if ($customer) {
-            $cart = $customer->cart()->first();
-
-            return $cart ? (int) $cart->items()->sum('quantity') : 0;
+            // A single indexed aggregate, without fetching a cart model first.
+            return (int) DB::table('carts')
+                ->join('cart_items', 'cart_items.cart_id', '=', 'carts.id')
+                ->where('carts.customer_id', $customer->id)
+                ->sum('cart_items.quantity');
         }
 
         $items = session()->get(self::SESSION_KEY, []);
@@ -114,6 +117,47 @@ class StoreCart
         return is_array($items)
             ? array_sum(array_map(static fn ($quantity): int => max(0, (int) $quantity), $items))
             : 0;
+    }
+
+    /**
+     * Fetch counts only for the variants present on the requested product page.
+     *
+     * @param  array<int, int>  $variantIds
+     * @return array<int, int>
+     */
+    public function quantitiesForVariants(?Customer $customer, array $variantIds): array
+    {
+        $variantIds = array_values(array_unique(array_map('intval', $variantIds)));
+
+        if ($variantIds === []) {
+            return [];
+        }
+
+        if ($customer) {
+            return DB::table('carts')
+                ->join('cart_items', 'cart_items.cart_id', '=', 'carts.id')
+                ->where('carts.customer_id', $customer->id)
+                ->whereIn('cart_items.product_variant_id', $variantIds)
+                ->pluck('cart_items.quantity', 'cart_items.product_variant_id')
+                ->mapWithKeys(static fn ($quantity, $id): array => [(int) $id => (int) $quantity])
+                ->all();
+        }
+
+        $items = session()->get(self::SESSION_KEY, []);
+
+        if (! is_array($items)) {
+            return [];
+        }
+
+        $quantities = [];
+
+        foreach ($variantIds as $id) {
+            if (isset($items[$id])) {
+                $quantities[$id] = (int) $items[$id];
+            }
+        }
+
+        return $quantities;
     }
 
     public function mergeGuestCart(Customer $customer): void

@@ -2,6 +2,15 @@
 
 **Last reviewed: 2026-11-18.** PR #154 merged to baseline `master` as `117617b31d91d1b7309073b2ba29bad5faab04b3`; its post-merge CI [run #44301133481](https://github.com/DenaSon/Denapax/actions/runs/44301133481) passed with 151 tests / 1,232 assertions. This ledger also records the subsequent product-detail focus and payment-copy follow-up. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
+## Safe performance optimization and eNamad verification — 2026-11-18
+
+- Homepage cart count now renders from one shared Livewire component across desktop/mobile; the controller no longer fetches an extra cart count and the menu no longer duplicates a numeric badge.
+- The authenticated cart aggregate is one indexed query; product pages query only quantities for their own variants, with no unrelated media hydration.
+- Selective `wire:navigate.hover` on high-intent product and public header links. Admin and transactional flows are not prefetched.
+- Admin order date comparisons use start-of-day and exclusive next-day boundaries, preserving date inclusivity while avoiding `whereDate` over the indexed column.
+- Added exact empty `public/45504479.txt` and homepage head meta `<meta name="enamad" content="45504479" />`. eNamad verification requires a real HTTP 200 empty body plus visible meta after deployment.
+- Regression tests and deployment/measurement checklist in [runbook](56-safe-navigation-performance-enamad.md); CI success does not prove faster production navigation or eNamad approval.
+
 ## Livewire navigation progress visibility — 2026-11-18
 
 - The Livewire 4 navigation indicator is now burnt orange `#c2410c` and 4px thick on both public and admin pages, rather than the default blue 2px line. This is visually distinct from the forest-green brand palette.

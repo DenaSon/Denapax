@@ -16,7 +16,7 @@
     <a href="#store-main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به محتوای اصلی</a>
     <header class="store-header">
         <nav class="landing-container store-header-inner flex flex-wrap items-center justify-between gap-3 py-3" aria-label="ناوبری فروشگاه">
-            <a wire:navigate class="store-brand" href="{{ route('home') }}" aria-label="دناپکس، بازگشت به محصولات">
+            <a wire:navigate.hover class="store-brand" href="{{ route('home') }}" aria-label="دناپکس، بازگشت به محصولات">
                 <svg class="store-brand-mark" viewBox="0 0 70 48" fill="none" aria-hidden="true">
                     <path d="M3 40 26 8l15 22 9-13 17 23" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="m19 18 7-10 10 15-8-5-6 8" fill="currentColor"/>
@@ -28,8 +28,8 @@
                 </span>
             </a>
             <div class="store-header-nav">
-                <a wire:navigate href="{{ route('home') }}#products" class="store-header-link">محصولات</a>
-                <a wire:navigate href="{{ route('cart.index') }}" class="store-header-link store-header-cart"
+                <a wire:navigate.hover href="{{ route('home') }}#products" class="store-header-link">محصولات</a>
+                <a wire:navigate.hover href="{{ route('cart.index') }}" class="store-header-link store-header-cart"
                    @if (request()->routeIs('cart.index')) aria-current="page" @endif>
                     سبد خرید
                     <livewire:store.cart-count />

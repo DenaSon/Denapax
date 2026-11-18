@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Orders;
 
 use App\Models\Order;
 use App\Support\OrderReference;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -66,8 +67,10 @@ class OrdersPage extends Component
                 })
                 ->when($filters['orderStatus'] !== '', fn ($q) => $q->where('order_status', $filters['orderStatus']))
                 ->when($filters['paymentStatus'] !== '', fn ($q) => $q->where('payment_status', $filters['paymentStatus']))
-                ->when($filters['dateFrom'] !== '', fn ($q) => $q->whereDate('created_at', '>=', $filters['dateFrom']))
-                ->when($filters['dateTo'] !== '', fn ($q) => $q->whereDate('created_at', '<=', $filters['dateTo']))
+                ->when($filters['dateFrom'] !== '', fn ($q) => $q->where('created_at', '>=', $filters['dateFrom'].' 00:00:00'))
+                ->when($filters['dateTo'] !== '', fn ($q) => $q->where(
+                    'created_at', '<', CarbonImmutable::parse($filters['dateTo'])->addDay()->toDateString().' 00:00:00'
+                ))
                 ->latest()->paginate(15),
         ])->layout('layouts.admin');
     }

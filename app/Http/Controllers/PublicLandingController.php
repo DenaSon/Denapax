@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Application\Actions\StoreCart;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
@@ -11,7 +10,7 @@ use Illuminate\Http\Request;
 
 class PublicLandingController extends Controller
 {
-    public function __invoke(Request $request, StoreCart $cart): View
+    public function __invoke(Request $request): View
     {
         $categories = Category::query()
             ->where('is_active', true)
@@ -49,14 +48,11 @@ class PublicLandingController extends Controller
             'inLanguage' => 'fa-IR',
         ];
 
-        $cartQuantity = $cart->quantity($request->user('customer'));
-
         return view('landing.index', compact(
             'categories',
             'products',
             'selectedCategory',
             'websiteSchema',
-            'cartQuantity',
         ));
     }
 }
