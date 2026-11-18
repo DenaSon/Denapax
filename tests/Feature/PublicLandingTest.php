@@ -105,7 +105,7 @@ class PublicLandingTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('گردوی دنا')
-            ->assertSee('wire:navigate href="'.route('home', ['category' => 'nuts']).'#products"', false)
+            ->assertSee('wire:navigate href="'.route('categories.show', ['slug' => 'nuts']).'"', false)
             ->assertDontSee('data-catalog-link', false)
             ->assertDontSee('handleCatalogClick', false)
             ->assertSee('id="products" data-chapter', false)
@@ -325,9 +325,15 @@ class PublicLandingTest extends TestCase
         }
         $this->product($fruit, 'آلو بخارا', 'plum', 180000);
 
-        $this->get('/?category=fruit')->assertOk()->assertSee('آلو بخارا')->assertDontSee('گردو شماره 13');
-        $this->get('/?category=nuts&page=2')->assertOk()->assertSee('گردو شماره 1')->assertDontSee('آلو بخارا');
-        $this->get('/?category=unknown')->assertOk()->assertSee('آلو بخارا');
+        $this->get('/?category=fruit')->assertStatus(301)
+            ->assertRedirect(route('categories.show', ['slug' => 'fruit']));
+        $this->get(route('categories.show', ['slug' => 'fruit']))
+            ->assertOk()->assertSee('آلو بخارا')->assertDontSee('گردو شماره 13');
+        $this->get('/?category=nuts&page=2')->assertStatus(301)
+            ->assertRedirect(route('categories.show', ['slug' => 'nuts', 'page' => 2]));
+        $this->get(route('categories.show', ['slug' => 'nuts', 'page' => 2]))
+            ->assertOk()->assertSee('گردو شماره 1')->assertDontSee('آلو بخارا');
+        $this->get('/?category=unknown')->assertStatus(301)->assertRedirect(route('home'));
     }
 
     public function test_homepage_does_not_render_product_preview_payload_or_dialog(): void

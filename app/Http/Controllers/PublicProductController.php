@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Application\Actions\StoreCart;
 use App\Models\Product;
 use App\Support\Money;
+use App\Support\StoreSeo;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -29,13 +30,14 @@ class PublicProductController extends Controller
         // Keep the product's first gallery photo as the cover, but include
         // every sellable variant's own image so choosing a package can always
         // select its matching photograph. Thumbnail images load lazily.
-        $photoFor = static function ($media): array {
+        $photoFor = static function ($media, string $alt): array {
             $displayUrl = $media->hasGeneratedConversion('product-square')
                 ? $media->getUrl('product-square')
                 : $media->getUrl();
 
             return [
                 'media_id' => (int) $media->id,
+                'alt' => $alt,
                 'url' => $displayUrl,
                 'thumb_url' => $media->hasGeneratedConversion('product-thumb')
                     ? $media->getUrl('product-thumb')
@@ -46,12 +48,16 @@ class PublicProductController extends Controller
 
         $photos = $product->getMedia('gallery')
             ->take(8)
-            ->map($photoFor)
+            ->values()
+            ->map(fn ($media, $index) => $photoFor($media, $product->title.' - تصویر '.($index + 1)))
             ->concat(
                 $product->variants
-                    ->map(fn ($variant) => $variant->getFirstMedia('variant-image'))
+                    ->map(function ($variant) use ($photoFor, $product): ?array {
+                        $media = $variant->getFirstMedia('variant-image');
+
+                        return $media ? $photoFor($media, $product->title.' - '.$variant->title) : null;
+                    })
                     ->filter()
-                    ->map($photoFor)
             )
             ->unique('media_id')
             ->values();
@@ -69,8 +75,18 @@ class PublicProductController extends Controller
         })->all();
 
         $canonicalUrl = route('products.show', ['slug' => $product->slug]);
-        $description = (string) ($product->summary ?: $product->description ?: $product->title);
-        $metaDescription = mb_substr(trim(strip_tags($description)), 0, 155);
+        $description = trim(strip_tags((string) ($product->summary ?: $product->description ?: $product->title)));
+        $metaDescription = mb_substr(
+            $description.' | مشخصات و قیمت بسته‌های موجود را در دناپکس ببینید.',
+            0,
+            155,
+        );
+        $seoTitle = 'خرید '.$product->title.' | دناپکس';
+        $breadcrumbSchema = StoreSeo::breadcrumbs([
+            ['name' => 'خانه', 'url' => route('home')],
+            ['name' => $product->category->name, 'url' => route('categories.show', ['slug' => $product->category->slug])],
+            ['name' => $product->title, 'url' => $canonicalUrl],
+        ]);
         $variantPurchaseData = $product->variants->map(fn ($variant): array => [
             'id' => (int) $variant->id,
             'title' => $variant->title,
@@ -86,6 +102,7 @@ class PublicProductController extends Controller
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
+            '@id' => $canonicalUrl.'#product',
             'name' => $product->title,
             'description' => $description,
             'category' => $product->category->name,
@@ -98,7 +115,7 @@ class PublicProductController extends Controller
                 'price' => (string) $variant->price_irr,
                 'priceCurrency' => 'IRR',
                 'availability' => 'https://schema.org/InStock',
-                'seller' => ['@type' => 'Organization', 'name' => 'DenaPax'],
+                'seller' => ['@id' => route('home').'#organization', '@type' => 'OnlineStore', 'name' => 'دناپکس'],
             ])->all(),
         ];
 
@@ -108,7 +125,7 @@ class PublicProductController extends Controller
 
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
-            'schema', 'variantPhotoIndexes', 'variantPurchaseData'
+            'schema', 'seoTitle', 'breadcrumbSchema', 'variantPhotoIndexes', 'variantPurchaseData'
         ) + [
             'cartQuantities' => (object) $cartQuantities,
         ]);

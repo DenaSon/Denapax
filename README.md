@@ -16,6 +16,12 @@ Denapax sells Dena-region souvenirs and dried products through a customer web st
 
 A financial-exception operator screen exists at `/admin/payments/gateway`; `payments.view` can inspect, while only `payments.review` can initiate inquiry and evidence-backed clearance. See [Phase 4A technical runbook](docs/40-web-phase4a-gateway-reconciliation.md).
 
+## Public technical SEO — 2026-11-19
+
+Denapax's public storefront now includes crawlable category landing pages (`/categories/{slug}`), 301 redirects from the old homepage category query links, self-canonical pagination, category URLs in the sitemap, and factual Organization/WebSite/Product/BreadcrumbList/CollectionPage structured data. Product descriptions and image alt text are derived from real catalog fields; the homepage title and copy target both DenaPax brand and local product discovery. Search, cart, accounts and private order pages remain `noindex`. Unused remote hero image preload has been removed in favor of the actual local SVG.
+
+**No fake reviews, shipping times or return policies were added.** Shipping rates depend on basket weight and address; do not claim fixed shipping fees or return terms in schema until an owner-approved public policy exists. Google Search Console ownership verification and sitemap submission are still pending outside GitHub; live Google indexing, rankings and Core Web Vitals are **not** certified by CI. See [SEO implementation and owner handoff](docs/58-technical-seo-search-console.md).
+
 ## Current payment priority while merchant onboarding is pending (2026-11-16)
 
 **Manual card-to-card transfer and private receipt upload are the primary payment UI when `ZARINPAL_ENABLED=false` (default).** Staff verify the actual bank deposit and approve/reject in `/admin/payments`. Zarinpal code remains integrated and switches to the primary online CTA automatically when `ZARINPAL_ENABLED=true` and a valid merchant ID are configured in the deployment environment, after live acceptance; manual receipts remain a fallback. No migration is needed to change this flag. The owner confirmed real SMS.ir OTP delivery and successful customer login; the exact deployment tier was not recorded. This does not prove Zarinpal settlement or full production acceptance. See [manual-first rollout](docs/45-manual-receipt-first-rollout.md) and [release readiness](docs/38-web-phase4-release-readiness.md).

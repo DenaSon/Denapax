@@ -3,9 +3,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('images/denapax-mark.svg') }}">
     <meta name="theme-color" content="#122d25">
-    <meta name="robots" content="noindex,nofollow">
-    <title>{{ $title ?? 'فروشگاه دناپکس' }} | دناپکس</title>
+    @if (!empty($indexable))
+        <meta name="robots" content="index,follow,max-image-preview:large">
+        <meta name="description" content="{{ $metaDescription }}">
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+        <meta property="og:type" content="website">
+        <meta property="og:locale" content="fa_IR">
+        <meta property="og:site_name" content="DenaPax">
+        <meta property="og:title" content="{{ $seoTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        <meta name="twitter:card" content="summary">
+        @if (!empty($schema))
+            <script type="application/ld+json">@json($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
+        @endif
+    @else
+        <meta name="robots" content="noindex,nofollow">
+    @endif
+    <title>{{ $seoTitle ?? (($title ?? 'فروشگاه دناپکس').' | دناپکس') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">

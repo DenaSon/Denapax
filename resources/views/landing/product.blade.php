@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('images/denapax-mark.svg') }}">
     <meta name="theme-color" content="#19392f">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="description" content="{{ $metaDescription }}">
@@ -10,17 +11,17 @@
     <meta property="og:type" content="product">
     <meta property="og:locale" content="fa_IR">
     <meta property="og:site_name" content="DenaPax">
-    <meta property="og:title" content="{{ $product->title }} | دناپکس">
+    <meta property="og:title" content="{{ $seoTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
     <meta property="og:url" content="{{ $canonicalUrl }}">
     @if ($photos->isNotEmpty())
         <meta property="og:image" content="{{ $photos->first()['full_url'] }}">
-        <meta property="og:image:alt" content="تصویر {{ $product->title }}">
+        <meta property="og:image:alt" content="{{ $photos->first()['alt'] }}">
         <meta name="twitter:card" content="summary_large_image">
     @else
         <meta name="twitter:card" content="summary">
     @endif
-    <title>{{ $product->title }} | سوغات و خشکبار دناپکس</title>
+    <title>{{ $seoTitle }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,6 +31,7 @@
     @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
     @livewireStyles
     <script type="application/ld+json">@json($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
+    <script type="application/ld+json">@json($breadcrumbSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
 </head>
 <body class="landing landing-shell antialiased">
     <a href="#product-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به جزئیات محصول</a>
@@ -56,7 +58,7 @@
         <nav aria-label="مسیر صفحه" class="product-breadcrumb mb-5 flex flex-wrap items-center gap-2 text-xs text-[#627664]">
             <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('home') }}">خانه</a>
             <span aria-hidden="true">/</span>
-            <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('home') }}?category={{ urlencode($product->category->slug) }}#products">{{ $product->category->name }}</a>
+            <a wire:navigate class="hover:text-[#1d4130]" href="{{ route('categories.show', ['slug' => $product->category->slug]) }}">{{ $product->category->name }}</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page" class="font-semibold text-[#244633]">{{ $product->title }}</span>
         </nav>
@@ -67,7 +69,7 @@
                     <div class="product-gallery-stage" data-gallery-stage>
                         <div class="product-gallery-main">
                             <img data-gallery-main class="product-gallery-main-image"
-                                 src="{{ $photos->first()['url'] }}" alt="تصویر ۱ از {{ $product->title }}"
+                                 src="{{ $photos->first()['url'] }}" alt="{{ $photos->first()['alt'] }}"
                                  width="960" height="960" fetchpriority="high" decoding="async">
                         </div>
                         <span class="product-gallery-category">{{ $product->category->name }}</span>
@@ -85,7 +87,7 @@
                                 <button type="button" class="product-gallery-thumb"
                                         data-gallery-thumb data-gallery-index="{{ $loop->index }}"
                                         data-image-url="{{ $photo['url'] }}"
-                                        data-image-alt="تصویر {{ $loop->iteration }} از {{ $product->title }}"
+                                        data-image-alt="{{ $photo['alt'] }}"
                                         aria-label="انتخاب تصویر {{ $loop->iteration }} از {{ $photos->count() }}"
                                         @if ($loop->first) aria-current="true" @endif>
                                     <img src="{{ $photo['thumb_url'] }}" alt="" width="192" height="192" loading="lazy" decoding="async">
@@ -95,7 +97,7 @@
                     @else
                         <button type="button" data-gallery-thumb data-gallery-index="0"
                                 data-image-url="{{ $photos->first()['url'] }}"
-                                data-image-alt="تصویر ۱ از {{ $product->title }}" hidden></button>
+                                data-image-alt="{{ $photos->first()['alt'] }}" hidden></button>
                     @endif
                 @else
                     <div class="product-gallery-stage product-gallery-empty">
