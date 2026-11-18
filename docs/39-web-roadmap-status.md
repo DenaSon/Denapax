@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-18.** PR #154 is based on verified master `fa99c96147afff8bfc80009ff33dcd826d23fed8`; its PR CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697) passed with 151 tests / 1,232 assertions. The master SHA after merge should be re-verified before the next implementation phase. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-18.** PR #154 merged to baseline `master` as `117617b31d91d1b7309073b2ba29bad5faab04b3`; its post-merge CI [run #44301133481](https://github.com/DenaSon/Denapax/actions/runs/44301133481) passed with 151 tests / 1,232 assertions. This ledger also records the subsequent product-detail focus and payment-copy follow-up. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -102,6 +102,14 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - No database migration, stock, pricing, checkout, payment or authorization change.
 - [PR #154](https://github.com/DenaSon/Denapax/pull/154), CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697): 151 tests / 1,232 assertions; Composer audit/validation, Pint and Vite build passed.
 - **Still pending:** actual desktop viewport review, mobile 320–430px review, keyboard/200% zoom and iOS Safari / Android Chrome acceptance. See [product detail handoff](50-product-detail-ux-redesign.md).
+
+## Product detail follow-up polish — 2026-11-18
+
+- Root cause: `resources/js/navigation.js` focuses the destination `main h1` after Livewire navigation so assistive technology receives the new page context. Browser default outline was visible around the non-interactive heading.
+- Preserve programmatic heading focus, but reset its outline narrowly in both public storefront and admin stylesheets. Interactive keyboard focus indicators remain unchanged.
+- Remove the card-transfer explanation from product detail only; retain the shipping-cost note and keep checkout review / order confirmation payment guidance.
+- Remove unused gateway and card-setting reads from `PublicProductController`; no payment behavior or data changes.
+- Regression tests cover the focused-heading styles and absence of payment copy on product detail. See [follow-up handoff](51-product-detail-follow-up-polish.md).
 
 ## P1 web inbox/outbox reliability — implemented in PR #126 (code-level)
 

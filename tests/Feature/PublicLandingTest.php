@@ -50,6 +50,17 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString("document.addEventListener('livewire:navigated'", file_get_contents(resource_path('js/product-gallery.js')));
     }
 
+    public function test_livewire_navigation_focuses_headings_without_showing_a_control_outline(): void
+    {
+        $navigation = file_get_contents(resource_path('js/navigation.js'));
+        $focusRule = 'main h1[tabindex="-1"]:focus { outline: none; }';
+
+        $this->assertStringContainsString("heading.setAttribute('tabindex', '-1')", $navigation);
+        $this->assertStringContainsString('heading.focus({ preventScroll: true });', $navigation);
+        $this->assertStringContainsString($focusRule, file_get_contents(resource_path('css/landing.css')));
+        $this->assertStringContainsString($focusRule, file_get_contents(resource_path('css/app.css')));
+    }
+
     public function test_chapter_navigation_matches_three_landing_menu_sections(): void
     {
         $html = $this->get('/')->assertOk()->getContent();
@@ -560,6 +571,9 @@ class PublicLandingTest extends TestCase
         $this->assertTrue($purchasePosition < $detailsPosition);
         $this->assertStringContainsString('class="product-gallery-column min-w-0" data-product-gallery dir="rtl"', $html);
         $this->assertStringContainsString('data-product-selected-variant', $html);
+        $this->assertStringContainsString('هزینه ارسال در مرحله تکمیل سفارش مشخص می‌شود.', $html);
+        $this->assertStringNotContainsString('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.', $html);
+        $this->assertStringNotContainsString('product-payment-note', $html);
     }
 
     public function test_product_detail_reads_customer_cart_without_creating_an_empty_cart(): void

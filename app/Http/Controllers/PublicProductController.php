@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Application\Actions\StoreCart;
-use App\Integrations\Payments\ZarinpalGateway;
 use App\Models\Product;
-use App\Models\StoreSetting;
 use App\Support\Money;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class PublicProductController extends Controller
 {
-    public function __invoke(Request $request, ZarinpalGateway $gateway, StoreCart $cart, string $slug): View
+    public function __invoke(Request $request, StoreCart $cart, string $slug): View
     {
         $product = Product::query()
             ->publiclyOrderable()
@@ -68,9 +66,6 @@ class PublicProductController extends Controller
             ->filter(fn (array $line): bool => (int) $line['variant']->product_id === (int) $product->id)
             ->mapWithKeys(fn (array $line): array => [(string) $line['variant']->id => (int) $line['quantity']])
             ->all();
-        $storeSetting = StoreSetting::query()->find(1);
-        $manualAvailable = preg_match('/^[0-9]{16}$/D', (string) ($storeSetting?->card_number ?? '')) === 1;
-
         // Structured-data offers are priced in actual DB currency (IRR), not
         // display currency (toman). No fake reviews, inventory quantities or ratings.
         $schema = [
@@ -101,8 +96,6 @@ class PublicProductController extends Controller
             'schema', 'variantPhotoIndexes', 'variantPurchaseData'
         ) + [
             'cartQuantities' => (object) $cartQuantities,
-            'gatewayEnabled' => $gateway->enabled(),
-            'manualAvailable' => $manualAvailable,
         ]);
     }
 }
