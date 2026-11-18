@@ -6,8 +6,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Support\StoreSeo;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PublicLandingController extends Controller
