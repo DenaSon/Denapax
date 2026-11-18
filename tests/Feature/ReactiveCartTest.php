@@ -11,6 +11,8 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -64,7 +66,9 @@ class ReactiveCartTest extends TestCase
 
         Livewire::test(CartItems::class)->call('changeQuantity', $variant->id, 4)->assertHasNoErrors();
         Livewire::test(CartCount::class)->dispatch('cart-updated')->assertSee('تعداد اقلام سبد خرید: 4');
-        $this->get(route('cart.index'))->assertOk()->assertSee('ثبت سفارش')->assertDontSee('ادامه به نشانی و ارسال');
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('ادامه به نشانی و ارسال')
+            ->assertDontSee('ورود و ادامه خرید');
 
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 4]);
         Livewire::test(CartItems::class)->call('changeQuantity', 9999999, 1)->assertHasErrors('cart');
@@ -182,8 +186,8 @@ class ReactiveCartTest extends TestCase
             ->assertDontSee('در حال به‌روزرسانی سبد خرید')
             ->assertSee('store-cart-mobile-dock', false)
             ->assertSee('store-cart-mobile-dock-action', false)
-            ->assertSee('ثبت سفارش')
-            ->assertDontSee('ادامه خرید با ورود پیامکی')
+            ->assertSee('ورود و ادامه خرید')
+            ->assertDontSee('ثبت سفارش')
             ->assertSee('تعداد کالا')
             ->assertSee('2 عدد کالا در سبد شما');
 
@@ -194,6 +198,58 @@ class ReactiveCartTest extends TestCase
         $this->assertStringContainsString('safe-area-inset-bottom', $css);
         $this->assertStringContainsString('.store-cart-grid { display:grid', $css);
         $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
+    }
+
+    public function test_guest_cart_cta_matches_the_next_step_and_still_requires_customer_login(): void
+    {
+        $variant = $this->variant('cta-guest');
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
+
+        $response = $this->get(route('cart.index'))->assertOk()
+            ->assertSee('ورود و ادامه خرید')
+            ->assertDontSee('ادامه به نشانی و ارسال')
+            ->assertSee('href="'.route('checkout.index').'"', false)
+            ->assertSee('پس از انتخاب نشانی');
+
+        // The button still targets the protected checkout so intended redirect
+        // to the address step survives the OTP login flow.
+        $this->get(route('checkout.index'))->assertRedirect(route('customer.login'));
+
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('.store-cart-summary { position:static; grid-row:2; }', $css);
+        $this->assertStringContainsString('.store-cart-items-panel { grid-row:1; }', $css);
+        $this->assertStringContainsString('.store-cart-summary-total { display:none; }', $css);
+        $this->assertStringContainsString('.store-main-cart { padding-top:1rem; padding-bottom:0; }', $css);
+    }
+
+    public function test_cart_prefers_variant_photo_then_product_photo_and_falls_back_to_accessible_empty_state(): void
+    {
+        Storage::fake('public');
+        $variant = $this->variant('image-priority');
+        $product = $variant->product;
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('بدون تصویر');
+
+        $productPhoto = $product->addMedia(UploadedFile::fake()->image('product.jpg'))
+            ->toMediaCollection('gallery', 'public');
+        $productUrl = $productPhoto->hasGeneratedConversion('product-thumb')
+            ? $productPhoto->getUrl('product-thumb') : $productPhoto->getUrl();
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('src="'.$productUrl.'"', false)
+            ->assertDontSee('بدون تصویر');
+
+        $variantPhoto = $variant->addMedia(UploadedFile::fake()->image('specific-variant.jpg'))
+            ->toMediaCollection('variant-image', 'public');
+        $variantUrl = $variantPhoto->hasGeneratedConversion('product-thumb')
+            ? $variantPhoto->getUrl('product-thumb') : $variantPhoto->getUrl();
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('src="'.$variantUrl.'"', false)
+            ->assertDontSee('src="'.$productUrl.'"', false)
+            ->assertSee('alt="گردوی دنا - بسته ۵۰۰ گرمی"', false);
     }
 
     public function test_mobile_cart_dock_disables_checkout_when_a_cart_line_is_unavailable(): void
