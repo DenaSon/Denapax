@@ -23,7 +23,8 @@
 
 - [x] Feature test asserts the purchase-first hierarchy and absence of the duplicate "price from" block.
 - [x] Existing tests continue to cover guest/customer cart state, native POST fallback, sellable variants and variant-photo mapping.
-- [ ] Run the repository CI suite (PHPUnit, Composer audit/validation, Pint and Vite build) on the PR and after merge.
+- [x] PR CI passed: 151 tests / 1,232 assertions, Composer audit/validation, Pint and Vite build (run #44300740697).
+- [ ] Verify the same checks on master after merge.
 - [ ] Inspect desktop at 1024px, 1280px and wide desktop; confirm sticky purchase controls stop naturally at the end of the product information column.
 - [ ] Inspect mobile at 320/360/390/430px; confirm the dock remains readable, safe-area aware and does not obscure form controls.
 - [ ] Verify keyboard navigation, 200% zoom, reduced motion, long Persian titles and a product with many variants.

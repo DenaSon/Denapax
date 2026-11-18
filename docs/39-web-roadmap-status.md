@@ -1,6 +1,6 @@
 # Denapax — authoritative web delivery ledger and remaining backlog
 
-**Last reviewed: 2026-11-17.** Current `master`: `3ada90c8dbc19a48bd4ba2d1d82d6a23a7b17b6f`; [green master CI](https://github.com/DenaSon/Denapax/actions/runs/44091219496) passed with 147 tests / 1,136 assertions. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
+**Last reviewed: 2026-11-18.** PR #154 is based on verified master `fa99c96147afff8bfc80009ff33dcd826d23fed8`; its PR CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697) passed with 151 tests / 1,232 assertions. The master SHA after merge should be re-verified before the next implementation phase. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
 ## Payment operating mode — owner decision (2026-11-16)
 
@@ -92,6 +92,16 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - Product editor already supplies gallery/variant images through Spatie; only public images appear. With JavaScript disabled, regular full-image links and the add-to-cart form still work. No new migration or payment change.
 - Core regressions cover no-image/one-image/multiple-image and correct variant-to-photo mapping. [Gallery implementation and device QA](44-product-mobile-gallery.md).
 - **Still required:** actually inspect iOS/Android gestures, performance/long names and screenshot-based UX sign-off before declaring mobile acceptance.
+
+## Product detail UX redesign — PR #154 (2026-11-18; CI passed)
+
+- The public product page now uses an explicit desktop two-column layout with the gallery on the left and RTL product information on the right. The purchase section is sticky on desktop; mobile remains stacked.
+- Removed the duplicate minimum-price panel. Variant cards show per-package toman prices; the live total identifies the selected variant and quantity. Long description and product features follow the purchase section.
+- Quantity has compact +/- controls while retaining a native editable number input and the existing CSRF-protected POST fallback.
+- The fixed mobile purchase dock is preserved and now shows the selected variant and count. Existing Livewire cart add/update/reconciliation, gallery variant-photo selection, navigation and SEO/schema behavior are unchanged.
+- No database migration, stock, pricing, checkout, payment or authorization change.
+- [PR #154](https://github.com/DenaSon/Denapax/pull/154), CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697): 151 tests / 1,232 assertions; Composer audit/validation, Pint and Vite build passed.
+- **Still pending:** actual desktop viewport review, mobile 320–430px review, keyboard/200% zoom and iOS Safari / Android Chrome acceptance. See [product detail handoff](50-product-detail-ux-redesign.md).
 
 ## P1 web inbox/outbox reliability — implemented in PR #126 (code-level)
 
