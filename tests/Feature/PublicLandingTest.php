@@ -643,7 +643,8 @@ class PublicLandingTest extends TestCase
         $this->actingAs($customer, 'customer');
 
         $this->assertFalse($customer->cart()->exists());
-        $this->get('/')->assertOk()->assertViewHas('cartQuantity', 0);
+        $this->get('/')->assertOk()
+            ->assertSee('تعداد اقلام سبد خرید: 0', false);
         $this->assertFalse($customer->cart()->exists());
 
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
@@ -654,7 +655,8 @@ class PublicLandingTest extends TestCase
             'quantity' => 3,
         ])->assertRedirect(route('cart.index'));
 
-        $this->get('/')->assertOk()->assertViewHas('cartQuantity', 3);
+        $this->get('/')->assertOk()
+            ->assertSee('تعداد اقلام سبد خرید: 3', false);
         $this->get(route('cart.index'))->assertOk()->assertSee('تعداد اقلام سبد خرید: 3');
     }
 

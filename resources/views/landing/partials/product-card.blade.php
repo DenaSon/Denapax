@@ -12,7 +12,7 @@
 @endphp
 
 <article class="product-card group relative overflow-hidden bg-[#ebe9dd]" data-reveal data-delay="{{ $loop->index % 3 }}">
-    <a wire:navigate href="{{ route('products.show', ['slug' => $product->slug]) }}"
+    <a wire:navigate.hover href="{{ route('products.show', ['slug' => $product->slug]) }}"
        class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
         <div class="product-photo relative overflow-hidden bg-[#c8cbb6]">
             @if ($cover)

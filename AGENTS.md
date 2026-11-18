@@ -2,6 +2,15 @@
 
 **Updated: 2026-11-18. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md). PR #154 is based on master `fa99c96147afff8bfc80009ff33dcd826d23fed8`; its CI passed with 151 tests / 1,232 assertions.**
 
+## Safe navigation performance and eNamad — 2026-11-18
+
+- The homepage uses one Livewire cart badge component to render two responsive cart links, avoiding duplicated Livewire cart components and the extra controller read. Authenticated cart quantity uses a single indexed aggregate query. The mobile menu text no longer repeats a second cart count; the visible top cart badge remains reactive.
+- Public product detail uses `quantitiesForVariants` to fetch only current product variants instead of hydrating all cart item/product/media relationships. Cart authorization, stock checks and payment flow remain unchanged.
+- Selective `wire:navigate.hover` is applied to public product cards and a few primary navigation links; there is no blanket prefetch on checkout, authentication or admin actions.
+- Order date filters use indexed timestamp range comparisons instead of `whereDate`. Existing status filtering and authorization remain intact.
+- eNamad domain verification: `public/45504479.txt` must remain precisely zero bytes and be publicly served at `https://denapax.ir/45504479.txt`; homepage `<head>` has `<meta name="enamad" content="45504479" />`. Actual portal confirmation and live URLs must be checked after deploy, not inferred from CI.
+- See [runbook](docs/56-safe-navigation-performance-enamad.md). Code-level changes are not proof of lower production TTFB.
+
 ## Project and immutable decisions
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#19392f">
+    <meta name="enamad" content="45504479" />
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="description" content="دناپکس؛ آشنایی با سوغات، خشکبار و محصولات محلی دنا. محصولات را ببینید و به سبد خرید اضافه کنید.">
     <meta property="og:type" content="website">
@@ -57,21 +58,10 @@
                 <a href="#order" x-bind:aria-current="activeSection === 'order' ? 'location' : null" class="transition hover:text-white">سفارش</a>
             </nav>
 
-            <div class="hidden items-center gap-4 lg:flex">
-                <span class="text-xs tracking-[.04em] text-white/75">سوغات و خشکبار دنا</span>
-                <a wire:navigate class="landing-button border border-white/60 text-sm hover:bg-white hover:text-forest" href="{{ route('cart.index') }}">
-                    سبد خرید
-                    <livewire:store.cart-count />
-                </a>
-            </div>
-
-            <div class="flex items-center gap-2 lg:hidden">
-                <a wire:navigate href="{{ route('cart.index') }}" class="landing-mobile-cart" aria-label="سبد خرید{{ $cartQuantity > 0 ? '، '.$cartQuantity.' قلم کالا' : '' }}">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.6L20 8H7M10 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <livewire:store.cart-count />
-                </a>
+            <div class="flex items-center gap-2 lg:gap-4">
+                <livewire:store.landing-header-cart />
                 <button type="button" x-ref="menuToggle" x-bind:class="headerCompact ? 'is-compact' : ''"
-                        class="landing-header-toggle inline-flex items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
+                        class="landing-header-toggle lg:hidden inline-flex items-center justify-center rounded-full border border-white/40 text-white" x-on:click="toggleMenu()" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'بستن منو' : 'باز کردن منو'" aria-controls="landing-mobile-nav">
                     <svg x-show="!menuOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                     <svg x-show="menuOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>
                 </button>
@@ -80,7 +70,7 @@
         <nav id="landing-mobile-nav" x-ref="mobileNav" x-show="menuOpen" x-cloak x-transition.opacity.duration.200ms x-on:keydown="onMobileNavKeydown($event)" x-on:click.outside="closeMenu()" aria-label="فهرست موبایل" class="landing-container mt-3 rounded-2xl border border-white/10 bg-[#18352d] p-5 shadow-2xl lg:hidden">
             <a x-on:click="closeMenu(true)" href="#products" class="block border-b border-white/15 py-3 text-sm">محصولات</a>
             <a x-on:click="closeMenu(true)" href="#order" class="block border-b border-white/15 py-3 text-sm">سفارش</a>
-            <a wire:navigate x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید{{ $cartQuantity > 0 ? ' ('.$cartQuantity.')' : '' }}</a>
+            <a wire:navigate x-on:click="closeMenu(true)" href="{{ route('cart.index') }}" class="mt-3 block rounded-xl bg-[#e8e8d7] px-4 py-3 text-center text-sm font-bold text-[#19392f]">مشاهده سبد خرید</a>
         </nav>
         <noscript>
             <nav class="landing-container mt-3 flex flex-wrap gap-5 rounded-2xl bg-[#18352d] p-5 text-sm lg:hidden" aria-label="فهرست موبایل بدون جاوااسکریپت">

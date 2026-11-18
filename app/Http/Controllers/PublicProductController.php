@@ -77,10 +77,10 @@ class PublicProductController extends Controller
             'priceLabel' => Money::formatToman((int) $variant->price_irr),
             'priceToman' => Money::tomanInput((int) $variant->price_irr),
         ])->values()->all();
-        $cartQuantities = $cart->lines($request->user('customer'))
-            ->filter(fn (array $line): bool => (int) $line['variant']->product_id === (int) $product->id)
-            ->mapWithKeys(fn (array $line): array => [(string) $line['variant']->id => (int) $line['quantity']])
-            ->all();
+        $cartQuantities = $cart->quantitiesForVariants(
+            $request->user('customer'),
+            $product->variants->modelKeys(),
+        );
         // Structured-data offers are priced in actual DB currency (IRR), not
         // display currency (toman). No fake reviews, inventory quantities or ratings.
         $schema = [
