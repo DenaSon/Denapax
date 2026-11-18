@@ -79,26 +79,53 @@
                             <input type="checkbox" class="checkbox" wire:model="variants.{{ $index }}.is_available"> قابل سفارش
                         </label>
                         <div class="mt-3"
-                             x-data="{ uploading: false, progress: 0 }"
+                             x-data="{
+                                 uploading: false,
+                                 progress: 0,
+                                 previewUrl: null,
+                                 previewError: false,
+                                 selectPreview(event) {
+                                     this.clearPreview();
+                                     this.previewError = false;
+                                     const file = event.target.files?.[0];
+                                     if (file && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                                         this.previewUrl = URL.createObjectURL(file);
+                                     }
+                                 },
+                                 clearPreview() {
+                                     if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+                                     this.previewUrl = null;
+                                 },
+                                 destroy() { this.clearPreview(); },
+                             }"
                              x-on:livewire-upload-start="uploading = true; progress = 0"
                              x-on:livewire-upload-finish="uploading = false; progress = 100"
-                             x-on:livewire-upload-error="uploading = false"
-                             x-on:livewire-upload-cancel="uploading = false"
+                             x-on:livewire-upload-error="uploading = false; clearPreview(); previewError = true"
+                             x-on:livewire-upload-cancel="uploading = false; clearPreview()"
                              x-on:livewire-upload-progress="progress = $event.detail.progress">
                             <label class="form-control">
                                 <span class="label">تصویر اختصاصی (اختیاری)</span>
-                                <input type="file" wire:model="variantUploads.{{ $index }}" accept="image/jpeg,image/png,image/webp" class="file-input w-full">
+                                <input type="file" wire:model="variantUploads.{{ $index }}" x-on:change="selectPreview($event)" accept="image/jpeg,image/png,image/webp" class="file-input w-full">
                             </label>
                             <div x-show="uploading" x-cloak class="mt-2 space-y-1" role="status" aria-live="polite">
                                 <div class="flex justify-between text-xs"><span>در حال بارگذاری تصویر تنوع…</span><span x-text="Math.round(progress) + '%'"></span></div>
                                 <progress class="progress progress-primary w-full" max="100" x-bind:value="progress"></progress>
                             </div>
+                            <p x-show="previewError" x-cloak class="mt-2 text-xs text-error" role="alert">بارگذاری تصویر انجام نشد؛ دوباره تلاش کنید.</p>
+                            <div x-show="previewUrl" x-cloak class="mt-3 flex items-center gap-3 rounded-xl border border-dashed border-primary/40 p-3">
+                                <img x-bind:src="previewUrl" alt="پیش‌نمایش تصویر انتخاب‌شده" class="h-20 w-20 rounded-lg object-cover">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-semibold">تصویر انتخاب‌شده</p>
+                                    <p class="text-xs opacity-70">پس از ذخیره محصول اضافه می‌شود.</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-error btn-outline"
+                                        x-bind:disabled="uploading"
+                                        x-on:click="clearPreview(); $wire.removeVariantUpload({{ $index }})">حذف</button>
+                            </div>
                             @if (isset($variantUploads[$index]))
-                                <div class="mt-3 flex items-center gap-3 rounded-xl border border-dashed border-primary/40 p-3">
-                                    <img src="{{ $variantUploads[$index]->temporaryUrl() }}" alt="پیش‌نمایش تصویر انتخاب‌شده" class="h-20 w-20 rounded-lg object-cover">
+                                <div x-show="!previewUrl" x-cloak class="mt-3 flex items-center gap-3 rounded-xl border border-dashed border-primary/40 p-3">
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-semibold">تصویر انتخاب‌شده</p>
-                                        <p class="text-xs opacity-70">پس از ذخیره محصول اضافه می‌شود.</p>
+                                        <p class="text-sm font-semibold">تصویر انتخاب‌شده · آماده ذخیره</p>
                                     </div>
                                     <x-button type="button" label="حذف" class="btn-sm btn-error btn-outline"
                                               wire:click="removeVariantUpload({{ $index }})" />
@@ -140,30 +167,44 @@
             @endif
             <div x-data="{
                     files: [],
+                    nextId: 0,
                     uploadFiles(event) {
-                        const selected = Array.from(event.target.files);
+                        const selected = Array.from(event.target.files).filter(
+                            (file) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+                        );
                         if (!selected.length) return;
 
-                        this.files = selected.map((file) => ({ name: file.name, progress: 0, status: 'queued' }));
+                        const batch = selected.map((file) => ({
+                            id: this.nextId++,
+                            name: file.name,
+                            url: URL.createObjectURL(file),
+                            progress: 0,
+                            status: 'queued',
+                            serverFilename: null,
+                        }));
+                        this.files.push(...batch);
 
                         const uploadNext = (index) => {
                             if (index >= selected.length) return;
 
-                            this.files[index].status = 'uploading';
+                            const preview = batch[index];
+                            preview.status = 'uploading';
                             this.$wire.uploadMultiple(
                                 'galleryUploads',
                                 [selected[index]],
-                                () => {
-                                    this.files[index].progress = 100;
-                                    this.files[index].status = 'complete';
+                                (uploadedFilenames) => {
+                                    preview.serverFilename = Array.isArray(uploadedFilenames)
+                                        ? uploadedFilenames[0] : uploadedFilenames;
+                                    preview.progress = 100;
+                                    preview.status = 'complete';
                                     uploadNext(index + 1);
                                 },
                                 () => {
-                                    this.files[index].status = 'error';
+                                    preview.status = 'error';
                                     uploadNext(index + 1);
                                 },
                                 (progressEvent) => {
-                                    this.files[index].progress = progressEvent.detail.progress;
+                                    preview.progress = progressEvent.detail.progress;
                                 },
                             );
                         };
@@ -171,35 +212,58 @@
                         uploadNext(0);
                         event.target.value = '';
                     },
+                    async removeFile(index) {
+                        const file = this.files[index];
+                        if (!file || file.status === 'uploading' || file.status === 'queued') return;
+
+                        if (file.serverFilename) {
+                            try {
+                                await this.$wire.removeGalleryUpload(file.serverFilename);
+                            } catch (error) {
+                                file.status = 'remove-error';
+                                return;
+                            }
+                        }
+
+                        URL.revokeObjectURL(file.url);
+                        this.files.splice(index, 1);
+                    },
+                    destroy() {
+                        this.files.forEach((file) => URL.revokeObjectURL(file.url));
+                    },
                 }">
                 <input type="file" multiple accept="image/jpeg,image/png,image/webp"
                        x-on:change="uploadFiles($event)"
-                       x-bind:disabled="files.some((file) => file.status === 'uploading')"
+                       x-bind:disabled="files.some((file) => file.status === 'uploading' || file.status === 'queued')"
                        class="file-input w-full">
-                <div x-show="files.length > 0" x-cloak class="mt-3 space-y-2" role="status" aria-live="polite">
-                    <template x-for="(file, index) in files" :key="index">
-                        <div class="rounded-xl border border-base-300 p-3">
-                            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-                                <span class="min-w-0 break-all font-semibold" x-text="file.name"></span>
-                                <span x-text="file.status === 'complete' ? 'بارگذاری شد' : (file.status === 'error' ? 'خطا در بارگذاری' : Math.round(file.progress) + '%')"></span>
+                <div x-show="files.length > 0" x-cloak class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" role="status" aria-live="polite">
+                    <template x-for="(file, index) in files" :key="file.id">
+                        <div class="rounded-xl border border-dashed border-primary/40 p-2">
+                            <img x-bind:src="file.url" alt="پیش‌نمایش تصویر جدید" class="aspect-square w-full rounded-lg object-cover">
+                            <p class="mt-2 break-all text-xs font-semibold" x-text="file.name"></p>
+                            <div class="mt-2 flex items-center justify-between gap-2 text-xs">
+                                <span x-text="file.status === 'complete' ? 'تصویر جدید · در انتظار ذخیره' : (file.status === 'error' ? 'خطا در بارگذاری' : (file.status === 'remove-error' ? 'خطا در حذف' : Math.round(file.progress) + '%'))"></span>
                             </div>
-                            <progress class="progress progress-primary mt-2 w-full" max="100" x-bind:value="file.progress"></progress>
+                            <progress x-show="file.status === 'uploading'" class="progress progress-primary mt-2 w-full" max="100" x-bind:value="file.progress"></progress>
+                            <button type="button" class="btn btn-error btn-outline btn-sm mt-2 w-full"
+                                    x-bind:disabled="file.status === 'uploading' || file.status === 'queued'"
+                                    x-on:click="removeFile(index)">حذف تصویر</button>
                         </div>
                     </template>
                 </div>
+                @if (!empty($galleryUploads))
+                    <div x-show="files.length === 0" x-cloak class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                        @foreach ($galleryUploads as $upload)
+                            <div wire:key="pending-gallery-{{ $upload->getFilename() }}" class="rounded-xl border border-dashed border-primary/40 p-2">
+                                <p class="break-all text-xs font-semibold">{{ $upload->getClientOriginalName() }}</p>
+                                <p class="mt-2 text-xs opacity-70">تصویر جدید · آماده ذخیره</p>
+                                <x-button type="button" label="حذف تصویر" class="btn-error btn-outline btn-sm mt-2 w-full"
+                                          wire:click="removeGalleryUpload('{{ $upload->getFilename() }}')" />
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
-            @if (!empty($galleryUploads))
-                <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    @foreach ($galleryUploads as $upload)
-                        <div wire:key="pending-gallery-{{ $upload->getFilename() }}" class="rounded-xl border border-dashed border-primary/40 p-2">
-                            <img src="{{ $upload->temporaryUrl() }}" alt="پیش‌نمایش تصویر جدید" class="aspect-square w-full rounded-lg object-cover">
-                            <p class="mt-2 text-xs font-semibold">تصویر جدید · در انتظار ذخیره</p>
-                            <x-button type="button" label="حذف تصویر" class="btn-error btn-outline btn-sm mt-2 w-full"
-                                      wire:click="removeGalleryUpload('{{ $upload->getFilename() }}')" />
-                        </div>
-                    @endforeach
-                </div>
-            @endif
             @error('galleryUploads.*') <p class="text-error text-sm">{{ $message }}</p> @enderror
         </x-card>
         <div class="flex flex-wrap items-center justify-end gap-3">

@@ -75,6 +75,13 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 - PR CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697) passed: 151 tests / 1,232 assertions, Composer audit/validation, Pint and Vite build.
 - Real desktop/mobile browser and device acceptance remains pending; CI is not visual or production acceptance. See [product detail handoff](docs/50-product-detail-ux-redesign.md).
 
+## Gallery sizing and editor preview fix — 2026-11-18
+
+- Desktop product gallery and thumbnail rail are 20% smaller (80% width, maximum 448px instead of 560px), centered at >=1024px; mobile stays unchanged.
+- Pending product/variant admin previews are generated with browser-local Blob URLs instead of Livewire signed `/livewire-{hash}/preview-file/...` links, which were reportedly failing on production. Livewire remains responsible for actual uploads and validation, including sequential gallery uploads and removal of matching server temporary filenames.
+- Browser object URLs are revoked on removal or component disposal. Server-rendered fallbacks show filenames, not broken signed preview images. Saved public media remain on Spatie URLs. Temporary upload disk consistency across replicas must still be verified if save/upload failures occur.
+- See [admin preview handoff](docs/54-gallery-desktop-and-admin-preview-fix.md); visual acceptance and deployment remain separate from CI.
+
 ## Product gallery image normalization — 2026-11-18
 
 - [PR #156](https://github.com/DenaSon/Denapax/pull/156) adds square 960px/192px WebP presentation conversions to public product and variant media. Originals and source/full URLs remain intact. Conservative auto-trimming of obvious white/transparent source margins uses Spatie per-media conversion manipulations and is skipped on ambiguous backgrounds. Follow-up PR [#157](https://github.com/DenaSon/Denapax/pull/157) replaces `Fit::FillMax` (which padded portrait/landscape photos with blank canvas) with centered `Fit::Crop` and CSS `object-fit: cover` fallback. The original remains untouched; inspect important edge content after cropping.
