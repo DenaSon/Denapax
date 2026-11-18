@@ -44,3 +44,8 @@ No changes to shipping, OTP, payment, checkout or order authorization. Continue 
 ## Update — 2026-11-18: non-destructive normalized square images
 
 [PR #156](https://github.com/DenaSon/Denapax/pull/156) supersedes the earlier recommendation to defer image conversions. The original photo remains intact; product gallery, thumbnails, catalog cards and admin preview use 960px / 192px square WebP media conversions when generated, with source fallback. A conservative optional white-margin crop is applied only to derivatives; natural backgrounds are not auto-cropped. Image selection is keyed to media ID. Production's existing images require an explicit operator backfill (not automatic on deploy). Follow the [normalization runbook](53-product-gallery-image-normalization.md).
+
+
+## Follow-up — 2026-11-18: remove FitMax side padding
+
+The first square conversion used Spatie `Fit::FillMax`, which preserved portrait/landscape aspect ratios by adding a blank canvas around the image. PR [#157](https://github.com/DenaSon/Denapax/pull/157) replaces it with `Fit::Crop` and sets the main gallery image and thumbnail rail to CSS `object-fit: cover` as a fallback for legacy source URLs. The original upload remains intact; only the display derivatives are center-cropped. Important details close to the edge can be cropped, so check portrait and landscape compositions. After deploying PR #157, rerun the normalization command to regenerate all old FillMax conversions, even if their generated flags are already set. See [normalization runbook](53-product-gallery-image-normalization.md).
