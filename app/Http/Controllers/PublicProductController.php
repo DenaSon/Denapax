@@ -58,7 +58,6 @@ class PublicProductController extends Controller
         $canonicalUrl = route('products.show', ['slug' => $product->slug]);
         $description = (string) ($product->summary ?: $product->description ?: $product->title);
         $metaDescription = mb_substr(trim(strip_tags($description)), 0, 155);
-        $minimumPrice = (int) $product->variants->min('price_irr');
         $variantPurchaseData = $product->variants->map(fn ($variant): array => [
             'id' => (int) $variant->id,
             'title' => $variant->title,
@@ -99,7 +98,7 @@ class PublicProductController extends Controller
 
         return view('landing.product', compact(
             'product', 'photos', 'canonicalUrl', 'metaDescription',
-            'minimumPrice', 'schema', 'variantPhotoIndexes', 'variantPurchaseData'
+            'schema', 'variantPhotoIndexes', 'variantPurchaseData'
         ) + [
             'cartQuantities' => (object) $cartQuantities,
             'gatewayEnabled' => $gateway->enabled(),
