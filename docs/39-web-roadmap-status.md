@@ -2,6 +2,11 @@
 
 **Last reviewed: 2026-11-18.** PR #154 merged to baseline `master` as `117617b31d91d1b7309073b2ba29bad5faab04b3`; its post-merge CI [run #44301133481](https://github.com/DenaSon/Denapax/actions/runs/44301133481) passed with 151 tests / 1,232 assertions. This ledger also records the subsequent product-detail focus and payment-copy follow-up. **Code complete ≠ staged ≠ production-deployed ≠ merchant-settled ≠ release-approved.** The owner confirmed a real SMS.ir OTP delivery and successful customer login flow on the configured deployment; the exact deployment tier was not recorded. The owner does not yet have a Zarinpal merchant account, so live gateway acceptance is deferred and `ZARINPAL_ENABLED=false` remains in force. No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed.
 
+## Livewire navigation progress visibility — 2026-11-18
+
+- The Livewire 4 navigation indicator is now burnt orange `#c2410c` and 4px thick on both public and admin pages, rather than the default blue 2px line. This is visually distinct from the forest-green brand palette.
+- Only CSS changed; the native navigation progress timing and SPA behavior remain intact. No latency improvement is claimed. See [handoff](55-livewire-navigation-progress.md).
+
 ## Payment operating mode — owner decision (2026-11-16)
 
 The next release uses **manual card-to-card transfer and private receipt upload as primary while `ZARINPAL_ENABLED=false`**. Approved staff check bank credit in `/admin/payments` before confirming the order. The Zarinpal code remains intact, and configuring an activated merchant ID plus `ZARINPAL_ENABLED=true` after real acceptance restores online-primary / manual-fallback UX without a code change. This is an operating-mode decision and must not be mistaken for proof of deployment or complete P0 release gates. [Rollout guide](45-manual-receipt-first-rollout.md).

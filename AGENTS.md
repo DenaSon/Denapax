@@ -67,6 +67,12 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 - **Only P2 issues still open:** #112 awaits owner-approved delivery/payment/returns/privacy/terms/FAQ content; #118 awaits inspection of the actual walnut product/category/variant row in target MySQL. Do not close either based only on the code fixtures.
 - Automated CI after the batch, cart CTA and per-file upload follow-ups: 147 tests / 1,136 assertions on current master. Real-device QA remains part of #24/#25 and is not implied by CI.
 
+## Livewire navigation progress visibility — 2026-11-18
+
+- Livewire's injected progress bar now uses burnt-orange `#c2410c` and 4px thickness in both the public storefront and admin shell. The color contrasts with the forest-green palette.
+- CSS overrides use `body #nprogress .bar` to outrank Livewire's runtime-injected selector; preserve this specificity if refactoring styles.
+- Only the visual cue changed: the native 150ms threshold, progress animation, SPA navigation and prefetch/history behavior are unchanged. This is not a latency fix. See [navigation progress handoff](docs/55-livewire-navigation-progress.md).
+
 ## Product detail UX redesign — 2026-11-18
 
 - [PR #154](https://github.com/DenaSon/Denapax/pull/154) redesigns the public product detail page around a compact purchase-first hierarchy: explicit desktop two-column RTL layout, package-level prices, one live selected total, compact quantity stepper and long-form details below purchase controls.

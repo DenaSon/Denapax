@@ -22,7 +22,11 @@
     scroll-behavior: smooth;
     color: #203b31;
     background: #f4f0e7;
+    --livewire-progress-bar-color: #c2410c;
 }
+
+/* body specificity overrides the progress-bar styles injected by Livewire. */
+body #nprogress .bar { height: 4px; }
 
 [x-cloak] { display: none !important; }
 
