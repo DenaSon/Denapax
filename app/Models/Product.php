@@ -46,14 +46,14 @@ class Product extends Model implements HasMedia
         // full resolution images for small thumbnails.
         $this->addMediaConversion('product-square')
             ->performOnCollections('gallery')
-            ->fit(Fit::FillMax, 960, 960, '#f8f7f1')
+            ->fit(Fit::Crop, 960, 960)
             ->format('webp')
             ->quality(84)
             ->nonQueued();
 
         $this->addMediaConversion('product-thumb')
             ->performOnCollections('gallery')
-            ->fit(Fit::FillMax, 192, 192, '#f8f7f1')
+            ->fit(Fit::Crop, 192, 192)
             ->format('webp')
             ->quality(80)
             ->nonQueued();

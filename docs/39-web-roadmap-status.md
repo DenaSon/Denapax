@@ -105,10 +105,10 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 
 ## Product media square-fit and normalization — PR #156 (2026-11-18)
 
-- Product/variant Spatie media get non-destructive 960 × 960 WebP display and 192 × 192 WebP thumbnail conversions; only obvious white/transparent outer borders are conservatively trimmed in derived conversions.
+- Product/variant Spatie media get non-destructive 960 × 960 WebP display and 192 × 192 WebP thumbnail conversions; only obvious white/transparent outer borders are conservatively trimmed in derived conversions. Follow-up PR #157 fixes the original `Fit::FillMax` padding behavior by switching to `Fit::Crop` and CSS `object-fit: cover` fallback, with portrait/landscape edge-fill regression coverage.
 - Public catalog, product gallery, thumbnail rail and admin previews prefer converted images and fall back to originals before regeneration. Variant photo mapping is keyed on media ID.
 - No schema changes, extra storage disk or modification to any private receipt media.
-- **Deployment gate:** old media require the explicit backfill command on the persistent public volume. See [runbook](53-product-gallery-image-normalization.md). CI success is not evidence that production media have already been normalized.
+- **Deployment gate:** after PR #157, rerun the backfill command on the persistent public volume to replace old `FillMax` conversions (the media generated flag alone does not mean they use the new crop). See [runbook](53-product-gallery-image-normalization.md). CI success is not evidence that production media have already been normalized.
 - PR [#156](https://github.com/DenaSon/Denapax/pull/156) requires passing CI and post-merge validation.
 
 ## Product detail follow-up polish — 2026-11-18

@@ -6,7 +6,6 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Support\ProductImageNormalizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -64,37 +63,62 @@ class ProductImageNormalizationTest extends TestCase
     {
         $product = $this->product();
 
-        $gallery = $product->addMedia(UploadedFile::fake()->image('gallery.png', 360, 220))
-            ->toMediaCollection('gallery', 'public');
-        $variant = $product->variants()->create([
-            'sku' => 'IMG-ONE', 'title' => 'یک کیلویی',
-            'sale_quantity' => 1, 'sale_unit' => 'kg',
-            'price_irr' => 10000000, 'shipping_weight_grams' => 1020,
-            'is_available' => true,
-        ]);
-        $variantImage = $variant->addMedia(UploadedFile::fake()->image('variant.jpg', 240, 350))
-            ->toMediaCollection('variant-image', 'public');
+        $gallerySource = $this->createSolidImage(360, 220, [210, 150, 90]);
+        $variantSource = $this->createSolidImage(240, 350, [80, 120, 90]);
 
-        foreach ([$gallery, $variantImage] as $media) {
-            $media->refresh();
-            $this->assertTrue($media->hasGeneratedConversion('product-square'));
-            $this->assertTrue($media->hasGeneratedConversion('product-thumb'));
-            $this->assertFileExists($media->getPath());
-            $this->assertSame([960, 960], array_slice(getimagesize($media->getPath('product-square')), 0, 2));
-            $this->assertSame([192, 192], array_slice(getimagesize($media->getPath('product-thumb')), 0, 2));
-            $this->assertStringEndsWith('.webp', $media->getPath('product-square'));
+        try {
+            $gallery = $product->addMedia($gallerySource)
+                ->usingFileName('gallery.png')
+                ->toMediaCollection('gallery', 'public');
+            $variant = $product->variants()->create([
+                'sku' => 'IMG-ONE', 'title' => 'یک کیلویی',
+                'sale_quantity' => 1, 'sale_unit' => 'kg',
+                'price_irr' => 10000000, 'shipping_weight_grams' => 1020,
+                'is_available' => true,
+            ]);
+            $variantImage = $variant->addMedia($variantSource)
+                ->usingFileName('variant.png')
+                ->toMediaCollection('variant-image', 'public');
+
+            foreach ([[$gallery, [210, 150, 90]], [$variantImage, [80, 120, 90]]] as [$media, $expected]) {
+                $media->refresh();
+                $this->assertTrue($media->hasGeneratedConversion('product-square'));
+                $this->assertTrue($media->hasGeneratedConversion('product-thumb'));
+                $this->assertFileExists($media->getPath());
+                $this->assertSame([960, 960], array_slice(getimagesize($media->getPath('product-square')), 0, 2));
+                $this->assertSame([192, 192], array_slice(getimagesize($media->getPath('product-thumb')), 0, 2));
+                $this->assertStringEndsWith('.webp', $media->getPath('product-square'));
+
+                // All four corners must contain source pixels, not the ivory
+                // padding that Fit::FillMax introduced for portrait/landscape media.
+                $preview = imagecreatefromwebp($media->getPath('product-square'));
+                foreach ([[0, 0], [959, 0], [0, 959], [959, 959]] as [$x, $y]) {
+                    $pixel = imagecolorsforindex($preview, imagecolorat($preview, $x, $y));
+                    $this->assertEqualsWithDelta($expected[0], $pixel['red'], 8);
+                    $this->assertEqualsWithDelta($expected[1], $pixel['green'], 8);
+                    $this->assertEqualsWithDelta($expected[2], $pixel['blue'], 8);
+                }
+                imagedestroy($preview);
+            }
+
+            $response = $this->get(route('products.show', $product->slug))
+                ->assertOk()
+                ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$variant->id] === 1);
+            $response->assertSee($gallery->getUrl('product-square'), false)
+                ->assertSee($variantImage->getUrl('product-square'), false)
+                ->assertSee($gallery->getUrl('product-thumb'), false)
+                ->assertSee($gallery->getFullUrl(), false);
+
+            // Homepage cards use the normalized cover too, without changing the original.
+            $this->get('/')->assertOk()->assertSee($gallery->getUrl('product-square'), false);
+
+            $css = file_get_contents(resource_path('css/landing.css'));
+            $this->assertMatchesRegularExpression('/\\.product-gallery-main-image\\s*\\{[^}]*object-fit:\\s*cover/s', $css);
+            $this->assertMatchesRegularExpression('/\\.product-gallery-thumb img\\s*\\{[^}]*object-fit:\\s*cover/s', $css);
+        } finally {
+            @unlink($gallerySource);
+            @unlink($variantSource);
         }
-
-        $response = $this->get(route('products.show', $product->slug))
-            ->assertOk()
-            ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$variant->id] === 1);
-        $response->assertSee($gallery->getUrl('product-square'), false)
-            ->assertSee($variantImage->getUrl('product-square'), false)
-            ->assertSee($gallery->getUrl('product-thumb'), false)
-            ->assertSee($gallery->getFullUrl(), false);
-
-        // Homepage cards use the normalized cover too, without changing the original.
-        $this->get('/')->assertOk()->assertSee($gallery->getUrl('product-square'), false);
     }
 
     public function test_backfill_command_is_dry_run_safe_and_regenerates_product_images_only(): void
@@ -137,6 +161,20 @@ class ProductImageNormalizationTest extends TestCase
         } finally {
             @unlink($source);
         }
+    }
+
+    private function createSolidImage(int $width, int $height, array $rgb): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'denapax-product-');
+        $this->assertNotFalse($path);
+
+        $image = imagecreatetruecolor($width, $height);
+        $color = imagecolorallocate($image, $rgb[0], $rgb[1], $rgb[2]);
+        imagefill($image, 0, 0, $color);
+        imagepng($image, $path);
+        imagedestroy($image);
+
+        return $path;
     }
 
     private function product(): Product
