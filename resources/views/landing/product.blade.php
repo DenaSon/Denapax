@@ -62,7 +62,7 @@
         </nav>
 
         <div class="product-layout" dir="ltr">
-            <div class="min-w-0" data-product-gallery dir="rtl" aria-label="گالری تصاویر {{ $product->title }}">
+            <div class="product-gallery-column min-w-0" data-product-gallery dir="rtl" aria-label="گالری تصاویر {{ $product->title }}">
                 @if ($photos->isNotEmpty())
                     <div class="product-gallery-stage" data-gallery-stage>
                         <div class="product-gallery-main">
@@ -216,9 +216,6 @@
                                     <span class="product-purchase-panel-variant" data-product-selected-variant>
                                         <b x-text="selectedVariantTitle">{{ $firstVariant?->title ?? 'بسته انتخابی' }}</b>
                                         <span>· تعداد <b x-text="selectedQuantityLabel">{{ $initialQuantity }}</b></span>
-                                    </span>
-                                    <span x-show="hasSelectedInCart" x-cloak class="product-purchase-panel-quantity">
-                                        در سبد شما: <b x-text="selectedCartQuantity">0</b>
                                     </span>
                                 </div>
 
