@@ -1,6 +1,6 @@
 # Denapax — web-only developer and project handoff
 
-**Updated: 2026-11-17. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md).**
+**Updated: 2026-11-18. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md). PR #154 is based on master `fa99c96147afff8bfc80009ff33dcd826d23fed8`; its CI passed with 151 tests / 1,232 assertions.**
 
 ## Project and immutable decisions
 
@@ -66,6 +66,14 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 - [PR #140](https://github.com/DenaSon/Denapax/pull/140) closed #111 and delivered mobile admin catalog cards, pending previews and save feedback. Follow-up [PR #143](https://github.com/DenaSon/Denapax/pull/143) completed per-file gallery progress and closed #114; [PR #144](https://github.com/DenaSon/Denapax/pull/144) prevents overlapping gallery selections during a sequential upload batch.
 - **Only P2 issues still open:** #112 awaits owner-approved delivery/payment/returns/privacy/terms/FAQ content; #118 awaits inspection of the actual walnut product/category/variant row in target MySQL. Do not close either based only on the code fixtures.
 - Automated CI after the batch, cart CTA and per-file upload follow-ups: 147 tests / 1,136 assertions on current master. Real-device QA remains part of #24/#25 and is not implied by CI.
+
+## Product detail UX redesign — 2026-11-18
+
+- [PR #154](https://github.com/DenaSon/Denapax/pull/154) redesigns the public product detail page around a compact purchase-first hierarchy: explicit desktop two-column RTL layout, package-level prices, one live selected total, compact quantity stepper and long-form details below purchase controls.
+- Desktop purchase controls are sticky within the information column. The mobile fixed dock is preserved and now identifies the selected variant and quantity.
+- Existing server-authoritative Livewire cart events, Alpine state/reconciliation, native CSRF POST fallback, gallery-to-variant photo mapping, SEO metadata and structured-data offers remain intact. No schema, pricing, stock, checkout, payment or authorization behavior changed.
+- PR CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697) passed: 151 tests / 1,232 assertions, Composer audit/validation, Pint and Vite build.
+- Real desktop/mobile browser and device acceptance remains pending; CI is not visual or production acceptance. See [product detail handoff](docs/50-product-detail-ux-redesign.md).
 
 ## Payment-mode decision — 2026-11-17
 

@@ -68,12 +68,31 @@ document.addEventListener('alpine:init', () => {
                 .format(unitPrice * this.selectedQuantity);
         },
 
+        get selectedVariantTitle() {
+            return this.selectedVariant?.title || 'بسته انتخابی';
+        },
+
+        get selectedQuantityLabel() {
+            return new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 }).format(this.selectedQuantity);
+        },
+
         get selectedCartQuantity() {
             return Math.max(0, Number(this.cartQuantities[this.selectedVariantId] || 0));
         },
 
         get hasSelectedInCart() {
             return this.selectedCartQuantity > 0;
+        },
+
+        adjustRequestedQuantity(delta) {
+            if (this.busy || this.needsReconciliation || this.hasSelectedInCart) return;
+
+            const current = Number(this.requestedQuantity);
+            const base = Number.isSafeInteger(current) ? current : 1;
+            const next = base + Number(delta);
+
+            this.requestedQuantity = Math.min(1000, Math.max(1, next));
+            this.clearFeedback();
         },
 
         useNativeFallback() {
