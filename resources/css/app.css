@@ -79,3 +79,6 @@ a.admin-metric:hover { border-color:#659273; transform:translateY(-2px); }
 
 /* Livewire focuses page headings for assistive context; they are not interactive focus stops. */
 main h1[tabindex="-1"]:focus { outline: none; }
+/* Make Livewire's injected navigation bar visibly distinct from the forest-green UI. */
+:root { --livewire-progress-bar-color: #c2410c; }
+body #nprogress .bar { height: 4px; }

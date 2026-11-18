@@ -50,6 +50,16 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString("document.addEventListener('livewire:navigated'", file_get_contents(resource_path('js/product-gallery.js')));
     }
 
+    public function test_livewire_navigation_progress_bar_is_contrasting_and_thicker_on_storefront_and_admin(): void
+    {
+        foreach (['landing.css', 'app.css'] as $stylesheet) {
+            $css = preg_replace('/\\s+/', '', file_get_contents(resource_path('css/'.$stylesheet)));
+
+            $this->assertStringContainsString('--livewire-progress-bar-color:#c2410c;', $css);
+            $this->assertStringContainsString('body#nprogress.bar{height:4px;}', $css);
+        }
+    }
+
     public function test_livewire_navigation_focuses_headings_without_showing_a_control_outline(): void
     {
         $navigation = file_get_contents(resource_path('js/navigation.js'));
