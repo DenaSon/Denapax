@@ -127,6 +127,13 @@ class ProductImageNormalizationTest extends TestCase
             $this->assertTrue($updated->hasGeneratedConversion('product-square'));
             $this->assertTrue($updated->hasGeneratedConversion('product-thumb'));
             $this->assertSame($originalHash, hash_file('sha256', $updated->getPath()));
+
+            // The trimmed walnut should now occupy much more of the square,
+            // rather than retain the original embedded white bands.
+            $preview = imagecreatefromwebp($updated->getPath('product-square'));
+            $pixel = imagecolorsforindex($preview, imagecolorat($preview, 160, 480));
+            $this->assertLessThan(220, $pixel['red']);
+            imagedestroy($preview);
         } finally {
             @unlink($source);
         }
