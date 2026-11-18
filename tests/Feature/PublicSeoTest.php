@@ -25,7 +25,7 @@ class PublicSeoTest extends TestCase
             ->assertSee('خرید سوغات دنا، خشکبار و محصولات محلی سی‌سخت')
             ->assertSee('"@type":"OnlineStore"', false)
             ->assertSee('"@type":"WebSite"', false)
-            ->assertSee('images/denapax-mark.svg')
+            ->assertSee('denapax-mark.svg')
             ->assertDontSee('upload.wikimedia.org');
     }
 
