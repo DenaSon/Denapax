@@ -103,6 +103,14 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - [PR #154](https://github.com/DenaSon/Denapax/pull/154), CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697): 151 tests / 1,232 assertions; Composer audit/validation, Pint and Vite build passed.
 - **Still pending:** actual desktop viewport review, mobile 320–430px review, keyboard/200% zoom and iOS Safari / Android Chrome acceptance. See [product detail handoff](50-product-detail-ux-redesign.md).
 
+## Product media square-fit and normalization — PR #156 (2026-11-18)
+
+- Product/variant Spatie media get non-destructive 960 × 960 WebP display and 192 × 192 WebP thumbnail conversions; only obvious white/transparent outer borders are conservatively trimmed in derived conversions.
+- Public catalog, product gallery, thumbnail rail and admin previews prefer converted images and fall back to originals before regeneration. Variant photo mapping is keyed on media ID.
+- No schema changes, extra storage disk or modification to any private receipt media.
+- **Deployment gate:** old media require the explicit backfill command on the persistent public volume. See [runbook](53-product-gallery-image-normalization.md). CI success is not evidence that production media have already been normalized.
+- PR [#156](https://github.com/DenaSon/Denapax/pull/156) requires passing CI and post-merge validation.
+
 ## Product detail follow-up polish — 2026-11-18
 
 - Root cause: `resources/js/navigation.js` focuses the destination `main h1` after Livewire navigation so assistive technology receives the new page context. Browser default outline was visible around the non-interactive heading.

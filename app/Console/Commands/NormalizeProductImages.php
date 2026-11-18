@@ -15,7 +15,8 @@ class NormalizeProductImages extends Command
     protected $signature = 'denapax:products:normalize-images
         {--dry-run : Inspect only; do not write files or media attributes}
         {--id= : Process one media ID}
-        {--limit=0 : Maximum number of media items (0 = all)}';
+        {--limit=0 : Maximum number of media items (0 = all)}
+        {--after-id=0 : Resume after this media ID}';
 
     protected $description = 'Backfill square product image conversions without changing originals or private receipts';
 
@@ -51,6 +52,16 @@ class NormalizeProductImages extends Command
             $query->limit((int) $limit);
         }
 
+        $afterId = $this->option('after-id');
+        if (! ctype_digit((string) $afterId)) {
+            $this->error('--after-id must be a non-negative integer.');
+
+            return self::FAILURE;
+        }
+        if ((int) $afterId > 0) {
+            $query->where('id', '>', (int) $afterId);
+        }
+
         $dryRun = (bool) $this->option('dry-run');
         $processed = 0;
         $failed = 0;
@@ -84,10 +95,14 @@ class NormalizeProductImages extends Command
                         $media->saveQuietly();
                     }
 
-                    Artisan::call('media-library:regenerate', [
+                    $result = Artisan::call('media-library:regenerate', [
                         '--ids' => [(string) $media->id],
                         '--only' => ['product-square', 'product-thumb'],
                     ]);
+
+                    if ($result !== self::SUCCESS) {
+                        throw new \RuntimeException('Conversion regeneration returned a failure status.');
+                    }
                 }
 
                 $processed++;

@@ -40,3 +40,7 @@ CI must pass PHPUnit, Composer audit, Pint and Vite build **on the PR and then o
 - [ ] Record sanitized device screenshots/results under release QA [#24](https://github.com/DenaSon/Denapax/issues/24). Browser/Production acceptance remains **pending**; do not confuse a merged UI PR with public launch.
 
 No changes to shipping, OTP, payment, checkout or order authorization. Continue [Phase 4C/4D readiness](38-web-phase4-release-readiness.md) and [current web delivery status](39-web-roadmap-status.md).
+
+## Update — 2026-11-18: non-destructive normalized square images
+
+[PR #156](https://github.com/DenaSon/Denapax/pull/156) supersedes the earlier recommendation to defer image conversions. The original photo remains intact; product gallery, thumbnails, catalog cards and admin preview use 960px / 192px square WebP media conversions when generated, with source fallback. A conservative optional white-margin crop is applied only to derivatives; natural backgrounds are not auto-cropped. Image selection is keyed to media ID. Production's existing images require an explicit operator backfill (not automatic on deploy). Follow the [normalization runbook](53-product-gallery-image-normalization.md).
