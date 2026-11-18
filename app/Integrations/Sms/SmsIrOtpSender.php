@@ -2,6 +2,7 @@
 
 namespace App\Integrations\Sms;
 
+use App\Support\CustomerOtpPolicy;
 use Ipe\Sdk\SmsIrService;
 use RuntimeException;
 use Throwable;
@@ -20,7 +21,7 @@ class SmsIrOtpSender
             || $templateId === false
             || $templateId < 1
             || ! preg_match('/^[A-Za-z][A-Za-z0-9_]{0,49}$/D', $parameterName)
-            || ! preg_match('/^[0-9]{6}$/D', $code)) {
+            || ! preg_match('/^[0-9]{'.CustomerOtpPolicy::length().'}$/D', $code)) {
             throw new RuntimeException('SMS.ir OTP is not configured correctly.');
         }
 

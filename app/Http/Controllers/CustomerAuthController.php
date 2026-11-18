@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Application\Actions\CustomerOtpLogin;
 use App\Application\Actions\StoreCart;
 use App\Models\CustomerLoginCode;
+use App\Support\CustomerOtpPolicy;
 use App\Support\IranDigits;
 use App\Support\IranMobile;
 use Illuminate\Contracts\View\View;
@@ -29,11 +30,13 @@ class CustomerAuthController extends Controller
         $lastSentAt = $challenge?->last_sent_at?->timestamp;
 
         return view('store.login', [
+            'otpLength' => CustomerOtpPolicy::length(),
+            'otpTtlSeconds' => CustomerOtpPolicy::ttlSeconds(),
             'otpServerNow' => now()->timestamp * 1000,
             'otpExpiresAt' => $expiresAt === null ? null : $expiresAt * 1000,
             'otpResendAt' => $lastSentAt === null ? null : ($lastSentAt + 60) * 1000,
             'otpCodeUsable' => $challenge !== null
-                && $challenge->attempts < 5
+                && $challenge->attempts < CustomerOtpPolicy::maxAttempts()
                 && $challenge->expires_at->isFuture(),
         ]);
     }
@@ -56,7 +59,7 @@ class CustomerAuthController extends Controller
             $request->merge(['code' => IranDigits::toAscii($submittedCode)]);
         }
 
-        $data = $request->validate(['code' => 'required|digits:6']);
+        $data = $request->validate(['code' => 'required|digits:'.CustomerOtpPolicy::length()]);
         $mobile = $request->session()->get('customer_otp_mobile');
 
         if (! is_string($mobile)) {
