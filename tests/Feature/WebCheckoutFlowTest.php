@@ -55,27 +55,29 @@ class WebCheckoutFlowTest extends TestCase
         ]);
     }
 
-    public function test_payment_method_copy_matches_effective_gateway_availability_on_product_checkout_and_order_pages(): void
+    public function test_payment_method_copy_is_limited_to_checkout_and_order_pages(): void
     {
         $this->actingAs($this->customer, 'customer');
         config()->set('zarinpal.enabled', false);
         config()->set('zarinpal.merchant_id', '');
 
         $this->get(route('products.show', 'dena-prunes'))->assertOk()
-            ->assertSee('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.')
-            ->assertDontSee('زرین‌پال');
+            ->assertDontSee('پرداخت در حال حاضر از طریق کارت‌به‌کارت و ارسال رسید انجام می‌شود.')
+            ->assertDontSee('زرین‌پال')
+            ->assertDontSee('کارت‌به‌کارت');
 
         config()->set('zarinpal.enabled', true);
         config()->set('zarinpal.merchant_id', 'invalid-merchant-id');
         $this->get(route('products.show', 'dena-prunes'))->assertOk()
-            ->assertDontSee('زرین‌پال');
+            ->assertDontSee('زرین‌پال')
+            ->assertDontSee('کارت‌به‌کارت');
 
         config()->set('zarinpal.enabled', false);
         config()->set('zarinpal.merchant_id', '');
 
         StoreSetting::query()->findOrFail(1)->update(['card_number' => '']);
         $this->get(route('products.show', 'dena-prunes'))->assertOk()
-            ->assertSee('اطلاعات پرداخت برای این سفارش در دسترس نیست')
+            ->assertDontSee('اطلاعات پرداخت برای این سفارش در دسترس نیست')
             ->assertDontSee('کارت‌به‌کارت');
         StoreSetting::query()->findOrFail(1)->update(['card_number' => '6037991234567890']);
 
@@ -99,13 +101,13 @@ class WebCheckoutFlowTest extends TestCase
             ->assertSee('ارسال رسید برای بررسی');
 
         // A feature flag alone is insufficient: a valid merchant identifier
-        // is also required before any customer-facing page advertises Zarinpal.
+        // is also required before checkout or order pages advertise Zarinpal.
         config()->set('zarinpal.enabled', true);
         config()->set('zarinpal.merchant_id', '11111111-2222-3333-4444-555555555555');
 
         $this->get(route('products.show', 'dena-prunes'))->assertOk()
-            ->assertSee('پرداخت آنلاین با زرین‌پال')
-            ->assertSee('کارت‌به‌کارت و ارسال رسید');
+            ->assertDontSee('پرداخت آنلاین با زرین‌پال')
+            ->assertDontSee('کارت‌به‌کارت و ارسال رسید');
 
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 1]);
         $this->post(route('checkout.preview'), ['address_id' => $address->id])
