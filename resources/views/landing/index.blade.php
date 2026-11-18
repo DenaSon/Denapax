@@ -6,21 +6,20 @@
     <meta name="theme-color" content="#19392f">
     <meta name="enamad" content="45504479" />
     <meta name="robots" content="index,follow,max-image-preview:large">
-    <meta name="description" content="دناپکس؛ آشنایی با سوغات، خشکبار و محصولات محلی دنا. محصولات را ببینید و به سبد خرید اضافه کنید.">
+    <meta name="description" content="خرید سوغات دنا، خشکبار و محصولات محلی سی‌سخت در دناپکس. تصاویر، مشخصات و قیمت بسته‌های موجود را ببینید و سفارش خود را ثبت کنید.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fa_IR">
     <meta property="og:site_name" content="DenaPax">
-    <meta property="og:title" content="دناپکس | از دل دنا">
-    <meta property="og:description" content="روایتی از طعم‌های محلی دنا؛ معرفی محصولات و خرید از وب‌سایت.">
-    <meta property="og:url" content="{{ route('home') }}">
+    <meta property="og:title" content="دناپکس | خرید سوغات دنا، خشکبار و محصولات محلی سی‌سخت{{ $products->currentPage() > 1 ? ' - صفحه '.$products->currentPage() : '' }}">
+    <meta property="og:description" content="محصولات محلی دنا و سی‌سخت را با تصاویر، مشخصات و قیمت بسته‌ها در فروشگاه دناپکس بررسی کنید.">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
     <meta name="twitter:card" content="summary">
-    <link rel="canonical" href="{{ route('home') }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
-    <link rel="preload" href="https://upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains_%DA%A9%D9%88%D9%87%D9%87%D8%A7%DB%8C_%D8%AF%D9%86%D8%A7_%DA%A9%D9%87%DA%AF%DB%8C%D9%84%D9%88%DB%8C%D9%87_%D8%A8%D9%88%DB%8C%D8%B1_%D8%A7%D8%AD%D9%85%D8%AF_-_panoramio.jpg" as="image">
-    <title>دناپکس | از دل دنا</title>
+    <link rel="preload" href="{{ asset('images/dena-landscape.svg') }}" as="image" type="image/svg+xml">
+    <title>دناپکس | خرید سوغات دنا، خشکبار و محصولات محلی سی‌سخت{{ $products->currentPage() > 1 ? ' - صفحه '.$products->currentPage() : '' }}</title>
     <script type="application/ld+json">@json($websiteSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
     @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
     @livewireStyles
@@ -164,13 +163,13 @@
             </form>
 
             @if ($categories->isNotEmpty())
-                <nav aria-label="فیلتر دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
+                <nav aria-label="دسته‌بندی محصولات" class="mb-8 flex flex-wrap items-center gap-2.5 md:mb-11">
                     <a wire:navigate href="{{ route('home') }}#products" aria-current="{{ $selectedCategory === null ? 'page' : 'false' }}"
                         class="{{ $selectedCategory === null ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                         همه محصولات
                     </a>
                     @foreach ($categories as $category)
-                        <a wire:navigate href="{{ route('home', ['category' => $category->slug]) }}#products" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
+                        <a wire:navigate href="{{ route('categories.show', ['slug' => $category->slug]) }}" aria-current="{{ $selectedCategory === $category->slug ? 'page' : 'false' }}"
                             class="{{ $selectedCategory === $category->slug ? 'bg-[#19392f] text-white' : 'border border-[#c9cec0] bg-white/45 text-[#3e604d] hover:border-[#3e604d]' }} rounded-full px-5 py-2.5 text-xs font-semibold transition-colors">
                             {{ $category->name }}
                         </a>

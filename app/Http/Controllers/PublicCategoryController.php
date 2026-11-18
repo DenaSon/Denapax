@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Support\StoreSeo;
 use Illuminate\Contracts\View\View;
 
 class PublicCategoryController extends Controller
