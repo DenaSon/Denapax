@@ -76,3 +76,6 @@ a.admin-metric:hover { border-color:#659273; transform:translateY(-2px); }
 .admin-copy { overflow-wrap:anywhere; unicode-bidi:plaintext; }
 @media (max-width:640px) { .admin-surface { padding:1rem; } .admin-shell .table { font-size:.82rem; } }
 @media (prefers-reduced-motion:reduce) { .admin-shell *, .admin-shell *::before, .admin-shell *::after { transition:none!important; transform:none!important; } }
+
+/* Livewire focuses page headings for assistive context; they are not interactive focus stops. */
+main h1[tabindex="-1"]:focus { outline: none; }

@@ -281,7 +281,7 @@
 
                     <div class="product-delivery-note">
                         <p>هزینه ارسال در مرحله تکمیل سفارش مشخص می‌شود.</p>
-                        <x-store.payment-method-note :gateway-enabled="$gatewayEnabled" :manual-available="$manualAvailable" class="product-payment-note" />
+
                     </div>
                 </section>
             </article>

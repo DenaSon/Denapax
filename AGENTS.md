@@ -6,7 +6,7 @@
 
 A Persian RTL web store for Dena souvenirs, dried fruit and local products. The owner authorized a full web-only customer refactor. Telegram sales bot, Nutgram, Telegram webhook/chat alerts/identity and bot-specific UI are **retired**. Do not restore them. Staff/admin login remains separate. PHP 8.4, Laravel 13, Livewire 4, Mary UI 2, Blade, Tailwind 4, MySQL; database queues without Redis/Horizon.
 
-**State evidence:** Web Phases 1–3, 4A/4B, SPA-like navigation and the P2 storefront/cart/admin UX batches are merged. PR #137 made product-detail cart controls reactive; PR #138 completed catalog/brand polish; PR #139 added the mobile cart dock and complete checkout address details; PR #140 added mobile admin catalog cards and upload feedback; PR #143 completed per-file gallery progress and PR #144 prevents a second file selection from racing the active upload batch. Current `master` is `3ada90c8dbc19a48bd4ba2d1d82d6a23a7b17b6f`; [latest master CI](https://github.com/DenaSon/Denapax/actions/runs/44091219496) passed with 147 tests / 1,136 assertions. The owner confirmed real SMS.ir OTP delivery and successful customer login; exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
+**State evidence:** Web Phases 1–3, 4A/4B, SPA-like navigation and the P2 storefront/cart/admin UX batches are merged. PR #137 made product-detail cart controls reactive; PR #138 completed catalog/brand polish; PR #139 added the mobile cart dock and complete checkout address details; PR #140 added mobile admin catalog cards and upload feedback; PR #143 completed per-file gallery progress and PR #144 prevents a second file selection from racing the active upload batch. Baseline `master` before the product-detail follow-up is `117617b31d91d1b7309073b2ba29bad5faab04b3`; [post-PR #154 master CI](https://github.com/DenaSon/Denapax/actions/runs/44301133481) passed with 151 tests / 1,232 assertions. The owner confirmed real SMS.ir OTP delivery and successful customer login; exact deployment tier was not recorded. **No live Zarinpal settlement, target-MySQL migration or isolated restore is claimed. Public release gates remain open.**
 
 ## What is implemented
 
@@ -74,6 +74,13 @@ Three scoped PRs [#92](https://github.com/DenaSon/Denapax/pull/92), [#93](https:
 - Existing server-authoritative Livewire cart events, Alpine state/reconciliation, native CSRF POST fallback, gallery-to-variant photo mapping, SEO metadata and structured-data offers remain intact. No schema, pricing, stock, checkout, payment or authorization behavior changed.
 - PR CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697) passed: 151 tests / 1,232 assertions, Composer audit/validation, Pint and Vite build.
 - Real desktop/mobile browser and device acceptance remains pending; CI is not visual or production acceptance. See [product detail handoff](docs/50-product-detail-ux-redesign.md).
+
+## Product detail follow-up polish — 2026-11-18
+
+- The black outline around page titles came from the shared Livewire navigation helper programmatically focusing `main h1` with `tabindex="-1"`. Keep this assistive-technology focus behavior; suppress the outline only for that non-interactive programmatic heading in both `landing.css` and `app.css`. Do not remove keyboard focus indicators from links, buttons or fields.
+- The manual card-transfer explanation is removed from the product detail page only. Keep the shipping-cost note and preserve the shared payment-method component on checkout review and order confirmation.
+- Remove payment configuration lookups from `PublicProductController` because the product page no longer renders payment copy. No payment workflow or checkout behavior changes.
+- See [follow-up polish handoff](docs/51-product-detail-follow-up-polish.md).
 
 ## Payment-mode decision — 2026-11-17
 

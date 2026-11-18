@@ -1589,7 +1589,6 @@ input:focus-visible + .product-variant-card {
     line-height: 1.9;
 }
 .product-delivery-note p { margin: 0; }
-.product-payment-note { margin-top: .15rem; }
 @media (max-width: 1023px) {
     .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
     .product-gallery-column { max-width: 620px; }
@@ -1659,3 +1658,6 @@ input:focus-visible + .product-variant-card {
     .product-purchase-add-button,
     .product-purchase-panel { transition: none; }
 }
+
+/* Livewire focuses page headings for assistive context; they are not interactive focus stops. */
+main h1[tabindex="-1"]:focus { outline: none; }
