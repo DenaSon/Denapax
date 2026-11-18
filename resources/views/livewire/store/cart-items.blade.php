@@ -54,13 +54,14 @@
                     @foreach ($lines as $line)
                         @php
                             $product = $line['variant']->product;
-                            $cover = $product->getFirstMedia('gallery') ?? $line['variant']->getFirstMedia('variant-image');
+                            $cover = $line['variant']->getFirstMedia('variant-image') ?? $product->getFirstMedia('gallery');
                         @endphp
                         <article wire:key="cart-variant-{{ $line['variant']->id }}" class="store-cart-item">
                             <a wire:navigate href="{{ route('products.show', $product->slug) }}"
                                class="store-cart-item-image" aria-label="مشاهده {{ $product->title }}">
                                 @if ($cover)
-                                    <img src="{{ $cover->getUrl() }}" alt="تصویر {{ $product->title }}"
+                                    <img src="{{ $cover->hasGeneratedConversion('product-thumb') ? $cover->getUrl('product-thumb') : ($cover->hasGeneratedConversion('product-square') ? $cover->getUrl('product-square') : $cover->getUrl()) }}"
+                                         alt="{{ $product->title }} - {{ $line['variant']->title }}"
                                          width="112" height="112" loading="lazy" decoding="async">
                                 @else
                                     <span class="store-cart-item-placeholder" aria-hidden="true">
@@ -69,6 +70,7 @@
                                             <path d="M7 54h50" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                                             <circle cx="44" cy="17" r="5" fill="currentColor" opacity=".45"/>
                                         </svg>
+                                        <span>بدون تصویر</span>
                                     </span>
                                 @endif
                             </a>
@@ -84,7 +86,7 @@
                                     </p>
                                 </div>
                                 <div class="store-cart-item-total">
-                                    <span>قیمت این ردیف</span>
+                                    <span>جمع این ردیف</span>
                                     <strong>{{ \App\Support\Money::formatToman($line['total_irr']) }} <small>تومان</small></strong>
                                 </div>
                                 @unless ($line['available'])
@@ -152,31 +154,26 @@
                     </div>
                     <div>
                         <span>هزینه ارسال</span>
-                        <strong class="store-cart-shipping-pending">در مرحله بعد</strong>
+                        <strong class="store-cart-shipping-pending">پس از انتخاب نشانی</strong>
                     </div>
                 </div>
 
-                <div class="store-cart-summary-total">
-                    <span>مبلغ فعلی سفارش</span>
-                    <strong class="store-amount">{{ \App\Support\Money::formatToman((int) $subtotal) }} <small>تومان</small></strong>
-                </div>
-
                 <p class="store-cart-shipping-note">
-                    هزینه ارسال پس از انتخاب نشانی تحویل محاسبه می‌شود و پیش از ثبت نهایی سفارش نمایش داده خواهد شد.
+                    مبلغ فعلی بدون هزینه ارسال است؛ هزینه ارسال پس از انتخاب نشانی و پیش از تأیید نهایی نمایش داده می‌شود.
                 </p>
 
                 @if ($lines->contains(fn ($line) => ! $line['available']))
                     <p role="alert" class="store-cart-summary-alert">برای ادامه خرید، ابتدا تنوع‌های ناموجود را از سبد حذف کنید.</p>
                     <button type="button" class="store-button store-button-primary store-cart-checkout" disabled>
-                        ثبت سفارش
+                        ابتدا کالای ناموجود را حذف کنید
                     </button>
                 @else
                     <a wire:navigate href="{{ route('checkout.index') }}" class="store-button store-button-primary store-cart-checkout">
                         <span>
                             @auth('customer')
-                                ثبت سفارش
+                                ادامه به نشانی و ارسال
                             @else
-                                ثبت سفارش
+                                ورود و ادامه خرید
                             @endauth
                         </span>
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -185,16 +182,12 @@
                     </a>
                 @endif
 
-                <div class="store-cart-summary-foot">
-                    <span aria-hidden="true">✓</span>
-                    <p>مبلغ‌ها به تومان نمایش داده می‌شوند.</p>
-                </div>
             </aside>
         </div>
 
         <div class="store-cart-mobile-dock" aria-label="خلاصه سبد خرید و ادامه سفارش">
             <div class="store-cart-mobile-dock-summary">
-                <span>{{ $totalQuantity }} عدد کالا</span>
+                <span>{{ $totalQuantity }} عدد کالا · جمع کالاها</span>
                 <strong>{{ \App\Support\Money::formatToman((int) $subtotal) }} <small>تومان</small></strong>
             </div>
             @if ($lines->contains(fn ($line) => ! $line['available']))
@@ -207,9 +200,9 @@
                    wire:loading.class="is-loading" wire:target="changeQuantity,remove">
                     <span>
                         @auth('customer')
-                            ثبت سفارش
+                            ادامه به نشانی و ارسال
                         @else
-                            ثبت سفارش
+                            ورود و ادامه خرید
                         @endauth
                     </span>
                     <span aria-hidden="true">←</span>
