@@ -180,7 +180,7 @@ class PublicLandingTest extends TestCase
         $product = $this->product($category, 'گردوی دنا', 'direct-product-navigation', 13890000);
 
         $this->get('/')->assertOk()
-            ->assertSee('wire:navigate href="'.route('products.show', ['slug' => $product->slug]).'"', false)
+            ->assertSee('wire:navigate.hover href="'.route('products.show', ['slug' => $product->slug]).'"', false)
             ->assertDontSee('openProduct(', false)
             ->assertDontSee('aria-haspopup="dialog"', false)
             ->assertDontSee('denapax-product-preview', false);
