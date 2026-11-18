@@ -88,7 +88,7 @@ document.addEventListener('alpine:init', () => {
             if (this.busy || this.needsReconciliation || this.hasSelectedInCart) return;
 
             const current = Number(this.requestedQuantity);
-            const base = Number.isSafeInteger(current) && current > 0 ? current : 1;
+            const base = Number.isSafeInteger(current) ? current : 1;
             const next = base + Number(delta);
 
             this.requestedQuantity = Math.min(1000, Math.max(1, next));

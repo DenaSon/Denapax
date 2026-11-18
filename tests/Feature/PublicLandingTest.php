@@ -543,6 +543,25 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('scroll-margin-bottom:11rem;', $css);
     }
 
+    public function test_product_detail_places_purchase_before_full_details_and_keeps_explicit_rtl_gallery(): void
+    {
+        $category = Category::create(['name' => 'خشکبار', 'slug' => 'product-layout', 'is_active' => true]);
+        $product = $this->product($category, 'مغز گردوی دنا', 'product-purchase-first-layout', 13890000);
+
+        $html = $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->getContent();
+
+        $purchasePosition = strpos($html, 'class="product-purchase-section"');
+        $detailsPosition = strpos($html, 'class="product-details"');
+
+        $this->assertNotFalse($purchasePosition);
+        $this->assertNotFalse($detailsPosition);
+        $this->assertTrue($purchasePosition < $detailsPosition);
+        $this->assertStringContainsString('class="product-gallery-column min-w-0" data-product-gallery dir="rtl"', $html);
+        $this->assertStringContainsString('data-product-selected-variant', $html);
+    }
+
     public function test_product_detail_reads_customer_cart_without_creating_an_empty_cart(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'customer-cart-read', 'is_active' => true]);
