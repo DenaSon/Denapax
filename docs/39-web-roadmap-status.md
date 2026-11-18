@@ -103,6 +103,13 @@ The owner does not yet have a Zarinpal merchant account. Keep [#81](https://gith
 - [PR #154](https://github.com/DenaSon/Denapax/pull/154), CI [run #44300740697](https://github.com/DenaSon/Denapax/actions/runs/44300740697): 151 tests / 1,232 assertions; Composer audit/validation, Pint and Vite build passed.
 - **Still pending:** actual desktop viewport review, mobile 320–430px review, keyboard/200% zoom and iOS Safari / Android Chrome acceptance. See [product detail handoff](50-product-detail-ux-redesign.md).
 
+## Desktop product gallery and admin pending previews — 2026-11-18
+
+- Desktop product image and thumbnail rail resized to 80% of their existing width, capped at 448px; under 1024px unchanged.
+- Admin product-editor pre-save image previews no longer use signed Livewire temporary preview routes. Local browser Blob URLs show variant/gallery thumbnails; files are still uploaded and saved through Livewire. Sequenced multi-image uploads retain previews across selections and support per-file removal through server filenames.
+- No schema, receipt storage, payment or permanent media URL change. Tests are supplemented with CSS and preview-rendering regression coverage. Production proxy/storage cause of the earlier broken signed URL remains unverified and is avoided for thumbnail display.
+- [Handoff](54-gallery-desktop-and-admin-preview-fix.md). Code CI success does not replace production browser QA.
+
 ## Product media square-fit and normalization — PR #156 (2026-11-18)
 
 - Product/variant Spatie media get non-destructive 960 × 960 WebP display and 192 × 192 WebP thumbnail conversions; only obvious white/transparent outer borders are conservatively trimmed in derived conversions. Follow-up PR #157 fixes the original `Fit::FillMax` padding behavior by switching to `Fit::Crop` and CSS `object-fit: cover` fallback, with portrait/landscape edge-fill regression coverage.

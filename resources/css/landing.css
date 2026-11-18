@@ -1166,12 +1166,14 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 .store-footer-support a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
 @media (min-width:1024px) {
     .product-gallery-stage {
-        max-width:560px;
-        max-height:560px;
+        width:80%;
+        max-width:448px;
+        max-height:448px;
         margin-inline:auto;
     }
     .product-gallery-thumbs {
-        max-width:560px;
+        width:80%;
+        max-width:448px;
         margin-inline:auto;
     }
 }
