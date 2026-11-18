@@ -16,7 +16,7 @@
        class="block h-full" aria-label="مشاهده جزئیات {{ $product->title }}">
         <div class="product-photo relative overflow-hidden bg-[#c8cbb6]">
             @if ($cover)
-                <img class="product-card-image block w-full object-cover" src="{{ $cover->getUrl() }}"
+                <img class="product-card-image block w-full object-cover" src="{{ $cover->hasGeneratedConversion('product-square') ? $cover->getUrl('product-square') : $cover->getUrl() }}"
                      width="800" height="700" loading="lazy" decoding="async" alt="تصویر {{ $product->title }}">
             @else
                 <div class="product-card-image organic-lines relative flex items-center justify-center bg-[#cdd1bd]">

@@ -88,7 +88,7 @@
                                         data-image-alt="تصویر {{ $loop->iteration }} از {{ $product->title }}"
                                         aria-label="انتخاب تصویر {{ $loop->iteration }} از {{ $photos->count() }}"
                                         @if ($loop->first) aria-current="true" @endif>
-                                    <img src="{{ $photo['url'] }}" alt="" width="120" height="120" loading="lazy" decoding="async">
+                                    <img src="{{ $photo['thumb_url'] }}" alt="" width="192" height="192" loading="lazy" decoding="async">
                                 </button>
                             @endforeach
                         </div>

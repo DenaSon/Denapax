@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\File;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductVariant extends Model implements HasMedia
 {
@@ -64,6 +66,26 @@ class ProductVariant extends Model implements HasMedia
         return $this->isAvailableForSale()
             && $product?->is_active === true
             && $product->category?->is_active === true;
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Keep the original untouched. Square, color-matched WebP derivatives
+        // prevent letterboxing in the public gallery and avoid downloading
+        // full resolution images for small thumbnails.
+        $this->addMediaConversion('product-square')
+            ->performOnCollections('variant-image')
+            ->fit(Fit::Fill, 960, 960, '#f8f7f1')
+            ->format('webp')
+            ->quality(84)
+            ->nonQueued();
+
+        $this->addMediaConversion('product-thumb')
+            ->performOnCollections('variant-image')
+            ->fit(Fit::Fill, 192, 192, '#f8f7f1')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
     }
 
     public function registerMediaCollections(): void

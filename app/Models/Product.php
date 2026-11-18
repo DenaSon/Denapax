@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\File;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
 {
@@ -35,6 +37,26 @@ class Product extends Model implements HasMedia
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Keep the original untouched. Square, color-matched WebP derivatives
+        // prevent letterboxing in the public gallery and avoid downloading
+        // full resolution images for small thumbnails.
+        $this->addMediaConversion('product-square')
+            ->performOnCollections('gallery')
+            ->fit(Fit::Fill, 960, 960, '#f8f7f1')
+            ->format('webp')
+            ->quality(84)
+            ->nonQueued();
+
+        $this->addMediaConversion('product-thumb')
+            ->performOnCollections('gallery')
+            ->fit(Fit::Fill, 192, 192, '#f8f7f1')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
     }
 
     public function registerMediaCollections(): void

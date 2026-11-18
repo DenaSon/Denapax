@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Catalog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Support\ProductImageNormalizer;
 use App\Support\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -278,9 +279,12 @@ class ProductEditor extends Component
             return $product;
         });
 
+        $normalizer = app(ProductImageNormalizer::class);
+
         foreach ($this->galleryUploads as $image) {
             $product->addMedia($image->getRealPath())
                 ->usingFileName($image->getClientOriginalName())
+                ->withManipulations($normalizer->manipulationsFor($image->getRealPath()))
                 ->toMediaCollection('gallery', 'public');
         }
         foreach ($this->variantUploads as $i => $image) {
@@ -288,6 +292,7 @@ class ProductEditor extends Component
             if ($variant) {
                 $variant->addMedia($image->getRealPath())
                     ->usingFileName($image->getClientOriginalName())
+                    ->withManipulations($normalizer->manipulationsFor($image->getRealPath()))
                     ->toMediaCollection('variant-image', 'public');
             }
         }

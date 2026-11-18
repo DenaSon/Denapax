@@ -109,7 +109,8 @@
                             @php($savedVariant = $product->variants->firstWhere('id', $variant['id']))
                             @if($savedVariant && $savedVariant->getFirstMediaUrl('variant-image'))
                                 <div class="mt-2 flex items-center gap-2">
-                                    <img src="{{ $savedVariant->getFirstMediaUrl('variant-image') }}" alt="" class="h-16 w-16 rounded object-cover">
+                                    @php($variantMedia = $savedVariant->getFirstMedia('variant-image'))
+                                    <img src="{{ $variantMedia && $variantMedia->hasGeneratedConversion('product-thumb') ? $variantMedia->getUrl('product-thumb') : $savedVariant->getFirstMediaUrl('variant-image') }}" alt="" class="h-16 w-16 rounded object-contain">
                                     <span class="text-xs opacity-70">تصویر ذخیره‌شده</span>
                                 </div>
                             @endif
@@ -131,7 +132,7 @@
                 <div class="mb-3 flex flex-wrap gap-3">
                     @foreach($product->getMedia('gallery') as $media)
                         <div class="space-y-2" wire:key="media-{{ $media->id }}">
-                            <img src="{{ $media->getUrl() }}" alt="{{ $product->title }}" class="h-24 w-24 rounded object-cover">
+                            <img src="{{ $media->hasGeneratedConversion('product-thumb') ? $media->getUrl('product-thumb') : $media->getUrl() }}" alt="{{ $product->title }}" class="h-24 w-24 rounded object-contain">
                             <x-button type="button" label="حذف تصویر" class="btn-error btn-sm" wire:click="removeGalleryImage({{ $media->id }})" />
                         </div>
                     @endforeach
