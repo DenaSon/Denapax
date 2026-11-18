@@ -1,5 +1,11 @@
 # Denapax — web-only developer and project handoff
 
+## Mediana and four-digit OTP — 2026-11-18
+
+- Added an isolated Mediana HTTPS OTP adapter with fixed endpoint, X-API-KEY, strict send acceptance, no redirects/retries and sanitized provider failures; SMS.ir remains available as fallback. Repository default stays `disabled`.
+- OTP policy defaults: four digits (leading zero supported), 120 seconds, three attempts; length (4 or 6), TTL and attempts are configurable. The existing 60-second resend delay and IP/mobile throttles remain; customer guard and cart flow are unchanged.
+- **No real Mediana delivery or approved four-digit pattern has been tested.** Set API key and pattern only in deployment secrets, switch driver on the Iran server, rebuild cached config and validate real OTP/login and checkout. See [integration handoff](docs/57-mediana-otp-integration.md).
+
 **Updated: 2026-11-18. Start here: [delivery ledger](docs/39-web-roadmap-status.md) and [Web Phase 4 release gates](docs/38-web-phase4-release-readiness.md). PR #154 is based on master `fa99c96147afff8bfc80009ff33dcd826d23fed8`; its CI passed with 151 tests / 1,232 assertions.**
 
 ## Safe navigation performance and eNamad — 2026-11-18

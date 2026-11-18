@@ -185,6 +185,7 @@ class SmsIrCustomerOtpTest extends TestCase
     private function configureSmsIr(): void
     {
         config()->set('customer_auth.sms_driver', 'smsir');
+        config()->set('customer_auth.otp_length', 6);
         config()->set('services.smsir', [
             'api_key' => 'test-api-key',
             'verify_template_id' => '967976',

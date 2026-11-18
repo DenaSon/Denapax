@@ -12,6 +12,12 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'mediana' => [
+        'api_key' => env('MEDIANA_API_KEY'),
+        'otp_pattern_code' => env('MEDIANA_OTP_PATTERN_CODE'),
+        'timeout' => (float) env('MEDIANA_TIMEOUT', 8),
+        'connect_timeout' => (float) env('MEDIANA_CONNECT_TIMEOUT', 3),
+    ],
     'smsir' => [
         'api_key' => env('SMSIR_API_KEY'),
         'verify_template_id' => env('SMSIR_VERIFY_TEMPLATE_ID'),

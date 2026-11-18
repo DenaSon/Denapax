@@ -65,15 +65,15 @@ class WebCustomerFoundationTest extends TestCase
 
         CustomerLoginCode::create([
             'mobile' => '09120000015',
-            'code_hash' => Hash::make('123456'),
+            'code_hash' => Hash::make('1234'),
             'attempts' => 0,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addMinutes(2),
             'last_sent_at' => now(),
         ]);
 
         $this->withSession(['customer_otp_mobile' => '09120000015']);
         $this->get(route('customer.login'))->assertOk()->assertSee('تأیید شماره موبایل');
-        $this->post(route('customer.otp.verify'), ['code' => '۱۲۳۴۵۶'])
+        $this->post(route('customer.otp.verify'), ['code' => '۱۲۳۴'])
             ->assertRedirect(route('checkout.index'));
 
         $this->assertAuthenticated('customer');
@@ -92,7 +92,7 @@ class WebCustomerFoundationTest extends TestCase
                 $sentMobiles[] = $mobile;
 
                 return in_array($mobile, ['09120000016', '09120000017'], true)
-                    && preg_match('/^[0-9]{6}$/D', $code) === 1;
+                    && preg_match('/^[0-9]{4}$/D', $code) === 1;
             });
         $this->app->instance(CustomerOtpSender::class, $sender);
 
@@ -101,7 +101,7 @@ class WebCustomerFoundationTest extends TestCase
             ->assertRedirect(route('customer.login'))
             ->assertSessionHas('customer_otp_mobile', '09120000016');
 
-        $expiresAt = (now()->addMinutes(5)->timestamp) * 1000;
+        $expiresAt = (now()->addMinutes(2)->timestamp) * 1000;
         $resendAt = (now()->addSeconds(60)->timestamp) * 1000;
 
         $this->get(route('customer.login'))->assertOk()
@@ -141,8 +141,8 @@ class WebCustomerFoundationTest extends TestCase
     {
         CustomerLoginCode::query()->create([
             'mobile' => '09120000018',
-            'code_hash' => Hash::make('123456'),
-            'attempts' => 5,
+            'code_hash' => Hash::make('1234'),
+            'attempts' => 3,
             'expires_at' => now()->subMinute(),
             'last_sent_at' => now()->subMinutes(2),
         ]);
@@ -158,19 +158,19 @@ class WebCustomerFoundationTest extends TestCase
     {
         CustomerLoginCode::query()->create([
             'mobile' => '09120000012',
-            'code_hash' => Hash::make('123456'),
+            'code_hash' => Hash::make('1234'),
             'attempts' => 0,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addMinutes(2),
             'last_sent_at' => now(),
         ]);
 
         $this->withSession(['customer_otp_mobile' => '09120000012']);
-        for ($i = 0; $i < 5; $i++) {
-            $this->post(route('customer.otp.verify'), ['code' => '654321'])->assertSessionHasErrors('code');
+        for ($i = 0; $i < 3; $i++) {
+            $this->post(route('customer.otp.verify'), ['code' => '9876'])->assertSessionHasErrors('code');
         }
 
-        $this->assertSame(5, CustomerLoginCode::query()->sole()->attempts);
-        $this->post(route('customer.otp.verify'), ['code' => '123456'])->assertSessionHasErrors('code');
+        $this->assertSame(3, CustomerLoginCode::query()->sole()->attempts);
+        $this->post(route('customer.otp.verify'), ['code' => '1234'])->assertSessionHasErrors('code');
         $this->assertDatabaseCount('customers', 0);
     }
 

@@ -4,6 +4,7 @@ namespace App\Application\Actions;
 
 use App\Models\Customer;
 use App\Models\CustomerLoginCode;
+use App\Support\CustomerOtpPolicy;
 use App\Support\CustomerOtpSender;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -28,14 +29,15 @@ class CustomerOtpLogin
             throw ValidationException::withMessages(['mobile' => 'برای دریافت مجدد کد، یک دقیقه صبر کنید.']);
         }
 
-        $code = (string) random_int(100000, 999999);
+        $length = CustomerOtpPolicy::length();
+        $code = str_pad((string) random_int(0, (10 ** $length) - 1), $length, '0', STR_PAD_LEFT);
 
         // Persist the hash before delivery; no successful login is possible
         // when the transport fails, and no plaintext OTP enters the database.
         CustomerLoginCode::query()->updateOrCreate(['mobile' => $mobile], [
             'code_hash' => Hash::make($code),
             'attempts' => 0,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addSeconds(CustomerOtpPolicy::ttlSeconds()),
             'last_sent_at' => now(),
         ]);
 
@@ -54,10 +56,15 @@ class CustomerOtpLogin
 
     public function verify(string $mobile, string $code): Customer
     {
-        $customer = DB::transaction(function () use ($mobile, $code): ?Customer {
+        if (! preg_match('/^[0-9]{'.CustomerOtpPolicy::length().'}$/D', $code)) {
+            throw ValidationException::withMessages(['code' => 'کد نامعتبر یا منقضی شده است.']);
+        }
+
+        $maxAttempts = CustomerOtpPolicy::maxAttempts();
+        $customer = DB::transaction(function () use ($mobile, $code, $maxAttempts): ?Customer {
             $challenge = CustomerLoginCode::query()->whereKey($mobile)->lockForUpdate()->first();
 
-            if (! $challenge || $challenge->expires_at->isPast() || $challenge->attempts >= 5) {
+            if (! $challenge || $challenge->expires_at->isPast() || $challenge->attempts >= $maxAttempts) {
                 throw ValidationException::withMessages(['code' => 'کد نامعتبر یا منقضی شده است.']);
             }
 

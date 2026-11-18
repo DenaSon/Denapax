@@ -13,12 +13,12 @@
             >
                 <h1 class="store-heading mt-2">تأیید شماره موبایل</h1>
                 <p class="store-muted mt-3 text-sm">
-                    کد شش‌رقمی ارسال‌شده به <strong dir="ltr" class="inline-block">{{ session('customer_otp_mobile') }}</strong> را وارد کنید.
+                    کد {{ $otpLength === 4 ? 'چهاررقمی' : 'شش‌رقمی' }} ارسال‌شده به <strong dir="ltr" class="inline-block">{{ session('customer_otp_mobile') }}</strong> را وارد کنید.
                 </p>
                 <div class="mt-3 space-y-1 rounded-xl border border-[#d6ded4] bg-[#f7f9f6] px-4 py-3">
                     <p class="store-muted text-xs leading-6" aria-live="off" x-text="expiryMessage">
                         @if ($otpCodeUsable)
-                            کد ورود حداکثر تا پنج دقیقه پس از ارسال معتبر است.
+                            کد ورود حداکثر تا {{ (int) ceil($otpTtlSeconds / 60) }} دقیقه پس از ارسال معتبر است.
                         @else
                             کد فعلی منقضی یا قابل استفاده نیست؛ کد تازه دریافت کنید.
                         @endif
@@ -35,7 +35,7 @@
                     @csrf
                     <label for="code" class="block text-sm font-bold">کد ورود</label>
                     <input id="code" name="code" type="text" dir="ltr" inputmode="numeric" autocomplete="one-time-code"
-                           maxlength="6" required autofocus placeholder="------"
+                           maxlength="{{ $otpLength }}" required autofocus placeholder="{{ str_repeat('-', $otpLength) }}"
                            value="{{ old('code') }}" class="store-field min-h-14 text-center text-xl font-bold tracking-[.4em]">
                     <button type="submit" data-busy-label="در حال بررسی..."
                             class="store-button store-button-primary min-h-14 w-full">تأیید و ادامه خرید</button>

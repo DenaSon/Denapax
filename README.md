@@ -53,15 +53,17 @@ Use only an activated real merchant identifier and a public HTTPS callback (`/pa
 ### Customer OTP
 
 ```env
-CUSTOMER_SMS_DRIVER=disabled
-SMSIR_API_KEY=
-SMSIR_VERIFY_TEMPLATE_ID=
-SMSIR_VERIFY_PARAMETER=HOURS
-SMSIR_TIMEOUT=8
-SMSIR_CONNECT_TIMEOUT=3
+CUSTOMER_SMS_DRIVER=mediana
+CUSTOMER_OTP_LENGTH=4
+CUSTOMER_OTP_TTL=120
+CUSTOMER_OTP_MAX_ATTEMPTS=3
+MEDIANA_API_KEY=
+MEDIANA_OTP_PATTERN_CODE=
+MEDIANA_TIMEOUT=8
+MEDIANA_CONNECT_TIMEOUT=3
 ```
 
-The official SMS.ir Verify adapter is selected with `CUSTOMER_SMS_DRIVER=smsir`; keep the repository default `disabled` and store the API key only in deployment secrets. The owner-confirmed template is `967976` with parameter `HOURS`. OTP challenges are hashed, expire after five minutes, and have a resend cooldown, attempt cap and IP/mobile throttles. See [SMS.ir integration and acceptance](docs/49-smsir-otp-integration.md).
+The Mediana OTP adapter uses an approved pattern and `X-API-KEY`, while the repository default driver remains `disabled` until live acceptance. Four-digit OTPs expire in 120 seconds with three attempts (all configurable), keep leading zeros, and are hashed in the DB. The previous SMS.ir adapter remains available via `CUSTOMER_SMS_DRIVER=smsir` with its existing secrets and template; to restore the previous code length set `CUSTOMER_OTP_LENGTH=6`. See [Mediana deployment guide](docs/57-mediana-otp-integration.md) and [SMS.ir history](docs/49-smsir-otp-integration.md).
 
 ## Deployment and operational constraints
 

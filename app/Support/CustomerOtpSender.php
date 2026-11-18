@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Integrations\Sms\MedianaOtpSender;
 use App\Integrations\Sms\SmsIrOtpSender;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -11,6 +12,12 @@ class CustomerOtpSender
     public function send(string $mobile, string $code): void
     {
         $driver = (string) config('customer_auth.sms_driver', 'disabled');
+
+        if ($driver === 'mediana') {
+            app(MedianaOtpSender::class)->send($mobile, $code);
+
+            return;
+        }
 
         if ($driver === 'smsir') {
             app(SmsIrOtpSender::class)->send($mobile, $code);
