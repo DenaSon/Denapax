@@ -438,7 +438,7 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString('touchstart', $galleryScript);
         $this->assertStringNotContainsString('updateZoomBounds', $galleryScript);
         $this->assertStringNotContainsString('pinch', $galleryScript);
-        $this->assertStringContainsString('max-width:560px', str_replace(' ', '', file_get_contents(resource_path('css/landing.css'))));
+        $this->assertStringContainsString('max-width:448px', str_replace(' ', '', file_get_contents(resource_path('css/landing.css'))));
 
         $this->assertStringContainsString("import './product-gallery';", file_get_contents(resource_path('js/storefront.js')));
         $this->assertStringContainsString(
