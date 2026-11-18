@@ -75,14 +75,14 @@ class ProductVariant extends Model implements HasMedia
         // full resolution images for small thumbnails.
         $this->addMediaConversion('product-square')
             ->performOnCollections('variant-image')
-            ->fit(Fit::Fill, 960, 960, '#f8f7f1')
+            ->fit(Fit::FillMax, 960, 960, '#f8f7f1')
             ->format('webp')
             ->quality(84)
             ->nonQueued();
 
         $this->addMediaConversion('product-thumb')
             ->performOnCollections('variant-image')
-            ->fit(Fit::Fill, 192, 192, '#f8f7f1')
+            ->fit(Fit::FillMax, 192, 192, '#f8f7f1')
             ->format('webp')
             ->quality(80)
             ->nonQueued();
