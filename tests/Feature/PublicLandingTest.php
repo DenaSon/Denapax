@@ -487,7 +487,7 @@ class PublicLandingTest extends TestCase
             ->assertSee('مبلغ کل')
             ->assertSee('قیمت هر بسته')
             ->assertDontSee('قیمت از')
-            ->assertSee('class="product-page', false)
+            ->assertSee('class="landing-container product-page', false)
             ->assertSee('class="product-layout" dir="ltr"', false)
             ->assertSee('class="product-purchase-section"', false)
             ->assertSee('x-text="selectedVariantTitle"', false)
