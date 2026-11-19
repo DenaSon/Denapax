@@ -50,8 +50,13 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 .landing-header.is-compact { background: rgba(23, 56, 45, .96); backdrop-filter: blur(12px); }
 .landing-header-inner { height: 5.5rem; transition: height .28s ease; }
 .landing-header-inner.is-compact { height: 4rem; }
-.landing-header-mark { width: 3rem; height: 2.5rem; }
-.landing-header-mark.is-compact { width: 2rem; height: 1.75rem; }
+.landing-header-mark {
+    width: 3rem;
+    height: 3rem;
+    flex: none;
+    object-fit: contain;
+}
+.landing-header-mark.is-compact { width: 2.2rem; height: 2.2rem; }
 .landing-header-wordmark { font-size: 1.125rem; transition: font-size .28s ease; }
 .landing-header-wordmark.is-compact { font-size: 1rem; }
 .landing-header-toggle { width: 2.75rem; height: 2.75rem; transition: width .28s ease, height .28s ease; }
@@ -59,7 +64,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 @media (min-width: 768px) {
     .landing-header-inner { height: 6.5rem; }
     .landing-header-inner.is-compact { height: 5rem; }
-    .landing-header-mark.is-compact { width: 2.5rem; height: 2rem; }
+    .landing-header-mark.is-compact { width: 2.6rem; height: 2.6rem; }
     .landing-header-wordmark { font-size: 1.25rem; }
     .landing-header-wordmark.is-compact { font-size: 1.125rem; }
 }
@@ -618,10 +623,10 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     text-decoration: none;
 }
 .store-brand-mark {
-    width: 43px;
-    height: 40px;
+    width: 46px;
+    height: 46px;
     flex: none;
-    color: #cbd9c3;
+    object-fit: contain;
 }
 .store-brand-name { display: block; font-size: 1.2rem; font-weight: 800; line-height: 1.2; }
 .store-brand-tagline { display: block; margin-top: .22rem; font-size: .7rem; color: #c0cfbd; }
@@ -811,7 +816,7 @@ body.landing { min-width: 320px; overflow-x: hidden; }
 @media (max-width: 639px) {
     .store-header-inner { min-height: 64px; gap: .45rem; }
     .store-brand { gap: .5rem; }
-    .store-brand-mark { width: 30px; height: 30px; }
+    .store-brand-mark { width: 34px; height: 34px; }
     .store-brand-name { font-size: .95rem; }
     .store-brand-tagline { display: none; }
     .store-header-link { min-height: 40px; padding-inline: .55rem; font-size: .72rem; }
