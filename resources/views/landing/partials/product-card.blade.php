@@ -1,13 +1,5 @@
 @php
-    $cover = $product->getFirstMedia('gallery');
-    if (! $cover) {
-        foreach ($product->variants as $variant) {
-            $cover = $variant->getFirstMedia('variant-image');
-            if ($cover) {
-                break;
-            }
-        }
-    }
+    $cover = app(\App\Support\ProductImageResolver::class)->forProduct($product);
     $startingPrice = (int) $product->variants->min('price_irr');
 @endphp
 

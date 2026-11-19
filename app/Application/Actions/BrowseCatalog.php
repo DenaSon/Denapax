@@ -35,7 +35,12 @@ class BrowseCatalog
                     });
                 }
             })
-            ->with(['category', 'variants' => fn ($q) => $q->availableForSale()->orderBy('price_irr')])
+            ->with([
+                'category',
+                'media',
+                'variants' => fn ($q) => $q->availableForSale()->orderBy('price_irr'),
+                'variants.media',
+            ])
             ->orderBy('id')
             ->paginate(perPage: 10, page: max(1, $page));
     }

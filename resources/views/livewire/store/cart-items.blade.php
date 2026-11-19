@@ -57,14 +57,21 @@
                     @foreach ($lines as $line)
                         @php
                             $product = $line['variant']->product;
-                            $cover = $line['variant']->getFirstMedia('variant-image') ?? $product->getFirstMedia('gallery');
+                            $variant = $line['variant'];
+                            $cover = app(\App\Support\ProductImageResolver::class)->forVariant($variant, $product);
+                            $hasDedicatedImage = $variant->getFirstMedia('variant-image') !== null;
+                            $sizeQuantity = rtrim(rtrim(number_format((float) $variant->sale_quantity, 3, '.', ''), '0'), '.');
+                            $sizeUnit = match ($variant->sale_unit) {
+                                'g' => 'گرم', 'kg' => 'کیلوگرم', 'l' => 'لیتر',
+                                'piece' => 'عدد', default => (string) $variant->sale_unit,
+                            };
                         @endphp
                         <article wire:key="cart-variant-{{ $line['variant']->id }}" class="store-cart-item">
                             <a wire:navigate href="{{ route('products.show', $product->slug) }}"
                                class="store-cart-item-image" aria-label="مشاهده {{ $product->title }}">
                                 @if ($cover)
                                     <img src="{{ $cover->hasGeneratedConversion('product-thumb') ? $cover->getUrl('product-thumb') : ($cover->hasGeneratedConversion('product-square') ? $cover->getUrl('product-square') : $cover->getUrl()) }}"
-                                         alt="{{ $product->title }} - {{ $line['variant']->title }}"
+                                         alt="{{ $hasDedicatedImage ? $product->title.' - '.$variant->title : $product->title }}"
                                          width="112" height="112" loading="lazy" decoding="async">
                                 @else
                                     <span class="store-cart-item-placeholder" aria-hidden="true">
@@ -82,7 +89,10 @@
                                 <div class="store-cart-item-copy">
                                     <a wire:navigate href="{{ route('products.show', $product->slug) }}"
                                        class="store-cart-item-title">{{ $product->title }}</a>
-                                    <p class="store-cart-item-variant">{{ $line['variant']->title }}</p>
+                                    <p class="store-cart-item-variant">
+                                        <span class="store-cart-item-size">{{ $sizeQuantity }} {{ $sizeUnit }}</span>
+                                        <span class="store-cart-item-variant-name">{{ $variant->title }}</span>
+                                    </p>
                                     <p class="store-cart-item-unit-price">
                                         هر بسته
                                         <span>{{ \App\Support\Money::formatToman((int) $line['variant']->price_irr) }} تومان</span>
@@ -173,7 +183,7 @@
 
                 <p class="store-cart-shipping-note">
                     @if ($shippingEstimate !== null)
-                        هزینه ارسال بر اساس وزن سبد و تعرفه فعلی محاسبه شده است؛ مبلغ پیش از ثبت سفارش دوباره بررسی می‌شود.
+                        ارسال بر اساس وزن سبد محاسبه شده؛ مبلغ در مرحله ثبت سفارش بازبینی می‌شود.
                     @elseif ($hasUnavailable)
                         پس از حذف اقلام ناموجود، هزینه ارسال و مجموع سفارش محاسبه می‌شود.
                     @else
