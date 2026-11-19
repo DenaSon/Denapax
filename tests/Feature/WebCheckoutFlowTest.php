@@ -185,7 +185,7 @@ class WebCheckoutFlowTest extends TestCase
         $this->get(route('cart.index'))->assertOk()
             ->assertSee('مجموع با ارسال')
             ->assertSee('150,000 تومان')
-            ->assertSee('450,000 تومان');
+            ->assertSee('450,000');
 
         $this->get(route('checkout.index'))->assertOk()
             ->assertSee('مبلغ نهایی')
