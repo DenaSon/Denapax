@@ -111,8 +111,7 @@
                 <button type="submit" class="landing-search-button rounded-full bg-[#19392f] px-6 py-3 text-sm font-bold text-white">جستجو</button>
             </form>
 
-            @if ($categories->isNotEmpty())
-                <nav id="categories" aria-label="دسته‌بندی محصولات" class="home-categories mb-8 flex flex-wrap items-center gap-2.5 md:mb-10">
+            <nav id="categories" aria-label="دسته‌بندی محصولات" class="home-categories mb-8 flex flex-wrap items-center gap-2.5 md:mb-10">
                     <a wire:navigate href="{{ route('home') }}#products" aria-current="page"
                        class="home-category-all rounded-full px-5 py-2.5 text-xs font-semibold">
                         همه محصولات
@@ -124,7 +123,6 @@
                         </a>
                     @endforeach
                 </nav>
-            @endif
 
             @livewire('store.home-product-feed', ['startPage' => $products->currentPage()])
         </section>
