@@ -33,12 +33,10 @@
         <div class="landing-container landing-header-inner flex items-center justify-between gap-4 border-b border-white/20 md:gap-5"
              x-bind:class="headerCompact ? 'is-compact' : ''">
             <a wire:navigate href="{{ route('home') }}" aria-label="دناپکس، بازگشت به ابتدای صفحه" class="group inline-flex shrink-0 items-center gap-3" x-on:click="menuOpen = false">
-                <svg x-bind:class="headerCompact ? 'is-compact' : ''"
-                     class="landing-header-mark transition-all duration-300 group-hover:-translate-y-1" viewBox="0 0 70 48" fill="none" aria-hidden="true">
-                    <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
-                    <path d="M3 46h64" stroke="#E6E8D4" stroke-width="2" stroke-linecap="round"/>
-                </svg>
+                <img x-bind:class="headerCompact ? 'is-compact' : ''"
+                     class="landing-header-mark transition-all duration-300 group-hover:-translate-y-1"
+                     src="https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png" width="512" height="512" alt="" aria-hidden="true"
+                     decoding="async" fetchpriority="high">
                 <span class="text-right">
                     <span x-bind:class="headerCompact ? 'is-compact' : ''"
                           class="landing-header-wordmark block font-bold leading-none tracking-tight" lang="en">DenaPax</span>
