@@ -3,6 +3,7 @@
 namespace App\Application\Actions;
 
 use App\Domain\Shipping\ShippingCalculator;
+use App\Models\ProductVariant;
 use App\Models\ShippingSetting;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -15,7 +16,7 @@ final class EstimateCartShipping
      * Use the same weight-based tariff as checkout, without requiring a delivery
      * address under the current nationwide pricing policy.
      *
-     * @param  Collection<int, array{variant: \App\Models\ProductVariant, quantity: int, total_irr: int, available: bool}>  $lines
+     * @param  Collection<int, array{variant: ProductVariant, quantity: int, total_irr: int, available: bool}>  $lines
      * @return array{shipping_fee_irr: int, total_irr: int}|null
      */
     public function execute(Collection $lines): ?array
