@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ShippingSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -200,6 +201,70 @@ class ReactiveCartTest extends TestCase
         $this->assertStringContainsString("@source '../views/livewire/store/**/*.blade.php';", $css);
     }
 
+    public function test_guest_cart_shows_shipping_and_livewire_refreshes_total(): void
+    {
+        $variant = $this->variant('cart-shipping');
+        ShippingSetting::create([
+            'id' => 1,
+            'base_weight_grams' => 1000,
+            'base_price_irr' => 900000,
+            'extra_step_grams' => 500,
+            'extra_step_price_irr' => 300000,
+            'packaging_weight_grams' => 100,
+        ]);
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('مجموع با ارسال')
+            ->assertSee('90,000 تومان')
+            ->assertSee('590,000')
+            ->assertSee('store-cart-mobile-dock-shipping', false)
+            ->assertSee('مبلغ پیش از ثبت سفارش دوباره بررسی می‌شود.')
+            ->assertDontSee('پس از انتخاب نشانی');
+
+        Livewire::test(CartItems::class)
+            ->call('changeQuantity', $variant->id, 2)
+            ->assertHasNoErrors()
+            ->assertSee('120,000 تومان')
+            ->assertSee('1,120,000')
+            ->call('changeQuantity', $variant->id, 3)
+            ->assertHasNoErrors()
+            ->assertSee('150,000 تومان')
+            ->assertSee('1,650,000');
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('1,650,000')
+            ->assertSee('150,000 تومان');
+    }
+
+    public function test_cart_hides_shipping_total_when_tariff_missing_or_items_unavailable(): void
+    {
+        $variant = $this->variant('cart-shipping-unavailable');
+        $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('فعلاً قابل محاسبه نیست')
+            ->assertSee('جمع کالاها · بدون ارسال')
+            ->assertDontSee('مجموع با ارسال');
+
+        ShippingSetting::create([
+            'id' => 1,
+            'base_weight_grams' => 1000,
+            'base_price_irr' => 900000,
+            'extra_step_grams' => 500,
+            'extra_step_price_irr' => 300000,
+            'packaging_weight_grams' => 100,
+        ]);
+        $variant->update(['is_available' => false]);
+
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('پس از اصلاح سبد')
+            ->assertSee('جمع کالاها · بدون ارسال')
+            ->assertDontSee('590,000')
+            ->assertDontSee('مجموع با ارسال')
+            ->assertSee('ابتدا کالای ناموجود را حذف کنید');
+    }
+
     public function test_guest_cart_cta_matches_the_next_step_and_still_requires_customer_login(): void
     {
         $variant = $this->variant('cta-guest');
@@ -209,7 +274,7 @@ class ReactiveCartTest extends TestCase
             ->assertSee('ورود و ادامه خرید')
             ->assertDontSee('ادامه به نشانی و ارسال')
             ->assertSee('href="'.route('checkout.index').'"', false)
-            ->assertSee('پس از انتخاب نشانی');
+            ->assertSee('فعلاً قابل محاسبه نیست');
 
         // The button still targets the protected checkout so intended redirect
         // to the address step survives the OTP login flow.

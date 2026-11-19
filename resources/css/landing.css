@@ -1035,6 +1035,9 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 .store-cart-summary-lines > div { display:flex; align-items:center; justify-content:space-between; gap:.75rem; color:#758273; font-size:.78rem; }
 .store-cart-summary-lines strong { color:#31533c; font-size:.8rem; font-weight:800; text-align:end; }
 .store-cart-shipping-pending { color:#8a765c !important; font-size:.74rem !important; }
+.store-cart-summary-lines > .store-cart-summary-estimated-total { margin-top:.1rem; padding-top:.85rem; border-top:1px solid #e1e7dc; color:#244a34; font-weight:800; }
+.store-cart-summary-lines > .store-cart-summary-estimated-total strong { color:#173e2e; font-size:1.07rem; font-weight:900; white-space:nowrap; }
+.store-cart-summary-estimated-total small { font-size:.72rem; }
 .store-cart-summary-total { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:.6rem; padding:1.1rem 0 .25rem; color:#244a34; font-size:.82rem; font-weight:800; }
 .store-cart-summary-total strong { color:#173e2e; font-size:1.28rem; font-weight:900; white-space:nowrap; }
 .store-cart-summary-total small { font-size:.73rem; }
@@ -1188,6 +1191,7 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
 .store-cart-mobile-dock-summary { display:grid; min-width:0; gap:.2rem; color:#70806f; font-size:.68rem; }
 .store-cart-mobile-dock-summary strong { color:#1b4432; font-size:1rem; font-weight:900; white-space:nowrap; }
 .store-cart-mobile-dock-summary small { font-size:.68rem; font-weight:750; }
+.store-cart-mobile-dock-shipping { color:#667b6a; font-size:.62rem; font-weight:650; white-space:nowrap; }
 .store-cart-mobile-dock-action {
     display:inline-flex;
     min-width:0;
@@ -1261,6 +1265,7 @@ input:checked + .store-variant-card::after { border: 5px solid #245840; }
     .store-cart-summary-lines { gap:.55rem; margin-top:.55rem; padding:.75rem 0 0; border-bottom:0; }
     .store-cart-summary-lines > div { font-size:.75rem; }
     .store-cart-summary-total { display:none; }
+    .store-cart-summary-lines > .store-cart-summary-estimated-total { display:none; }
     .store-cart-shipping-note { margin:.65rem 0 0; font-size:.7rem; line-height:1.7; }
     .store-cart-page.has-mobile-dock { padding-bottom:calc(6rem + env(safe-area-inset-bottom,0px)); }
     .store-cart-mobile-dock { gap:.65rem; padding:.65rem .85rem calc(.65rem + env(safe-area-inset-bottom,0px)); }
