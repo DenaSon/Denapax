@@ -40,6 +40,9 @@
             </a>
         </section>
     @else
+        @php
+            $hasUnavailable = $lines->contains(fn ($line) => ! $line['available']);
+        @endphp
         <div class="store-cart-grid">
             <section class="store-cart-items-panel" aria-label="اقلام سبد خرید">
                 <div class="store-cart-panel-heading">
@@ -154,15 +157,31 @@
                     </div>
                     <div>
                         <span>هزینه ارسال</span>
-                        <strong class="store-cart-shipping-pending">پس از انتخاب نشانی</strong>
+                        @if ($shippingEstimate !== null)
+                            <strong class="store-amount">{{ \App\Support\Money::formatToman($shippingEstimate['shipping_fee_irr']) }} تومان</strong>
+                        @else
+                            <strong class="store-cart-shipping-pending">{{ $hasUnavailable ? 'پس از اصلاح سبد' : 'فعلاً قابل محاسبه نیست' }}</strong>
+                        @endif
                     </div>
+                    @if ($shippingEstimate !== null)
+                        <div class="store-cart-summary-estimated-total">
+                            <span>مجموع با ارسال</span>
+                            <strong class="store-amount">{{ \App\Support\Money::formatToman($shippingEstimate['total_irr']) }} <small>تومان</small></strong>
+                        </div>
+                    @endif
                 </div>
 
                 <p class="store-cart-shipping-note">
-                    مبلغ فعلی بدون هزینه ارسال است؛ هزینه ارسال پس از انتخاب نشانی و پیش از تأیید نهایی نمایش داده می‌شود.
+                    @if ($shippingEstimate !== null)
+                        هزینه ارسال بر اساس وزن سبد و تعرفه فعلی محاسبه شده است؛ مبلغ پیش از ثبت سفارش دوباره بررسی می‌شود.
+                    @elseif ($hasUnavailable)
+                        پس از حذف اقلام ناموجود، هزینه ارسال و مجموع سفارش محاسبه می‌شود.
+                    @else
+                        هزینه ارسال فعلاً قابل محاسبه نیست؛ لطفاً پیش از ادامه، مبلغ را در مرحله تکمیل سفارش بررسی کنید.
+                    @endif
                 </p>
 
-                @if ($lines->contains(fn ($line) => ! $line['available']))
+                @if ($hasUnavailable)
                     <p role="alert" class="store-cart-summary-alert">برای ادامه خرید، ابتدا تنوع‌های ناموجود را از سبد حذف کنید.</p>
                     <button type="button" class="store-button store-button-primary store-cart-checkout" disabled>
                         ابتدا کالای ناموجود را حذف کنید
@@ -186,11 +205,14 @@
         </div>
 
         <div class="store-cart-mobile-dock" aria-label="خلاصه سبد خرید و ادامه سفارش">
-            <div class="store-cart-mobile-dock-summary">
-                <span>{{ $totalQuantity }} عدد کالا · جمع کالاها</span>
-                <strong>{{ \App\Support\Money::formatToman((int) $subtotal) }} <small>تومان</small></strong>
+            <div class="store-cart-mobile-dock-summary" aria-live="polite">
+                <span>{{ $shippingEstimate !== null ? 'مجموع با ارسال' : 'جمع کالاها · بدون ارسال' }}</span>
+                <strong>{{ \App\Support\Money::formatToman($shippingEstimate['total_irr'] ?? (int) $subtotal) }} <small>تومان</small></strong>
+                @if ($shippingEstimate !== null)
+                    <span class="store-cart-mobile-dock-shipping">ارسال: {{ \App\Support\Money::formatToman($shippingEstimate['shipping_fee_irr']) }} تومان</span>
+                @endif
             </div>
-            @if ($lines->contains(fn ($line) => ! $line['available']))
+            @if ($hasUnavailable)
                 <button type="button" class="store-cart-mobile-dock-action" disabled>
                     ابتدا کالای ناموجود را حذف کنید
                 </button>

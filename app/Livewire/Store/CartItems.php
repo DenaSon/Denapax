@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Store;
 
+use App\Application\Actions\EstimateCartShipping;
 use App\Application\Actions\StoreCart;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -27,6 +28,7 @@ class CartItems extends Component
             'lines' => $lines,
             'subtotal' => (int) $lines->sum('total_irr'),
             'totalQuantity' => (int) $lines->sum('quantity'),
+            'shippingEstimate' => app(EstimateCartShipping::class)->execute($lines),
         ]);
     }
 }

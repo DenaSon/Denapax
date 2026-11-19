@@ -5,7 +5,7 @@
 ## Implemented
 
 - On mobile (700px and below), item panel appears before summary panel. Desktop remains a two-column layout. Mobile row padding and the summary panel are more compact; duplicate subtotal block and decorative trust footer removed.
-- Sticky bottom dock remains visible, safe-area aware, and is the only primary mobile action. It shows item count and current merchandise subtotal in toman. Shipping is still explicitly excluded until an address is selected; do not claim final total.
+- This polish originally displayed only the merchandise subtotal in the sticky dock. It is superseded by the weight-based cart estimate in [docs/60-cart-shipping-estimate.md](60-cart-shipping-estimate.md), which displays the current combined total where calculable.
 - Guest checkout link reads «ورود و ادامه خرید»; signed-in customer link reads «ادامه به نشانی و ارسال». Both navigate to the protected checkout route (which sends guests to OTP login, preserving intended destination), not directly to order confirmation.
 - Exact variant image has priority. Product gallery image is fallback. Prefer generated `product-thumb`, then `product-square`, then original image when conversions do not exist. If the database has no suitable media, show «بدون تصویر» rather than an ambiguous mountain mark.
 - Existing Livewire no-refresh plus/minus/remove, quantity limits and unavailable-product blocks are unchanged; native forms and server authoritative validation remain.

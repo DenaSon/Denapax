@@ -181,6 +181,12 @@ class WebCheckoutFlowTest extends TestCase
         $address = $this->makeAddress();
         $this->post(route('cart.add'), ['variant_id' => $this->variant->id, 'quantity' => 2]);
 
+        // The cart estimate and authoritative checkout use the same tariff.
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('مجموع با ارسال')
+            ->assertSee('150,000 تومان')
+            ->assertSee('450,000');
+
         $this->get(route('checkout.index'))->assertOk()
             ->assertSee('مبلغ نهایی')
             ->assertSee('450,000')
