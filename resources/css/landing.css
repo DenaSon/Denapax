@@ -277,10 +277,10 @@ body.landing { min-width: 320px; overflow-x: hidden; }
     transform: translateX(-102%);
     pointer-events: none;
 }
-.motion-ready .product-card:not(.is-visible) .product-photo::after {
+.motion-ready .product-card[data-reveal]:not(.is-visible) .product-photo::after {
     transform: translateX(0);
 }
-.motion-ready .product-card.is-visible .product-photo::after {
+.motion-ready .product-card[data-reveal].is-visible .product-photo::after {
     transform: translateX(-102%);
     transition: transform .88s cubic-bezier(.75, 0, .24, 1) .12s;
 }

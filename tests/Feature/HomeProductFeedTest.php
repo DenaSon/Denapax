@@ -81,6 +81,29 @@ class HomeProductFeedTest extends TestCase
         $this->assertSame(1, substr_count($feed->html(), 'wire:key="home-product-1"'));
     }
 
+    public function test_scroll_feed_images_are_not_hidden_behind_the_old_editorial_reveal_mask(): void
+    {
+        $this->createProducts(15);
+
+        // The nested Livewire feed renders real product cards without the old
+        // data-reveal animation. Every appended batch must stay visible too.
+        $feed = Livewire::test(HomeProductFeed::class);
+        $this->assertSame(12, substr_count($feed->html(), 'wire:key="home-product-'));
+        $this->assertSame(12, substr_count($feed->html(), '<article class="product-card'));
+        $this->assertStringNotContainsString('data-reveal', $feed->html());
+
+        $feed->call('loadMore')->assertHasNoErrors();
+        $this->assertSame(15, substr_count($feed->html(), '<article class="product-card'));
+        $this->assertStringNotContainsString('data-reveal', $feed->html());
+
+        // Editorial reveal masks are now only allowed on cards with an actual
+        // observer target; otherwise the solid pseudo-element covers the photo.
+        $css = file_get_contents(resource_path('css/landing.css'));
+        $this->assertStringContainsString('.motion-ready .product-card[data-reveal]:not(.is-visible) .product-photo::after', $css);
+        $this->assertStringContainsString('.motion-ready .product-card[data-reveal].is-visible .product-photo::after', $css);
+        $this->assertStringNotContainsString('.motion-ready .product-card:not(.is-visible) .product-photo::after', $css);
+    }
+
     public function test_hidden_or_unavailable_items_are_never_rendered_in_the_home_feed(): void
     {
         $products = $this->createProducts(2);
