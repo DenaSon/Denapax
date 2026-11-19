@@ -4,6 +4,7 @@ namespace App\Livewire\Store;
 
 use App\Application\Actions\SaveCustomerAddress;
 use App\Support\CustomerAddressInput;
+use App\Support\IranProvinces;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -46,12 +47,19 @@ class AddressEditor extends Component
         foreach (['label', 'recipient_name', 'recipient_mobile', 'province', 'city', 'address_line', 'postal_code'] as $field) {
             $this->{$field} = (string) ($address->{$field} ?? '');
         }
+
+        // Recognize legacy spacing/Arabic-letter variants without modifying
+        // the persisted address before an explicit save.
+        $this->province = IranProvinces::normalize($this->province);
     }
 
     public function save(): void
     {
         abort_unless(auth('customer')->check(), 403);
-        $attributes = CustomerAddressInput::normalize($this->validate(CustomerAddressInput::rules()));
+        $this->province = IranProvinces::normalize($this->province);
+        $attributes = CustomerAddressInput::normalize(
+            $this->validate(CustomerAddressInput::rules(), CustomerAddressInput::messages()),
+        );
         $saved = app(SaveCustomerAddress::class)->execute(
             auth('customer')->user(),
             $attributes,
@@ -72,6 +80,8 @@ class AddressEditor extends Component
     {
         abort_unless(auth('customer')->check(), 403);
 
-        return view('livewire.store.address-editor');
+        return view('livewire.store.address-editor', [
+            'provinces' => IranProvinces::all(),
+        ]);
     }
 }

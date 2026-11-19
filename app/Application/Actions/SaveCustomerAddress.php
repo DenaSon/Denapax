@@ -4,22 +4,25 @@ namespace App\Application\Actions;
 
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Support\CustomerAddressInput;
+use App\Support\IranProvinces;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class SaveCustomerAddress
 {
     public function execute(Customer $customer, array $attributes, ?int $addressId = null): CustomerAddress
     {
-        $data = Validator::make($attributes, [
+        $data = Validator::make(CustomerAddressInput::normalize($attributes), [
             'recipient_name' => 'required|string|max:220',
             'recipient_mobile' => ['required', 'string', 'regex:/^\\+?[0-9]{10,15}$/'],
-            'province' => 'required|string|max:100',
+            'province' => ['required', 'string', 'max:100', Rule::in(IranProvinces::all())],
             'city' => 'required|string|max:100',
             'address_line' => 'required|string|min:8|max:2000',
             'postal_code' => ['required', 'string', 'regex:/^[0-9]{10}$/'],
             'label' => 'nullable|string|max:80',
-        ])->validate();
+        ], CustomerAddressInput::messages())->validate();
 
         return DB::transaction(function () use ($customer, $data, $addressId): CustomerAddress {
             // Serialize default-address selection for this customer.

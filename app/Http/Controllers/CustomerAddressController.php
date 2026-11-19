@@ -8,6 +8,7 @@ use App\Support\CustomerAddressInput;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerAddressController extends Controller
 {
@@ -76,6 +77,10 @@ class CustomerAddressController extends Controller
 
     private function attributes(Request $request): array
     {
-        return CustomerAddressInput::normalize($request->validate(CustomerAddressInput::rules()));
+        return Validator::make(
+            CustomerAddressInput::normalize($request->all()),
+            CustomerAddressInput::rules(),
+            CustomerAddressInput::messages(),
+        )->validate();
     }
 }
