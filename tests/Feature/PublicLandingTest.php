@@ -22,18 +22,20 @@ class PublicLandingTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_editorial_navigation_is_accessible_without_hiding_server_rendered_catalog(): void
+    public function test_product_first_homepage_navigation_keeps_accessible_search_and_footer_help(): void
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('id="top" data-chapter', false)
-            ->assertSee('id="products" data-chapter', false)
-            ->assertSee('id="story" data-chapter', false)
-            ->assertSee('id="order" data-chapter', false)
+            ->assertSee('id="top" class="home-store-intro"', false)
+            ->assertSee('id="products" class="landing-container home-products', false)
+            ->assertSee('id="categories" aria-label="دسته‌بندی محصولات"', false)
+            ->assertSee('id="shopping-guide" class="home-footer"', false)
             ->assertSee('aria-label="فهرست موبایل بدون جاوااسکریپت"', false)
             ->assertSee('x-on:keydown="onMobileNavKeydown($event)"', false)
             ->assertSee('x-bind:aria-expanded="menuOpen.toString()"', false)
-            ->assertSee('data-topography', false)
+            ->assertDontSee('landing-chapter-rail', false)
+            ->assertDontSee('id="story"', false)
+            ->assertDontSee('id="order"', false)
             ->assertSee('href="#top"', false);
     }
 
@@ -71,19 +73,16 @@ class PublicLandingTest extends TestCase
         $this->assertStringContainsString($focusRule, file_get_contents(resource_path('css/app.css')));
     }
 
-    public function test_chapter_navigation_matches_three_landing_menu_sections(): void
+    public function test_product_navigation_links_to_real_sections_and_checkout_without_fixed_chapter_rail(): void
     {
         $html = $this->get('/')->assertOk()->getContent();
 
-        $this->assertSame(1, preg_match('/<nav class="landing-chapter-rail"[^>]*>(.*?)<\\/nav>/s', $html, $matches));
-        $rail = $matches[1];
-
-        $this->assertSame(3, substr_count($rail, '<a href='));
-        $this->assertStringContainsString('href="#products"', $rail);
-        $this->assertStringContainsString('href="#story"', $rail);
-        $this->assertStringContainsString('href="#order"', $rail);
-        $this->assertStringNotContainsString('href="#top"', $rail);
+        $this->assertStringNotContainsString('landing-chapter-rail', $html);
+        $this->assertStringContainsString('href="#products"', $html);
+        $this->assertStringContainsString('href="#categories"', $html);
+        $this->assertStringContainsString('href="#shopping-guide"', $html);
         $this->assertStringContainsString('href="'.route('cart.index').'"', $html);
+        $this->assertStringContainsString('href="'.route('orders.index').'"', $html);
     }
 
     public function test_interactive_buttons_have_pointer_styles_without_exposing_disabled_actions(): void
@@ -108,8 +107,8 @@ class PublicLandingTest extends TestCase
             ->assertSee('wire:navigate href="'.route('categories.show', ['slug' => 'nuts']).'"', false)
             ->assertDontSee('data-catalog-link', false)
             ->assertDontSee('handleCatalogClick', false)
-            ->assertSee('id="products" data-chapter', false)
-            ->assertSee('id="order" data-chapter', false)
+            ->assertSee('id="products" class="landing-container home-products', false)
+            ->assertSee('id="shopping-guide" class="home-footer"', false)
             ->assertDontSee('هر محصول، روایتی از یک جاست.')
             ->assertDontSee('از اینجا')
             ->assertDontSee('به تلگرام.');
@@ -212,20 +211,20 @@ class PublicLandingTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/^\\s*chmod\\s+777\\b/m', $script);
     }
 
-    public function test_mobile_headers_remain_visible_and_reduce_brand_navigation(): void
+    public function test_mobile_headers_remain_sticky_and_the_product_help_link_has_a_destination(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'sticky-header', 'is_active' => true]);
         $product = $this->product($category, 'گردوی دنا', 'sticky-header-walnut', 13890000);
 
         $this->get('/')->assertOk()
-            ->assertSee('<header class="landing-header fixed inset-x-0 top-0 z-50 text-white', false)
-            ->assertSee('x-bind:class="headerCompact ? \'is-compact\' : \'is-transparent\'"', false)
+            ->assertSee('<header class="landing-header sticky top-0 z-50 text-white', false)
+            ->assertSee('x-bind:class="headerCompact ? \'is-compact\' : \'\'"', false)
             ->assertSee('landing-header-inner', false)
-            ->assertDontSee('x-on:click="closeMenu(true)" href="#story"', false);
+            ->assertSee('href="#shopping-guide"', false);
 
         $this->get(route('products.show', $product->slug))->assertOk()
             ->assertSee('<header class="sticky top-0 z-50', false)
-            ->assertSee('class="hidden md:inline-flex transition hover:text-white" href="'.route('home').'#story"', false);
+            ->assertSee('class="hidden md:inline-flex transition hover:text-white" href="'.route('home').'#shopping-guide"', false);
 
         $css = file_get_contents(resource_path('css/landing.css'));
         $this->assertStringContainsString('.store-header {', $css);
@@ -261,39 +260,68 @@ class PublicLandingTest extends TestCase
             ->assertSee('Mohammad Asadi');
     }
 
-    public function test_editorial_landing_has_clear_customer_assurance_and_consistent_product_cards(): void
+    public function test_compact_homepage_prioritizes_products_and_retains_dena_origin_in_footer(): void
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'nuts', 'is_active' => true]);
         $this->product($category, 'گردوی دنا', 'walnuts-new', 13890000);
         $this->product($category, 'مغز گردوی دنا', 'walnut-kernels', 14800000);
 
         $this->get('/')->assertOk()
-            ->assertSee('aria-label="ویژگی‌های خرید از دناپکس"', false)
-            ->assertSee('وزن، مشخصات و قیمت به تومان')
-            ->assertSee('class="landing-story-panel"', false)
-            ->assertSee('مراحل سفارش')
-            ->assertSee('۱. انتخاب محصول · ۲. مشاهده سبد خرید · ۳. ورود و ثبت نشانی · ۴. انتخاب روش پرداخت')
-            ->assertDontSee('از انتخاب محصول تا ثبت سفارش')
+            ->assertSee('سوغات و خشکبار دنا')
+            ->assertSee('id="top" class="home-store-intro"', false)
+            ->assertSee('class="home-products-heading"', false)
+            ->assertSee('data-home-product-grid', false)
+            ->assertSee('دناپکس مجموعه‌ای از خشکبار، میوه‌های خشک و سوغات محلی منطقه دنا و شهر سی‌سخت')
+            ->assertSee('وزن بسته‌ها و قیمت هر تنوع')
+            ->assertSee('راهنمای خرید')
+            ->assertSee('سبد خرید، هزینه ارسال و نشانی را بررسی کنید.')
             ->assertSee('class="product-card-action', false)
+            ->assertDontSee('landing-story-panel', false)
+            ->assertDontSee('landing-assurance', false)
+            ->assertDontSee('landing-order-section', false)
             ->assertDontSee('product-card-featured')
             ->assertDontSee('DENAPAX / SELECTED');
     }
 
-    public function test_editorial_styles_respect_mobile_and_reduced_motion(): void
+    public function test_product_first_styles_keep_dena_branding_responsive_layout_and_reduced_motion(): void
     {
         $css = file_get_contents(resource_path('css/landing.css'));
 
-        $this->assertStringContainsString('.landing-assurance-grid', $css);
-        $this->assertStringContainsString('.landing-story-panel', $css);
-        $this->assertStringContainsString("url('/storage/landing/denapax-kuhgol-1200x900.webp')", $css);
+        $this->assertStringContainsString('.home-store-intro', $css);
+        $this->assertStringContainsString('.home-footer-grid', $css);
+        $this->assertStringContainsString('.home-category-priority', $css);
+        $this->assertStringContainsString('.home-feed-loader', $css);
         $this->assertStringContainsString("url('/images/dena-landscape.svg')", $css);
         $this->assertStringNotContainsString("url('https://fm-9kyo-denapx.runflare.cloud/data/", $css);
-        $this->assertStringContainsString('aspect-ratio: 1.11;', $css);
-        $this->assertStringContainsString('aspect-ratio: 1.22;', $css);
-        $this->assertStringContainsString('background-size: cover, cover, cover;', $css);
         $this->assertStringNotContainsString('upload.wikimedia.org/wikipedia/commons/3/35/Dena_mountains', $css);
         $this->assertStringContainsString('.landing:not(.store-shell) .product-card', $css);
-        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+        $this->assertStringContainsString('@media (prefers-reduced-motion:reduce)', $css);
+    }
+
+    public function test_first_three_available_categories_are_highlighted_once_in_the_same_navigation(): void
+    {
+        foreach ([4, 2, 1, 3] as $order) {
+            $category = Category::create([
+                'name' => 'دسته '.$order,
+                'slug' => 'category-'.$order,
+                'sort_order' => $order,
+                'is_active' => true,
+            ]);
+            $this->product($category, 'محصول دسته '.$order, 'product-'.$order, 2000000);
+        }
+
+        $html = $this->get(route('home'))->assertOk()->getContent();
+        $start = strpos($html, '<nav id="categories"');
+        $end = strpos($html, '</nav>', $start);
+        $this->assertNotFalse($start);
+        $this->assertNotFalse($end);
+
+        $nav = substr($html, $start, $end - $start);
+        $this->assertSame(3, substr_count($nav, 'home-category-priority'));
+        $this->assertSame(4, substr_count($nav, 'class="home-category-link'));
+        $this->assertTrue(strpos($nav, 'دسته 1') < strpos($nav, 'دسته 2'));
+        $this->assertTrue(strpos($nav, 'دسته 2') < strpos($nav, 'دسته 3'));
+        $this->assertTrue(strpos($nav, 'دسته 3') < strpos($nav, 'دسته 4'));
     }
 
     public function test_guest_sees_only_published_orderable_products_and_exact_toman_prices(): void

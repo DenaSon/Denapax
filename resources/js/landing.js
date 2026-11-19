@@ -25,12 +25,8 @@ document.addEventListener('alpine:init', () => {
         menuOpen: false,
         hasScrolled: false,
         headerCompact: false,
-        scrollProgress: 0,
-        activeSection: 'products',
         scrollFrame: null,
-        pointerFrame: null,
         revealObserver: null,
-        sectionObserver: null,
         onScroll: null,
         onResize: null,
 
@@ -39,11 +35,6 @@ document.addEventListener('alpine:init', () => {
                 this.scrollFrame = null;
                 this.hasScrolled = window.scrollY > 400;
                 this.headerCompact = window.scrollY > 48;
-
-                const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-                this.scrollProgress = scrollableHeight > 0
-                    ? Math.min(1, Math.max(0, window.scrollY / scrollableHeight))
-                    : 0;
             };
 
             this.onScroll = () => {
@@ -59,16 +50,12 @@ document.addEventListener('alpine:init', () => {
             updateScroll();
             window.addEventListener('scroll', this.onScroll, { passive: true });
             window.addEventListener('resize', this.onResize, { passive: true });
-
-            this.$nextTick(() => {
-                this.observeReveals();
-                this.observeChapters();
-            });
+            this.$nextTick(() => this.observeReveals());
         },
 
         observeReveals() {
             this.revealObserver?.disconnect();
-            const elements = this.$root.querySelectorAll('[data-reveal], [data-topography]');
+            const elements = this.$root.querySelectorAll('[data-reveal]');
 
             if (!('IntersectionObserver' in window)
                 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -77,7 +64,6 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.$root.classList.add('motion-ready');
-
             this.revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
@@ -88,19 +74,6 @@ document.addEventListener('alpine:init', () => {
             }, { threshold: 0.08, rootMargin: '0px 0px 32px 0px' });
 
             elements.forEach((element) => this.revealObserver.observe(element));
-        },
-
-        observeChapters() {
-            if (!('IntersectionObserver' in window)) return;
-
-            const chapters = this.$root.querySelectorAll('[data-chapter]');
-            this.sectionObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) this.activeSection = entry.target.id;
-                });
-            }, { rootMargin: '-10% 0px -72% 0px', threshold: 0 });
-
-            chapters.forEach((chapter) => this.sectionObserver.observe(chapter));
         },
 
         toggleMenu() {
@@ -135,40 +108,11 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        onHeroMove(event) {
-            if (event.pointerType === 'touch'
-                || window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches
-                || !this.$refs.landscape) return;
-
-            const rect = event.currentTarget.getBoundingClientRect();
-            const x = (((event.clientX - rect.left) / rect.width - 0.5) * 14).toFixed(1) + 'px';
-            const y = (((event.clientY - rect.top) / rect.height - 0.5) * 10).toFixed(1) + 'px';
-
-            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
-
-            this.pointerFrame = window.requestAnimationFrame(() => {
-                this.$refs.landscape.style.setProperty('--landscape-x', x);
-                this.$refs.landscape.style.setProperty('--landscape-y', y);
-                this.pointerFrame = null;
-            });
-        },
-
-        resetHero() {
-            if (!this.$refs.landscape) return;
-            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
-
-            this.pointerFrame = null;
-            this.$refs.landscape.style.setProperty('--landscape-x', '0px');
-            this.$refs.landscape.style.setProperty('--landscape-y', '0px');
-        },
-
         destroy() {
             window.removeEventListener('scroll', this.onScroll);
             window.removeEventListener('resize', this.onResize);
             if (this.scrollFrame !== null) window.cancelAnimationFrame(this.scrollFrame);
-            if (this.pointerFrame !== null) window.cancelAnimationFrame(this.pointerFrame);
             this.revealObserver?.disconnect();
-            this.sectionObserver?.disconnect();
         },
     }));
 });

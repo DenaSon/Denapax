@@ -1716,3 +1716,76 @@ input:focus-visible + .product-variant-card {
 
 /* Livewire focuses page headings for assistive context; they are not interactive focus stops. */
 main h1[tabindex="-1"]:focus { outline: none; }
+
+
+/* Final product-first homepage: compact Dena identity, clear catalog and helpful footer. */
+.home-catalog .landing-header { background:rgba(20,53,41,.97); box-shadow:0 7px 24px rgba(13,37,29,.13); }
+.home-catalog .landing-header-inner { height:4.6rem; }
+.home-catalog .landing-header-inner.is-compact { height:3.9rem; }
+.home-store-intro { position:relative; isolation:isolate; overflow:hidden; background:#183f30; color:#f9f6e9; }
+.home-store-intro::before { content:""; position:absolute; z-index:-2; inset:0; background:url('/images/dena-landscape.svg') center 56%/cover no-repeat; opacity:.28; }
+.home-store-intro::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(100deg,rgba(17,56,40,.80),rgba(16,48,35,.95) 70%); }
+.home-intro-inner { display:flex; min-height:216px; align-items:center; justify-content:space-between; gap:2rem; padding-block:2rem 2.1rem; }
+.home-intro-copy { max-width:780px; }
+.home-intro-label { margin:0 0 .55rem; color:#d6ccaa; font-size:.75rem; font-weight:800; }
+.home-intro-copy h1 { margin:0; font-size:clamp(1.8rem,3.7vw,3.3rem); line-height:1.4; font-weight:900; letter-spacing:-.035em; }
+.home-intro-copy p:last-child { max-width:690px; margin:.65rem 0 0; color:#e1eadb; font-size:.88rem; line-height:2; }
+.home-intro-link { display:inline-flex; min-height:44px; flex:none; align-items:center; gap:.6rem; padding:.6rem 1.2rem; border:1px solid rgba(240,244,224,.58); border-radius:99px; color:#fff; font-size:.78rem; font-weight:800; text-decoration:none; transition:background-color .2s; }
+.home-intro-link:hover { background:rgba(255,255,255,.13); }
+.home-products { padding-top:2.5rem; padding-bottom:4.5rem; }
+.home-products-heading { display:flex; align-items:end; justify-content:space-between; gap:1.2rem; margin-bottom:1.4rem; }
+.home-products-eyebrow { margin:0 0 .35rem; color:#936e4d; font-size:.72rem; font-weight:850; }
+.home-products-heading h2 { margin:0; color:#1b4331; font-size:clamp(1.75rem,3vw,2.65rem); font-weight:900; letter-spacing:-.04em; }
+.home-products-heading p:not(.home-products-eyebrow) { margin:.3rem 0 0; color:#687d6c; font-size:.8rem; line-height:1.8; }
+.home-products-count { flex:none; color:#6b816d; font-size:.74rem; font-weight:750; }
+.home-product-search { max-width:890px; }
+.home-categories { scroll-margin-top:6rem; }
+.home-category-all { border:1px solid #19392f; background:#19392f; color:white; transition:background-color .2s; }
+.home-category-all:hover { background:#315a43; }
+.home-category-link { border:1px solid #c9d3c3; background:rgba(255,255,255,.57); color:#3e604d; transition:background-color .2s,border-color .2s; }
+.home-category-link:hover { border-color:#6c9574; background:#fff; }
+.home-category-priority { border-color:#94b098; background:#e4eddf; color:#204a34; font-weight:850; }
+.home-feed-loader { display:inline-block; width:19px; height:19px; border:2px solid #c0d2bd; border-top-color:#244e37; border-radius:50%; animation:home-feed-spin .85s linear infinite; }
+@keyframes home-feed-spin { to { transform:rotate(360deg); } }
+.home-footer { background:#112e25; color:#d7e1d4; padding:3.8rem 0 1.4rem; }
+.home-footer-grid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,.8fr); gap:clamp(1.5rem,4vw,4rem); }
+.home-footer-kicker { color:#d0bd92; font-size:.76rem; font-weight:850; }
+.home-footer h2 { margin:.2rem 0 1rem; color:#fff; font-size:1.03rem; font-weight:850; }
+.home-footer-about h2 { font-size:1.25rem; }
+.home-footer-about > p:last-child { max-width:36rem; font-size:.81rem; line-height:2.2; color:#d0dbcc; }
+.home-footer-column { display:flex; min-width:0; flex-direction:column; align-items:start; gap:.85rem; }
+.home-footer-column h2 { margin:.2rem 0 .45rem; }
+.home-footer-column a { display:inline-flex; min-height:24px; align-items:center; color:#e0e8dc; font-size:.8rem; text-underline-offset:4px; }
+.home-footer-column a:hover,.home-footer-bottom a:hover { color:#fff; text-decoration:underline; }
+.home-footer-steps { margin:0; padding-inline-start:1.2rem; color:#cedacb; font-size:.78rem; line-height:2.1; list-style:decimal; }
+.home-footer-bottom { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid rgba(255,255,255,.15); color:#aebfad; font-size:.7rem; }
+.home-footer-bottom a { color:#f0f6e9; }
+@media (max-width:850px) {
+    .home-footer-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:2rem; }
+    .home-footer-about { grid-column:1/-1; }
+}
+@media (max-width:640px) {
+    .home-catalog .landing-header-inner { height:4.15rem; }
+    .home-catalog .landing-header-inner.is-compact { height:3.75rem; }
+    .home-intro-inner { min-height:180px; flex-direction:column; align-items:start; justify-content:center; gap:.85rem; padding-block:1.15rem 1.4rem; }
+    .home-intro-copy h1 { font-size:1.8rem; }
+    .home-intro-copy p:last-child { margin-top:.4rem; font-size:.77rem; line-height:1.85; }
+    .home-intro-label { font-size:.67rem; }
+    .home-intro-link { min-height:36px; padding:.3rem .8rem; font-size:.73rem; }
+    .home-products { padding-top:1.8rem; padding-bottom:3rem; }
+    .home-products-heading { align-items:start; flex-direction:column; gap:.4rem; }
+    .home-products-heading h2 { font-size:1.85rem; }
+    .home-product-search { flex-wrap:nowrap; gap:.5rem; }
+    .home-product-search input { min-width:0; }
+    .home-product-search button { padding-inline:1.1rem; }
+    .home-categories { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.7rem; scrollbar-width:thin; scroll-snap-type:x proximity; }
+    .home-categories a { flex:none; scroll-snap-align:start; }
+    .home-footer { padding:2.5rem 0 1.2rem; }
+    .home-footer-grid { grid-template-columns:1fr; gap:1.6rem; }
+    .home-footer-about { grid-column:auto; }
+    .home-footer-bottom { margin-top:2rem; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .home-feed-loader { animation:none; }
+    .home-intro-link,.home-category-link { transition:none; }
+}
