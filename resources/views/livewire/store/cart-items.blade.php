@@ -13,7 +13,7 @@
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M19 12H5m0 0 6 6m-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>ادامه خرید</span>
+            <span>محصولات بیشتر</span>
         </a>
     </header>
 
@@ -190,9 +190,9 @@
                     <a wire:navigate href="{{ route('checkout.index') }}" class="store-button store-button-primary store-cart-checkout">
                         <span>
                             @auth('customer')
-                                ادامه به نشانی و ارسال
+                                ثبت سفارش
                             @else
-                                ورود و ادامه خرید
+                                ورود و ثبت سفارش
                             @endauth
                         </span>
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -222,9 +222,9 @@
                    wire:loading.class="is-loading" wire:target="changeQuantity,remove">
                     <span>
                         @auth('customer')
-                            ادامه به نشانی و ارسال
+                            ثبت سفارش
                         @else
-                            ورود و ادامه خرید
+                            ورود و ثبت سفارش
                         @endauth
                     </span>
                     <span aria-hidden="true">←</span>

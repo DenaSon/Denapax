@@ -68,8 +68,9 @@ class ReactiveCartTest extends TestCase
         Livewire::test(CartItems::class)->call('changeQuantity', $variant->id, 4)->assertHasNoErrors();
         Livewire::test(CartCount::class)->dispatch('cart-updated')->assertSee('تعداد اقلام سبد خرید: 4');
         $this->get(route('cart.index'))->assertOk()
-            ->assertSee('ادامه به نشانی و ارسال')
-            ->assertDontSee('ورود و ادامه خرید');
+            ->assertSee('ثبت سفارش')
+            ->assertSee('محصولات بیشتر')
+            ->assertDontSee('ورود و ثبت سفارش');
 
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $variant->id, 'quantity' => 4]);
         Livewire::test(CartItems::class)->call('changeQuantity', 9999999, 1)->assertHasErrors('cart');
@@ -187,8 +188,8 @@ class ReactiveCartTest extends TestCase
             ->assertDontSee('در حال به‌روزرسانی سبد خرید')
             ->assertSee('store-cart-mobile-dock', false)
             ->assertSee('store-cart-mobile-dock-action', false)
-            ->assertSee('ورود و ادامه خرید')
-            ->assertDontSee('ثبت سفارش')
+            ->assertSee('ورود و ثبت سفارش')
+            ->assertDontSee('ادامه به نشانی و ارسال')
             ->assertSee('تعداد کالا')
             ->assertSee('2 عدد کالا در سبد شما');
 
@@ -271,7 +272,8 @@ class ReactiveCartTest extends TestCase
         $this->post(route('cart.add'), ['variant_id' => $variant->id, 'quantity' => 1]);
 
         $response = $this->get(route('cart.index'))->assertOk()
-            ->assertSee('ورود و ادامه خرید')
+            ->assertSee('ورود و ثبت سفارش')
+            ->assertSee('محصولات بیشتر')
             ->assertDontSee('ادامه به نشانی و ارسال')
             ->assertSee('href="'.route('checkout.index').'"', false)
             ->assertSee('فعلاً قابل محاسبه نیست');
