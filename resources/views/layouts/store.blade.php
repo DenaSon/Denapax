@@ -34,11 +34,8 @@
     <header class="store-header">
         <nav class="landing-container store-header-inner flex flex-wrap items-center justify-between gap-3 py-3" aria-label="ناوبری فروشگاه">
             <a wire:navigate.hover class="store-brand" href="{{ route('home') }}" aria-label="دناپکس، بازگشت به محصولات">
-                <svg class="store-brand-mark" viewBox="0 0 70 48" fill="none" aria-hidden="true">
-                    <path d="M3 40 26 8l15 22 9-13 17 23" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="m19 18 7-10 10 15-8-5-6 8" fill="currentColor"/>
-                    <path d="M3 46h64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
+                <img class="store-brand-mark" src="https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png" width="512" height="512"
+                     alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                 <span>
                     <span class="store-brand-name">دناپکس</span>
                     <span class="store-brand-tagline">سوغات، از دل دنا</span>

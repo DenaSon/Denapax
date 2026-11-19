@@ -215,21 +215,27 @@ class PublicLandingTest extends TestCase
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'sticky-header', 'is_active' => true]);
         $product = $this->product($category, 'گردوی دنا', 'sticky-header-walnut', 13890000);
+        $brandMark = 'https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png';
 
         $this->get('/')->assertOk()
+            ->assertSee('src="'.$brandMark.'"', false)
             ->assertSee('<header class="landing-header sticky top-0 z-50 text-white', false)
             ->assertSee('x-bind:class="headerCompact ? \'is-compact\' : \'\'"', false)
             ->assertSee('landing-header-inner', false)
             ->assertSee('href="#shopping-guide"', false);
 
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('src="'.$brandMark.'"', false);
+
         $this->get(route('products.show', $product->slug))->assertOk()
+            ->assertSee('src="'.$brandMark.'"', false)
             ->assertSee('<header class="sticky top-0 z-50', false)
             ->assertSee('class="hidden md:inline-flex transition hover:text-white" href="'.route('home').'#shopping-guide"', false);
 
         $css = file_get_contents(resource_path('css/landing.css'));
         $this->assertStringContainsString('.store-header {', $css);
         $this->assertStringContainsString('position: sticky;', $css);
-        $this->assertStringContainsString('.store-brand-mark { width: 30px; height: 30px; }', $css);
+        $this->assertStringContainsString('.store-brand-mark { width: 34px; height: 34px; }', $css);
     }
 
     public function test_storefront_footers_show_support_and_developer_credit_without_external_photo_attribution(): void

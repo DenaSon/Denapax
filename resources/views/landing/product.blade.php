@@ -39,11 +39,9 @@
     <header class="sticky top-0 z-50 bg-[#17382d] text-[#f4f0e7] shadow-lg">
         <div class="landing-container flex min-h-16 items-center justify-between gap-3 py-2 md:min-h-20 md:gap-4 md:py-3">
             <a wire:navigate href="{{ route('home') }}" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e8d3b1]" aria-label="بازگشت به صفحه اصلی دناپکس">
-                <svg class="h-7 w-8 md:h-9 md:w-11" viewBox="0 0 70 48" fill="none" aria-hidden="true">
-                    <path d="M3 40 26 8l15 22 9-13 17 23" stroke="#E6E8D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="m19 18 7-10 10 15-8-5-6 8" fill="#E6E8D4"/>
-                    <path d="M3 46h64" stroke="#E6E8D4" stroke-width="2" stroke-linecap="round"/>
-                </svg>
+                <img class="h-8 w-8 shrink-0 object-contain md:h-10 md:w-10"
+                     src="https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png" width="512" height="512" alt="" aria-hidden="true"
+                     decoding="async" fetchpriority="high">
                 <span class="text-base font-extrabold tracking-tight md:text-xl" lang="en">DenaPax</span>
             </a>
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#e6e8d4] sm:gap-5 sm:text-sm">
