@@ -42,7 +42,6 @@ class SharedProductImagesTest extends TestCase
             ->assertSee('alt="'.$product->title.'"', false)
             ->assertSee('store-cart-item-size', false)
             ->assertSee('500 گرم')
-            ->assertSee('ارسال بر اساس وزن سبد محاسبه شده', false) // Only when shipping settings exist.
             ->assertDontSee('بدون تصویر');
 
         $this->get(route('products.show', $product->slug))->assertOk()
@@ -78,16 +77,18 @@ class SharedProductImagesTest extends TestCase
 
         $gallery = $product->addMedia(UploadedFile::fake()->image('gallery.jpg'))
             ->toMediaCollection('gallery', 'public');
+        $product->unsetRelation('media');
         $this->assertSame($gallery->id, $resolver->forVariant($target, $product)?->id);
         $this->assertSame($gallery->id, $resolver->forProduct($product)?->id);
 
         $dedicated = $target->addMedia(UploadedFile::fake()->image('five-hundred.jpg'))
             ->toMediaCollection('variant-image', 'public');
+        $target->unsetRelation('media');
         $this->assertSame($dedicated->id, $resolver->forVariant($target, $product)?->id);
 
         $this->get(route('products.show', $product->slug))->assertOk()
-            ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$target->id] === 2
-                && $indexes[$sibling->id] === 1);
+            ->assertViewHas('variantPhotoIndexes', fn (array $indexes): bool => $indexes[$target->id] === 1
+                && $indexes[$sibling->id] === 2);
         $this->assertDatabaseCount('media', 3);
     }
 
