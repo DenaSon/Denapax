@@ -161,7 +161,8 @@ class AdminUxPolishTest extends TestCase
     {
         $this->actingAs($this->reviewer, 'web')->get(route('admin.notifications'))
             ->assertOk()
-            ->assertSee('اعلان‌های سفارش در وب')
+            ->assertSee('گزارش اعلان‌های سفارش')
+            ->assertSee('کانال «پیامک»')
             ->assertDontSee('گزارش ارسال اعلان‌های تلگرام');
     }
 }
