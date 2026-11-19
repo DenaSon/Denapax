@@ -40,7 +40,9 @@
             </a>
         </section>
     @else
-        @php($hasUnavailable = $lines->contains(fn ($line) => ! $line['available']))
+        @php
+            $hasUnavailable = $lines->contains(fn ($line) => ! $line['available']);
+        @endphp
         <div class="store-cart-grid">
             <section class="store-cart-items-panel" aria-label="اقلام سبد خرید">
                 <div class="store-cart-panel-heading">
