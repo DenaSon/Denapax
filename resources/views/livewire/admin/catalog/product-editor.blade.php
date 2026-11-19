@@ -133,12 +133,18 @@
                             @endif
                         </div>
                         @if($product && !empty($variant['id']))
-                            @php($savedVariant = $product->variants->firstWhere('id', $variant['id']))
-                            @if($savedVariant && $savedVariant->getFirstMediaUrl('variant-image'))
+                            @php
+                                $savedVariant = $product->variants->firstWhere('id', $variant['id']);
+                                $dedicatedMedia = $savedVariant?->getFirstMedia('variant-image');
+                                $variantMedia = $savedVariant
+                                    ? app(\App\Support\ProductImageResolver::class)->forVariant($savedVariant, $product)
+                                    : null;
+                            @endphp
+                            @if($variantMedia)
                                 <div class="mt-2 flex items-center gap-2">
-                                    @php($variantMedia = $savedVariant->getFirstMedia('variant-image'))
-                                    <img src="{{ $variantMedia && $variantMedia->hasGeneratedConversion('product-thumb') ? $variantMedia->getUrl('product-thumb') : $savedVariant->getFirstMediaUrl('variant-image') }}" alt="" class="h-16 w-16 rounded object-contain">
-                                    <span class="text-xs opacity-70">تصویر ذخیره‌شده</span>
+                                    <img src="{{ $variantMedia->hasGeneratedConversion('product-thumb') ? $variantMedia->getUrl('product-thumb') : $variantMedia->getUrl() }}"
+                                         alt="{{ $product->title }}" class="h-16 w-16 rounded-lg object-cover">
+                                    <span class="text-xs opacity-70">{{ $dedicatedMedia ? 'تصویر اختصاصی این تنوع' : 'تصویر مشترک محصول (بدون نیاز به آپلود مجدد)' }}</span>
                                 </div>
                             @endif
                         @endif

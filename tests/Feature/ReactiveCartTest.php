@@ -220,7 +220,7 @@ class ReactiveCartTest extends TestCase
             ->assertSee('90,000 تومان')
             ->assertSee('590,000')
             ->assertSee('store-cart-mobile-dock-shipping', false)
-            ->assertSee('مبلغ پیش از ثبت سفارش دوباره بررسی می‌شود.')
+            ->assertSee('ارسال بر اساس وزن سبد محاسبه شده؛ مبلغ در مرحله ثبت سفارش بازبینی می‌شود.')
             ->assertDontSee('پس از انتخاب نشانی');
 
         Livewire::test(CartItems::class)

@@ -79,7 +79,7 @@ class StoreCart
             $items = session()->get(self::SESSION_KEY, []);
         }
 
-        $variants = ProductVariant::query()->with(['product.category', 'product.media', 'media'])
+        $variants = ProductVariant::query()->with(['product.category', 'product.media', 'product.variants.media', 'media'])
             ->whereIn('id', array_keys($items))->get()->keyBy('id');
 
         return collect($items)->map(function ($quantity, $variantId) use ($variants): ?array {

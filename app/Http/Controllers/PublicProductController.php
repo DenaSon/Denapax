@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Application\Actions\StoreCart;
 use App\Models\Product;
 use App\Support\Money;
+use App\Support\ProductImageResolver;
 use App\Support\StoreSeo;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class PublicProductController extends Controller
 {
-    public function __invoke(Request $request, StoreCart $cart, string $slug): View
+    public function __invoke(Request $request, StoreCart $cart, ProductImageResolver $images, string $slug): View
     {
         $product = Product::query()
             ->publiclyOrderable()
@@ -62,8 +63,10 @@ class PublicProductController extends Controller
             ->unique('media_id')
             ->values();
 
-        $variantPhotoIndexes = $product->variants->mapWithKeys(function ($variant) use ($photos): array {
-            $mediaId = $variant->getFirstMedia('variant-image')?->id;
+        // Variants without their own photo still select the shared gallery or
+        // a sibling photo when the customer chooses that package.
+        $variantPhotoIndexes = $product->variants->mapWithKeys(function ($variant) use ($photos, $product, $images): array {
+            $mediaId = $images->forVariant($variant, $product)?->id;
 
             if ($mediaId === null) {
                 return [];
