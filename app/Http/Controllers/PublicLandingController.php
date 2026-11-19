@@ -39,14 +39,10 @@ class PublicLandingController extends Controller
         }
 
         $selectedCategory = null;
+        // Lightweight page validation/metadata; the Livewire feed loads product media.
         $products = Product::query()
             ->publiclyOrderable()
-            ->with([
-                'category',
-                'media',
-                'variants' => fn ($query) => $query->availableForSale()->orderBy('sort_order'),
-                'variants.media',
-            ])
+            ->select('products.id')
             ->latest('id')
             ->paginate(12)
             ->withQueryString();

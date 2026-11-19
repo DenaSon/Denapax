@@ -178,36 +178,9 @@
                 </nav>
             @endif
 
-             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
-                @forelse ($products as $product)
-                    @include('landing.partials.product-card', ['product' => $product])
-                @empty
-                    <div class="col-span-full organic-lines rounded-3xl border border-[#d6d9cc] bg-[#e9eadb] p-12 text-center md:p-24">
-                        <p class="mb-4 text-sm font-semibold text-[#71816c]">COLLECTION / 00</p>
-                        <h3 class="text-2xl font-bold text-[#254736] md:text-3xl">محصولی برای نمایش پیدا نشد</h3>
-                        <p class="mt-4 text-sm leading-8 text-[#637366]">محصولات منتشرشده و قابل سفارش به‌صورت خودکار در این بخش نمایش داده می‌شوند.</p>
-                        @if ($selectedCategory)
-                            <a wire:navigate href="{{ route('home') }}#products" class="mt-6 inline-flex text-sm font-bold underline underline-offset-8">نمایش همه محصولات</a>
-                        @endif
-                    </div>
-                @endforelse
-            </div>
-
-            @if ($products->hasPages())
-                <nav class="mt-12 flex items-center justify-between border-t border-[#c9cec0] pt-7 text-sm font-semibold" aria-label="صفحات محصولات">
-                    @if ($products->previousPageUrl())
-                        <a wire:navigate class="transition hover:text-clay" href="{{ $products->previousPageUrl() }}#products">صفحه قبل ←</a>
-                    @else
-                        <span class="text-[#9da99c]">صفحه قبل</span>
-                    @endif
-                    <span class="text-xs text-[#718276]">صفحه {{ $products->currentPage() }} از {{ $products->lastPage() }}</span>
-                    @if ($products->nextPageUrl())
-                        <a wire:navigate class="transition hover:text-clay" href="{{ $products->nextPageUrl() }}#products">→ صفحه بعد</a>
-                    @else
-                        <span class="text-[#9da99c]">صفحه بعد</span>
-                    @endif
-                </nav>
-            @endif
+            {{-- First 12 products are SSR, additional batches arrive through Livewire.
+                 ?page=N and each page's canonical URL remain independently crawlable. --}}
+            @livewire('store.home-product-feed', ['startPage' => $products->currentPage()])
         </section>
 
         <section id="story" data-chapter class="relative scroll-mt-24 overflow-hidden bg-[#e2e5d5] py-23 md:py-36" aria-labelledby="story-title">
