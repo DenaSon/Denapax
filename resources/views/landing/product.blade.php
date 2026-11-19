@@ -48,7 +48,7 @@
             </a>
             <nav aria-label="ناوبری محصول" class="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#e6e8d4] sm:gap-5 sm:text-sm">
                 <a wire:navigate class="transition hover:text-white" href="{{ route('home') }}#products">همه محصولات</a>
-                <a wire:navigate class="hidden md:inline-flex transition hover:text-white" href="{{ route('home') }}#story">روایت دنا</a>
+                <a wire:navigate class="hidden md:inline-flex transition hover:text-white" href="{{ route('home') }}#shopping-guide">راهنمای خرید</a>
                 <a wire:navigate class="inline-flex items-center gap-2 rounded-full border border-white/40 px-3 py-2 transition hover:bg-white hover:text-[#19392f] sm:px-4" href="{{ route('cart.index') }}">سبد خرید <livewire:store.cart-count /></a>
             </nav>
         </div>
