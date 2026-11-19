@@ -71,7 +71,9 @@ final class IranProvinces
             }
         }
 
-        return $candidate;
+        // Do not rewrite unrecognized legacy values: display them exactly as
+        // saved so the customer can explicitly replace the province.
+        return trim($value);
     }
 
     private static function comparisonKey(string $value): string

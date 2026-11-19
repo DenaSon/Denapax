@@ -6,9 +6,9 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Support\CustomerAddressInput;
 use App\Support\IranProvinces;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class SaveCustomerAddress
 {
