@@ -17,6 +17,10 @@ return [
         'otp_pattern_code' => env('MEDIANA_OTP_PATTERN_CODE'),
         'timeout' => (float) env('MEDIANA_TIMEOUT', 8),
         'connect_timeout' => (float) env('MEDIANA_CONNECT_TIMEOUT', 3),
+        // Manual receipt approval notification: separate from login OTP.
+        'payment_approval_sms_enabled' => (bool) env('MEDIANA_PAYMENT_APPROVAL_SMS_ENABLED', false),
+        'payment_approval_pattern_code' => env('MEDIANA_PAYMENT_APPROVAL_PATTERN_CODE', ''),
+        'payment_approval_pattern_parameter' => env('MEDIANA_PAYMENT_APPROVAL_PATTERN_PARAMETER', 'ORDER'),
     ],
     'smsir' => [
         'api_key' => env('SMSIR_API_KEY'),

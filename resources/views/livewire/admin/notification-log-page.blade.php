@@ -1,8 +1,8 @@
 <div class="space-y-5">
     <div>
         <p class="admin-eyebrow">گزارش سیستم</p>
-        <h1 class="admin-page-title">اعلان‌های سفارش در وب</h1>
-        <p class="admin-description">اعلان‌های مربوط به سفارش و پرداخت در حساب مشتری ثبت می‌شوند. این گزارش به معنای ارسال پیامک نیست و به تلگرام ارتباطی ندارد.</p>
+        <h1 class="admin-page-title">گزارش اعلان‌های سفارش</h1>
+        <p class="admin-description">کانال «وب» به معنی ثبت اعلان در حساب مشتری است. کانال «پیامک» وضعیت پذیرش درخواست توسط سرویس‌دهنده را نشان می‌دهد، نه تحویل قطعی به گوشی. ارسال ناموفق پیامک به‌دلیل احتمال ارسال قبلی، خودکار تکرار نمی‌شود.</p>
     </div>
     @if (session('status'))
         <div class="rounded-xl border border-[#b8c9b1] bg-[#f1f5ee] px-4 py-3 text-sm text-[#2e5b3b]" role="status">
@@ -27,11 +27,12 @@
     <section class="admin-surface space-y-4" aria-label="فهرست اعلان‌ها">
         <div class="admin-table-wrap">
             <table class="table w-full">
-                <thead><tr><th>رویداد</th><th>شناسه مشتری</th><th>وضعیت</th><th>تلاش‌ها</th><th>خطای آخر</th><th>بازیابی بعدی</th><th>آخرین تغییر</th><th>عملیات</th></tr></thead>
+                <thead><tr><th>رویداد</th><th>کانال</th><th>شناسه مشتری</th><th>وضعیت</th><th>تلاش‌ها</th><th>خطای آخر</th><th>بازیابی بعدی</th><th>آخرین تغییر</th><th>عملیات</th></tr></thead>
                 <tbody>
                 @forelse($logs as $log)
                     <tr wire:key="notification-{{ $log->id }}">
                         <td class="admin-copy font-semibold">{{ $log->event_type }}</td>
+                        <td>{{ $log->channel === 'sms' ? 'پیامک' : 'وب' }}</td>
                         <td>{{ $log->customer_id }}</td>
                         <td><span class="admin-state admin-state-{{ \App\Support\AdminLabels::tone($log->status) }}">{{ \App\Support\AdminLabels::notification($log->status) }}</span></td>
                         <td>{{ $log->attempts }}</td>
@@ -39,7 +40,7 @@
                         <td class="whitespace-nowrap text-xs">{{ $log->next_attempt_at?->format('Y/m/d H:i') ?? '—' }}</td>
                         <td class="whitespace-nowrap">{{ $log->updated_at?->format('Y/m/d H:i') }}</td>
                         <td>
-                            @if ($log->status === 'failed')
+                            @if ($log->status === 'failed' && $log->channel === 'web')
                                 @can('orders.update')
                                     <button
                                         type="button"
@@ -59,7 +60,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="py-8 text-center">اعلانی در این وضعیت پیدا نشد.</td></tr>
+                    <tr><td colspan="9" class="py-8 text-center">اعلانی در این وضعیت پیدا نشد.</td></tr>
                 @endforelse
                 </tbody>
             </table>

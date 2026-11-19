@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\DeliverOutboxNotification;
+use App\Jobs\SendPaymentApprovalSms;
 use App\Models\NotificationLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,7 @@ class DispatchDueNotifications extends Command
 {
     protected $signature = 'denapax:notifications:dispatch {--limit=100}';
 
-    protected $description = 'Queue undelivered web customer inbox events';
+    protected $description = 'Queue web inbox events and opt-in manual payment approval SMS';
 
     private const DISPATCH_LEASE_MINUTES = 10;
 
@@ -109,8 +110,63 @@ class DispatchDueNotifications extends Command
             }
         }
 
-        $this->info($claimed.' web notification(s) claimed for dispatch.');
+        $smsClaimed = $this->claimPaymentApprovalSms();
+
+        $this->info($claimed.' web notification(s) and '.$smsClaimed.' payment approval SMS notification(s) claimed.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * SMS is a separate delivery channel. Do not filter by outbox.processed_at:
+     * the existing web inbox may have already processed the event.
+     */
+    private function claimPaymentApprovalSms(): int
+    {
+        if (! config('services.mediana.payment_approval_sms_enabled', false)) {
+            return 0;
+        }
+
+        $ids = NotificationLog::query()
+            ->where('channel', 'sms')
+            ->where('status', 'queued')
+            ->where('attempts', 0)
+            ->where(function ($query): void {
+                $query->whereNull('next_attempt_at')
+                    ->orWhere('next_attempt_at', '<=', now());
+            })
+            ->orderBy('id')
+            ->limit(min(500, max(1, (int) $this->option('limit'))))
+            ->pluck('id');
+
+        $claimed = 0;
+
+        foreach ($ids as $id) {
+            $logId = DB::transaction(function () use ($id): ?int {
+                $log = NotificationLog::query()->whereKey($id)->lockForUpdate()->first();
+
+                if ($log === null || $log->channel !== 'sms'
+                    || $log->status !== 'queued' || $log->attempts !== 0
+                    || $log->next_attempt_at?->isFuture()) {
+                    return null;
+                }
+
+                // A long enough lease avoids repeatedly queuing the same job.
+                // The worker also atomically rejects any duplicate attempt.
+                $log->update([
+                    'claimed_at' => now(),
+                    'next_attempt_at' => now()->addMinutes(self::DISPATCH_LEASE_MINUTES),
+                ]);
+
+                return $log->id;
+            }, 3);
+
+            if ($logId !== null) {
+                SendPaymentApprovalSms::dispatch($logId)->onQueue('notifications');
+                $claimed++;
+            }
+        }
+
+        return $claimed;
     }
 }

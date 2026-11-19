@@ -2,6 +2,7 @@
 
 namespace App\Application\Actions;
 
+use App\Models\NotificationLog;
 use App\Models\Order;
 use App\Models\PaymentReceipt;
 use App\Models\User;
@@ -63,7 +64,23 @@ class ReviewPaymentReceipt
                 ]);
             }
 
-            $this->events->execute($receipt, $decision === 'approved' ? 'payment.approved' : 'payment.receipt_rejected');
+            $eventId = $this->events->execute(
+                $receipt,
+                $decision === 'approved' ? 'payment.approved' : 'payment.receipt_rejected',
+            );
+
+            // A separate SMS log is created only for newly approved manual
+            // receipts while the feature is enabled. Historical outbox events
+            // will not trigger an SMS after rollout.
+            if ($decision === 'approved' && config('services.mediana.payment_approval_sms_enabled', false)) {
+                NotificationLog::query()->create([
+                    'outbox_event_id' => $eventId,
+                    'customer_id' => $order->customer_id,
+                    'channel' => 'sms',
+                    'status' => 'queued',
+                    'attempts' => 0,
+                ]);
+            }
 
             // Do not copy card information, address, images or rejection text into audit properties.
             activity()->causedBy($reviewer)->performedOn($receipt)
