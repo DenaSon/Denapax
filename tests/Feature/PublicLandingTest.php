@@ -215,7 +215,7 @@ class PublicLandingTest extends TestCase
     {
         $category = Category::create(['name' => 'خشکبار', 'slug' => 'sticky-header', 'is_active' => true]);
         $product = $this->product($category, 'گردوی دنا', 'sticky-header-walnut', 13890000);
-        $brandMark = 'https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png';
+        $brandMark = asset('images/denapax-header-icon.svg');
 
         $this->get('/')->assertOk()
             ->assertSee('src="'.$brandMark.'"', false)

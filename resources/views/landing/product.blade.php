@@ -40,7 +40,7 @@
         <div class="landing-container flex min-h-16 items-center justify-between gap-3 py-2 md:min-h-20 md:gap-4 md:py-3">
             <a wire:navigate href="{{ route('home') }}" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e8d3b1]" aria-label="بازگشت به صفحه اصلی دناپکس">
                 <img class="h-8 w-8 shrink-0 object-contain md:h-10 md:w-10"
-                     src="https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png" width="512" height="512" alt="" aria-hidden="true"
+                     src="{{ asset('images/denapax-header-icon.svg') }}" width="512" height="512" alt="" aria-hidden="true"
                      decoding="async" fetchpriority="high">
                 <span class="text-base font-extrabold tracking-tight md:text-xl" lang="en">DenaPax</span>
             </a>
