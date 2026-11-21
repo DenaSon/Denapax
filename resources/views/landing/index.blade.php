@@ -35,7 +35,7 @@
             <a wire:navigate href="{{ route('home') }}" aria-label="دناپکس، بازگشت به ابتدای صفحه" class="group inline-flex shrink-0 items-center gap-3" x-on:click="menuOpen = false">
                 <img x-bind:class="headerCompact ? 'is-compact' : ''"
                      class="landing-header-mark transition-all duration-300 group-hover:-translate-y-1"
-                     src="https://fm-3yhs-denapx.runflare.cloud/data/denapax-icon-512.png" width="512" height="512" alt="" aria-hidden="true"
+                     src="{{ asset('images/denapax-header-icon.svg') }}" width="512" height="512" alt="" aria-hidden="true"
                      decoding="async" fetchpriority="high">
                 <span class="text-right">
                     <span x-bind:class="headerCompact ? 'is-compact' : ''"
