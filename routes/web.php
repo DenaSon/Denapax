@@ -12,6 +12,7 @@ use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\PublicSearchController;
 use App\Http\Controllers\PublicSitemapController;
+use App\Http\Controllers\TrackPageViewController;
 use App\Http\Controllers\StoreCartController;
 use App\Http\Controllers\WebCheckoutController;
 use App\Http\Middleware\EnsureActiveStaff;
@@ -33,6 +34,10 @@ Route::get('/search', PublicSearchController::class)->name('search');
 Route::get('/categories/{slug}', PublicCategoryController::class)->name('categories.show');
 Route::get('/products/{slug}', PublicProductController::class)->name('products.show');
 Route::get('/sitemap.xml', PublicSitemapController::class)->name('sitemap');
+
+// Tracking is sent by displayed pages, never by HTML GET/prefetch requests.
+Route::post('/analytics/page-view', TrackPageViewController::class)
+    ->middleware('throttle:120,1')->name('analytics.page-view');
 
 // Public payment gateway return; NEVER regard callback parameters as proof of payment.
 Route::get('/payments/zarinpal/callback', [GatewayPaymentController::class, 'callback'])
