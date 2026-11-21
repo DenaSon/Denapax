@@ -34,6 +34,50 @@
         </div>
     </section>
 
+    <section class="admin-surface space-y-4" aria-labelledby="visits-overview">
+        <div class="space-y-1">
+            <h2 id="visits-overview" class="admin-section-title">آمار بازدید فروشگاه</h2>
+            <p class="text-xs text-[#617463]">صفحه اصلی و صفحات محصولات · از زمان فعال‌سازی ثبت آمار</p>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-3">
+            <div class="admin-metric">
+                <span class="admin-metric-label">بازدید امروز</span>
+                <strong class="admin-metric-value">{{ number_format($analytics['today']) }}</strong>
+                <span class="admin-metric-hint">تا این لحظه · ساعت ایران</span>
+            </div>
+            <div class="admin-metric">
+                <span class="admin-metric-label">بازدید دیروز</span>
+                <strong class="admin-metric-value">{{ number_format($analytics['yesterday']) }}</strong>
+                <span class="admin-metric-hint">روز کامل گذشته</span>
+            </div>
+            <div class="admin-metric">
+                <span class="admin-metric-label">کل بازدیدها</span>
+                <strong class="admin-metric-value">{{ number_format($analytics['total']) }}</strong>
+                <span class="admin-metric-hint">از آغاز ثبت بازدید</span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-7 gap-y-2 rounded-xl bg-[#f1f5ee] px-4 py-3 text-sm text-[#385343]">
+            <span>صفحه اصلی: <strong class="font-extrabold">{{ number_format($analytics['home']) }}</strong></span>
+            <span>صفحات محصولات: <strong class="font-extrabold">{{ number_format($analytics['products']) }}</strong></span>
+        </div>
+
+        <div class="space-y-2">
+            <h3 class="text-sm font-extrabold text-[#244535]">۵ محصول پربازدید</h3>
+            <ol class="divide-y divide-[#e1e8dd]">
+                @forelse ($analytics['topProducts'] as $product)
+                    <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                        <span class="font-semibold text-[#244535]">{{ $product['title'] }}</span>
+                        <strong class="whitespace-nowrap text-[#526c57]">{{ number_format($product['views']) }} بازدید</strong>
+                    </li>
+                @empty
+                    <li class="py-3 text-sm text-[#617463]">هنوز بازدیدی برای محصولات ثبت نشده است.</li>
+                @endforelse
+            </ol>
+        </div>
+    </section>
+
     <section aria-labelledby="today-actions" class="space-y-3">
         <h2 id="today-actions" class="admin-section-title">نیازمند توجه</h2>
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Application\Analytics\PageViewReport;
 use App\Models\Category;
 use App\Models\GatewayPaymentAttempt;
 use App\Models\NotificationLog;
@@ -18,6 +19,7 @@ class Dashboard extends Component
         Gate::authorize('orders.view');
 
         return view('livewire.admin.dashboard', [
+            'analytics' => app(PageViewReport::class)->overview(),
             'awaitingPaymentCount' => Order::query()->where('order_status', 'awaiting_payment')->count(),
             'readyToPrepareCount' => Order::query()
                 ->where('order_status', 'confirmed')->where('payment_status', 'approved')->count(),
