@@ -13,6 +13,12 @@ class PageViewAnalyticsTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     private const VISITOR_A = '0123456789abcdef0123456789abcdef';
 
     private const VISITOR_B = 'fedcba9876543210fedcba9876543210';
