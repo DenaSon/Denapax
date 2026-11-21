@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('images/denapax-mark.svg') }}">
     <meta name="theme-color" content="#19392f">
     <meta name="robots" content="index,follow,max-image-preview:large">
@@ -33,7 +34,7 @@
     <script type="application/ld+json">@json($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
     <script type="application/ld+json">@json($breadcrumbSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)</script>
 </head>
-<body class="landing landing-shell antialiased">
+<body class="landing landing-shell antialiased" data-analytics-page="product" data-analytics-product-id="{{ $product->id }}" data-analytics-endpoint="{{ route('analytics.page-view') }}">
     <a href="#product-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">رفتن به جزئیات محصول</a>
 
     <header class="sticky top-0 z-50 bg-[#17382d] text-[#f4f0e7] shadow-lg">
