@@ -6,3 +6,4 @@ import './product-purchase';
 import './store';
 import './otp-challenge';
 import './navigation';
+import './page-views';

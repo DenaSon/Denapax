@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('images/denapax-mark.svg') }}">
     <meta name="theme-color" content="#19392f">
     <meta name="enamad" content="45504479" />
@@ -25,7 +26,7 @@
     @vite(['resources/css/landing.css', 'resources/js/storefront.js'])
     @livewireStyles
 </head>
-<body class="landing landing-shell home-catalog antialiased" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
+<body class="landing landing-shell home-catalog antialiased" data-analytics-page="home" data-analytics-product-id="0" data-analytics-endpoint="{{ route('analytics.page-view') }}" x-data="landingPage()" x-on:keydown.escape.window="menuOpen && closeMenu(true)">
     <a class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:right-3 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2" href="#products">رفتن به محصولات</a>
 
     <header class="landing-header sticky top-0 z-50 text-white"
